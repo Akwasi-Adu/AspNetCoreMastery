@@ -1,0 +1,541 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LINQ | ASP.NET Core Mastery</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;500&family=Source+Serif+4:ital,wght@0,400;0,600;1,400&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="../assets/style.css">
+</head>
+
+<body>
+    <div class="page-wrapper">
+        <aside class="sidebar">
+            <a href="../index.html" class="sidebar-logo">ASP.NET Core Mastery</a>
+            <div class="sidebar-section">Part I: Foundations</div>
+            <ul class="sidebar-nav">
+                <li><a href="01-what-is-programming.html">What is Programming?</a></li>
+                <li><a href="02-what-is-csharp-dotnet.html">What is C# and .NET?</a></li>
+                <li><a href="03-variables-and-data-types.html">Variables and Data Types</a></li>
+                <li><a href="04-operators-and-expressions.html">Operators and Expressions</a></li>
+                <li><a href="05-control-flow.html">Control Flow</a></li>
+                <li><a href="06-methods-and-functions.html">Methods and Functions</a></li>
+                <li><a href="07-oop-classes-objects.html">OOP: Classes &amp; Objects</a></li>
+                <li><a href="08-collections-and-generics.html">Collections and Generics</a></li>
+                <li><a href="09-linq.html" class="active">LINQ</a></li>
+                <li><a href="10-async-await.html">Async/Await</a></li>
+            </ul>
+            <div class="sidebar-section">Resources</div>
+            <ul class="sidebar-nav">
+                <li><a href="../index.html">Full Roadmap</a></li>
+            </ul>
+        </aside>
+
+        <main class="main-content">
+            <div class="content-container">
+                <nav class="breadcrumb">
+                    <a href="../index.html">Home</a>
+                    <span>→</span>
+                    <a href="01-what-is-programming.html">Part I: Foundations</a>
+                    <span>→</span>
+                    LINQ
+                </nav>
+
+                <div class="progress-indicator">
+                    <span>Section 9 of 10</span>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 90%"></div>
+                    </div>
+                </div>
+
+                <h1>LINQ: Language Integrated Query</h1>
+
+                <div class="learning-objectives">
+                    <h3>🎯 What You'll Learn</h3>
+                    <ul>
+                        <li>What LINQ is and why it's a game-changer for C# developers</li>
+                        <li>Query syntax vs method syntax</li>
+                        <li>Filtering with <code>Where</code></li>
+                        <li>Transforming with <code>Select</code></li>
+                        <li>Sorting with <code>OrderBy</code> and <code>OrderByDescending</code></li>
+                        <li>Aggregations: <code>Count</code>, <code>Sum</code>, <code>Average</code>, <code>Min</code>,
+                            <code>Max</code></li>
+                        <li>Grouping data with <code>GroupBy</code></li>
+                        <li>Joining collections with <code>Join</code></li>
+                        <li>Deferred execution and materialization</li>
+                        <li>Building powerful InvenTrack reports and analytics</li>
+                    </ul>
+                </div>
+
+                <h2>What is LINQ?</h2>
+
+                <p>
+                    <strong>LINQ (Language Integrated Query)</strong> is a set of features that brings powerful
+                    query capabilities directly into C#. It lets you query collections, databases, XML, and more
+                    using a consistent, readable syntax that feels like SQL but works with any data source.
+                </p>
+
+                <div class="callout callout-concept">
+                    <div class="callout-title">💡 Key Concept</div>
+                    <p>
+                        LINQ transforms how you work with data. Instead of writing loops and conditionals to filter,
+                        sort, and transform collections, you write declarative queries that express <em>what</em>
+                        you want, not <em>how</em> to get it. The result is code that's shorter, clearer, and less
+                        error-prone.
+                    </p>
+                </div>
+
+                <div class="analogy">
+                    Think of LINQ like asking a librarian for books instead of searching yourself. You say
+                    "Give me all science fiction books published after 2020, sorted by title" and the librarian
+                    handles the details. With loops, you'd walk every aisle, check every book, and sort them
+                    yourself. LINQ is the librarian.
+                </div>
+
+                <h2>The Problem: Traditional Loops</h2>
+
+                <div class="code-header">
+                    <span class="code-filename">WithoutLINQ.cs</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-comment">// Find all products under $100, sorted by price</span>
+<span class="code-class">List</span>&lt;<span class="code-class">Product</span>&gt; <span class="code-variable">products</span> = GetProducts();
+<span class="code-class">List</span>&lt;<span class="code-class">Product</span>&gt; <span class="code-variable">affordable</span> = <span class="code-keyword">new</span>();
+
+<span class="code-comment">// Filter</span>
+<span class="code-keyword">foreach</span> (<span class="code-class">Product</span> <span class="code-variable">p</span> <span class="code-keyword">in</span> <span class="code-variable">products</span>)
+{
+    <span class="code-keyword">if</span> (<span class="code-variable">p</span>.<span class="code-variable">Price</span> < <span class="code-number">100m</span>)
+    {
+        <span class="code-variable">affordable</span>.<span class="code-method">Add</span>(<span class="code-variable">p</span>);
+    }
+}
+
+<span class="code-comment">// Sort</span>
+<span class="code-variable">affordable</span>.<span class="code-method">Sort</span>((<span class="code-variable">a</span>, <span class="code-variable">b</span>) => <span class="code-variable">a</span>.<span class="code-variable">Price</span>.<span class="code-method">CompareTo</span>(<span class="code-variable">b</span>.<span class="code-variable">Price</span>));
+
+<span class="code-comment">// Tedious, error-prone, hard to read</span></code></pre>
+
+                <h2>The Solution: LINQ</h2>
+
+                <div class="code-header">
+                    <span class="code-filename">WithLINQ.cs</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-keyword">using</span> System.Linq;
+
+<span class="code-comment">// Same result, one elegant line</span>
+<span class="code-keyword">var</span> <span class="code-variable">affordable</span> = <span class="code-variable">products</span>
+    .<span class="code-method">Where</span>(<span class="code-variable">p</span> => <span class="code-variable">p</span>.<span class="code-variable">Price</span> < <span class="code-number">100m</span>)
+    .<span class="code-method">OrderBy</span>(<span class="code-variable">p</span> => <span class="code-variable">p</span>.<span class="code-variable">Price</span>);
+
+<span class="code-comment">// Clear, concise, expressive!</span></code></pre>
+
+                <div class="callout callout-tip">
+                    <div class="callout-title">💡 Method Syntax vs Query Syntax</div>
+                    <p>
+                        LINQ has two syntaxes: <strong>method syntax</strong> (using extension methods like
+                        <code>.Where()</code>) and <strong>query syntax</strong> (SQL-like keywords). Method
+                        syntax is more common and powerful. We'll focus on it, but show query syntax too.
+                    </p>
+                </div>
+
+                <div class="section-divider"></div>
+
+                <h2>Filtering with Where</h2>
+
+                <div class="code-header">
+                    <span class="code-filename">WhereExamples.cs</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-class">List</span>&lt;<span class="code-class">Product</span>&gt; <span class="code-variable">products</span> = GetProducts();
+
+<span class="code-comment">// Products under $100</span>
+<span class="code-keyword">var</span> <span class="code-variable">cheap</span> = <span class="code-variable">products</span>.<span class="code-method">Where</span>(<span class="code-variable">p</span> => <span class="code-variable">p</span>.<span class="code-variable">Price</span> < <span class="code-number">100m</span>);
+
+<span class="code-comment">// Low stock products</span>
+<span class="code-keyword">var</span> <span class="code-variable">lowStock</span> = <span class="code-variable">products</span>.<span class="code-method">Where</span>(<span class="code-variable">p</span> => <span class="code-variable">p</span>.<span class="code-variable">IsLowStock</span>);
+
+<span class="code-comment">// Multiple conditions</span>
+<span class="code-keyword">var</span> <span class="code-variable">expensiveAndLowStock</span> = <span class="code-variable">products</span>
+    .<span class="code-method">Where</span>(<span class="code-variable">p</span> => <span class="code-variable">p</span>.<span class="code-variable">Price</span> > <span class="code-number">500m</span> && <span class="code-variable">p</span>.<span class="code-variable">IsLowStock</span>);
+
+<span class="code-comment">// Name contains "Dell"</span>
+<span class="code-keyword">var</span> <span class="code-variable">dellProducts</span> = <span class="code-variable">products</span>
+    .<span class="code-method">Where</span>(<span class="code-variable">p</span> => <span class="code-variable">p</span>.<span class="code-variable">Name</span>.<span class="code-method">Contains</span>(<span class="code-string">"Dell"</span>));</code></pre>
+
+                <h2>Transforming with Select</h2>
+
+                <div class="code-header">
+                    <span class="code-filename">SelectExamples.cs</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-comment">// Get just the names</span>
+<span class="code-class">IEnumerable</span>&lt;<span class="code-type">string</span>&gt; <span class="code-variable">names</span> = <span class="code-variable">products</span>.<span class="code-method">Select</span>(<span class="code-variable">p</span> => <span class="code-variable">p</span>.<span class="code-variable">Name</span>);
+
+<span class="code-comment">// Get just the prices</span>
+<span class="code-class">IEnumerable</span>&lt;<span class="code-type">decimal</span>&gt; <span class="code-variable">prices</span> = <span class="code-variable">products</span>.<span class="code-method">Select</span>(<span class="code-variable">p</span> => <span class="code-variable">p</span>.<span class="code-variable">Price</span>);
+
+<span class="code-comment">// Transform to anonymous type</span>
+<span class="code-keyword">var</span> <span class="code-variable">summary</span> = <span class="code-variable">products</span>.<span class="code-method">Select</span>(<span class="code-variable">p</span> => <span class="code-keyword">new</span>
+{
+    <span class="code-variable">p</span>.<span class="code-variable">Name</span>,
+    <span class="code-variable">p</span>.<span class="code-variable">Price</span>,
+    <span class="code-variable">Value</span> = <span class="code-variable">p</span>.<span class="code-method">GetInventoryValue</span>()
+});
+
+<span class="code-comment">// Chain Where and Select</span>
+<span class="code-keyword">var</span> <span class="code-variable">expensiveNames</span> = <span class="code-variable">products</span>
+    .<span class="code-method">Where</span>(<span class="code-variable">p</span> => <span class="code-variable">p</span>.<span class="code-variable">Price</span> > <span class="code-number">500m</span>)
+    .<span class="code-method">Select</span>(<span class="code-variable">p</span> => <span class="code-variable">p</span>.<span class="code-variable">Name</span>);</code></pre>
+
+                <h2>Sorting</h2>
+
+                <div class="code-header">
+                    <span class="code-filename">OrderingExamples.cs</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-comment">// Sort by price (ascending)</span>
+<span class="code-keyword">var</span> <span class="code-variable">byPrice</span> = <span class="code-variable">products</span>.<span class="code-method">OrderBy</span>(<span class="code-variable">p</span> => <span class="code-variable">p</span>.<span class="code-variable">Price</span>);
+
+<span class="code-comment">// Sort by price (descending)</span>
+<span class="code-keyword">var</span> <span class="code-variable">byPriceDesc</span> = <span class="code-variable">products</span>.<span class="code-method">OrderByDescending</span>(<span class="code-variable">p</span> => <span class="code-variable">p</span>.<span class="code-variable">Price</span>);
+
+<span class="code-comment">// Sort by name</span>
+<span class="code-keyword">var</span> <span class="code-variable">byName</span> = <span class="code-variable">products</span>.<span class="code-method">OrderBy</span>(<span class="code-variable">p</span> => <span class="code-variable">p</span>.<span class="code-variable">Name</span>);
+
+<span class="code-comment">// Multiple sort keys (ThenBy)</span>
+<span class="code-keyword">var</span> <span class="code-variable">sorted</span> = <span class="code-variable">products</span>
+    .<span class="code-method">OrderBy</span>(<span class="code-variable">p</span> => <span class="code-variable">p</span>.<span class="code-variable">Name</span>)
+    .<span class="code-method">ThenByDescending</span>(<span class="code-variable">p</span> => <span class="code-variable">p</span>.<span class="code-variable">Price</span>);</code></pre>
+
+                <h2>Aggregations</h2>
+
+                <div class="code-header">
+                    <span class="code-filename">AggregationExamples.cs</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-comment">// Count</span>
+<span class="code-type">int</span> <span class="code-variable">totalProducts</span> = <span class="code-variable">products</span>.<span class="code-method">Count</span>();
+<span class="code-type">int</span> <span class="code-variable">expensiveCount</span> = <span class="code-variable">products</span>.<span class="code-method">Count</span>(<span class="code-variable">p</span> => <span class="code-variable">p</span>.<span class="code-variable">Price</span> > <span class="code-number">500m</span>);
+
+<span class="code-comment">// Sum</span>
+<span class="code-type">decimal</span> <span class="code-variable">totalValue</span> = <span class="code-variable">products</span>.<span class="code-method">Sum</span>(<span class="code-variable">p</span> => <span class="code-variable">p</span>.<span class="code-method">GetInventoryValue</span>());
+
+<span class="code-comment">// Average</span>
+<span class="code-type">decimal</span> <span class="code-variable">avgPrice</span> = <span class="code-variable">products</span>.<span class="code-method">Average</span>(<span class="code-variable">p</span> => <span class="code-variable">p</span>.<span class="code-variable">Price</span>);
+
+<span class="code-comment">// Min and Max</span>
+<span class="code-type">decimal</span> <span class="code-variable">cheapest</span> = <span class="code-variable">products</span>.<span class="code-method">Min</span>(<span class="code-variable">p</span> => <span class="code-variable">p</span>.<span class="code-variable">Price</span>);
+<span class="code-type">decimal</span> <span class="code-variable">mostExpensive</span> = <span class="code-variable">products</span>.<span class="code-method">Max</span>(<span class="code-variable">p</span> => <span class="code-variable">p</span>.<span class="code-variable">Price</span>);
+
+<span class="code-comment">// Any and All</span>
+<span class="code-type">bool</span> <span class="code-variable">hasLowStock</span> = <span class="code-variable">products</span>.<span class="code-method">Any</span>(<span class="code-variable">p</span> => <span class="code-variable">p</span>.<span class="code-variable">IsLowStock</span>);
+<span class="code-type">bool</span> <span class="code-variable">allInStock</span> = <span class="code-variable">products</span>.<span class="code-method">All</span>(<span class="code-variable">p</span> => <span class="code-variable">p</span>.<span class="code-variable">QuantityInStock</span> > <span class="code-number">0</span>);</code></pre>
+
+                <h2>Grouping</h2>
+
+                <div class="code-header">
+                    <span class="code-filename">GroupByExamples.cs</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-comment">// Group products by price range</span>
+<span class="code-keyword">var</span> <span class="code-variable">byPriceRange</span> = <span class="code-variable">products</span>.<span class="code-method">GroupBy</span>(<span class="code-variable">p</span> =>
+{
+    <span class="code-keyword">if</span> (<span class="code-variable">p</span>.<span class="code-variable">Price</span> < <span class="code-number">100m</span>) <span class="code-keyword">return</span> <span class="code-string">"Budget"</span>;
+    <span class="code-keyword">if</span> (<span class="code-variable">p</span>.<span class="code-variable">Price</span> < <span class="code-number">500m</span>) <span class="code-keyword">return</span> <span class="code-string">"Mid-Range"</span>;
+    <span class="code-keyword">return</span> <span class="code-string">"Premium"</span>;
+});
+
+<span class="code-keyword">foreach</span> (<span class="code-keyword">var</span> <span class="code-variable">group</span> <span class="code-keyword">in</span> <span class="code-variable">byPriceRange</span>)
+{
+    Console.<span class="code-method">WriteLine</span>(<span class="code-string">$"\n</span>{<span class="code-variable">group</span>.<span class="code-variable">Key</span>}<span class="code-string"> Products:"</span>);
+    <span class="code-keyword">foreach</span> (<span class="code-keyword">var</span> <span class="code-variable">product</span> <span class="code-keyword">in</span> <span class="code-variable">group</span>)
+    {
+        Console.<span class="code-method">WriteLine</span>(<span class="code-string">$"  </span>{<span class="code-variable">product</span>.<span class="code-variable">Name</span>}<span class="code-string">: </span>{<span class="code-variable">product</span>.<span class="code-variable">Price</span>:C}<span class="code-string">"</span>);
+    }
+}</code></pre>
+
+                <h2>Taking and Skipping</h2>
+
+                <div class="code-header">
+                    <span class="code-filename">TakeSkipExamples.cs</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-comment">// Top 5 most expensive</span>
+<span class="code-keyword">var</span> <span class="code-variable">top5</span> = <span class="code-variable">products</span>
+    .<span class="code-method">OrderByDescending</span>(<span class="code-variable">p</span> => <span class="code-variable">p</span>.<span class="code-variable">Price</span>)
+    .<span class="code-method">Take</span>(<span class="code-number">5</span>);
+
+<span class="code-comment">// Skip first 10, take next 5 (pagination)</span>
+<span class="code-keyword">var</span> <span class="code-variable">page2</span> = <span class="code-variable">products</span>
+    .<span class="code-method">OrderBy</span>(<span class="code-variable">p</span> => <span class="code-variable">p</span>.<span class="code-variable">Name</span>)
+    .<span class="code-method">Skip</span>(<span class="code-number">10</span>)
+    .<span class="code-method">Take</span>(<span class="code-number">5</span>);
+
+<span class="code-comment">// First and FirstOrDefault</span>
+<span class="code-class">Product</span> <span class="code-variable">first</span> = <span class="code-variable">products</span>.<span class="code-method">First</span>();
+<span class="code-class">Product</span> <span class="code-variable">firstDell</span> = <span class="code-variable">products</span>.<span class="code-method">FirstOrDefault</span>(<span class="code-variable">p</span> => <span class="code-variable">p</span>.<span class="code-variable">Name</span>.<span class="code-method">Contains</span>(<span class="code-string">"Dell"</span>));</code></pre>
+
+                <h2>Deferred Execution</h2>
+
+                <div class="callout callout-warning">
+                    <div class="callout-title">⚠️ Important: Deferred Execution</div>
+                    <p>
+                        LINQ queries don't execute immediately! They execute when you iterate (foreach) or
+                        materialize (<code>ToList()</code>, <code>ToArray()</code>, <code>Count()</code>).
+                        This is called <strong>deferred execution</strong>.
+                    </p>
+                </div>
+
+                <div class="code-header">
+                    <span class="code-filename">DeferredExecution.cs</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-class">List</span>&lt;<span class="code-type">int</span>&gt; <span class="code-variable">numbers</span> = <span class="code-keyword">new</span>() { <span class="code-number">1</span>, <span class="code-number">2</span>, <span class="code-number">3</span> };
+
+<span class="code-comment">// Query defined, but NOT executed yet</span>
+<span class="code-keyword">var</span> <span class="code-variable">query</span> = <span class="code-variable">numbers</span>.<span class="code-method">Where</span>(<span class="code-variable">n</span> => <span class="code-variable">n</span> > <span class="code-number">1</span>);
+
+<span class="code-comment">// Modify the source</span>
+<span class="code-variable">numbers</span>.<span class="code-method">Add</span>(<span class="code-number">4</span>);
+
+<span class="code-comment">// NOW it executes - includes 4!</span>
+<span class="code-keyword">foreach</span> (<span class="code-type">int</span> <span class="code-variable">n</span> <span class="code-keyword">in</span> <span class="code-variable">query</span>)  <span class="code-comment">// 2, 3, 4</span>
+{
+    Console.<span class="code-method">WriteLine</span>(<span class="code-variable">n</span>);
+}
+
+<span class="code-comment">// Materialize immediately with ToList()</span>
+<span class="code-keyword">var</span> <span class="code-variable">snapshot</span> = <span class="code-variable">numbers</span>.<span class="code-method">Where</span>(<span class="code-variable">n</span> => <span class="code-variable">n</span> > <span class="code-number">1</span>).<span class="code-method">ToList</span>();
+<span class="code-variable">numbers</span>.<span class="code-method">Add</span>(<span class="code-number">5</span>);  <span class="code-comment">// Won't affect snapshot</span></code></pre>
+
+                <div class="section-divider"></div>
+
+                <h2>InvenTrack: Powerful Reports with LINQ</h2>
+
+                <div class="code-header">
+                    <span class="code-filename">InvenTrackReports.cs</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-keyword">class</span> <span class="code-class">InventoryReports</span>
+{
+    <span class="code-keyword">private</span> <span class="code-class">List</span>&lt;<span class="code-class">Product</span>&gt; <span class="code-variable">products</span>;
+    
+    <span class="code-keyword">public</span> <span class="code-method">InventoryReports</span>(<span class="code-class">List</span>&lt;<span class="code-class">Product</span>&gt; <span class="code-variable">products</span>)
+    {
+        <span class="code-keyword">this</span>.<span class="code-variable">products</span> = <span class="code-variable">products</span>;
+    }
+    
+    <span class="code-keyword">public</span> <span class="code-type">void</span> <span class="code-method">LowStockReport</span>()
+    {
+        <span class="code-keyword">var</span> <span class="code-variable">lowStock</span> = <span class="code-variable">products</span>
+            .<span class="code-method">Where</span>(<span class="code-variable">p</span> => <span class="code-variable">p</span>.<span class="code-variable">IsLowStock</span>)
+            .<span class="code-method">OrderBy</span>(<span class="code-variable">p</span> => <span class="code-variable">p</span>.<span class="code-variable">QuantityInStock</span>)
+            .<span class="code-method">Select</span>(<span class="code-variable">p</span> => <span class="code-keyword">new</span> 
+            { 
+                <span class="code-variable">p</span>.<span class="code-variable">Sku</span>, 
+                <span class="code-variable">p</span>.<span class="code-variable">Name</span>, 
+                <span class="code-variable">p</span>.<span class="code-variable">QuantityInStock</span>, 
+                <span class="code-variable">p</span>.<span class="code-variable">ReorderLevel</span> 
+            });
+        
+        Console.<span class="code-method">WriteLine</span>(<span class="code-string">"=== LOW STOCK ALERT ==="</span>);
+        <span class="code-keyword">foreach</span> (<span class="code-keyword">var</span> <span class="code-variable">item</span> <span class="code-keyword">in</span> <span class="code-variable">lowStock</span>)
+        {
+            Console.<span class="code-method">WriteLine</span>(<span class="code-string">$"</span>{<span class="code-variable">item</span>.<span class="code-variable">Sku</span>}<span class="code-string">: </span>{<span class="code-variable">item</span>.<span class="code-variable">Name</span>}<span class="code-string"> - </span>{<span class="code-variable">item</span>.<span class="code-variable">QuantityInStock</span>}<span class="code-string"> (reorder at </span>{<span class="code-variable">item</span>.<span class="code-variable">ReorderLevel</span>}<span class="code-string">)"</span>);
+        }
+    }
+    
+    <span class="code-keyword">public</span> <span class="code-type">void</span> <span class="code-method">ValueReport</span>()
+    {
+        <span class="code-keyword">var</span> <span class="code-variable">topValue</span> = <span class="code-variable">products</span>
+            .<span class="code-method">OrderByDescending</span>(<span class="code-variable">p</span> => <span class="code-variable">p</span>.<span class="code-method">GetInventoryValue</span>())
+            .<span class="code-method">Take</span>(<span class="code-number">10</span>)
+            .<span class="code-method">Select</span>(<span class="code-variable">p</span> => <span class="code-keyword">new</span>
+            {
+                <span class="code-variable">p</span>.<span class="code-variable">Name</span>,
+                <span class="code-variable">Value</span> = <span class="code-variable">p</span>.<span class="code-method">GetInventoryValue</span>()
+            });
+        
+        Console.<span class="code-method">WriteLine</span>(<span class="code-string">"\n=== TOP 10 BY VALUE ==="</span>);
+        <span class="code-keyword">foreach</span> (<span class="code-keyword">var</span> <span class="code-variable">item</span> <span class="code-keyword">in</span> <span class="code-variable">topValue</span>)
+        {
+            Console.<span class="code-method">WriteLine</span>(<span class="code-string">$"</span>{<span class="code-variable">item</span>.<span class="code-variable">Name</span>}<span class="code-string">: </span>{<span class="code-variable">item</span>.<span class="code-variable">Value</span>:C}<span class="code-string">"</span>);
+        }
+    }
+    
+    <span class="code-keyword">public</span> <span class="code-type">void</span> <span class="code-method">SummaryStatistics</span>()
+    {
+        <span class="code-keyword">var</span> <span class="code-variable">stats</span> = <span class="code-keyword">new</span>
+        {
+            <span class="code-variable">TotalProducts</span> = <span class="code-variable">products</span>.<span class="code-method">Count</span>(),
+            <span class="code-variable">TotalValue</span> = <span class="code-variable">products</span>.<span class="code-method">Sum</span>(<span class="code-variable">p</span> => <span class="code-variable">p</span>.<span class="code-method">GetInventoryValue</span>()),
+            <span class="code-variable">AveragePrice</span> = <span class="code-variable">products</span>.<span class="code-method">Average</span>(<span class="code-variable">p</span> => <span class="code-variable">p</span>.<span class="code-variable">Price</span>),
+            <span class="code-variable">CheapestPrice</span> = <span class="code-variable">products</span>.<span class="code-method">Min</span>(<span class="code-variable">p</span> => <span class="code-variable">p</span>.<span class="code-variable">Price</span>),
+            <span class="code-variable">MostExpensivePrice</span> = <span class="code-variable">products</span>.<span class="code-method">Max</span>(<span class="code-variable">p</span> => <span class="code-variable">p</span>.<span class="code-variable">Price</span>),
+            <span class="code-variable">LowStockCount</span> = <span class="code-variable">products</span>.<span class="code-method">Count</span>(<span class="code-variable">p</span> => <span class="code-variable">p</span>.<span class="code-variable">IsLowStock</span>)
+        };
+        
+        Console.<span class="code-method">WriteLine</span>(<span class="code-string">"\n=== INVENTORY STATISTICS ==="</span>);
+        Console.<span class="code-method">WriteLine</span>(<span class="code-string">$"Total Products: </span>{<span class="code-variable">stats</span>.<span class="code-variable">TotalProducts</span>}<span class="code-string">"</span>);
+        Console.<span class="code-method">WriteLine</span>(<span class="code-string">$"Total Value: </span>{<span class="code-variable">stats</span>.<span class="code-variable">TotalValue</span>:C}<span class="code-string">"</span>);
+        Console.<span class="code-method">WriteLine</span>(<span class="code-string">$"Average Price: </span>{<span class="code-variable">stats</span>.<span class="code-variable">AveragePrice</span>:C}<span class="code-string">"</span>);
+        Console.<span class="code-method">WriteLine</span>(<span class="code-string">$"Price Range: </span>{<span class="code-variable">stats</span>.<span class="code-variable">CheapestPrice</span>:C}<span class="code-string"> - </span>{<span class="code-variable">stats</span>.<span class="code-variable">MostExpensivePrice</span>:C}<span class="code-string">"</span>);
+        Console.<span class="code-method">WriteLine</span>(<span class="code-string">$"Low Stock Items: </span>{<span class="code-variable">stats</span>.<span class="code-variable">LowStockCount</span>}<span class="code-string">"</span>);
+    }
+}</code></pre>
+
+                <div class="callout callout-tip">
+                    <div class="callout-title">🚀 LINQ in Action</div>
+                    <p>
+                        These reports would require dozens of lines with traditional loops. With LINQ, each
+                        report is just a few expressive lines. This is the power of declarative programming!
+                    </p>
+                </div>
+
+                <div class="section-divider"></div>
+
+                <h2>Common LINQ Methods Reference</h2>
+
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Method</th>
+                            <th>Purpose</th>
+                            <th>Returns</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><code>Where</code></td>
+                            <td>Filter items by condition</td>
+                            <td>IEnumerable&lt;T&gt;</td>
+                        </tr>
+                        <tr>
+                            <td><code>Select</code></td>
+                            <td>Transform each item</td>
+                            <td>IEnumerable&lt;TResult&gt;</td>
+                        </tr>
+                        <tr>
+                            <td><code>OrderBy</code></td>
+                            <td>Sort ascending</td>
+                            <td>IOrderedEnumerable&lt;T&gt;</td>
+                        </tr>
+                        <tr>
+                            <td><code>OrderByDescending</code></td>
+                            <td>Sort descending</td>
+                            <td>IOrderedEnumerable&lt;T&gt;</td>
+                        </tr>
+                        <tr>
+                            <td><code>GroupBy</code></td>
+                            <td>Group by key</td>
+                            <td>IEnumerable&lt;IGrouping&gt;</td>
+                        </tr>
+                        <tr>
+                            <td><code>Count</code></td>
+                            <td>Count items</td>
+                            <td>int</td>
+                        </tr>
+                        <tr>
+                            <td><code>Sum</code></td>
+                            <td>Sum values</td>
+                            <td>numeric type</td>
+                        </tr>
+                        <tr>
+                            <td><code>Average</code></td>
+                            <td>Average value</td>
+                            <td>numeric type</td>
+                        </tr>
+                        <tr>
+                            <td><code>Min/Max</code></td>
+                            <td>Minimum/Maximum</td>
+                            <td>T</td>
+                        </tr>
+                        <tr>
+                            <td><code>First/FirstOrDefault</code></td>
+                            <td>First item (or default)</td>
+                            <td>T</td>
+                        </tr>
+                        <tr>
+                            <td><code>Any</code></td>
+                            <td>Check if any match</td>
+                            <td>bool</td>
+                        </tr>
+                        <tr>
+                            <td><code>All</code></td>
+                            <td>Check if all match</td>
+                            <td>bool</td>
+                        </tr>
+                        <tr>
+                            <td><code>Take</code></td>
+                            <td>Take first N items</td>
+                            <td>IEnumerable&lt;T&gt;</td>
+                        </tr>
+                        <tr>
+                            <td><code>Skip</code></td>
+                            <td>Skip first N items</td>
+                            <td>IEnumerable&lt;T&gt;</td>
+                        </tr>
+                        <tr>
+                            <td><code>ToList</code></td>
+                            <td>Materialize to List</td>
+                            <td>List&lt;T&gt;</td>
+                        </tr>
+                        <tr>
+                            <td><code>ToArray</code></td>
+                            <td>Materialize to Array</td>
+                            <td>T[]</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h2>Key Takeaways</h2>
+
+                <ul>
+                    <li><strong>LINQ</strong> brings SQL-like querying to C# collections</li>
+                    <li><strong>Method syntax</strong> uses extension methods like <code>.Where()</code>,
+                        <code>.Select()</code></li>
+                    <li><strong>Lambda expressions</strong> (<code>=&gt;</code>) define query conditions</li>
+                    <li><strong>Deferred execution</strong>: queries don't run until you iterate or materialize</li>
+                    <li><strong>Chain operations</strong> to build complex queries from simple parts</li>
+                    <li><strong>Filtering</strong>: <code>Where</code>, <code>First</code>, <code>Any</code>,
+                        <code>All</code></li>
+                    <li><strong>Transformation</strong>: <code>Select</code> projects to new shapes</li>
+                    <li><strong>Ordering</strong>: <code>OrderBy</code>, <code>ThenBy</code></li>
+                    <li><strong>Aggregation</strong>: <code>Count</code>, <code>Sum</code>, <code>Average</code>,
+                        <code>Min</code>, <code>Max</code></li>
+                    <li>LINQ makes code more <strong>readable, maintainable, and expressive</strong></li>
+                </ul>
+
+                <div class="callout callout-concept">
+                    <div class="callout-title">🎯 Congratulations!</div>
+                    <p>
+                        You've completed the core C# fundamentals! You now understand variables, control flow,
+                        methods, OOP, collections, and LINQ. In the final section of Part I, we'll explore
+                        <strong>Asynchronous Programming</strong> with async/await—essential for building
+                        responsive, scalable applications that don't freeze while waiting for I/O operations.
+                    </p>
+                </div>
+
+                <nav class="page-nav">
+                    <a href="08-collections-and-generics.html" class="prev">Collections and Generics</a>
+                    <a href="10-async-await.html" class="next">Async/Await</a>
+                </nav>
+
+            
+        <footer class="page-footer">
+          Built with 💜 by <a href="https://akwasi.dev" target="_blank" rel="noopener noreferrer">Akwasi Adu-Kyeremeh</a> for developers who want to truly understand what they're building.
+        </footer>
+
+      </div>
+        </main>
+    </div>
+</body>
+
+</html>

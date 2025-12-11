@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Querying Data with LINQ | ASP.NET Core Mastery</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;500&family=Source+Serif+4:ital,wght@0,400;0,600;1,400&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="../assets/style.css">
+</head>
+
+<body>
+    <div class="page-wrapper">
+        <aside class="sidebar">
+            <a href="../index.html" class="sidebar-logo">ASP.NET Core Mastery</a>
+            <div class="sidebar-section">Part IX: Entity Framework Core</div>
+            <ul class="sidebar-nav">
+                <li><a href="01-what-is-orm.html">What is an ORM?</a></li>
+                <li><a href="02-dbcontext-entities.html">DbContext and Entities</a></li>
+                <li><a href="03-code-first-migrations.html">Code-First Migrations</a></li>
+                <li><a href="04-querying-linq.html" class="active">Querying Data with LINQ</a></li>
+                <li><a href="05-relationships.html">Relationships</a></li>
+                <li><a href="06-loading-strategies.html">Loading Strategies</a></li>
+                <li><a href="07-advanced-ef-core.html">Advanced EF Core</a></li>
+            </ul>
+            <div class="sidebar-section">Resources</div>
+            <ul class="sidebar-nav">
+                <li><a href="../index.html">Full Roadmap</a></li>
+            </ul>
+        </aside>
+
+        <main class="main-content">
+            <div class="content-container">
+                <nav class="breadcrumb">
+                    <a href="../index.html">Home</a>
+                    <span>→</span>
+                    <a href="01-what-is-orm.html">Part IX: Entity Framework Core</a>
+                    <span>→</span>
+                    Querying Data with LINQ
+                </nav>
+
+                <div class="progress-indicator">
+                    <span>Section 4 of 7</span>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 57.14%"></div>
+                    </div>
+                </div>
+
+                <h1>Querying Data with LINQ</h1>
+
+                <div class="learning-objectives">
+                    <h3>🎯 What You'll Learn</h3>
+                    <ul>
+                        <li>Basic LINQ queries</li>
+                        <li>Filtering with Where</li>
+                        <li>Projecting with Select</li>
+                        <li>Ordering and paging</li>
+                        <li>Aggregation functions</li>
+                        <li>Async queries</li>
+                    </ul>
+                </div>
+
+                <h2>What is LINQ?</h2>
+
+                <p>
+                    <strong>LINQ</strong> (Language Integrated Query) allows you to query data using C# syntax
+                    instead of SQL. EF Core translates LINQ to SQL.
+                </p>
+
+                <div class="section-divider"></div>
+
+                <h2>Basic Queries</h2>
+
+                <h3>Get All Records</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">ToList() and ToListAsync()</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-comment">// Synchronous</span>
+<span class="code-keyword">var</span> <span class="code-variable">products</span> = <span class="code-variable">_context</span>.<span class="code-variable">Products</span>.<span class="code-method">ToList</span>();
+
+<span class="code-comment">// Asynchronous (recommended)</span>
+<span class="code-keyword">var</span> <span class="code-variable">products</span> = <span class="code-keyword">await</span> <span class="code-variable">_context</span>.<span class="code-variable">Products</span>.<span class="code-method">ToListAsync</span>();</code></pre>
+
+                <h3>Find by Primary Key</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">Find() and FindAsync()</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-comment">// Find by ID</span>
+<span class="code-keyword">var</span> <span class="code-variable">product</span> = <span class="code-keyword">await</span> <span class="code-variable">_context</span>.<span class="code-variable">Products</span>.<span class="code-method">FindAsync</span>(<span class="code-number">1</span>);
+
+<span class="code-comment">// Returns null if not found</span>
+<span class="code-keyword">if</span> (<span class="code-variable">product</span> == <span class="code-keyword">null</span>)
+{
+    <span class="code-keyword">return</span> <span class="code-method">NotFound</span>();
+}</code></pre>
+
+                <h3>First, Single, and FirstOrDefault</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">Different Query Methods</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-comment">// First (throws if empty)</span>
+<span class="code-keyword">var</span> <span class="code-variable">product</span> = <span class="code-keyword">await</span> <span class="code-variable">_context</span>.<span class="code-variable">Products</span>.<span class="code-method">FirstAsync</span>();
+
+<span class="code-comment">// FirstOrDefault (returns null if empty)</span>
+<span class="code-keyword">var</span> <span class="code-variable">product</span> = <span class="code-keyword">await</span> <span class="code-variable">_context</span>.<span class="code-variable">Products</span>.<span class="code-method">FirstOrDefaultAsync</span>();
+
+<span class="code-comment">// Single (throws if 0 or >1 results)</span>
+<span class="code-keyword">var</span> <span class="code-variable">product</span> = <span class="code-keyword">await</span> <span class="code-variable">_context</span>.<span class="code-variable">Products</span>.<span class="code-method">SingleAsync</span>(<span class="code-variable">p</span> => <span class="code-variable">p</span>.<span class="code-variable">Id</span> == <span class="code-number">1</span>);
+
+<span class="code-comment">// SingleOrDefault (returns null if 0, throws if >1)</span>
+<span class="code-keyword">var</span> <span class="code-variable">product</span> = <span class="code-keyword">await</span> <span class="code-variable">_context</span>.<span class="code-variable">Products</span>.<span class="code-method">SingleOrDefaultAsync</span>(<span class="code-variable">p</span> => <span class="code-variable">p</span>.<span class="code-variable">Id</span> == <span class="code-number">1</span>);</code></pre>
+
+                <div class="section-divider"></div>
+
+                <h2>Filtering with Where</h2>
+
+                <div class="code-header">
+                    <span class="code-filename">Where Clause</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-comment">// Simple filter</span>
+<span class="code-keyword">var</span> <span class="code-variable">expensiveProducts</span> = <span class="code-keyword">await</span> <span class="code-variable">_context</span>.<span class="code-variable">Products</span>
+    .<span class="code-method">Where</span>(<span class="code-variable">p</span> => <span class="code-variable">p</span>.<span class="code-variable">Price</span> > <span class="code-number">100</span>)
+    .<span class="code-method">ToListAsync</span>();
+
+<span class="code-comment">// Multiple conditions (AND)</span>
+<span class="code-keyword">var</span> <span class="code-variable">products</span> = <span class="code-keyword">await</span> <span class="code-variable">_context</span>.<span class="code-variable">Products</span>
+    .<span class="code-method">Where</span>(<span class="code-variable">p</span> => <span class="code-variable">p</span>.<span class="code-variable">Price</span> > <span class="code-number">100</span> && <span class="code-variable">p</span>.<span class="code-variable">Quantity</span> > <span class="code-number">0</span>)
+    .<span class="code-method">ToListAsync</span>();
+
+<span class="code-comment">// OR condition</span>
+<span class="code-keyword">var</span> <span class="code-variable">products</span> = <span class="code-keyword">await</span> <span class="code-variable">_context</span>.<span class="code-variable">Products</span>
+    .<span class="code-method">Where</span>(<span class="code-variable">p</span> => <span class="code-variable">p</span>.<span class="code-variable">Price</span> < <span class="code-number">50</span> || <span class="code-variable">p</span>.<span class="code-variable">Price</span> > <span class="code-number">500</span>)
+    .<span class="code-method">ToListAsync</span>();
+
+<span class="code-comment">// String operations</span>
+<span class="code-keyword">var</span> <span class="code-variable">products</span> = <span class="code-keyword">await</span> <span class="code-variable">_context</span>.<span class="code-variable">Products</span>
+    .<span class="code-method">Where</span>(<span class="code-variable">p</span> => <span class="code-variable">p</span>.<span class="code-variable">Name</span>.<span class="code-method">Contains</span>(<span class="code-string">"Laptop"</span>))
+    .<span class="code-method">ToListAsync</span>();
+
+<span class="code-comment">// StartsWith, EndsWith</span>
+<span class="code-keyword">var</span> <span class="code-variable">products</span> = <span class="code-keyword">await</span> <span class="code-variable">_context</span>.<span class="code-variable">Products</span>
+    .<span class="code-method">Where</span>(<span class="code-variable">p</span> => <span class="code-variable">p</span>.<span class="code-variable">Name</span>.<span class="code-method">StartsWith</span>(<span class="code-string">"Dell"</span>))
+    .<span class="code-method">ToListAsync</span>();</code></pre>
+
+                <div class="section-divider"></div>
+
+                <h2>Projecting with Select</h2>
+
+                <div class="code-header">
+                    <span class="code-filename">Select Specific Columns</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-comment">// Select specific properties</span>
+<span class="code-keyword">var</span> <span class="code-variable">productNames</span> = <span class="code-keyword">await</span> <span class="code-variable">_context</span>.<span class="code-variable">Products</span>
+    .<span class="code-method">Select</span>(<span class="code-variable">p</span> => <span class="code-variable">p</span>.<span class="code-variable">Name</span>)
+    .<span class="code-method">ToListAsync</span>();
+
+<span class="code-comment">// Anonymous type</span>
+<span class="code-keyword">var</span> <span class="code-variable">products</span> = <span class="code-keyword">await</span> <span class="code-variable">_context</span>.<span class="code-variable">Products</span>
+    .<span class="code-method">Select</span>(<span class="code-variable">p</span> => <span class="code-keyword">new</span> 
+    {
+        <span class="code-variable">p</span>.<span class="code-variable">Id</span>,
+        <span class="code-variable">p</span>.<span class="code-variable">Name</span>,
+        <span class="code-variable">p</span>.<span class="code-variable">Price</span>
+    })
+    .<span class="code-method">ToListAsync</span>();
+
+<span class="code-comment">// DTO projection</span>
+<span class="code-keyword">var</span> <span class="code-variable">products</span> = <span class="code-keyword">await</span> <span class="code-variable">_context</span>.<span class="code-variable">Products</span>
+    .<span class="code-method">Select</span>(<span class="code-variable">p</span> => <span class="code-keyword">new</span> <span class="code-class">ProductDto</span>
+    {
+        <span class="code-variable">Id</span> = <span class="code-variable">p</span>.<span class="code-variable">Id</span>,
+        <span class="code-variable">Name</span> = <span class="code-variable">p</span>.<span class="code-variable">Name</span>,
+        <span class="code-variable">Price</span> = <span class="code-variable">p</span>.<span class="code-variable">Price</span>
+    })
+    .<span class="code-method">ToListAsync</span>();</code></pre>
+
+                <div class="section-divider"></div>
+
+                <h2>Ordering</h2>
+
+                <div class="code-header">
+                    <span class="code-filename">OrderBy and OrderByDescending</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-comment">// Ascending order</span>
+<span class="code-keyword">var</span> <span class="code-variable">products</span> = <span class="code-keyword">await</span> <span class="code-variable">_context</span>.<span class="code-variable">Products</span>
+    .<span class="code-method">OrderBy</span>(<span class="code-variable">p</span> => <span class="code-variable">p</span>.<span class="code-variable">Price</span>)
+    .<span class="code-method">ToListAsync</span>();
+
+<span class="code-comment">// Descending order</span>
+<span class="code-keyword">var</span> <span class="code-variable">products</span> = <span class="code-keyword">await</span> <span class="code-variable">_context</span>.<span class="code-variable">Products</span>
+    .<span class="code-method">OrderByDescending</span>(<span class="code-variable">p</span> => <span class="code-variable">p</span>.<span class="code-variable">Price</span>)
+    .<span class="code-method">ToListAsync</span>();
+
+<span class="code-comment">// Multiple ordering (ThenBy)</span>
+<span class="code-keyword">var</span> <span class="code-variable">products</span> = <span class="code-keyword">await</span> <span class="code-variable">_context</span>.<span class="code-variable">Products</span>
+    .<span class="code-method">OrderBy</span>(<span class="code-variable">p</span> => <span class="code-variable">p</span>.<span class="code-variable">Category</span>)
+    .<span class="code-method">ThenByDescending</span>(<span class="code-variable">p</span> => <span class="code-variable">p</span>.<span class="code-variable">Price</span>)
+    .<span class="code-method">ToListAsync</span>();</code></pre>
+
+                <div class="section-divider"></div>
+
+                <h2>Paging</h2>
+
+                <div class="code-header">
+                    <span class="code-filename">Skip and Take</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-comment">// Page 1: first 20 products</span>
+<span class="code-keyword">var</span> <span class="code-variable">products</span> = <span class="code-keyword">await</span> <span class="code-variable">_context</span>.<span class="code-variable">Products</span>
+    .<span class="code-method">OrderBy</span>(<span class="code-variable">p</span> => <span class="code-variable">p</span>.<span class="code-variable">Id</span>)
+    .<span class="code-method">Take</span>(<span class="code-number">20</span>)
+    .<span class="code-method">ToListAsync</span>();
+
+<span class="code-comment">// Page 2: skip 20, take 20</span>
+<span class="code-keyword">var</span> <span class="code-variable">products</span> = <span class="code-keyword">await</span> <span class="code-variable">_context</span>.<span class="code-variable">Products</span>
+    .<span class="code-method">OrderBy</span>(<span class="code-variable">p</span> => <span class="code-variable">p</span>.<span class="code-variable">Id</span>)
+    .<span class="code-method">Skip</span>(<span class="code-number">20</span>)
+    .<span class="code-method">Take</span>(<span class="code-number">20</span>)
+    .<span class="code-method">ToListAsync</span>();
+
+<span class="code-comment">// Generic paging</span>
+<span class="code-type">int</span> <span class="code-variable">page</span> = <span class="code-number">2</span>;
+<span class="code-type">int</span> <span class="code-variable">pageSize</span> = <span class="code-number">20</span>;
+
+<span class="code-keyword">var</span> <span class="code-variable">products</span> = <span class="code-keyword">await</span> <span class="code-variable">_context</span>.<span class="code-variable">Products</span>
+    .<span class="code-method">OrderBy</span>(<span class="code-variable">p</span> => <span class="code-variable">p</span>.<span class="code-variable">Id</span>)
+    .<span class="code-method">Skip</span>((<span class="code-variable">page</span> - <span class="code-number">1</span>) * <span class="code-variable">pageSize</span>)
+    .<span class="code-method">Take</span>(<span class="code-variable">pageSize</span>)
+    .<span class="code-method">ToListAsync</span>();</code></pre>
+
+                <div class="section-divider"></div>
+
+                <h2>Aggregation</h2>
+
+                <div class="code-header">
+                    <span class="code-filename">Count, Sum, Average, Min, Max</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-comment">// Count</span>
+<span class="code-keyword">var</span> <span class="code-variable">totalProducts</span> = <span class="code-keyword">await</span> <span class="code-variable">_context</span>.<span class="code-variable">Products</span>.<span class="code-method">CountAsync</span>();
+
+<span class="code-comment">// Count with condition</span>
+<span class="code-keyword">var</span> <span class="code-variable">expensiveCount</span> = <span class="code-keyword">await</span> <span class="code-variable">_context</span>.<span class="code-variable">Products</span>
+    .<span class="code-method">CountAsync</span>(<span class="code-variable">p</span> => <span class="code-variable">p</span>.<span class="code-variable">Price</span> > <span class="code-number">100</span>);
+
+<span class="code-comment">// Sum</span>
+<span class="code-keyword">var</span> <span class="code-variable">totalValue</span> = <span class="code-keyword">await</span> <span class="code-variable">_context</span>.<span class="code-variable">Products</span>
+    .<span class="code-method">SumAsync</span>(<span class="code-variable">p</span> => <span class="code-variable">p</span>.<span class="code-variable">Price</span> * <span class="code-variable">p</span>.<span class="code-variable">Quantity</span>);
+
+<span class="code-comment">// Average</span>
+<span class="code-keyword">var</span> <span class="code-variable">avgPrice</span> = <span class="code-keyword">await</span> <span class="code-variable">_context</span>.<span class="code-variable">Products</span>
+    .<span class="code-method">AverageAsync</span>(<span class="code-variable">p</span> => <span class="code-variable">p</span>.<span class="code-variable">Price</span>);
+
+<span class="code-comment">// Min and Max</span>
+<span class="code-keyword">var</span> <span class="code-variable">minPrice</span> = <span class="code-keyword">await</span> <span class="code-variable">_context</span>.<span class="code-variable">Products</span>.<span class="code-method">MinAsync</span>(<span class="code-variable">p</span> => <span class="code-variable">p</span>.<span class="code-variable">Price</span>);
+<span class="code-keyword">var</span> <span class="code-variable">maxPrice</span> = <span class="code-keyword">await</span> <span class="code-variable">_context</span>.<span class="code-variable">Products</span>.<span class="code-method">MaxAsync</span>(<span class="code-variable">p</span> => <span class="code-variable">p</span>.<span class="code-variable">Price</span>);
+
+<span class="code-comment">// Any (check if exists)</span>
+<span class="code-keyword">var</span> <span class="code-variable">hasExpensive</span> = <span class="code-keyword">await</span> <span class="code-variable">_context</span>.<span class="code-variable">Products</span>
+    .<span class="code-method">AnyAsync</span>(<span class="code-variable">p</span> => <span class="code-variable">p</span>.<span class="code-variable">Price</span> > <span class="code-number">1000</span>);</code></pre>
+
+                <div class="section-divider"></div>
+
+                <h2>Grouping</h2>
+
+                <div class="code-header">
+                    <span class="code-filename">GroupBy</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-comment">// Group by category</span>
+<span class="code-keyword">var</span> <span class="code-variable">grouped</span> = <span class="code-keyword">await</span> <span class="code-variable">_context</span>.<span class="code-variable">Products</span>
+    .<span class="code-method">GroupBy</span>(<span class="code-variable">p</span> => <span class="code-variable">p</span>.<span class="code-variable">CategoryId</span>)
+    .<span class="code-method">Select</span>(<span class="code-variable">g</span> => <span class="code-keyword">new</span>
+    {
+        <span class="code-variable">CategoryId</span> = <span class="code-variable">g</span>.<span class="code-variable">Key</span>,
+        <span class="code-variable">Count</span> = <span class="code-variable">g</span>.<span class="code-method">Count</span>(),
+        <span class="code-variable">TotalValue</span> = <span class="code-variable">g</span>.<span class="code-method">Sum</span>(<span class="code-variable">p</span> => <span class="code-variable">p</span>.<span class="code-variable">Price</span> * <span class="code-variable">p</span>.<span class="code-variable">Quantity</span>),
+        <span class="code-variable">AvgPrice</span> = <span class="code-variable">g</span>.<span class="code-method">Average</span>(<span class="code-variable">p</span> => <span class="code-variable">p</span>.<span class="code-variable">Price</span>)
+    })
+    .<span class="code-method">ToListAsync</span>();</code></pre>
+
+                <h2>Complete InvenTrack Example</h2>
+
+                <div class="code-header">
+                    <span class="code-filename">Controllers/ProductsController.cs</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code>[<span class="code-class">ApiController</span>]
+[<span class="code-class">Route</span>(<span class="code-string">"api/[controller]"</span>)]
+<span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">ProductsController</span> : <span class="code-class">ControllerBase</span>
+{
+    <span class="code-keyword">private</span> <span class="code-keyword">readonly</span> <span class="code-class">InvenTrackDbContext</span> <span class="code-variable">_context</span>;
+
+    <span class="code-keyword">public</span> <span class="code-method">ProductsController</span>(<span class="code-class">InvenTrackDbContext</span> <span class="code-variable">context</span>)
+    {
+        <span class="code-variable">_context</span> = <span class="code-variable">context</span>;
+    }
+
+    <span class="code-comment">// GET /api/products?page=1&pageSize=20&search=laptop&minPrice=100</span>
+    [<span class="code-class">HttpGet</span>]
+    <span class="code-keyword">public</span> <span class="code-keyword">async</span> <span class="code-class">Task</span>&lt;<span class="code-class">ActionResult</span>&gt; <span class="code-method">GetProducts</span>(
+        [<span class="code-class">FromQuery</span>] <span class="code-type">int</span> <span class="code-variable">page</span> = <span class="code-number">1</span>,
+        [<span class="code-class">FromQuery</span>] <span class="code-type">int</span> <span class="code-variable">pageSize</span> = <span class="code-number">20</span>,
+        [<span class="code-class">FromQuery</span>] <span class="code-type">string</span>? <span class="code-variable">search</span> = <span class="code-keyword">null</span>,
+        [<span class="code-class">FromQuery</span>] <span class="code-type">decimal</span>? <span class="code-variable">minPrice</span> = <span class="code-keyword">null</span>,
+        [<span class="code-class">FromQuery</span>] <span class="code-type">decimal</span>? <span class="code-variable">maxPrice</span> = <span class="code-keyword">null</span>)
+    {
+        <span class="code-keyword">var</span> <span class="code-variable">query</span> = <span class="code-variable">_context</span>.<span class="code-variable">Products</span>.<span class="code-method">AsQueryable</span>();
+
+        <span class="code-comment">// Apply filters</span>
+        <span class="code-keyword">if</span> (!<span class="code-type">string</span>.<span class="code-method">IsNullOrEmpty</span>(<span class="code-variable">search</span>))
+        {
+            <span class="code-variable">query</span> = <span class="code-variable">query</span>.<span class="code-method">Where</span>(<span class="code-variable">p</span> => <span class="code-variable">p</span>.<span class="code-variable">Name</span>.<span class="code-method">Contains</span>(<span class="code-variable">search</span>));
+        }
+
+        <span class="code-keyword">if</span> (<span class="code-variable">minPrice</span>.<span class="code-variable">HasValue</span>)
+        {
+            <span class="code-variable">query</span> = <span class="code-variable">query</span>.<span class="code-method">Where</span>(<span class="code-variable">p</span> => <span class="code-variable">p</span>.<span class="code-variable">Price</span> >= <span class="code-variable">minPrice</span>.<span class="code-variable">Value</span>);
+        }
+
+        <span class="code-keyword">if</span> (<span class="code-variable">maxPrice</span>.<span class="code-variable">HasValue</span>)
+        {
+            <span class="code-variable">query</span> = <span class="code-variable">query</span>.<span class="code-method">Where</span>(<span class="code-variable">p</span> => <span class="code-variable">p</span>.<span class="code-variable">Price</span> <= <span class="code-variable">maxPrice</span>.<span class="code-variable">Value</span>);
+        }
+
+        <span class="code-comment">// Get total count</span>
+        <span class="code-keyword">var</span> <span class="code-variable">totalCount</span> = <span class="code-keyword">await</span> <span class="code-variable">query</span>.<span class="code-method">CountAsync</span>();
+
+        <span class="code-comment">// Apply paging</span>
+        <span class="code-keyword">var</span> <span class="code-variable">products</span> = <span class="code-keyword">await</span> <span class="code-variable">query</span>
+            .<span class="code-method">OrderBy</span>(<span class="code-variable">p</span> => <span class="code-variable">p</span>.<span class="code-variable">Name</span>)
+            .<span class="code-method">Skip</span>((<span class="code-variable">page</span> - <span class="code-number">1</span>) * <span class="code-variable">pageSize</span>)
+            .<span class="code-method">Take</span>(<span class="code-variable">pageSize</span>)
+            .<span class="code-method">Select</span>(<span class="code-variable">p</span> => <span class="code-keyword">new</span>
+            {
+                <span class="code-variable">p</span>.<span class="code-variable">Id</span>,
+                <span class="code-variable">p</span>.<span class="code-variable">Name</span>,
+                <span class="code-variable">p</span>.<span class="code-variable">Price</span>,
+                <span class="code-variable">p</span>.<span class="code-variable">Quantity</span>
+            })
+            .<span class="code-method">ToListAsync</span>();
+
+        <span class="code-keyword">return</span> <span class="code-method">Ok</span>(<span class="code-keyword">new</span>
+        {
+            <span class="code-variable">data</span> = <span class="code-variable">products</span>,
+            <span class="code-variable">pagination</span> = <span class="code-keyword">new</span>
+            {
+                <span class="code-variable">page</span>,
+                <span class="code-variable">pageSize</span>,
+                <span class="code-variable">totalCount</span>,
+                <span class="code-variable">totalPages</span> = (<span class="code-type">int</span>)<span class="code-class">Math</span>.<span class="code-method">Ceiling</span>(<span class="code-variable">totalCount</span> / (<span class="code-type">double</span>)<span class="code-variable">pageSize</span>)
+            }
+        });
+    }
+
+    <span class="code-comment">// GET /api/products/statistics</span>
+    [<span class="code-class">HttpGet</span>(<span class="code-string">"statistics"</span>)]
+    <span class="code-keyword">public</span> <span class="code-keyword">async</span> <span class="code-class">Task</span>&lt;<span class="code-class">ActionResult</span>&gt; <span class="code-method">GetStatistics</span>()
+    {
+        <span class="code-keyword">var</span> <span class="code-variable">stats</span> = <span class="code-keyword">new</span>
+        {
+            <span class="code-variable">totalProducts</span> = <span class="code-keyword">await</span> <span class="code-variable">_context</span>.<span class="code-variable">Products</span>.<span class="code-method">CountAsync</span>(),
+            <span class="code-variable">totalValue</span> = <span class="code-keyword">await</span> <span class="code-variable">_context</span>.<span class="code-variable">Products</span>
+                .<span class="code-method">SumAsync</span>(<span class="code-variable">p</span> => <span class="code-variable">p</span>.<span class="code-variable">Price</span> * <span class="code-variable">p</span>.<span class="code-variable">Quantity</span>),
+            <span class="code-variable">averagePrice</span> = <span class="code-keyword">await</span> <span class="code-variable">_context</span>.<span class="code-variable">Products</span>.<span class="code-method">AverageAsync</span>(<span class="code-variable">p</span> => <span class="code-variable">p</span>.<span class="code-variable">Price</span>),
+            <span class="code-variable">minPrice</span> = <span class="code-keyword">await</span> <span class="code-variable">_context</span>.<span class="code-variable">Products</span>.<span class="code-method">MinAsync</span>(<span class="code-variable">p</span> => <span class="code-variable">p</span>.<span class="code-variable">Price</span>),
+            <span class="code-variable">maxPrice</span> = <span class="code-keyword">await</span> <span class="code-variable">_context</span>.<span class="code-variable">Products</span>.<span class="code-method">MaxAsync</span>(<span class="code-variable">p</span> => <span class="code-variable">p</span>.<span class="code-variable">Price</span>)
+        };
+
+        <span class="code-keyword">return</span> <span class="code-method">Ok</span>(<span class="code-variable">stats</span>);
+    }
+}</code></pre>
+
+                <h2>Best Practices</h2>
+
+                <ul>
+                    <li><strong>Always use async</strong>: Use ToListAsync(), FirstOrDefaultAsync(), etc.</li>
+                    <li><strong>Filter early</strong>: Apply Where() before Select() for efficiency</li>
+                    <li><strong>Project early</strong>: Use Select() to reduce data transfer</li>
+                    <li><strong>AsQueryable()</strong>: Build queries dynamically</li>
+                    <li><strong>Avoid N+1</strong>: Use Include() for related data (next section)</li>
+                    <li><strong>Use Any()</strong>: Instead of Count() > 0</li>
+                    <li><strong>Pagination</strong>: Always paginate large result sets</li>
+                </ul>
+
+                <h2>Key Takeaways</h2>
+
+                <ul>
+                    <li><strong>LINQ</strong>: Query databases using C# syntax</li>
+                    <li><strong>Where()</strong>: Filter records</li>
+                    <li><strong>Select()</strong>: Project specific columns</li>
+                    <li><strong>OrderBy()</strong>: Sort results</li>
+                    <li><strong>Skip/Take</strong>: Implement paging</li>
+                    <li><strong>Count/Sum/Average</strong>: Aggregation functions</li>
+                    <li><strong>GroupBy()</strong>: Group and aggregate</li>
+                    <li><strong>Async methods</strong>: Always use for I/O operations</li>
+                </ul>
+
+                <div class="callout callout-concept">
+                    <div class="callout-title">🎯 Next Steps</div>
+                    <p>
+                        You now understand querying with LINQ! In the next section, we'll explore
+                        <strong>Relationships</strong>—how to define and work with one-to-one,
+                        one-to-many, and many-to-many relationships.
+                    </p>
+                </div>
+
+                <nav class="page-nav">
+                    <a href="03-code-first-migrations.html" class="prev">Code-First Migrations</a>
+                    <a href="05-relationships.html" class="next">Relationships</a>
+                </nav>
+
+            
+        <footer class="page-footer">
+          Built with 💜 by <a href="https://akwasi.dev" target="_blank" rel="noopener noreferrer">Akwasi Adu-Kyeremeh</a> for developers who want to truly understand what they're building.
+        </footer>
+
+      </div>
+        </main>
+    </div>
+</body>
+
+</html>

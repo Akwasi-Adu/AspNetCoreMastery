@@ -1,0 +1,572 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Service Lifetimes | ASP.NET Core Mastery</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;500&family=Source+Serif+4:ital,wght@0,400;0,600;1,400&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="../assets/style.css">
+</head>
+
+<body>
+    <div class="page-wrapper">
+        <aside class="sidebar">
+            <a href="../index.html" class="sidebar-logo">ASP.NET Core Mastery</a>
+            <div class="sidebar-section">Part IV: Dependency Injection</div>
+            <ul class="sidebar-nav">
+                <li><a href="01-what-is-di.html">What is Dependency Injection?</a></li>
+                <li><a href="02-built-in-container.html">The Built-in DI Container</a></li>
+                <li><a href="03-service-lifetimes.html" class="active">Service Lifetimes</a></li>
+                <li><a href="04-registering-services.html">Registering Services</a></li>
+                <li><a href="05-constructor-injection.html">Constructor Injection</a></li>
+                <li><a href="06-common-patterns.html">Common DI Patterns</a></li>
+            </ul>
+            <div class="sidebar-section">Resources</div>
+            <ul class="sidebar-nav">
+                <li><a href="../index.html">Full Roadmap</a></li>
+            </ul>
+        </aside>
+
+        <main class="main-content">
+            <div class="content-container">
+                <nav class="breadcrumb">
+                    <a href="../index.html">Home</a>
+                    <span>→</span>
+                    <a href="01-what-is-di.html">Part IV: Dependency Injection</a>
+                    <span>→</span>
+                    Service Lifetimes
+                </nav>
+
+                <div class="progress-indicator">
+                    <span>Section 3 of 6</span>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 50%"></div>
+                    </div>
+                </div>
+
+                <h1>Service Lifetimes</h1>
+
+                <div class="learning-objectives">
+                    <h3>🎯 What You'll Learn</h3>
+                    <ul>
+                        <li>Understanding the three service lifetimes</li>
+                        <li>Transient: When and why to use it</li>
+                        <li>Scoped: The default choice for most services</li>
+                        <li>Singleton: Shared instances across the application</li>
+                        <li>Lifetime comparison and decision guide</li>
+                        <li>Common pitfalls and how to avoid them</li>
+                        <li>Captive dependencies explained</li>
+                        <li>Best practices for InvenTrack</li>
+                    </ul>
+                </div>
+
+                <h2>The Three Lifetimes</h2>
+
+                <p>
+                    Service lifetime determines how long an instance lives and when it's created:
+                </p>
+
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Lifetime</th>
+                            <th>Created</th>
+                            <th>Shared</th>
+                            <th>Disposed</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Transient</strong></td>
+                            <td>Every time requested</td>
+                            <td>Never</td>
+                            <td>End of scope</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Scoped</strong></td>
+                            <td>Once per request</td>
+                            <td>Within request</td>
+                            <td>End of request</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Singleton</strong></td>
+                            <td>Once per application</td>
+                            <td>Everywhere</td>
+                            <td>App shutdown</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="section-divider"></div>
+
+                <h2>Transient Lifetime</h2>
+
+                <div class="code-header">
+                    <span class="code-filename">Registration</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-variable">builder</span>.<span class="code-variable">Services</span>.<span class="code-method">AddTransient</span>&lt;<span class="code-class">IEmailService</span>, <span class="code-class">EmailService</span>&gt;();</code></pre>
+
+                <h3>Behavior</h3>
+
+                <ul>
+                    <li>A <strong>new instance</strong> is created every time it's requested</li>
+                    <li>No sharing between consumers</li>
+                    <li>Lightweight and stateless</li>
+                </ul>
+
+                <div class="code-header">
+                    <span class="code-filename">Example</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">ProductsController</span> : <span class="code-class">ControllerBase</span>
+{
+    <span class="code-keyword">private</span> <span class="code-keyword">readonly</span> <span class="code-class">IEmailService</span> <span class="code-variable">_emailService1</span>;
+    <span class="code-keyword">private</span> <span class="code-keyword">readonly</span> <span class="code-class">IEmailService</span> <span class="code-variable">_emailService2</span>;
+
+    <span class="code-keyword">public</span> <span class="code-method">ProductsController</span>(<span class="code-class">IEmailService</span> <span class="code-variable">emailService1</span>, <span class="code-class">IEmailService</span> <span class="code-variable">emailService2</span>)
+    {
+        <span class="code-variable">_emailService1</span> = <span class="code-variable">emailService1</span>;
+        <span class="code-variable">_emailService2</span> = <span class="code-variable">emailService2</span>;
+        
+        <span class="code-comment">// These are DIFFERENT instances!</span>
+        <span class="code-class">Console</span>.<span class="code-method">WriteLine</span>(<span class="code-variable">_emailService1</span>.<span class="code-method">GetHashCode</span>()); <span class="code-comment">// e.g., 12345</span>
+        <span class="code-class">Console</span>.<span class="code-method">WriteLine</span>(<span class="code-variable">_emailService2</span>.<span class="code-method">GetHashCode</span>()); <span class="code-comment">// e.g., 67890</span>
+    }
+}</code></pre>
+
+                <h3>When to Use Transient</h3>
+
+                <ul>
+                    <li>Lightweight, stateless services</li>
+                    <li>Services with no shared state</li>
+                    <li>Services that are cheap to create</li>
+                </ul>
+
+                <h3>Examples</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">Good Transient Services</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-variable">builder</span>.<span class="code-variable">Services</span>.<span class="code-method">AddTransient</span>&lt;<span class="code-class">IEmailSender</span>, <span class="code-class">EmailSender</span>&gt;();
+<span class="code-variable">builder</span>.<span class="code-variable">Services</span>.<span class="code-method">AddTransient</span>&lt;<span class="code-class">IPdfGenerator</span>, <span class="code-class">PdfGenerator</span>&gt;();
+<span class="code-variable">builder</span>.<span class="code-variable">Services</span>.<span class="code-method">AddTransient</span>&lt;<span class="code-class">IDateTimeProvider</span>, <span class="code-class">DateTimeProvider</span>&gt;();</code></pre>
+
+                <div class="callout callout-warning">
+                    <div class="callout-title">⚠️ Avoid for Expensive Services</div>
+                    <p>
+                        Don't use Transient for services that are expensive to create (e.g., database connections,
+                        HTTP clients). You'll create too many instances and hurt performance.
+                    </p>
+                </div>
+
+                <div class="section-divider"></div>
+
+                <h2>Scoped Lifetime</h2>
+
+                <div class="code-header">
+                    <span class="code-filename">Registration</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-variable">builder</span>.<span class="code-variable">Services</span>.<span class="code-method">AddScoped</span>&lt;<span class="code-class">IProductService</span>, <span class="code-class">ProductService</span>&gt;();</code></pre>
+
+                <h3>Behavior</h3>
+
+                <ul>
+                    <li>Created <strong>once per HTTP request</strong></li>
+                    <li>Shared within the same request</li>
+                    <li>Disposed at the end of the request</li>
+                </ul>
+
+                <div class="code-header">
+                    <span class="code-filename">Example</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-comment">// Request 1</span>
+<span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">ProductsController</span> : <span class="code-class">ControllerBase</span>
+{
+    <span class="code-keyword">private</span> <span class="code-keyword">readonly</span> <span class="code-class">IProductService</span> <span class="code-variable">_productService</span>;
+    
+    <span class="code-keyword">public</span> <span class="code-method">ProductsController</span>(<span class="code-class">IProductService</span> <span class="code-variable">productService</span>)
+    {
+        <span class="code-variable">_productService</span> = <span class="code-variable">productService</span>;
+        <span class="code-class">Console</span>.<span class="code-method">WriteLine</span>(<span class="code-variable">_productService</span>.<span class="code-method">GetHashCode</span>()); <span class="code-comment">// e.g., 11111</span>
+    }
+}
+
+<span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">InventoryService</span>
+{
+    <span class="code-keyword">private</span> <span class="code-keyword">readonly</span> <span class="code-class">IProductService</span> <span class="code-variable">_productService</span>;
+    
+    <span class="code-keyword">public</span> <span class="code-method">InventoryService</span>(<span class="code-class">IProductService</span> <span class="code-variable">productService</span>)
+    {
+        <span class="code-variable">_productService</span> = <span class="code-variable">productService</span>;
+        <span class="code-class">Console</span>.<span class="code-method">WriteLine</span>(<span class="code-variable">_productService</span>.<span class="code-method">GetHashCode</span>()); <span class="code-comment">// e.g., 11111 (SAME!)</span>
+    }
+}
+
+<span class="code-comment">// Request 2 - NEW instance created</span>
+<span class="code-comment">// ProductService hash code: 22222 (DIFFERENT from Request 1)</span></code></pre>
+
+                <h3>When to Use Scoped</h3>
+
+                <ul>
+                    <li><strong>Default choice</strong> for most services</li>
+                    <li>Services that work with databases (DbContext)</li>
+                    <li>Services that maintain state during a request</li>
+                    <li>Business logic services</li>
+                </ul>
+
+                <h3>Examples</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">Good Scoped Services</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-variable">builder</span>.<span class="code-variable">Services</span>.<span class="code-method">AddScoped</span>&lt;<span class="code-class">IProductRepository</span>, <span class="code-class">ProductRepository</span>&gt;();
+<span class="code-variable">builder</span>.<span class="code-variable">Services</span>.<span class="code-method">AddScoped</span>&lt;<span class="code-class">IProductService</span>, <span class="code-class">ProductService</span>&gt;();
+<span class="code-variable">builder</span>.<span class="code-variable">Services</span>.<span class="code-method">AddScoped</span>&lt;<span class="code-class">IOrderService</span>, <span class="code-class">OrderService</span>&gt;();
+<span class="code-variable">builder</span>.<span class="code-variable">Services</span>.<span class="code-method">AddDbContext</span>&lt;<span class="code-class">InvenTrackDbContext</span>&gt;(); <span class="code-comment">// Scoped by default</span></code></pre>
+
+                <div class="callout callout-tip">
+                    <div class="callout-title">💡 Why Scoped for DbContext?</div>
+                    <p>
+                        Entity Framework's <code>DbContext</code> is <strong>not thread-safe</strong> and should
+                        not be shared across requests. Scoped ensures each request gets its own DbContext, which
+                        is disposed after the request completes.
+                    </p>
+                </div>
+
+                <div class="section-divider"></div>
+
+                <h2>Singleton Lifetime</h2>
+
+                <div class="code-header">
+                    <span class="code-filename">Registration</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-variable">builder</span>.<span class="code-variable">Services</span>.<span class="code-method">AddSingleton</span>&lt;<span class="code-class">ICacheService</span>, <span class="code-class">CacheService</span>&gt;();</code></pre>
+
+                <h3>Behavior</h3>
+
+                <ul>
+                    <li>Created <strong>once for the application lifetime</strong></li>
+                    <li>Shared across all requests and users</li>
+                    <li>Disposed when the application shuts down</li>
+                </ul>
+
+                <div class="code-header">
+                    <span class="code-filename">Example</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-comment">// Request 1</span>
+<span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">ProductsController</span> : <span class="code-class">ControllerBase</span>
+{
+    <span class="code-keyword">public</span> <span class="code-method">ProductsController</span>(<span class="code-class">ICacheService</span> <span class="code-variable">cacheService</span>)
+    {
+        <span class="code-class">Console</span>.<span class="code-method">WriteLine</span>(<span class="code-variable">cacheService</span>.<span class="code-method">GetHashCode</span>()); <span class="code-comment">// e.g., 99999</span>
+    }
+}
+
+<span class="code-comment">// Request 2 - SAME instance!</span>
+<span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">OrdersController</span> : <span class="code-class">ControllerBase</span>
+{
+    <span class="code-keyword">public</span> <span class="code-method">OrdersController</span>(<span class="code-class">ICacheService</span> <span class="code-variable">cacheService</span>)
+    {
+        <span class="code-class">Console</span>.<span class="code-method">WriteLine</span>(<span class="code-variable">cacheService</span>.<span class="code-method">GetHashCode</span>()); <span class="code-comment">// e.g., 99999 (SAME!)</span>
+    }
+}</code></pre>
+
+                <h3>When to Use Singleton</h3>
+
+                <ul>
+                    <li>Services that are <strong>thread-safe</strong></li>
+                    <li>Services that are <strong>expensive to create</strong></li>
+                    <li>Services with <strong>no state</strong> or <strong>immutable state</strong></li>
+                    <li>Configuration services</li>
+                </ul>
+
+                <h3>Examples</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">Good Singleton Services</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-variable">builder</span>.<span class="code-variable">Services</span>.<span class="code-method">AddSingleton</span>&lt;<span class="code-class">ICacheService</span>, <span class="code-class">RedisCacheService</span>&gt;();
+<span class="code-variable">builder</span>.<span class="code-variable">Services</span>.<span class="code-method">AddSingleton</span>&lt;<span class="code-class">IConfiguration</span>&gt;(<span class="code-variable">builder</span>.<span class="code-variable">Configuration</span>);
+<span class="code-variable">builder</span>.<span class="code-variable">Services</span>.<span class="code-method">AddSingleton</span>&lt;<span class="code-class">IHttpClientFactory</span>, <span class="code-class">HttpClientFactory</span>&gt;();</code></pre>
+
+                <div class="callout callout-warning">
+                    <div class="callout-title">⚠️ Must Be Thread-Safe!</div>
+                    <p>
+                        Singleton services are accessed by multiple threads simultaneously. They <strong>must be
+                            thread-safe</strong> or you'll have race conditions and data corruption!
+                    </p>
+                </div>
+
+                <div class="section-divider"></div>
+
+                <h2>Lifetime Comparison</h2>
+
+                <div class="code-header">
+                    <span class="code-filename">Visual Comparison</span>
+                    <span class="code-language">Text</span>
+                </div>
+                <pre><code><span class="code-comment">TRANSIENT</span>
+Request 1: [Instance A] [Instance B] [Instance C]
+Request 2: [Instance D] [Instance E] [Instance F]
+           ↑ New instance every time
+
+<span class="code-comment">SCOPED</span>
+Request 1: [Instance A] [Instance A] [Instance A]
+Request 2: [Instance B] [Instance B] [Instance B]
+           ↑ Same instance within request
+
+<span class="code-comment">SINGLETON</span>
+Request 1: [Instance A] [Instance A] [Instance A]
+Request 2: [Instance A] [Instance A] [Instance A]
+           ↑ Same instance always</code></pre>
+
+                <h3>Decision Guide</h3>
+
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Question</th>
+                            <th>Answer</th>
+                            <th>Lifetime</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Does it work with a database?</td>
+                            <td>Yes</td>
+                            <td><strong>Scoped</strong></td>
+                        </tr>
+                        <tr>
+                            <td>Is it stateless and lightweight?</td>
+                            <td>Yes</td>
+                            <td><strong>Transient</strong></td>
+                        </tr>
+                        <tr>
+                            <td>Is it expensive to create?</td>
+                            <td>Yes</td>
+                            <td><strong>Singleton</strong></td>
+                        </tr>
+                        <tr>
+                            <td>Is it thread-safe?</td>
+                            <td>No</td>
+                            <td><strong>Scoped or Transient</strong></td>
+                        </tr>
+                        <tr>
+                            <td>Does it maintain state?</td>
+                            <td>Yes</td>
+                            <td><strong>Scoped</strong></td>
+                        </tr>
+                        <tr>
+                            <td>Not sure?</td>
+                            <td>-</td>
+                            <td><strong>Scoped</strong> (safest default)</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="section-divider"></div>
+
+                <h2>Common Pitfalls</h2>
+
+                <h3>1. Captive Dependency</h3>
+
+                <p>
+                    A <strong>captive dependency</strong> occurs when a longer-lived service depends on a
+                    shorter-lived service.
+                </p>
+
+                <div class="code-header">
+                    <span class="code-filename">❌ Bad: Singleton → Scoped</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-comment">// CacheService is Singleton</span>
+<span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">CacheService</span> : <span class="code-class">ICacheService</span>
+{
+    <span class="code-keyword">private</span> <span class="code-keyword">readonly</span> <span class="code-class">InvenTrackDbContext</span> <span class="code-variable">_context</span>; <span class="code-comment">// DbContext is Scoped!</span>
+
+    <span class="code-keyword">public</span> <span class="code-method">CacheService</span>(<span class="code-class">InvenTrackDbContext</span> <span class="code-variable">context</span>)
+    {
+        <span class="code-variable">_context</span> = <span class="code-variable">context</span>; <span class="code-comment">// ❌ CAPTIVE DEPENDENCY!</span>
+    }
+}
+
+<span class="code-comment">// Problem: The DbContext is created once and kept for the app lifetime!</span>
+<span class="code-comment">// This causes stale data, memory leaks, and thread-safety issues.</span></code></pre>
+
+                <div class="code-header">
+                    <span class="code-filename">✅ Good: Use IServiceProvider</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">CacheService</span> : <span class="code-class">ICacheService</span>
+{
+    <span class="code-keyword">private</span> <span class="code-keyword">readonly</span> <span class="code-class">IServiceScopeFactory</span> <span class="code-variable">_scopeFactory</span>;
+
+    <span class="code-keyword">public</span> <span class="code-method">CacheService</span>(<span class="code-class">IServiceScopeFactory</span> <span class="code-variable">scopeFactory</span>)
+    {
+        <span class="code-variable">_scopeFactory</span> = <span class="code-variable">scopeFactory</span>;
+    }
+
+    <span class="code-keyword">public</span> <span class="code-keyword">async</span> <span class="code-class">Task</span> <span class="code-method">RefreshCacheAsync</span>()
+    {
+        <span class="code-keyword">using</span> <span class="code-keyword">var</span> <span class="code-variable">scope</span> = <span class="code-variable">_scopeFactory</span>.<span class="code-method">CreateScope</span>();
+        <span class="code-keyword">var</span> <span class="code-variable">context</span> = <span class="code-variable">scope</span>.<span class="code-variable">ServiceProvider</span>.<span class="code-method">GetRequiredService</span>&lt;<span class="code-class">InvenTrackDbContext</span>&gt;();
+        
+        <span class="code-comment">// Use context, it will be disposed when scope is disposed</span>
+    }
+}</code></pre>
+
+                <h3>Captive Dependency Rules</h3>
+
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Service Lifetime</th>
+                            <th>Can Depend On</th>
+                            <th>Cannot Depend On</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Transient</strong></td>
+                            <td>Transient, Scoped, Singleton</td>
+                            <td>-</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Scoped</strong></td>
+                            <td>Scoped, Singleton</td>
+                            <td>❌ Transient (wasteful)</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Singleton</strong></td>
+                            <td>Singleton only</td>
+                            <td>❌ Scoped, ❌ Transient</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h3>2. Disposing Singleton Services</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">❌ Bad: IDisposable Singleton</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">MyService</span> : <span class="code-class">IDisposable</span>
+{
+    <span class="code-keyword">public</span> <span class="code-keyword">void</span> <span class="code-method">Dispose</span>()
+    {
+        <span class="code-comment">// This won't be called until app shutdown!</span>
+    }
+}
+
+<span class="code-variable">builder</span>.<span class="code-variable">Services</span>.<span class="code-method">AddSingleton</span>&lt;<span class="code-class">MyService</span>&gt;();</code></pre>
+
+                <p>
+                    Singleton services are only disposed when the application shuts down. If you need timely
+                    disposal, use Scoped or Transient.
+                </p>
+
+                <h3>3. Sharing State in Transient Services</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">❌ Bad: Stateful Transient</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">CounterService</span>
+{
+    <span class="code-keyword">public</span> <span class="code-type">int</span> <span class="code-variable">Count</span> { <span class="code-keyword">get</span>; <span class="code-keyword">set</span>; }
+
+    <span class="code-keyword">public</span> <span class="code-keyword">void</span> <span class="code-method">Increment</span>() =&gt; <span class="code-variable">Count</span>++;
+}
+
+<span class="code-variable">builder</span>.<span class="code-variable">Services</span>.<span class="code-method">AddTransient</span>&lt;<span class="code-class">CounterService</span>&gt;();
+
+<span class="code-comment">// Problem: Each instance has its own Count, so state is not shared!</span></code></pre>
+
+                <p>
+                    If you need to share state, use Scoped (per request) or Singleton (application-wide).
+                </p>
+
+                <div class="section-divider"></div>
+
+                <h2>Complete InvenTrack Example</h2>
+
+                <div class="code-header">
+                    <span class="code-filename">Program.cs (Lifetime Choices)</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-keyword">var</span> <span class="code-variable">builder</span> = <span class="code-class">WebApplication</span>.<span class="code-method">CreateBuilder</span>(<span class="code-variable">args</span>);
+
+<span class="code-comment">// SINGLETON - Shared across app, thread-safe, expensive to create</span>
+<span class="code-variable">builder</span>.<span class="code-variable">Services</span>.<span class="code-method">AddSingleton</span>&lt;<span class="code-class">ICacheService</span>, <span class="code-class">RedisCacheService</span>&gt;();
+<span class="code-variable">builder</span>.<span class="code-variable">Services</span>.<span class="code-method">AddSingleton</span>&lt;<span class="code-class">IConfiguration</span>&gt;(<span class="code-variable">builder</span>.<span class="code-variable">Configuration</span>);
+
+<span class="code-comment">// SCOPED - Per request, works with database</span>
+<span class="code-variable">builder</span>.<span class="code-variable">Services</span>.<span class="code-method">AddDbContext</span>&lt;<span class="code-class">InvenTrackDbContext</span>&gt;();
+<span class="code-variable">builder</span>.<span class="code-variable">Services</span>.<span class="code-method">AddScoped</span>&lt;<span class="code-class">IProductRepository</span>, <span class="code-class">ProductRepository</span>&gt;();
+<span class="code-variable">builder</span>.<span class="code-variable">Services</span>.<span class="code-method">AddScoped</span>&lt;<span class="code-class">ICustomerRepository</span>, <span class="code-class">CustomerRepository</span>&gt;();
+<span class="code-variable">builder</span>.<span class="code-variable">Services</span>.<span class="code-method">AddScoped</span>&lt;<span class="code-class">IOrderRepository</span>, <span class="code-class">OrderRepository</span>&gt;();
+<span class="code-variable">builder</span>.<span class="code-variable">Services</span>.<span class="code-method">AddScoped</span>&lt;<span class="code-class">IProductService</span>, <span class="code-class">ProductService</span>&gt;();
+<span class="code-variable">builder</span>.<span class="code-variable">Services</span>.<span class="code-method">AddScoped</span>&lt;<span class="code-class">IInventoryService</span>, <span class="code-class">InventoryService</span>&gt;();
+<span class="code-variable">builder</span>.<span class="code-variable">Services</span>.<span class="code-method">AddScoped</span>&lt;<span class="code-class">IOrderService</span>, <span class="code-class">OrderService</span>&gt;();
+
+<span class="code-comment">// TRANSIENT - Lightweight, stateless</span>
+<span class="code-variable">builder</span>.<span class="code-variable">Services</span>.<span class="code-method">AddTransient</span>&lt;<span class="code-class">IEmailSender</span>, <span class="code-class">SendGridEmailSender</span>&gt;();
+<span class="code-variable">builder</span>.<span class="code-variable">Services</span>.<span class="code-method">AddTransient</span>&lt;<span class="code-class">IPdfGenerator</span>, <span class="code-class">PdfGenerator</span>&gt;();
+<span class="code-variable">builder</span>.<span class="code-variable">Services</span>.<span class="code-method">AddTransient</span>&lt;<span class="code-class">IDateTimeProvider</span>, <span class="code-class">DateTimeProvider</span>&gt;();</code></pre>
+
+                <h2>Key Takeaways</h2>
+
+                <ul>
+                    <li><strong>Transient</strong>: New instance every time (lightweight, stateless)</li>
+                    <li><strong>Scoped</strong>: One instance per request (default choice, database services)</li>
+                    <li><strong>Singleton</strong>: One instance for app lifetime (thread-safe, expensive to create)
+                    </li>
+                    <li><strong>Default to Scoped</strong> when unsure</li>
+                    <li><strong>Captive dependencies</strong>: Longer-lived services cannot depend on shorter-lived ones
+                    </li>
+                    <li>Singleton → Singleton only</li>
+                    <li>Scoped → Scoped or Singleton</li>
+                    <li>Transient → Any lifetime</li>
+                    <li>DbContext should always be <strong>Scoped</strong></li>
+                    <li>Singleton services must be <strong>thread-safe</strong></li>
+                    <li>Use <code>IServiceScopeFactory</code> to resolve scoped services from singletons</li>
+                </ul>
+
+                <div class="callout callout-concept">
+                    <div class="callout-title">🎯 Next Steps</div>
+                    <p>
+                        You now understand service lifetimes and when to use each! In the next section, we'll
+                        explore <strong>Registering Services</strong>—different registration patterns, generic
+                        services, open generics, and organizing your service registrations effectively.
+                    </p>
+                </div>
+
+                <nav class="page-nav">
+                    <a href="02-built-in-container.html" class="prev">The Built-in DI Container</a>
+                    <a href="04-registering-services.html" class="next">Registering Services</a>
+                </nav>
+
+            
+        <footer class="page-footer">
+          Built with 💜 by <a href="https://akwasi.dev" target="_blank" rel="noopener noreferrer">Akwasi Adu-Kyeremeh</a> for developers who want to truly understand what they're building.
+        </footer>
+
+      </div>
+        </main>
+    </div>
+</body>
+
+</html>

@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Razor Pages vs MVC | ASP.NET Core Mastery</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;500&family=Source+Serif+4:ital,wght@0,400;0,600;1,400&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="../assets/style.css">
+</head>
+
+<body>
+    <div class="page-wrapper">
+        <aside class="sidebar">
+            <a href="../index.html" class="sidebar-logo">ASP.NET Core Mastery</a>
+            <div class="sidebar-section">Part XI: Razor Pages</div>
+            <ul class="sidebar-nav">
+                <li><a href="01-what-are-razor-pages.html">What are Razor Pages?</a></li>
+                <li><a href="02-page-model-pattern.html">Page Model Pattern</a></li>
+                <li><a href="03-handlers.html">Handlers (OnGet, OnPost)</a></li>
+                <li><a href="04-forms-validation.html">Forms and Validation</a></li>
+                <li><a href="05-razor-pages-vs-mvc.html" class="active">Razor Pages vs MVC</a></li>
+            </ul>
+            <div class="sidebar-section">Resources</div>
+            <ul class="sidebar-nav">
+                <li><a href="../index.html">Full Roadmap</a></li>
+            </ul>
+        </aside>
+
+        <main class="main-content">
+            <div class="content-container">
+                <nav class="breadcrumb">
+                    <a href="../index.html">Home</a>
+                    <span>→</span>
+                    <a href="01-what-are-razor-pages.html">Part XI: Razor Pages</a>
+                    <span>→</span>
+                    Razor Pages vs MVC
+                </nav>
+
+                <div class="progress-indicator">
+                    <span>Section 5 of 5</span>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 100%"></div>
+                    </div>
+                </div>
+
+                <h1>Razor Pages vs MVC</h1>
+
+                <div class="learning-objectives">
+                    <h3>🎯 What You'll Learn</h3>
+                    <ul>
+                        <li>Key differences</li>
+                        <li>When to use each</li>
+                        <li>Mixing both approaches</li>
+                        <li>Migration considerations</li>
+                    </ul>
+                </div>
+
+                <h2>Comparison</h2>
+
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Aspect</th>
+                            <th>Razor Pages</th>
+                            <th>MVC</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Organization</strong></td>
+                            <td>Page-focused (1 page = 1 feature)</td>
+                            <td>Controller-focused (1 controller = many actions)</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Files</strong></td>
+                            <td>.cshtml + .cshtml.cs</td>
+                            <td>Controller.cs + View.cshtml</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Routing</strong></td>
+                            <td>Convention-based (folder structure)</td>
+                            <td>Attribute or route config</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Complexity</strong></td>
+                            <td>Simpler, less boilerplate</td>
+                            <td>More complex, more flexible</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Best For</strong></td>
+                            <td>CRUD, forms, simple pages</td>
+                            <td>Complex apps, APIs, shared logic</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Learning Curve</strong></td>
+                            <td>Easier</td>
+                            <td>Steeper</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="section-divider"></div>
+
+                <h2>Code Comparison</h2>
+
+                <h3>Razor Pages</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">Pages/Products/Index.cshtml.cs</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">IndexModel</span> : <span class="code-class">PageModel</span>
+{
+    <span class="code-keyword">public</span> <span class="code-class">List</span>&lt;<span class="code-class">Product</span>&gt; <span class="code-variable">Products</span> { <span class="code-keyword">get</span>; <span class="code-keyword">set</span>; } = <span class="code-keyword">new</span>();
+
+    <span class="code-keyword">public</span> <span class="code-keyword">async</span> <span class="code-class">Task</span> <span class="code-method">OnGetAsync</span>()
+    {
+        <span class="code-variable">Products</span> = <span class="code-keyword">await</span> <span class="code-variable">_context</span>.<span class="code-variable">Products</span>.<span class="code-method">ToListAsync</span>();
+    }
+}</code></pre>
+
+                <div class="code-header">
+                    <span class="code-filename">Pages/Products/Index.cshtml</span>
+                    <span class="code-language">HTML</span>
+                </div>
+                <pre><code><span class="code-tag">@page</span>
+<span class="code-tag">@model</span> <span class="code-class">IndexModel</span>
+
+&lt;<span class="code-tag">h1</span>&gt;Products&lt;/<span class="code-tag">h1</span>&gt;
+<span class="code-tag">@foreach</span> (<span class="code-keyword">var</span> <span class="code-variable">p</span> <span class="code-keyword">in</span> <span class="code-variable">Model</span>.<span class="code-variable">Products</span>)
+{
+    &lt;<span class="code-tag">p</span>&gt;<span class="code-tag">@p</span>.<span class="code-variable">Name</span>&lt;/<span class="code-tag">p</span>&gt;
+}</code></pre>
+
+                <h3>MVC</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">Controllers/ProductsController.cs</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">ProductsController</span> : <span class="code-class">Controller</span>
+{
+    <span class="code-keyword">public</span> <span class="code-keyword">async</span> <span class="code-class">Task</span>&lt;<span class="code-class">IActionResult</span>&gt; <span class="code-method">Index</span>()
+    {
+        <span class="code-keyword">var</span> <span class="code-variable">products</span> = <span class="code-keyword">await</span> <span class="code-variable">_context</span>.<span class="code-variable">Products</span>.<span class="code-method">ToListAsync</span>();
+        <span class="code-keyword">return</span> <span class="code-method">View</span>(<span class="code-variable">products</span>);
+    }
+}</code></pre>
+
+                <div class="code-header">
+                    <span class="code-filename">Views/Products/Index.cshtml</span>
+                    <span class="code-language">HTML</span>
+                </div>
+                <pre><code><span class="code-tag">@model</span> <span class="code-class">List</span>&lt;<span class="code-class">Product</span>&gt;
+
+&lt;<span class="code-tag">h1</span>&gt;Products&lt;/<span class="code-tag">h1</span>&gt;
+<span class="code-tag">@foreach</span> (<span class="code-keyword">var</span> <span class="code-variable">p</span> <span class="code-keyword">in</span> <span class="code-variable">Model</span>)
+{
+    &lt;<span class="code-tag">p</span>&gt;<span class="code-tag">@p</span>.<span class="code-variable">Name</span>&lt;/<span class="code-tag">p</span>&gt;
+}</code></pre>
+
+                <div class="section-divider"></div>
+
+                <h2>When to Use Razor Pages</h2>
+
+                <h3>✅ Choose Razor Pages For:</h3>
+                <ul>
+                    <li><strong>Simple CRUD apps</strong>: Product catalog, blog, admin panel</li>
+                    <li><strong>Form-heavy apps</strong>: Contact forms, surveys, registration</li>
+                    <li><strong>Page-focused scenarios</strong>: Each page is independent</li>
+                    <li><strong>Beginners</strong>: Easier to learn and understand</li>
+                    <li><strong>Small to medium apps</strong>: Less boilerplate code</li>
+                    <li><strong>Rapid prototyping</strong>: Faster development</li>
+                </ul>
+
+                <h2>When to Use MVC</h2>
+
+                <h3>✅ Choose MVC For:</h3>
+                <ul>
+                    <li><strong>RESTful APIs</strong>: Use Web API controllers</li>
+                    <li><strong>Complex routing</strong>: Custom routing patterns</li>
+                    <li><strong>Shared logic</strong>: Multiple actions with common code</li>
+                    <li><strong>Large enterprise apps</strong>: Better separation of concerns</li>
+                    <li><strong>Existing MVC apps</strong>: Maintain consistency</li>
+                    <li><strong>Team preference</strong>: Team familiar with MVC pattern</li>
+                </ul>
+
+                <div class="section-divider"></div>
+
+                <h2>Mixing Both Approaches</h2>
+
+                <p>You can use both Razor Pages and MVC in the same application!</p>
+
+                <div class="code-header">
+                    <span class="code-filename">Program.cs</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-keyword">var</span> <span class="code-variable">builder</span> = <span class="code-class">WebApplication</span>.<span class="code-method">CreateBuilder</span>(<span class="code-variable">args</span>);
+
+<span class="code-comment">// Add both services</span>
+<span class="code-variable">builder</span>.<span class="code-variable">Services</span>.<span class="code-method">AddControllersWithViews</span>(); <span class="code-comment">// MVC</span>
+<span class="code-variable">builder</span>.<span class="code-variable">Services</span>.<span class="code-method">AddRazorPages</span>();              <span class="code-comment">// Razor Pages</span>
+
+<span class="code-keyword">var</span> <span class="code-variable">app</span> = <span class="code-variable">builder</span>.<span class="code-method">Build</span>();
+
+<span class="code-comment">// Map both endpoints</span>
+<span class="code-variable">app</span>.<span class="code-method">MapControllerRoute</span>(
+    <span class="code-variable">name</span>: <span class="code-string">"default"</span>,
+    <span class="code-variable">pattern</span>: <span class="code-string">"{controller=Home}/{action=Index}/{id?}"</span>);
+
+<span class="code-variable">app</span>.<span class="code-method">MapRazorPages</span>();
+
+<span class="code-variable">app</span>.<span class="code-method">Run</span>();</code></pre>
+
+                <h3>Example Use Case</h3>
+
+                <ul>
+                    <li><strong>Razor Pages</strong>: Admin panel, user profile pages</li>
+                    <li><strong>MVC</strong>: Public-facing pages, API endpoints</li>
+                </ul>
+
+                <div class="section-divider"></div>
+
+                <h2>Migration Considerations</h2>
+
+                <h3>MVC to Razor Pages</h3>
+
+                <table>
+                    <thead>
+                        <tr>
+                            <th>MVC</th>
+                            <th>Razor Pages</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Controller action</td>
+                            <td>Handler method (OnGet/OnPost)</td>
+                        </tr>
+                        <tr>
+                            <td>View(model)</td>
+                            <td>Page() with properties</td>
+                        </tr>
+                        <tr>
+                            <td>RedirectToAction</td>
+                            <td>RedirectToPage</td>
+                        </tr>
+                        <tr>
+                            <td>asp-controller/asp-action</td>
+                            <td>asp-page</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h2>Best Practices</h2>
+
+                <ul>
+                    <li><strong>Choose based on needs</strong>: Not one-size-fits-all</li>
+                    <li><strong>Consistency</strong>: Stick to one approach per feature area</li>
+                    <li><strong>Start simple</strong>: Use Razor Pages, migrate to MVC if needed</li>
+                    <li><strong>Mix when beneficial</strong>: Use both if it makes sense</li>
+                    <li><strong>Team decision</strong>: Consider team expertise</li>
+                </ul>
+
+                <h2>Key Takeaways</h2>
+
+                <ul>
+                    <li><strong>Razor Pages</strong>: Simpler, page-focused, great for CRUD</li>
+                    <li><strong>MVC</strong>: More complex, controller-focused, better for large apps</li>
+                    <li><strong>Both are valid</strong>: Choose based on your needs</li>
+                    <li><strong>Can mix</strong>: Use both in the same application</li>
+                    <li><strong>Razor Pages = easier learning curve</strong></li>
+                    <li><strong>MVC = more flexibility</strong></li>
+                </ul>
+
+                <div class="callout callout-concept">
+                    <div class="callout-title">🎉 Part XI Complete!</div>
+                    <p>
+                        Congratulations! You've completed <strong>Part XI: Razor Pages</strong>. You now understand:
+                    </p>
+                    <ul>
+                        <li>✅ What Razor Pages are and when to use them</li>
+                        <li>✅ Page Model pattern with properties and binding</li>
+                        <li>✅ Handler methods (OnGet, OnPost, named handlers)</li>
+                        <li>✅ Forms and validation with data annotations</li>
+                        <li>✅ Razor Pages vs MVC comparison</li>
+                    </ul>
+                    <p>
+                        You now have the skills to build page-focused web applications with Razor Pages! 🚀
+                    </p>
+                </div>
+
+                <nav class="page-nav">
+                    <a href="04-forms-validation.html" class="prev">Forms and Validation</a>
+                    <a href="../index.html" class="next">Back to Roadmap</a>
+                </nav>
+
+            
+        <footer class="page-footer">
+          Built with 💜 by <a href="https://akwasi.dev" target="_blank" rel="noopener noreferrer">Akwasi Adu-Kyeremeh</a> for developers who want to truly understand what they're building.
+        </footer>
+
+      </div>
+        </main>
+    </div>
+</body>
+
+</html>

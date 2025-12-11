@@ -1,0 +1,718 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Project Files & Structure | ASP.NET Core Mastery</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;500&family=Source+Serif+4:ital,wght@0,400;0,600;1,400&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="../assets/style.css">
+</head>
+
+<body>
+    <div class="page-wrapper">
+        <aside class="sidebar">
+            <a href="../index.html" class="sidebar-logo">ASP.NET Core Mastery</a>
+            <div class="sidebar-section">Part II: .NET Core Basics</div>
+            <ul class="sidebar-nav">
+                <li><a href="01-dotnet-ecosystem.html">The .NET Ecosystem</a></li>
+                <li><a href="02-installing-sdk.html">Installing the .NET SDK</a></li>
+                <li><a href="03-first-console-app.html">Your First Console App</a></li>
+                <li><a href="04-project-structure.html" class="active">Project Files & Structure</a></li>
+                <li><a href="05-dotnet-cli.html">The dotnet CLI</a></li>
+                <li><a href="06-nuget-packages.html">NuGet Package Management</a></li>
+            </ul>
+            <div class="sidebar-section">Resources</div>
+            <ul class="sidebar-nav">
+                <li><a href="../index.html">Full Roadmap</a></li>
+            </ul>
+        </aside>
+
+        <main class="main-content">
+            <div class="content-container">
+                <nav class="breadcrumb">
+                    <a href="../index.html">Home</a>
+                    <span>→</span>
+                    <a href="01-dotnet-ecosystem.html">Part II: .NET Core Basics</a>
+                    <span>→</span>
+                    Project Files & Structure
+                </nav>
+
+                <div class="progress-indicator">
+                    <span>Section 4 of 6</span>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 66.67%"></div>
+                    </div>
+                </div>
+
+                <h1>Project Files and Structure</h1>
+
+                <div class="learning-objectives">
+                    <h3>🎯 What You'll Learn</h3>
+                    <ul>
+                        <li>Understanding the .csproj file format</li>
+                        <li>Project properties and configuration</li>
+                        <li>Target frameworks and SDK versions</li>
+                        <li>Managing project references</li>
+                        <li>Understanding bin/ and obj/ folders</li>
+                        <li>The role of .sln (solution) files</li>
+                        <li>Organizing multi-project solutions</li>
+                        <li>Best practices for project structure</li>
+                    </ul>
+                </div>
+
+                <h2>Anatomy of a .NET Project</h2>
+
+                <p>
+                    Every .NET project has a specific structure. Let's explore what each file and folder does:
+                </p>
+
+                <div class="code-header">
+                    <span class="code-filename">Typical Project Structure</span>
+                    <span class="code-language">Text</span>
+                </div>
+                <pre><code>MyProject/
+├── MyProject.csproj       <span class="code-comment"># Project file (MSBuild)</span>
+├── Program.cs             <span class="code-comment"># Main entry point</span>
+├── bin/                   <span class="code-comment"># Build output (compiled files)</span>
+│   └── Debug/
+│       └── net8.0/
+│           ├── MyProject.dll
+│           ├── MyProject.exe
+│           └── ...
+├── obj/                   <span class="code-comment"># Intermediate build files</span>
+│   └── Debug/
+│       └── net8.0/
+│           └── ...
+└── Properties/            <span class="code-comment"># Optional: Additional settings</span>
+    └── launchSettings.json</code></pre>
+
+                <div class="callout callout-info">
+                    <div class="callout-title">ℹ️ What to Commit to Git</div>
+                    <p>
+                        <strong>Commit</strong>: <code>.csproj</code>, <code>.cs</code> files,
+                        <code>Properties/</code><br>
+                        <strong>Ignore</strong>: <code>bin/</code>, <code>obj/</code> (add to .gitignore)<br>
+                        These folders are auto-generated during build and can be recreated.
+                    </p>
+                </div>
+
+                <div class="section-divider"></div>
+
+                <h2>The .csproj File: Your Project's Blueprint</h2>
+
+                <p>
+                    The <code>.csproj</code> file is an XML file that defines your project. It tells MSBuild
+                    (the build system) how to compile your code.
+                </p>
+
+                <h3>Modern .csproj Format</h3>
+
+                <p>
+                    Here's what a typical console app's <code>.csproj</code> looks like:
+                </p>
+
+                <div class="code-header">
+                    <span class="code-filename">HelloWorld.csproj</span>
+                    <span class="code-language">XML</span>
+                </div>
+                <pre><code><span class="code-tag">&lt;Project</span> <span class="code-attribute">Sdk</span>=<span class="code-string">"Microsoft.NET.Sdk"</span><span class="code-tag">&gt;</span>
+
+  <span class="code-tag">&lt;PropertyGroup&gt;</span>
+    <span class="code-tag">&lt;OutputType&gt;</span>Exe<span class="code-tag">&lt;/OutputType&gt;</span>
+    <span class="code-tag">&lt;TargetFramework&gt;</span>net8.0<span class="code-tag">&lt;/TargetFramework&gt;</span>
+    <span class="code-tag">&lt;ImplicitUsings&gt;</span>enable<span class="code-tag">&lt;/ImplicitUsings&gt;</span>
+    <span class="code-tag">&lt;Nullable&gt;</span>enable<span class="code-tag">&lt;/Nullable&gt;</span>
+  <span class="code-tag">&lt;/PropertyGroup&gt;</span>
+
+<span class="code-tag">&lt;/Project&gt;</span></code></pre>
+
+                <p>
+                    Let's break down each element:
+                </p>
+
+                <h3>Project Element</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">Project Element</span>
+                    <span class="code-language">XML</span>
+                </div>
+                <pre><code><span class="code-tag">&lt;Project</span> <span class="code-attribute">Sdk</span>=<span class="code-string">"Microsoft.NET.Sdk"</span><span class="code-tag">&gt;</span></code></pre>
+
+                <p>
+                    The <code>Sdk</code> attribute specifies which SDK to use:
+                </p>
+
+                <table>
+                    <thead>
+                        <tr>
+                            <th>SDK</th>
+                            <th>Used For</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><code>Microsoft.NET.Sdk</code></td>
+                            <td>Console apps, class libraries</td>
+                        </tr>
+                        <tr>
+                            <td><code>Microsoft.NET.Sdk.Web</code></td>
+                            <td>ASP.NET Core web apps, APIs</td>
+                        </tr>
+                        <tr>
+                            <td><code>Microsoft.NET.Sdk.Worker</code></td>
+                            <td>Background services, workers</td>
+                        </tr>
+                        <tr>
+                            <td><code>Microsoft.NET.Sdk.Razor</code></td>
+                            <td>Razor class libraries</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h3>PropertyGroup: Project Settings</h3>
+
+                <h4>OutputType</h4>
+
+                <div class="code-header">
+                    <span class="code-filename">OutputType</span>
+                    <span class="code-language">XML</span>
+                </div>
+                <pre><code><span class="code-tag">&lt;OutputType&gt;</span>Exe<span class="code-tag">&lt;/OutputType&gt;</span></code></pre>
+
+                <ul>
+                    <li><code>Exe</code> - Executable application (console app, web app)</li>
+                    <li><code>Library</code> - Class library (DLL only, no .exe)</li>
+                </ul>
+
+                <h4>TargetFramework</h4>
+
+                <div class="code-header">
+                    <span class="code-filename">TargetFramework</span>
+                    <span class="code-language">XML</span>
+                </div>
+                <pre><code><span class="code-tag">&lt;TargetFramework&gt;</span>net8.0<span class="code-tag">&lt;/TargetFramework&gt;</span></code></pre>
+
+                <p>
+                    Specifies which .NET version your app targets:
+                </p>
+
+                <ul>
+                    <li><code>net8.0</code> - .NET 8</li>
+                    <li><code>net7.0</code> - .NET 7</li>
+                    <li><code>net6.0</code> - .NET 6</li>
+                    <li><code>netstandard2.1</code> - .NET Standard 2.1 (cross-platform libraries)</li>
+                </ul>
+
+                <div class="callout callout-tip">
+                    <div class="callout-title">💡 Multi-Targeting</div>
+                    <p>
+                        You can target multiple frameworks using <code>&lt;TargetFrameworks&gt;</code> (plural):<br>
+                        <code>&lt;TargetFrameworks&gt;net8.0;net6.0&lt;/TargetFrameworks&gt;</code><br>
+                        This builds your library for both .NET 8 and .NET 6.
+                    </p>
+                </div>
+
+                <h4>ImplicitUsings</h4>
+
+                <div class="code-header">
+                    <span class="code-filename">ImplicitUsings</span>
+                    <span class="code-language">XML</span>
+                </div>
+                <pre><code><span class="code-tag">&lt;ImplicitUsings&gt;</span>enable<span class="code-tag">&lt;/ImplicitUsings&gt;</span></code></pre>
+
+                <p>
+                    When enabled, common namespaces are automatically imported. You don't need to write:
+                </p>
+
+                <div class="code-header">
+                    <span class="code-filename">Without ImplicitUsings</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-keyword">using</span> <span class="code-class">System</span>;
+<span class="code-keyword">using</span> <span class="code-class">System</span>.<span class="code-class">Collections</span>.<span class="code-class">Generic</span>;
+<span class="code-keyword">using</span> <span class="code-class">System</span>.<span class="code-class">Linq</span>;
+<span class="code-keyword">using</span> <span class="code-class">System</span>.<span class="code-class">Threading</span>.<span class="code-class">Tasks</span>;
+
+Console.<span class="code-method">WriteLine</span>(<span class="code-string">"Hello!"</span>);</code></pre>
+
+                <div class="code-header">
+                    <span class="code-filename">With ImplicitUsings (enabled)</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-comment">// No using statements needed!</span>
+Console.<span class="code-method">WriteLine</span>(<span class="code-string">"Hello!"</span>);</code></pre>
+
+                <h4>Nullable</h4>
+
+                <div class="code-header">
+                    <span class="code-filename">Nullable</span>
+                    <span class="code-language">XML</span>
+                </div>
+                <pre><code><span class="code-tag">&lt;Nullable&gt;</span>enable<span class="code-tag">&lt;/Nullable&gt;</span></code></pre>
+
+                <p>
+                    Enables nullable reference types—a C# 8+ feature that helps prevent null reference exceptions:
+                </p>
+
+                <ul>
+                    <li><code>enable</code> - Nullable warnings enabled (recommended)</li>
+                    <li><code>disable</code> - No nullable warnings</li>
+                    <li><code>warnings</code> - Warnings only, no errors</li>
+                    <li><code>annotations</code> - Annotations only, no warnings</li>
+                </ul>
+
+                <div class="section-divider"></div>
+
+                <h2>Common Project Properties</h2>
+
+                <p>
+                    Here are additional properties you'll commonly use:
+                </p>
+
+                <div class="code-header">
+                    <span class="code-filename">Extended .csproj Example</span>
+                    <span class="code-language">XML</span>
+                </div>
+                <pre><code><span class="code-tag">&lt;Project</span> <span class="code-attribute">Sdk</span>=<span class="code-string">"Microsoft.NET.Sdk"</span><span class="code-tag">&gt;</span>
+
+  <span class="code-tag">&lt;PropertyGroup&gt;</span>
+    <span class="code-comment">&lt;!-- Basic Settings --&gt;</span>
+    <span class="code-tag">&lt;OutputType&gt;</span>Exe<span class="code-tag">&lt;/OutputType&gt;</span>
+    <span class="code-tag">&lt;TargetFramework&gt;</span>net8.0<span class="code-tag">&lt;/TargetFramework&gt;</span>
+    
+    <span class="code-comment">&lt;!-- Language Features --&gt;</span>
+    <span class="code-tag">&lt;LangVersion&gt;</span>latest<span class="code-tag">&lt;/LangVersion&gt;</span>
+    <span class="code-tag">&lt;ImplicitUsings&gt;</span>enable<span class="code-tag">&lt;/ImplicitUsings&gt;</span>
+    <span class="code-tag">&lt;Nullable&gt;</span>enable<span class="code-tag">&lt;/Nullable&gt;</span>
+    
+    <span class="code-comment">&lt;!-- Assembly Information --&gt;</span>
+    <span class="code-tag">&lt;AssemblyName&gt;</span>InvenTrack<span class="code-tag">&lt;/AssemblyName&gt;</span>
+    <span class="code-tag">&lt;RootNamespace&gt;</span>InvenTrack.Core<span class="code-tag">&lt;/RootNamespace&gt;</span>
+    <span class="code-tag">&lt;Version&gt;</span>1.0.0<span class="code-tag">&lt;/Version&gt;</span>
+    
+    <span class="code-comment">&lt;!-- Package Metadata --&gt;</span>
+    <span class="code-tag">&lt;Authors&gt;</span>Your Name<span class="code-tag">&lt;/Authors&gt;</span>
+    <span class="code-tag">&lt;Company&gt;</span>InvenTrack Inc.<span class="code-tag">&lt;/Company&gt;</span>
+    <span class="code-tag">&lt;Description&gt;</span>InvenTrack inventory management system<span class="code-tag">&lt;/Description&gt;</span>
+    <span class="code-tag">&lt;Copyright&gt;</span>Copyright © 2024<span class="code-tag">&lt;/Copyright&gt;</span>
+  <span class="code-tag">&lt;/PropertyGroup&gt;</span>
+
+<span class="code-tag">&lt;/Project&gt;</span></code></pre>
+
+                <h3>Key Properties Explained</h3>
+
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Property</th>
+                            <th>Purpose</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><code>LangVersion</code></td>
+                            <td>C# language version (latest, 12, 11, etc.)</td>
+                        </tr>
+                        <tr>
+                            <td><code>AssemblyName</code></td>
+                            <td>Name of the compiled DLL/EXE</td>
+                        </tr>
+                        <tr>
+                            <td><code>RootNamespace</code></td>
+                            <td>Default namespace for new files</td>
+                        </tr>
+                        <tr>
+                            <td><code>Version</code></td>
+                            <td>Assembly version (1.0.0, 2.1.3, etc.)</td>
+                        </tr>
+                        <tr>
+                            <td><code>Authors</code></td>
+                            <td>Package author(s)</td>
+                        </tr>
+                        <tr>
+                            <td><code>Description</code></td>
+                            <td>Package description</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="section-divider"></div>
+
+                <h2>Managing Dependencies</h2>
+
+                <p>
+                    When you add NuGet packages, they're listed in your <code>.csproj</code>:
+                </p>
+
+                <div class="code-header">
+                    <span class="code-filename">With Package References</span>
+                    <span class="code-language">XML</span>
+                </div>
+                <pre><code><span class="code-tag">&lt;Project</span> <span class="code-attribute">Sdk</span>=<span class="code-string">"Microsoft.NET.Sdk.Web"</span><span class="code-tag">&gt;</span>
+
+  <span class="code-tag">&lt;PropertyGroup&gt;</span>
+    <span class="code-tag">&lt;TargetFramework&gt;</span>net8.0<span class="code-tag">&lt;/TargetFramework&gt;</span>
+  <span class="code-tag">&lt;/PropertyGroup&gt;</span>
+
+  <span class="code-tag">&lt;ItemGroup&gt;</span>
+    <span class="code-tag">&lt;PackageReference</span> <span class="code-attribute">Include</span>=<span class="code-string">"Newtonsoft.Json"</span> <span class="code-attribute">Version</span>=<span class="code-string">"13.0.3"</span> <span class="code-tag">/&gt;</span>
+    <span class="code-tag">&lt;PackageReference</span> <span class="code-attribute">Include</span>=<span class="code-string">"Serilog"</span> <span class="code-attribute">Version</span>=<span class="code-string">"3.1.1"</span> <span class="code-tag">/&gt;</span>
+    <span class="code-tag">&lt;PackageReference</span> <span class="code-attribute">Include</span>=<span class="code-string">"Microsoft.EntityFrameworkCore"</span> <span class="code-attribute">Version</span>=<span class="code-string">"8.0.0"</span> <span class="code-tag">/&gt;</span>
+  <span class="code-tag">&lt;/ItemGroup&gt;</span>
+
+<span class="code-tag">&lt;/Project&gt;</span></code></pre>
+
+                <div class="callout callout-info">
+                    <div class="callout-title">ℹ️ Package Versions</div>
+                    <p>
+                        <strong>Exact version</strong>: <code>Version="8.0.0"</code><br>
+                        <strong>Minimum version</strong>: <code>Version="8.0.*"</code><br>
+                        <strong>Range</strong>: <code>Version="[8.0.0, 9.0.0)"</code><br>
+                        Most projects use exact versions for reproducible builds.
+                    </p>
+                </div>
+
+                <h3>Project References</h3>
+
+                <p>
+                    When building multi-project solutions (like InvenTrack), you reference other projects:
+                </p>
+
+                <div class="code-header">
+                    <span class="code-filename">With Project References</span>
+                    <span class="code-language">XML</span>
+                </div>
+                <pre><code><span class="code-tag">&lt;ItemGroup&gt;</span>
+  <span class="code-tag">&lt;ProjectReference</span> <span class="code-attribute">Include</span>=<span class="code-string">"..\InvenTrack.Core\InvenTrack.Core.csproj"</span> <span class="code-tag">/&gt;</span>
+  <span class="code-tag">&lt;ProjectReference</span> <span class="code-attribute">Include</span>=<span class="code-string">"..\InvenTrack.Data\InvenTrack.Data.csproj"</span> <span class="code-tag">/&gt;</span>
+<span class="code-tag">&lt;/ItemGroup&gt;</span></code></pre>
+
+                <div class="section-divider"></div>
+
+                <h2>Understanding bin/ and obj/ Folders</h2>
+
+                <h3>The obj/ Folder</h3>
+
+                <p>
+                    Contains <strong>intermediate</strong> build files:
+                </p>
+
+                <ul>
+                    <li>Temporary compilation artifacts</li>
+                    <li>Project dependency graph</li>
+                    <li>Restore information</li>
+                </ul>
+
+                <p>
+                    <strong>Safe to delete</strong>: Run <code>dotnet clean</code> to remove it.
+                </p>
+
+                <h3>The bin/ Folder</h3>
+
+                <p>
+                    Contains the <strong>final</strong> build output:
+                </p>
+
+                <div class="code-header">
+                    <span class="code-filename">bin/ Structure</span>
+                    <span class="code-language">Text</span>
+                </div>
+                <pre><code>bin/
+├── Debug/                  <span class="code-comment"># Debug configuration</span>
+│   └── net8.0/
+│       ├── MyApp.dll       <span class="code-comment"># Your compiled code</span>
+│       ├── MyApp.exe       <span class="code-comment"># Windows launcher</span>
+│       ├── MyApp.pdb       <span class="code-comment"># Debug symbols</span>
+│       ├── MyApp.deps.json <span class="code-comment"># Dependencies</span>
+│       └── MyApp.runtimeconfig.json
+└── Release/                <span class="code-comment"># Release configuration</span>
+    └── net8.0/
+        └── ...</code></pre>
+
+                <h3>Debug vs Release</h3>
+
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Configuration</th>
+                            <th>Optimizations</th>
+                            <th>Debug Info</th>
+                            <th>Use For</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Debug</strong></td>
+                            <td>Disabled</td>
+                            <td>Full</td>
+                            <td>Development, debugging</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Release</strong></td>
+                            <td>Enabled</td>
+                            <td>Minimal</td>
+                            <td>Production deployment</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <p>
+                    Build for Release:
+                </p>
+
+                <div class="code-header">
+                    <span class="code-filename">Terminal</span>
+                    <span class="code-language">Shell</span>
+                </div>
+                <pre><code>dotnet build --configuration Release
+<span class="code-comment"># or shorthand:</span>
+dotnet build -c Release</code></pre>
+
+                <div class="section-divider"></div>
+
+                <h2>Solution Files (.sln)</h2>
+
+                <p>
+                    A <strong>solution</strong> is a container for multiple related projects. For InvenTrack,
+                    you might have:
+                </p>
+
+                <div class="code-header">
+                    <span class="code-filename">InvenTrack Solution Structure</span>
+                    <span class="code-language">Text</span>
+                </div>
+                <pre><code>InvenTrack/
+├── InvenTrack.sln                  <span class="code-comment"># Solution file</span>
+├── src/
+│   ├── InvenTrack.Web/             <span class="code-comment"># ASP.NET Core Web API</span>
+│   │   └── InvenTrack.Web.csproj
+│   ├── InvenTrack.Core/            <span class="code-comment"># Business logic</span>
+│   │   └── InvenTrack.Core.csproj
+│   └── InvenTrack.Data/            <span class="code-comment"># Database access</span>
+│       └── InvenTrack.Data.csproj
+└── tests/
+    └── InvenTrack.Tests/           <span class="code-comment"># Unit tests</span>
+        └── InvenTrack.Tests.csproj</code></pre>
+
+                <h3>Creating a Solution</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">Terminal</span>
+                    <span class="code-language">Shell</span>
+                </div>
+                <pre><code><span class="code-comment"># Create a new solution</span>
+dotnet new sln -n InvenTrack
+
+<span class="code-comment"># Create projects</span>
+dotnet new webapi -n InvenTrack.Web -o src/InvenTrack.Web
+dotnet new classlib -n InvenTrack.Core -o src/InvenTrack.Core
+dotnet new classlib -n InvenTrack.Data -o src/InvenTrack.Data
+
+<span class="code-comment"># Add projects to solution</span>
+dotnet sln add src/InvenTrack.Web/InvenTrack.Web.csproj
+dotnet sln add src/InvenTrack.Core/InvenTrack.Core.csproj
+dotnet sln add src/InvenTrack.Data/InvenTrack.Data.csproj
+
+<span class="code-comment"># Add project references</span>
+dotnet add src/InvenTrack.Web reference src/InvenTrack.Core
+dotnet add src/InvenTrack.Core reference src/InvenTrack.Data</code></pre>
+
+                <div class="callout callout-tip">
+                    <div class="callout-title">💡 Why Use Solutions?</div>
+                    <p>
+                        • Build all projects with one command: <code>dotnet build</code><br>
+                        • Visual Studio loads the entire solution<br>
+                        • Manage dependencies between projects<br>
+                        • Organize related projects logically
+                    </p>
+                </div>
+
+                <h3>Working with Solutions</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">Terminal</span>
+                    <span class="code-language">Shell</span>
+                </div>
+                <pre><code><span class="code-comment"># Build entire solution</span>
+dotnet build
+
+<span class="code-comment"># Restore all projects</span>
+dotnet restore
+
+<span class="code-comment"># Run a specific project</span>
+dotnet run --project src/InvenTrack.Web
+
+<span class="code-comment"># List projects in solution</span>
+dotnet sln list</code></pre>
+
+                <div class="section-divider"></div>
+
+                <h2>Best Practices for Project Organization</h2>
+
+                <h3>1. Separation of Concerns</h3>
+
+                <p>
+                    Organize code into logical projects:
+                </p>
+
+                <ul>
+                    <li><strong>Web/API</strong>: Controllers, endpoints, middleware</li>
+                    <li><strong>Core/Domain</strong>: Business logic, entities, interfaces</li>
+                    <li><strong>Data/Infrastructure</strong>: Database access, external services</li>
+                    <li><strong>Tests</strong>: Unit tests, integration tests</li>
+                </ul>
+
+                <h3>2. Naming Conventions</h3>
+
+                <ul>
+                    <li><strong>Solution</strong>: <code>CompanyName.ProductName.sln</code></li>
+                    <li><strong>Projects</strong>: <code>CompanyName.ProductName.Layer.csproj</code></li>
+                    <li><strong>Namespaces</strong>: Match folder structure</li>
+                </ul>
+
+                <h3>3. Folder Structure</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">Recommended Structure</span>
+                    <span class="code-language">Text</span>
+                </div>
+                <pre><code>InvenTrack/
+├── .gitignore
+├── README.md
+├── InvenTrack.sln
+├── src/                    <span class="code-comment"># Source code</span>
+│   ├── InvenTrack.Web/
+│   ├── InvenTrack.Core/
+│   └── InvenTrack.Data/
+├── tests/                  <span class="code-comment"># Tests</span>
+│   └── InvenTrack.Tests/
+└── docs/                   <span class="code-comment"># Documentation</span>
+    └── architecture.md</code></pre>
+
+                <h3>4. .gitignore for .NET</h3>
+
+                <p>
+                    Always include a <code>.gitignore</code> file:
+                </p>
+
+                <div class="code-header">
+                    <span class="code-filename">.gitignore</span>
+                    <span class="code-language">Text</span>
+                </div>
+                <pre><code><span class="code-comment"># Build results</span>
+bin/
+obj/
+
+<span class="code-comment"># User-specific files</span>
+*.user
+*.suo
+*.userosscache
+
+<span class="code-comment"># Visual Studio</span>
+.vs/
+
+<span class="code-comment"># Rider</span>
+.idea/
+
+<span class="code-comment"># VS Code</span>
+.vscode/</code></pre>
+
+                <div class="callout callout-tip">
+                    <div class="callout-title">💡 Quick .gitignore</div>
+                    <p>
+                        Create a .NET .gitignore automatically:<br>
+                        <code>dotnet new gitignore</code>
+                    </p>
+                </div>
+
+                <div class="section-divider"></div>
+
+                <h2>Advanced .csproj Features</h2>
+
+                <h3>Conditional Compilation</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">Conditional Properties</span>
+                    <span class="code-language">XML</span>
+                </div>
+                <pre><code><span class="code-tag">&lt;PropertyGroup</span> <span class="code-attribute">Condition</span>=<span class="code-string">"'$(Configuration)' == 'Debug'"</span><span class="code-tag">&gt;</span>
+  <span class="code-tag">&lt;DefineConstants&gt;</span>DEBUG;TRACE<span class="code-tag">&lt;/DefineConstants&gt;</span>
+<span class="code-tag">&lt;/PropertyGroup&gt;</span>
+
+<span class="code-tag">&lt;PropertyGroup</span> <span class="code-attribute">Condition</span>=<span class="code-string">"'$(Configuration)' == 'Release'"</span><span class="code-tag">&gt;</span>
+  <span class="code-tag">&lt;DefineConstants&gt;</span>TRACE<span class="code-tag">&lt;/DefineConstants&gt;</span>
+  <span class="code-tag">&lt;Optimize&gt;</span>true<span class="code-tag">&lt;/Optimize&gt;</span>
+<span class="code-tag">&lt;/PropertyGroup&gt;</span></code></pre>
+
+                <h3>Including/Excluding Files</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">File Inclusion</span>
+                    <span class="code-language">XML</span>
+                </div>
+                <pre><code><span class="code-tag">&lt;ItemGroup&gt;</span>
+  <span class="code-comment">&lt;!-- Include all .txt files as content --&gt;</span>
+  <span class="code-tag">&lt;Content</span> <span class="code-attribute">Include</span>=<span class="code-string">"**\*.txt"</span> <span class="code-tag">/&gt;</span>
+  
+  <span class="code-comment">&lt;!-- Exclude specific files --&gt;</span>
+  <span class="code-tag">&lt;Compile</span> <span class="code-attribute">Remove</span>=<span class="code-string">"Temp\**\*.cs"</span> <span class="code-tag">/&gt;</span>
+<span class="code-tag">&lt;/ItemGroup&gt;</span></code></pre>
+
+                <h3>Custom Build Targets</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">Custom Targets</span>
+                    <span class="code-language">XML</span>
+                </div>
+                <pre><code><span class="code-tag">&lt;Target</span> <span class="code-attribute">Name</span>=<span class="code-string">"PrintVersion"</span> <span class="code-attribute">BeforeTargets</span>=<span class="code-string">"Build"</span><span class="code-tag">&gt;</span>
+  <span class="code-tag">&lt;Message</span> <span class="code-attribute">Text</span>=<span class="code-string">"Building version $(Version)"</span> <span class="code-attribute">Importance</span>=<span class="code-string">"high"</span> <span class="code-tag">/&gt;</span>
+<span class="code-tag">&lt;/Target&gt;</span></code></pre>
+
+                <h2>Key Takeaways</h2>
+
+                <ul>
+                    <li>The <code>.csproj</code> file defines your project configuration</li>
+                    <li>Modern .csproj files are <strong>simple and readable</strong> (SDK-style)</li>
+                    <li><code>Sdk</code> attribute determines project type (console, web, library)</li>
+                    <li><code>TargetFramework</code> specifies .NET version</li>
+                    <li><code>ImplicitUsings</code> auto-imports common namespaces</li>
+                    <li><code>Nullable</code> enables null safety features</li>
+                    <li><strong>bin/</strong> contains build output, <strong>obj/</strong> contains intermediate files
+                    </li>
+                    <li>Both <code>bin/</code> and <code>obj/</code> should be in <code>.gitignore</code></li>
+                    <li><strong>Solutions (.sln)</strong> organize multiple related projects</li>
+                    <li>Use <code>dotnet sln</code> commands to manage solutions</li>
+                    <li><strong>Debug</strong> builds for development, <strong>Release</strong> for production</li>
+                    <li>Organize projects by <strong>separation of concerns</strong></li>
+                </ul>
+
+                <div class="callout callout-concept">
+                    <div class="callout-title">🎯 Next Steps</div>
+                    <p>
+                        You now understand how .NET projects are structured and configured! In the next section,
+                        we'll explore the <strong>dotnet CLI</strong> in depth—all the commands you need to
+                        create, build, test, and publish your applications.
+                    </p>
+                </div>
+
+                <nav class="page-nav">
+                    <a href="03-first-console-app.html" class="prev">Your First Console App</a>
+                    <a href="05-dotnet-cli.html" class="next">The dotnet CLI</a>
+                </nav>
+
+            
+        <footer class="page-footer">
+          Built with 💜 by <a href="https://akwasi.dev" target="_blank" rel="noopener noreferrer">Akwasi Adu-Kyeremeh</a> for developers who want to truly understand what they're building.
+        </footer>
+
+      </div>
+        </main>
+    </div>
+</body>
+
+</html>

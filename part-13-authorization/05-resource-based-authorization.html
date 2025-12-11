@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Resource-Based Authorization | ASP.NET Core Mastery</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;500&family=Source+Serif+4:ital,wght@0,400;0,600;1,400&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="../assets/style.css">
+</head>
+
+<body>
+    <div class="page-wrapper">
+        <aside class="sidebar">
+            <a href="../index.html" class="sidebar-logo">ASP.NET Core Mastery</a>
+            <div class="sidebar-section">Part XIII: Authorization</div>
+            <ul class="sidebar-nav">
+                <li><a href="01-authorization-fundamentals.html">Authorization Fundamentals</a></li>
+                <li><a href="02-role-based-authorization.html">Role-Based Authorization</a></li>
+                <li><a href="03-claims-based-authorization.html">Claims-Based Authorization</a></li>
+                <li><a href="04-policy-based-authorization.html">Policy-Based Authorization</a></li>
+                <li><a href="05-resource-based-authorization.html" class="active">Resource-Based Authorization</a></li>
+                <li><a href="06-custom-authorization-handlers.html">Custom Authorization Handlers</a></li>
+            </ul>
+            <div class="sidebar-section">Resources</div>
+            <ul class="sidebar-nav">
+                <li><a href="../index.html">Full Roadmap</a></li>
+            </ul>
+        </aside>
+
+        <main class="main-content">
+            <div class="content-container">
+                <nav class="breadcrumb">
+                    <a href="../index.html">Home</a>
+                    <span>→</span>
+                    <a href="01-authorization-fundamentals.html">Part XIII: Authorization</a>
+                    <span>→</span>
+                    Resource-Based Authorization
+                </nav>
+
+                <div class="progress-indicator">
+                    <span>Section 5 of 6</span>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 83.33%"></div>
+                    </div>
+                </div>
+
+                <h1>Resource-Based Authorization</h1>
+
+                <div class="learning-objectives">
+                    <h3>🎯 What You'll Learn</h3>
+                    <ul>
+                        <li>What is resource-based authorization</li>
+                        <li>IAuthorizationService</li>
+                        <li>AuthorizeAsync()</li>
+                        <li>Creating resource handlers</li>
+                        <li>InvenTrack example</li>
+                    </ul>
+                </div>
+
+                <h2>What is Resource-Based Authorization?</h2>
+
+                <p>
+                    <strong>Resource-based authorization</strong> makes decisions based on the specific resource being
+                    accessed.
+                    For example, users can only edit their own products.
+                </p>
+
+                <div class="callout callout-concept">
+                    <div class="callout-title">💡 Use Case</div>
+                    <p>
+                        Use resource-based authorization when the authorization decision depends on the resource data
+                        itself,
+                        not just the user's role or claims.
+                    </p>
+                </div>
+
+                <div class="section-divider"></div>
+
+                <h2>IAuthorizationService</h2>
+
+                <p>Inject <code>IAuthorizationService</code> to perform authorization checks in code.</p>
+
+                <div class="code-header">
+                    <span class="code-filename">Basic Usage</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">ProductsController</span> : <span class="code-class">Controller</span>
+{
+    <span class="code-keyword">private</span> <span class="code-keyword">readonly</span> <span class="code-class">IAuthorizationService</span> <span class="code-variable">_authorizationService</span>;
+
+    <span class="code-keyword">public</span> <span class="code-method">ProductsController</span>(<span class="code-class">IAuthorizationService</span> <span class="code-variable">authorizationService</span>)
+    {
+        <span class="code-variable">_authorizationService</span> = <span class="code-variable">authorizationService</span>;
+    }
+
+    <span class="code-keyword">public</span> <span class="code-keyword">async</span> <span class="code-class">Task</span>&lt;<span class="code-class">IActionResult</span>&gt; <span class="code-method">Edit</span>(<span class="code-type">int</span> <span class="code-variable">id</span>)
+    {
+        <span class="code-keyword">var</span> <span class="code-variable">product</span> = <span class="code-keyword">await</span> <span class="code-variable">_context</span>.<span class="code-variable">Products</span>.<span class="code-method">FindAsync</span>(<span class="code-variable">id</span>);
+
+        <span class="code-keyword">var</span> <span class="code-variable">authResult</span> = <span class="code-keyword">await</span> <span class="code-variable">_authorizationService</span>.<span class="code-method">AuthorizeAsync</span>(
+            <span class="code-variable">User</span>, <span class="code-variable">product</span>, <span class="code-string">"CanEditProduct"</span>);
+
+        <span class="code-keyword">if</span> (!<span class="code-variable">authResult</span>.<span class="code-variable">Succeeded</span>)
+            <span class="code-keyword">return</span> <span class="code-method">Forbid</span>();
+
+        <span class="code-keyword">return</span> <span class="code-method">View</span>(<span class="code-variable">product</span>);
+    }
+}</code></pre>
+
+                <div class="section-divider"></div>
+
+                <h2>Creating Resource Handler</h2>
+
+                <h3>1. Define Requirement</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">ProductOwnerRequirement.cs</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">ProductOwnerRequirement</span> : <span class="code-class">IAuthorizationRequirement</span>
+{
+}</code></pre>
+
+                <h3>2. Create Handler</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">ProductOwnerHandler.cs</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">ProductOwnerHandler</span> 
+    : <span class="code-class">AuthorizationHandler</span>&lt;<span class="code-class">ProductOwnerRequirement</span>, <span class="code-class">Product</span>&gt;
+{
+    <span class="code-keyword">protected</span> <span class="code-keyword">override</span> <span class="code-class">Task</span> <span class="code-method">HandleRequirementAsync</span>(
+        <span class="code-class">AuthorizationHandlerContext</span> <span class="code-variable">context</span>,
+        <span class="code-class">ProductOwnerRequirement</span> <span class="code-variable">requirement</span>,
+        <span class="code-class">Product</span> <span class="code-variable">resource</span>)
+    {
+        <span class="code-keyword">var</span> <span class="code-variable">userId</span> = <span class="code-variable">context</span>.<span class="code-variable">User</span>.<span class="code-method">FindFirst</span>(<span class="code-class">ClaimTypes</span>.<span class="code-variable">NameIdentifier</span>)?.<span class="code-variable">Value</span>;
+
+        <span class="code-keyword">if</span> (<span class="code-variable">resource</span>.<span class="code-variable">CreatedBy</span> == <span class="code-variable">userId</span>)
+        {
+            <span class="code-variable">context</span>.<span class="code-method">Succeed</span>(<span class="code-variable">requirement</span>);
+        }
+
+        <span class="code-keyword">return</span> <span class="code-class">Task</span>.<span class="code-variable">CompletedTask</span>;
+    }
+}</code></pre>
+
+                <h3>3. Register Handler and Policy</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">Program.cs</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-variable">builder</span>.<span class="code-variable">Services</span>.<span class="code-method">AddSingleton</span>&lt;<span class="code-class">IAuthorizationHandler</span>, <span class="code-class">ProductOwnerHandler</span>&gt;();
+
+<span class="code-variable">builder</span>.<span class="code-variable">Services</span>.<span class="code-method">AddAuthorization</span>(<span class="code-variable">options</span> =>
+{
+    <span class="code-variable">options</span>.<span class="code-method">AddPolicy</span>(<span class="code-string">"CanEditProduct"</span>, <span class="code-variable">policy</span> =>
+        <span class="code-variable">policy</span>.<span class="code-variable">Requirements</span>.<span class="code-method">Add</span>(<span class="code-keyword">new</span> <span class="code-class">ProductOwnerRequirement</span>()));
+});</code></pre>
+
+                <h2>Complete InvenTrack Example</h2>
+
+                <div class="code-header">
+                    <span class="code-filename">Product Model</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">Product</span>
+{
+    <span class="code-keyword">public</span> <span class="code-type">int</span> <span class="code-variable">Id</span> { <span class="code-keyword">get</span>; <span class="code-keyword">set</span>; }
+    <span class="code-keyword">public</span> <span class="code-type">string</span> <span class="code-variable">Name</span> { <span class="code-keyword">get</span>; <span class="code-keyword">set</span>; } = <span class="code-keyword">string</span>.<span class="code-variable">Empty</span>;
+    <span class="code-keyword">public</span> <span class="code-type">string</span> <span class="code-variable">CreatedBy</span> { <span class="code-keyword">get</span>; <span class="code-keyword">set</span>; } = <span class="code-keyword">string</span>.<span class="code-variable">Empty</span>;
+}</code></pre>
+
+                <div class="code-header">
+                    <span class="code-filename">ProductsController.cs</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code>[<span class="code-class">Authorize</span>]
+<span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">ProductsController</span> : <span class="code-class">Controller</span>
+{
+    <span class="code-keyword">private</span> <span class="code-keyword">readonly</span> <span class="code-class">IAuthorizationService</span> <span class="code-variable">_authorizationService</span>;
+
+    [<span class="code-class">HttpGet</span>]
+    <span class="code-keyword">public</span> <span class="code-keyword">async</span> <span class="code-class">Task</span>&lt;<span class="code-class">IActionResult</span>&gt; <span class="code-method">Edit</span>(<span class="code-type">int</span> <span class="code-variable">id</span>)
+    {
+        <span class="code-keyword">var</span> <span class="code-variable">product</span> = <span class="code-keyword">await</span> <span class="code-variable">_context</span>.<span class="code-variable">Products</span>.<span class="code-method">FindAsync</span>(<span class="code-variable">id</span>);
+        <span class="code-keyword">if</span> (<span class="code-variable">product</span> == <span class="code-keyword">null</span>)
+            <span class="code-keyword">return</span> <span class="code-method">NotFound</span>();
+
+        <span class="code-comment">// Check if user can edit this specific product</span>
+        <span class="code-keyword">var</span> <span class="code-variable">authResult</span> = <span class="code-keyword">await</span> <span class="code-variable">_authorizationService</span>
+            .<span class="code-method">AuthorizeAsync</span>(<span class="code-variable">User</span>, <span class="code-variable">product</span>, <span class="code-string">"CanEditProduct"</span>);
+
+        <span class="code-keyword">if</span> (!<span class="code-variable">authResult</span>.<span class="code-variable">Succeeded</span>)
+            <span class="code-keyword">return</span> <span class="code-method">Forbid</span>();
+
+        <span class="code-keyword">return</span> <span class="code-method">View</span>(<span class="code-variable">product</span>);
+    }
+}</code></pre>
+
+                <h2>Key Takeaways</h2>
+
+                <ul>
+                    <li><strong>Resource-based</strong>: Authorization depends on resource data</li>
+                    <li><strong>IAuthorizationService</strong>: Perform checks in code</li>
+                    <li><strong>AuthorizeAsync()</strong>: Check authorization for resource</li>
+                    <li><strong>IAuthorizationRequirement</strong>: Define requirement</li>
+                    <li><strong>AuthorizationHandler</strong>: Implement authorization logic</li>
+                    <li><strong>Use case</strong>: Users can only edit their own data</li>
+                </ul>
+
+                <nav class="page-nav">
+                    <a href="04-policy-based-authorization.html" class="prev">Policy-Based Authorization</a>
+                    <a href="06-custom-authorization-handlers.html" class="next">Custom Authorization Handlers</a>
+                </nav>
+
+            
+        <footer class="page-footer">
+          Built with 💜 by <a href="https://akwasi.dev" target="_blank" rel="noopener noreferrer">Akwasi Adu-Kyeremeh</a> for developers who want to truly understand what they're building.
+        </footer>
+
+      </div>
+        </main>
+    </div>
+</body>
+
+</html>

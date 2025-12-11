@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SQL Injection | ASP.NET Core Mastery</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;500&family=Source+Serif+4:ital,wght@0,400;0,600;1,400&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="../assets/style.css">
+</head>
+
+<body>
+    <div class="page-wrapper">
+        <aside class="sidebar">
+            <a href="../index.html" class="sidebar-logo">ASP.NET Core Mastery</a>
+            <div class="sidebar-section">Part XIV: Security</div>
+            <ul class="sidebar-nav">
+                <li><a href="01-owasp-top-10.html">OWASP Top 10</a></li>
+                <li><a href="02-xss-protection.html">Cross-Site Scripting (XSS)</a></li>
+                <li><a href="03-csrf-protection.html">Cross-Site Request Forgery (CSRF)</a></li>
+                <li><a href="04-sql-injection.html" class="active">SQL Injection</a></li>
+                <li><a href="05-data-protection-api.html">Data Protection API</a></li>
+                <li><a href="06-https-security-headers.html">HTTPS and Security Headers</a></li>
+            </ul>
+            <div class="sidebar-section">Resources</div>
+            <ul class="sidebar-nav">
+                <li><a href="../index.html">Full Roadmap</a></li>
+            </ul>
+        </aside>
+
+        <main class="main-content">
+            <div class="content-container">
+                <nav class="breadcrumb">
+                    <a href="../index.html">Home</a>
+                    <span>→</span>
+                    <a href="01-owasp-top-10.html">Part XIV: Security</a>
+                    <span>→</span>
+                    SQL Injection
+                </nav>
+
+                <div class="progress-indicator">
+                    <span>Section 4 of 6</span>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 66.67%"></div>
+                    </div>
+                </div>
+
+                <h1>SQL Injection</h1>
+
+                <div class="learning-objectives">
+                    <h3>🎯 What You'll Learn</h3>
+                    <ul>
+                        <li>What is SQL injection</li>
+                        <li>How SQL injection works</li>
+                        <li>Vulnerable code examples</li>
+                        <li>Parameterized queries</li>
+                        <li>Entity Framework Core protection</li>
+                    </ul>
+                </div>
+
+                <h2>What is SQL Injection?</h2>
+
+                <p>
+                    <strong>SQL Injection</strong> is an attack where malicious SQL code is inserted into queries,
+                    allowing attackers to read, modify, or delete database data.
+                </p>
+
+                <div class="section-divider"></div>
+
+                <h2>How SQL Injection Works</h2>
+
+                <div class="code-header">
+                    <span class="code-filename">Vulnerable Code (DON'T DO THIS!)</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-comment">// VULNERABLE!</span>
+<span class="code-keyword">var</span> <span class="code-variable">query</span> = <span class="code-string">$"SELECT * FROM Users WHERE Email = '{email}' AND Password = '{password}'"</span>;
+<span class="code-keyword">var</span> <span class="code-variable">user</span> = <span class="code-variable">_context</span>.<span class="code-variable">Users</span>.<span class="code-method">FromSqlRaw</span>(<span class="code-variable">query</span>).<span class="code-method">FirstOrDefault</span>();</code></pre>
+
+                <div class="code-header">
+                    <span class="code-filename">Attack Example</span>
+                    <span class="code-language">SQL</span>
+                </div>
+                <pre><code><span class="code-comment">-- Attacker enters:</span>
+<span class="code-variable">email</span> = <span class="code-string">"admin@example.com"</span>
+<span class="code-variable">password</span> = <span class="code-string">"' OR '1'='1"</span>
+
+<span class="code-comment">-- Resulting query:</span>
+<span class="code-keyword">SELECT</span> * <span class="code-keyword">FROM</span> <span class="code-variable">Users</span> 
+<span class="code-keyword">WHERE</span> <span class="code-variable">Email</span> = <span class="code-string">'admin@example.com'</span> 
+<span class="code-keyword">AND</span> <span class="code-variable">Password</span> = <span class="code-string">''</span> <span class="code-keyword">OR</span> <span class="code-string">'1'</span>=<span class="code-string">'1'</span>
+
+<span class="code-comment">-- Always true! Bypasses authentication!</span></code></pre>
+
+                <div class="section-divider"></div>
+
+                <h2>Prevention: Parameterized Queries</h2>
+
+                <div class="code-header">
+                    <span class="code-filename">Safe (Parameterized)</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-keyword">var</span> <span class="code-variable">user</span> = <span class="code-variable">_context</span>.<span class="code-variable">Users</span>
+    .<span class="code-method">FromSqlRaw</span>(<span class="code-string">"SELECT * FROM Users WHERE Email = {0} AND Password = {1}"</span>, <span class="code-variable">email</span>, <span class="code-variable">password</span>)
+    .<span class="code-method">FirstOrDefault</span>();
+
+<span class="code-comment">// Or with named parameters:</span>
+<span class="code-keyword">var</span> <span class="code-variable">user</span> = <span class="code-variable">_context</span>.<span class="code-variable">Users</span>
+    .<span class="code-method">FromSqlRaw</span>(<span class="code-string">"SELECT * FROM Users WHERE Email = @email AND Password = @password"</span>,
+        <span class="code-keyword">new</span> <span class="code-class">SqlParameter</span>(<span class="code-string">"@email"</span>, <span class="code-variable">email</span>),
+        <span class="code-keyword">new</span> <span class="code-class">SqlParameter</span>(<span class="code-string">"@password"</span>, <span class="code-variable">password</span>))
+    .<span class="code-method">FirstOrDefault</span>();</code></pre>
+
+                <div class="section-divider"></div>
+
+                <h2>Entity Framework Core Protection</h2>
+
+                <p>EF Core LINQ queries are automatically parameterized - safe by default!</p>
+
+                <div class="code-header">
+                    <span class="code-filename">Safe (LINQ)</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-comment">// Automatically parameterized - SAFE!</span>
+<span class="code-keyword">var</span> <span class="code-variable">user</span> = <span class="code-keyword">await</span> <span class="code-variable">_context</span>.<span class="code-variable">Users</span>
+    .<span class="code-method">Where</span>(<span class="code-variable">u</span> => <span class="code-variable">u</span>.<span class="code-variable">Email</span> == <span class="code-variable">email</span> && <span class="code-variable">u</span>.<span class="code-variable">Password</span> == <span class="code-variable">password</span>)
+    .<span class="code-method">FirstOrDefaultAsync</span>();</code></pre>
+
+                <div class="section-divider"></div>
+
+                <h2>InvenTrack Example</h2>
+
+                <div class="code-header">
+                    <span class="code-filename">Vulnerable Search (DON'T DO THIS!)</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-comment">// VULNERABLE!</span>
+<span class="code-keyword">var</span> <span class="code-variable">query</span> = <span class="code-string">$"SELECT * FROM Products WHERE Name LIKE '%{searchTerm}%'"</span>;
+<span class="code-keyword">var</span> <span class="code-variable">products</span> = <span class="code-variable">_context</span>.<span class="code-variable">Products</span>.<span class="code-method">FromSqlRaw</span>(<span class="code-variable">query</span>).<span class="code-method">ToList</span>();</code></pre>
+
+                <div class="code-header">
+                    <span class="code-filename">Safe Search (LINQ)</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-comment">// SAFE!</span>
+<span class="code-keyword">var</span> <span class="code-variable">products</span> = <span class="code-keyword">await</span> <span class="code-variable">_context</span>.<span class="code-variable">Products</span>
+    .<span class="code-method">Where</span>(<span class="code-variable">p</span> => <span class="code-variable">p</span>.<span class="code-variable">Name</span>.<span class="code-method">Contains</span>(<span class="code-variable">searchTerm</span>))
+    .<span class="code-method">ToListAsync</span>();</code></pre>
+
+                <h2>Best Practices</h2>
+
+                <ul>
+                    <li><strong>Use LINQ</strong>: Automatically parameterized</li>
+                    <li><strong>Never concatenate</strong>: Don't build queries with string concatenation</li>
+                    <li><strong>Use parameters</strong>: If using raw SQL, always use parameters</li>
+                    <li><strong>Validate input</strong>: Reject suspicious input</li>
+                    <li><strong>Least privilege</strong>: Database user should have minimal permissions</li>
+                </ul>
+
+                <h2>Key Takeaways</h2>
+
+                <ul>
+                    <li><strong>SQL Injection</strong>: Malicious SQL in queries</li>
+                    <li><strong>String concatenation</strong>: NEVER build queries this way</li>
+                    <li><strong>Parameterized queries</strong>: Use parameters, not concatenation</li>
+                    <li><strong>EF Core LINQ</strong>: Safe by default</li>
+                    <li><strong>FromSqlRaw</strong>: Use with parameters only</li>
+                </ul>
+
+                <nav class="page-nav">
+                    <a href="03-csrf-protection.html" class="prev">Cross-Site Request Forgery (CSRF)</a>
+                    <a href="05-data-protection-api.html" class="next">Data Protection API</a>
+                </nav>
+
+            
+        <footer class="page-footer">
+          Built with 💜 by <a href="https://akwasi.dev" target="_blank" rel="noopener noreferrer">Akwasi Adu-Kyeremeh</a> for developers who want to truly understand what they're building.
+        </footer>
+
+      </div>
+        </main>
+    </div>
+</body>
+
+</html>

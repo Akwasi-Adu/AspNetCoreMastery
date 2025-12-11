@@ -1,0 +1,532 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Headers and Content Types | ASP.NET Core Mastery</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;500&family=Source+Serif+4:ital,wght@0,400;0,600;1,400&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="../assets/style.css">
+</head>
+
+<body>
+    <div class="page-wrapper">
+        <aside class="sidebar">
+            <a href="../index.html" class="sidebar-logo">ASP.NET Core Mastery</a>
+            <div class="sidebar-section">Part VI: HTTP & Web Fundamentals</div>
+            <ul class="sidebar-nav">
+                <li><a href="01-http-basics.html">HTTP Protocol Basics</a></li>
+                <li><a href="02-request-response.html">Request/Response Cycle</a></li>
+                <li><a href="03-http-methods.html">HTTP Methods</a></li>
+                <li><a href="04-status-codes.html">Status Codes</a></li>
+                <li><a href="05-headers-content-types.html" class="active">Headers and Content Types</a></li>
+                <li><a href="06-cookies-sessions.html">Cookies and Sessions</a></li>
+            </ul>
+            <div class="sidebar-section">Resources</div>
+            <ul class="sidebar-nav">
+                <li><a href="../index.html">Full Roadmap</a></li>
+            </ul>
+        </aside>
+
+        <main class="main-content">
+            <div class="content-container">
+                <nav class="breadcrumb">
+                    <a href="../index.html">Home</a>
+                    <span>→</span>
+                    <a href="01-http-basics.html">Part VI: HTTP & Web Fundamentals</a>
+                    <span>→</span>
+                    Headers and Content Types
+                </nav>
+
+                <div class="progress-indicator">
+                    <span>Section 5 of 6</span>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 83.33%"></div>
+                    </div>
+                </div>
+
+                <h1>Headers and Content Types</h1>
+
+                <div class="learning-objectives">
+                    <h3>🎯 What You'll Learn</h3>
+                    <ul>
+                        <li>Common HTTP headers</li>
+                        <li>Content-Type and Accept headers</li>
+                        <li>Content negotiation</li>
+                        <li>Custom headers</li>
+                        <li>CORS headers</li>
+                        <li>How to read and set headers in ASP.NET Core</li>
+                        <li>Complete InvenTrack examples</li>
+                    </ul>
+                </div>
+
+                <h2>What are HTTP Headers?</h2>
+
+                <p>
+                    HTTP headers are key-value pairs that provide metadata about the request or response.
+                </p>
+
+                <div class="code-header">
+                    <span class="code-filename">Example Headers</span>
+                    <span class="code-language">HTTP</span>
+                </div>
+                <pre><code>GET /api/products HTTP/1.1
+Host: inventrackapp.com
+User-Agent: Mozilla/5.0
+Accept: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+Content-Type: application/json</code></pre>
+
+                <div class="section-divider"></div>
+
+                <h2>Common Request Headers</h2>
+
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Header</th>
+                            <th>Purpose</th>
+                            <th>Example</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Host</strong></td>
+                            <td>Target server</td>
+                            <td><code>inventrackapp.com</code></td>
+                        </tr>
+                        <tr>
+                            <td><strong>User-Agent</strong></td>
+                            <td>Client information</td>
+                            <td><code>Mozilla/5.0</code></td>
+                        </tr>
+                        <tr>
+                            <td><strong>Accept</strong></td>
+                            <td>Expected response format</td>
+                            <td><code>application/json</code></td>
+                        </tr>
+                        <tr>
+                            <td><strong>Content-Type</strong></td>
+                            <td>Format of request body</td>
+                            <td><code>application/json</code></td>
+                        </tr>
+                        <tr>
+                            <td><strong>Authorization</strong></td>
+                            <td>Authentication credentials</td>
+                            <td><code>Bearer token...</code></td>
+                        </tr>
+                        <tr>
+                            <td><strong>Cookie</strong></td>
+                            <td>Cookies sent to server</td>
+                            <td><code>sessionId=abc123</code></td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="section-divider"></div>
+
+                <h2>Common Response Headers</h2>
+
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Header</th>
+                            <th>Purpose</th>
+                            <th>Example</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Content-Type</strong></td>
+                            <td>Format of response body</td>
+                            <td><code>application/json</code></td>
+                        </tr>
+                        <tr>
+                            <td><strong>Content-Length</strong></td>
+                            <td>Size of response body</td>
+                            <td><code>1234</code></td>
+                        </tr>
+                        <tr>
+                            <td><strong>Location</strong></td>
+                            <td>URL of created resource</td>
+                            <td><code>/api/products/123</code></td>
+                        </tr>
+                        <tr>
+                            <td><strong>Set-Cookie</strong></td>
+                            <td>Set cookie in browser</td>
+                            <td><code>sessionId=abc123</code></td>
+                        </tr>
+                        <tr>
+                            <td><strong>Cache-Control</strong></td>
+                            <td>Caching directives</td>
+                            <td><code>no-cache</code></td>
+                        </tr>
+                        <tr>
+                            <td><strong>Access-Control-Allow-Origin</strong></td>
+                            <td>CORS policy</td>
+                            <td><code>*</code></td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="section-divider"></div>
+
+                <h2>Content-Type Header</h2>
+
+                <p>
+                    <strong>Content-Type</strong> specifies the format of the request/response body.
+                </p>
+
+                <h3>Common Content Types</h3>
+
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Content-Type</th>
+                            <th>Description</th>
+                            <th>Use Case</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><code>application/json</code></td>
+                            <td>JSON data</td>
+                            <td>APIs (most common)</td>
+                        </tr>
+                        <tr>
+                            <td><code>application/xml</code></td>
+                            <td>XML data</td>
+                            <td>Legacy APIs, SOAP</td>
+                        </tr>
+                        <tr>
+                            <td><code>text/html</code></td>
+                            <td>HTML document</td>
+                            <td>Web pages</td>
+                        </tr>
+                        <tr>
+                            <td><code>text/plain</code></td>
+                            <td>Plain text</td>
+                            <td>Simple text responses</td>
+                        </tr>
+                        <tr>
+                            <td><code>multipart/form-data</code></td>
+                            <td>Form with files</td>
+                            <td>File uploads</td>
+                        </tr>
+                        <tr>
+                            <td><code>application/x-www-form-urlencoded</code></td>
+                            <td>Form data</td>
+                            <td>HTML forms</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="code-header">
+                    <span class="code-filename">JSON Request</span>
+                    <span class="code-language">HTTP</span>
+                </div>
+                <pre><code>POST /api/products HTTP/1.1
+Content-Type: application/json
+
+{
+  "name": "Laptop",
+  "price": 999.99
+}</code></pre>
+
+                <div class="section-divider"></div>
+
+                <h2>Content Negotiation</h2>
+
+                <p>
+                    Content negotiation allows clients to request different response formats using the
+                    <code>Accept</code> header.
+                </p>
+
+                <div class="code-header">
+                    <span class="code-filename">Request JSON</span>
+                    <span class="code-language">HTTP</span>
+                </div>
+                <pre><code>GET /api/products/123 HTTP/1.1
+Accept: application/json</code></pre>
+
+                <div class="code-header">
+                    <span class="code-filename">Request XML</span>
+                    <span class="code-language">HTTP</span>
+                </div>
+                <pre><code>GET /api/products/123 HTTP/1.1
+Accept: application/xml</code></pre>
+
+                <h3>Enable Content Negotiation in ASP.NET Core</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">Program.cs</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-variable">builder</span>.<span class="code-variable">Services</span>.<span class="code-method">AddControllers</span>(<span class="code-variable">options</span> =&gt;
+{
+    <span class="code-variable">options</span>.<span class="code-variable">RespectBrowserAcceptHeader</span> = <span class="code-keyword">true</span>; <span class="code-comment">// Enable content negotiation</span>
+})
+.<span class="code-method">AddXmlSerializerFormatters</span>(); <span class="code-comment">// Add XML support</span></code></pre>
+
+                <div class="section-divider"></div>
+
+                <h2>Reading Headers in ASP.NET Core</h2>
+
+                <div class="code-header">
+                    <span class="code-filename">Read Request Headers</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code>[<span class="code-class">HttpGet</span>]
+<span class="code-keyword">public</span> <span class="code-class">IActionResult</span> <span class="code-method">GetProducts</span>()
+{
+    <span class="code-comment">// Read specific header</span>
+    <span class="code-keyword">var</span> <span class="code-variable">userAgent</span> = <span class="code-class">Request</span>.<span class="code-variable">Headers</span>[<span class="code-string">"User-Agent"</span>].<span class="code-method">ToString</span>();
+    
+    <span class="code-comment">// Read Authorization header</span>
+    <span class="code-keyword">var</span> <span class="code-variable">authHeader</span> = <span class="code-class">Request</span>.<span class="code-variable">Headers</span>[<span class="code-string">"Authorization"</span>].<span class="code-method">ToString</span>();
+    
+    <span class="code-comment">// Check if header exists</span>
+    <span class="code-keyword">if</span> (<span class="code-class">Request</span>.<span class="code-variable">Headers</span>.<span class="code-method">ContainsKey</span>(<span class="code-string">"X-API-Key"</span>))
+    {
+        <span class="code-keyword">var</span> <span class="code-variable">apiKey</span> = <span class="code-class">Request</span>.<span class="code-variable">Headers</span>[<span class="code-string">"X-API-Key"</span>].<span class="code-method">ToString</span>();
+    }
+    
+    <span class="code-comment">// Read Content-Type</span>
+    <span class="code-keyword">var</span> <span class="code-variable">contentType</span> = <span class="code-class">Request</span>.<span class="code-variable">ContentType</span>;
+    
+    <span class="code-keyword">return</span> <span class="code-method">Ok</span>();
+}</code></pre>
+
+                <h3>Using [FromHeader] Attribute</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">Bind Header to Parameter</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code>[<span class="code-class">HttpGet</span>]
+<span class="code-keyword">public</span> <span class="code-class">IActionResult</span> <span class="code-method">GetProducts</span>(
+    [<span class="code-class">FromHeader</span>(<span class="code-variable">Name</span> = <span class="code-string">"X-API-Key"</span>)] <span class="code-type">string</span> <span class="code-variable">apiKey</span>,
+    [<span class="code-class">FromHeader</span>(<span class="code-variable">Name</span> = <span class="code-string">"X-Request-Id"</span>)] <span class="code-type">string</span>? <span class="code-variable">requestId</span> = <span class="code-keyword">null</span>)
+{
+    <span class="code-comment">// apiKey and requestId are automatically bound from headers</span>
+    <span class="code-keyword">return</span> <span class="code-method">Ok</span>();
+}</code></pre>
+
+                <div class="section-divider"></div>
+
+                <h2>Setting Response Headers</h2>
+
+                <div class="code-header">
+                    <span class="code-filename">Set Response Headers</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code>[<span class="code-class">HttpGet</span>]
+<span class="code-keyword">public</span> <span class="code-class">IActionResult</span> <span class="code-method">GetProducts</span>()
+{
+    <span class="code-comment">// Set custom headers</span>
+    <span class="code-class">Response</span>.<span class="code-variable">Headers</span>[<span class="code-string">"X-Total-Count"</span>] = <span class="code-string">"100"</span>;
+    <span class="code-class">Response</span>.<span class="code-variable">Headers</span>[<span class="code-string">"X-API-Version"</span>] = <span class="code-string">"1.0"</span>;
+    <span class="code-class">Response</span>.<span class="code-variable">Headers</span>[<span class="code-string">"X-Response-Time"</span>] = <span class="code-string">"45ms"</span>;
+    
+    <span class="code-comment">// Set Cache-Control</span>
+    <span class="code-class">Response</span>.<span class="code-variable">Headers</span>[<span class="code-string">"Cache-Control"</span>] = <span class="code-string">"no-cache"</span>;
+    
+    <span class="code-keyword">return</span> <span class="code-method">Ok</span>(<span class="code-keyword">new</span> <span class="code-type">List</span>&lt;<span class="code-class">Product</span>&gt;());
+}</code></pre>
+
+                <div class="section-divider"></div>
+
+                <h2>Custom Headers</h2>
+
+                <p>
+                    Custom headers should start with <code>X-</code> (convention).
+                </p>
+
+                <h3>Common Custom Headers</h3>
+
+                <ul>
+                    <li><code>X-API-Key</code>: API authentication</li>
+                    <li><code>X-Request-Id</code>: Request tracking</li>
+                    <li><code>X-Correlation-Id</code>: Distributed tracing</li>
+                    <li><code>X-Total-Count</code>: Total items in paginated response</li>
+                    <li><code>X-Response-Time</code>: Server processing time</li>
+                </ul>
+
+                <div class="code-header">
+                    <span class="code-filename">InvenTrack Custom Headers</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code>[<span class="code-class">HttpGet</span>]
+<span class="code-keyword">public</span> <span class="code-keyword">async</span> <span class="code-class">Task</span>&lt;<span class="code-class">IActionResult</span>&gt; <span class="code-method">GetProducts</span>(
+    [<span class="code-class">FromQuery</span>] <span class="code-type">int</span> <span class="code-variable">page</span> = <span class="code-number">1</span>,
+    [<span class="code-class">FromQuery</span>] <span class="code-type">int</span> <span class="code-variable">pageSize</span> = <span class="code-number">10</span>)
+{
+    <span class="code-keyword">var</span> <span class="code-variable">result</span> = <span class="code-keyword">await</span> <span class="code-variable">_productService</span>.<span class="code-method">GetPagedAsync</span>(<span class="code-variable">page</span>, <span class="code-variable">pageSize</span>);
+    
+    <span class="code-comment">// Add pagination headers</span>
+    <span class="code-class">Response</span>.<span class="code-variable">Headers</span>[<span class="code-string">"X-Total-Count"</span>] = <span class="code-variable">result</span>.<span class="code-variable">TotalCount</span>.<span class="code-method">ToString</span>();
+    <span class="code-class">Response</span>.<span class="code-variable">Headers</span>[<span class="code-string">"X-Page"</span>] = <span class="code-variable">page</span>.<span class="code-method">ToString</span>();
+    <span class="code-class">Response</span>.<span class="code-variable">Headers</span>[<span class="code-string">"X-Page-Size"</span>] = <span class="code-variable">pageSize</span>.<span class="code-method">ToString</span>();
+    <span class="code-class">Response</span>.<span class="code-variable">Headers</span>[<span class="code-string">"X-Total-Pages"</span>] = <span class="code-variable">result</span>.<span class="code-variable">TotalPages</span>.<span class="code-method">ToString</span>();
+    
+    <span class="code-keyword">return</span> <span class="code-method">Ok</span>(<span class="code-variable">result</span>.<span class="code-variable">Items</span>);
+}</code></pre>
+
+                <div class="section-divider"></div>
+
+                <h2>CORS Headers</h2>
+
+                <p>
+                    CORS (Cross-Origin Resource Sharing) headers allow browsers to make cross-origin requests.
+                </p>
+
+                <h3>Common CORS Headers</h3>
+
+                <ul>
+                    <li><code>Access-Control-Allow-Origin</code>: Allowed origins</li>
+                    <li><code>Access-Control-Allow-Methods</code>: Allowed HTTP methods</li>
+                    <li><code>Access-Control-Allow-Headers</code>: Allowed headers</li>
+                    <li><code>Access-Control-Allow-Credentials</code>: Allow cookies</li>
+                </ul>
+
+                <div class="code-header">
+                    <span class="code-filename">Program.cs - CORS Configuration</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-variable">builder</span>.<span class="code-variable">Services</span>.<span class="code-method">AddCors</span>(<span class="code-variable">options</span> =&gt;
+{
+    <span class="code-variable">options</span>.<span class="code-method">AddPolicy</span>(<span class="code-string">"AllowFrontend"</span>, <span class="code-variable">policy</span> =&gt;
+    {
+        <span class="code-variable">policy</span>.<span class="code-method">WithOrigins</span>(<span class="code-string">"https://inventrackapp.com"</span>)
+              .<span class="code-method">AllowAnyMethod</span>()
+              .<span class="code-method">AllowAnyHeader</span>()
+              .<span class="code-method">AllowCredentials</span>();
+    });
+});
+
+<span class="code-keyword">var</span> <span class="code-variable">app</span> = <span class="code-variable">builder</span>.<span class="code-method">Build</span>();
+
+<span class="code-variable">app</span>.<span class="code-method">UseCors</span>(<span class="code-string">"AllowFrontend"</span>);</code></pre>
+
+                <div class="section-divider"></div>
+
+                <h2>Complete InvenTrack Example</h2>
+
+                <div class="code-header">
+                    <span class="code-filename">Controllers/ProductsController.cs</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code>[<span class="code-class">ApiController</span>]
+[<span class="code-class">Route</span>(<span class="code-string">"api/[controller]"</span>)]
+<span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">ProductsController</span> : <span class="code-class">ControllerBase</span>
+{
+    <span class="code-keyword">private</span> <span class="code-keyword">readonly</span> <span class="code-class">IProductService</span> <span class="code-variable">_productService</span>;
+
+    <span class="code-keyword">public</span> <span class="code-method">ProductsController</span>(<span class="code-class">IProductService</span> <span class="code-variable">productService</span>)
+    {
+        <span class="code-variable">_productService</span> = <span class="code-variable">productService</span>;
+    }
+
+    <span class="code-comment">// Pagination with custom headers</span>
+    [<span class="code-class">HttpGet</span>]
+    <span class="code-keyword">public</span> <span class="code-keyword">async</span> <span class="code-class">Task</span>&lt;<span class="code-class">IActionResult</span>&gt; <span class="code-method">GetProducts</span>(
+        [<span class="code-class">FromQuery</span>] <span class="code-type">int</span> <span class="code-variable">page</span> = <span class="code-number">1</span>,
+        [<span class="code-class">FromQuery</span>] <span class="code-type">int</span> <span class="code-variable">pageSize</span> = <span class="code-number">10</span>)
+    {
+        <span class="code-keyword">var</span> <span class="code-variable">result</span> = <span class="code-keyword">await</span> <span class="code-variable">_productService</span>.<span class="code-method">GetPagedAsync</span>(<span class="code-variable">page</span>, <span class="code-variable">pageSize</span>);
+        
+        <span class="code-comment">// Add pagination headers</span>
+        <span class="code-class">Response</span>.<span class="code-variable">Headers</span>[<span class="code-string">"X-Total-Count"</span>] = <span class="code-variable">result</span>.<span class="code-variable">TotalCount</span>.<span class="code-method">ToString</span>();
+        <span class="code-class">Response</span>.<span class="code-variable">Headers</span>[<span class="code-string">"X-Page"</span>] = <span class="code-variable">page</span>.<span class="code-method">ToString</span>();
+        <span class="code-class">Response</span>.<span class="code-variable">Headers</span>[<span class="code-string">"X-Page-Size"</span>] = <span class="code-variable">pageSize</span>.<span class="code-method">ToString</span>();
+        <span class="code-class">Response</span>.<span class="code-variable">Headers</span>[<span class="code-string">"X-Total-Pages"</span>] = <span class="code-variable">result</span>.<span class="code-variable">TotalPages</span>.<span class="code-method">ToString</span>();
+        
+        <span class="code-keyword">return</span> <span class="code-method">Ok</span>(<span class="code-variable">result</span>.<span class="code-variable">Items</span>);
+    }
+
+    <span class="code-comment">// API Key from header</span>
+    [<span class="code-class">HttpGet</span>(<span class="code-string">"secure"</span>)]
+    <span class="code-keyword">public</span> <span class="code-class">IActionResult</span> <span class="code-method">GetSecureData</span>(
+        [<span class="code-class">FromHeader</span>(<span class="code-variable">Name</span> = <span class="code-string">"X-API-Key"</span>)] <span class="code-type">string</span> <span class="code-variable">apiKey</span>)
+    {
+        <span class="code-keyword">if</span> (<span class="code-variable">apiKey</span> != <span class="code-string">"secret-key-123"</span>)
+            <span class="code-keyword">return</span> <span class="code-method">Unauthorized</span>();
+        
+        <span class="code-keyword">return</span> <span class="code-method">Ok</span>(<span class="code-string">"Secure data"</span>);
+    }
+
+    <span class="code-comment">// Content negotiation (JSON/XML)</span>
+    [<span class="code-class">HttpGet</span>(<span class="code-string">"{id}"</span>)]
+    [<span class="code-class">Produces</span>(<span class="code-string">"application/json"</span>, <span class="code-string">"application/xml"</span>)]
+    <span class="code-keyword">public</span> <span class="code-keyword">async</span> <span class="code-class">Task</span>&lt;<span class="code-class">IActionResult</span>&gt; <span class="code-method">GetProduct</span>(<span class="code-type">int</span> <span class="code-variable">id</span>)
+    {
+        <span class="code-keyword">var</span> <span class="code-variable">product</span> = <span class="code-keyword">await</span> <span class="code-variable">_productService</span>.<span class="code-method">GetByIdAsync</span>(<span class="code-variable">id</span>);
+        
+        <span class="code-keyword">if</span> (<span class="code-variable">product</span> == <span class="code-keyword">null</span>)
+            <span class="code-keyword">return</span> <span class="code-method">NotFound</span>();
+        
+        <span class="code-comment">// Returns JSON or XML based on Accept header</span>
+        <span class="code-keyword">return</span> <span class="code-method">Ok</span>(<span class="code-variable">product</span>);
+    }
+
+    <span class="code-comment">// File upload (multipart/form-data)</span>
+    [<span class="code-class">HttpPost</span>(<span class="code-string">"upload"</span>)]
+    <span class="code-keyword">public</span> <span class="code-keyword">async</span> <span class="code-class">Task</span>&lt;<span class="code-class">IActionResult</span>&gt; <span class="code-method">UploadImage</span>(<span class="code-class">IFormFile</span> <span class="code-variable">file</span>)
+    {
+        <span class="code-keyword">if</span> (<span class="code-variable">file</span> == <span class="code-keyword">null</span> || <span class="code-variable">file</span>.<span class="code-variable">Length</span> == <span class="code-number">0</span>)
+            <span class="code-keyword">return</span> <span class="code-method">BadRequest</span>(<span class="code-string">"No file uploaded"</span>);
+        
+        <span class="code-comment">// Check Content-Type</span>
+        <span class="code-keyword">if</span> (!<span class="code-variable">file</span>.<span class="code-variable">ContentType</span>.<span class="code-method">StartsWith</span>(<span class="code-string">"image/"</span>))
+            <span class="code-keyword">return</span> <span class="code-method">BadRequest</span>(<span class="code-string">"Only images allowed"</span>);
+        
+        <span class="code-keyword">var</span> <span class="code-variable">url</span> = <span class="code-keyword">await</span> <span class="code-variable">_productService</span>.<span class="code-method">UploadImageAsync</span>(<span class="code-variable">file</span>);
+        
+        <span class="code-keyword">return</span> <span class="code-method">Ok</span>(<span class="code-keyword">new</span> { <span class="code-variable">imageUrl</span> = <span class="code-variable">url</span> });
+    }
+}</code></pre>
+
+                <h2>Key Takeaways</h2>
+
+                <ul>
+                    <li><strong>Headers</strong>: Key-value pairs with request/response metadata</li>
+                    <li><strong>Content-Type</strong>: Format of request/response body</li>
+                    <li><strong>Accept</strong>: Client's preferred response format</li>
+                    <li><strong>Content negotiation</strong>: Return different formats (JSON/XML)</li>
+                    <li><strong>Custom headers</strong>: Start with <code>X-</code> (e.g., <code>X-API-Key</code>)</li>
+                    <li><strong>CORS headers</strong>: Enable cross-origin requests</li>
+                    <li>Read headers with <code>Request.Headers</code></li>
+                    <li>Set headers with <code>Response.Headers</code></li>
+                    <li>Use <code>[FromHeader]</code> to bind headers to parameters</li>
+                    <li>Use <code>[Produces]</code> for content negotiation</li>
+                </ul>
+
+                <div class="callout callout-concept">
+                    <div class="callout-title">🎯 Next Steps</div>
+                    <p>
+                        You now understand HTTP headers and content types! In the final section, we'll explore
+                        <strong>Cookies and Sessions</strong>—how to maintain state across requests, session
+                        management, and cookie security.
+                    </p>
+                </div>
+
+                <nav class="page-nav">
+                    <a href="04-status-codes.html" class="prev">Status Codes</a>
+                    <a href="06-cookies-sessions.html" class="next">Cookies and Sessions</a>
+                </nav>
+
+            
+        <footer class="page-footer">
+          Built with 💜 by <a href="https://akwasi.dev" target="_blank" rel="noopener noreferrer">Akwasi Adu-Kyeremeh</a> for developers who want to truly understand what they're building.
+        </footer>
+
+      </div>
+        </main>
+    </div>
+</body>
+
+</html>

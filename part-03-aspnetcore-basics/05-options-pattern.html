@@ -1,0 +1,588 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Options Pattern | ASP.NET Core Mastery</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;500&family=Source+Serif+4:ital,wght@0,400;0,600;1,400&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="../assets/style.css">
+</head>
+
+<body>
+    <div class="page-wrapper">
+        <aside class="sidebar">
+            <a href="../index.html" class="sidebar-logo">ASP.NET Core Mastery</a>
+            <div class="sidebar-section">Part III: ASP.NET Core Basics</div>
+            <ul class="sidebar-nav">
+                <li><a href="01-what-is-aspnetcore.html">What is ASP.NET Core?</a></li>
+                <li><a href="02-first-web-app.html">Your First Web Application</a></li>
+                <li><a href="03-program-cs-deep-dive.html">Program.cs Deep Dive</a></li>
+                <li><a href="04-configuration.html">Configuration & appsettings.json</a></li>
+                <li><a href="05-options-pattern.html" class="active">The Options Pattern</a></li>
+                <li><a href="06-environments.html">Environments</a></li>
+            </ul>
+            <div class="sidebar-section">Resources</div>
+            <ul class="sidebar-nav">
+                <li><a href="../index.html">Full Roadmap</a></li>
+            </ul>
+        </aside>
+
+        <main class="main-content">
+            <div class="content-container">
+                <nav class="breadcrumb">
+                    <a href="../index.html">Home</a>
+                    <span>→</span>
+                    <a href="01-what-is-aspnetcore.html">Part III: ASP.NET Core Basics</a>
+                    <span>→</span>
+                    The Options Pattern
+                </nav>
+
+                <div class="progress-indicator">
+                    <span>Section 5 of 6</span>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 83.33%"></div>
+                    </div>
+                </div>
+
+                <h1>The Options Pattern</h1>
+
+                <div class="learning-objectives">
+                    <h3>🎯 What You'll Learn</h3>
+                    <ul>
+                        <li>What the Options Pattern is and why use it</li>
+                        <li>Creating strongly-typed configuration classes</li>
+                        <li>Registering options in Program.cs</li>
+                        <li>Injecting options with IOptions, IOptionsSnapshot, IOptionsMonitor</li>
+                        <li>Validating configuration with Data Annotations</li>
+                        <li>Named options for multiple configurations</li>
+                        <li>Post-configuration and validation</li>
+                        <li>Best practices for InvenTrack options</li>
+                    </ul>
+                </div>
+
+                <h2>What is the Options Pattern?</h2>
+
+                <p>
+                    The <strong>Options Pattern</strong> is the recommended way to access configuration in
+                    ASP.NET Core. Instead of reading strings from <code>IConfiguration</code>, you bind
+                    configuration sections to strongly-typed classes.
+                </p>
+
+                <div class="callout callout-concept">
+                    <div class="callout-title">💡 Why Use the Options Pattern?</div>
+                    <p>
+                        <strong>Type Safety</strong>: Compile-time checking instead of runtime errors<br>
+                        <strong>IntelliSense</strong>: Auto-completion for configuration properties<br>
+                        <strong>Validation</strong>: Validate configuration at startup<br>
+                        <strong>Testability</strong>: Easy to mock in unit tests<br>
+                        <strong>Separation of Concerns</strong>: Configuration logic separate from business logic
+                    </p>
+                </div>
+
+                <div class="section-divider"></div>
+
+                <h2>Basic Usage</h2>
+
+                <h3>Step 1: Create an Options Class</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">JwtSettings.cs</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-keyword">namespace</span> <span class="code-class">InvenTrack</span>.<span class="code-class">Api</span>.<span class="code-class">Options</span>;
+
+<span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">JwtSettings</span>
+{
+    <span class="code-keyword">public</span> <span class="code-type">string</span> <span class="code-variable">Secret</span> { <span class="code-keyword">get</span>; <span class="code-keyword">set</span>; } = <span class="code-type">string</span>.<span class="code-variable">Empty</span>;
+    <span class="code-keyword">public</span> <span class="code-type">string</span> <span class="code-variable">Issuer</span> { <span class="code-keyword">get</span>; <span class="code-keyword">set</span>; } = <span class="code-type">string</span>.<span class="code-variable">Empty</span>;
+    <span class="code-keyword">public</span> <span class="code-type">string</span> <span class="code-variable">Audience</span> { <span class="code-keyword">get</span>; <span class="code-keyword">set</span>; } = <span class="code-type">string</span>.<span class="code-variable">Empty</span>;
+    <span class="code-keyword">public</span> <span class="code-type">int</span> <span class="code-variable">ExpirationMinutes</span> { <span class="code-keyword">get</span>; <span class="code-keyword">set</span>; }
+}</code></pre>
+
+                <h3>Step 2: Configure in appsettings.json</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">appsettings.json</span>
+                    <span class="code-language">JSON</span>
+                </div>
+                <pre><code>{
+  <span class="code-string">"JwtSettings"</span>: {
+    <span class="code-string">"Secret"</span>: <span class="code-string">"your-secret-key-here-min-32-chars"</span>,
+    <span class="code-string">"Issuer"</span>: <span class="code-string">"InvenTrack.Api"</span>,
+    <span class="code-string">"Audience"</span>: <span class="code-string">"InvenTrack.Client"</span>,
+    <span class="code-string">"ExpirationMinutes"</span>: <span class="code-number">60</span>
+  }
+}</code></pre>
+
+                <h3>Step 3: Register Options in Program.cs</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">Program.cs</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-variable">builder</span>.<span class="code-variable">Services</span>.<span class="code-method">Configure</span>&lt;<span class="code-class">JwtSettings</span>&gt;(
+    <span class="code-variable">builder</span>.<span class="code-variable">Configuration</span>.<span class="code-method">GetSection</span>(<span class="code-string">"JwtSettings"</span>));</code></pre>
+
+                <h3>Step 4: Inject and Use</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">AuthService.cs</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-keyword">using</span> <span class="code-class">Microsoft</span>.<span class="code-class">Extensions</span>.<span class="code-class">Options</span>;
+
+<span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">AuthService</span>
+{
+    <span class="code-keyword">private</span> <span class="code-keyword">readonly</span> <span class="code-class">JwtSettings</span> <span class="code-variable">_jwtSettings</span>;
+
+    <span class="code-keyword">public</span> <span class="code-method">AuthService</span>(<span class="code-class">IOptions</span>&lt;<span class="code-class">JwtSettings</span>&gt; <span class="code-variable">jwtOptions</span>)
+    {
+        <span class="code-variable">_jwtSettings</span> = <span class="code-variable">jwtOptions</span>.<span class="code-variable">Value</span>;
+    }
+
+    <span class="code-keyword">public</span> <span class="code-type">string</span> <span class="code-method">GenerateToken</span>(<span class="code-type">string</span> <span class="code-variable">userId</span>)
+    {
+        <span class="code-comment">// Use _jwtSettings.Secret, _jwtSettings.Issuer, etc.</span>
+        <span class="code-keyword">var</span> <span class="code-variable">key</span> = <span class="code-class">Encoding</span>.<span class="code-variable">UTF8</span>.<span class="code-method">GetBytes</span>(<span class="code-variable">_jwtSettings</span>.<span class="code-variable">Secret</span>);
+        <span class="code-comment">// ... token generation logic</span>
+    }
+}</code></pre>
+
+                <div class="section-divider"></div>
+
+                <h2>IOptions vs IOptionsSnapshot vs IOptionsMonitor</h2>
+
+                <p>
+                    There are three interfaces for accessing options:
+                </p>
+
+                <h3>IOptions&lt;T&gt;</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">IOptions</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-keyword">public</span> <span class="code-method">MyService</span>(<span class="code-class">IOptions</span>&lt;<span class="code-class">JwtSettings</span>&gt; <span class="code-variable">options</span>)
+{
+    <span class="code-keyword">var</span> <span class="code-variable">settings</span> = <span class="code-variable">options</span>.<span class="code-variable">Value</span>;
+}</code></pre>
+
+                <ul>
+                    <li><strong>Lifetime</strong>: Singleton</li>
+                    <li><strong>Reloading</strong>: Does NOT reload when config changes</li>
+                    <li><strong>Use when</strong>: Configuration doesn't change during runtime</li>
+                    <li><strong>Best for</strong>: Most scenarios</li>
+                </ul>
+
+                <h3>IOptionsSnapshot&lt;T&gt;</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">IOptionsSnapshot</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-keyword">public</span> <span class="code-method">MyService</span>(<span class="code-class">IOptionsSnapshot</span>&lt;<span class="code-class">JwtSettings</span>&gt; <span class="code-variable">options</span>)
+{
+    <span class="code-keyword">var</span> <span class="code-variable">settings</span> = <span class="code-variable">options</span>.<span class="code-variable">Value</span>;
+}</code></pre>
+
+                <ul>
+                    <li><strong>Lifetime</strong>: Scoped (per request)</li>
+                    <li><strong>Reloading</strong>: Reloads on each request</li>
+                    <li><strong>Use when</strong>: Config might change between requests</li>
+                    <li><strong>Best for</strong>: Named options, per-request config</li>
+                </ul>
+
+                <h3>IOptionsMonitor&lt;T&gt;</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">IOptionsMonitor</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-keyword">public</span> <span class="code-method">MyService</span>(<span class="code-class">IOptionsMonitor</span>&lt;<span class="code-class">JwtSettings</span>&gt; <span class="code-variable">options</span>)
+{
+    <span class="code-keyword">var</span> <span class="code-variable">settings</span> = <span class="code-variable">options</span>.<span class="code-variable">CurrentValue</span>;
+    
+    <span class="code-comment">// Subscribe to changes</span>
+    <span class="code-variable">options</span>.<span class="code-method">OnChange</span>(<span class="code-variable">newSettings</span> =&gt;
+    {
+        <span class="code-class">Console</span>.<span class="code-method">WriteLine</span>(<span class="code-string">"Configuration changed!"</span>);
+    });
+}</code></pre>
+
+                <ul>
+                    <li><strong>Lifetime</strong>: Singleton</li>
+                    <li><strong>Reloading</strong>: Reloads immediately when config changes</li>
+                    <li><strong>Use when</strong>: Need to react to config changes in real-time</li>
+                    <li><strong>Best for</strong>: Singleton services that need live updates</li>
+                </ul>
+
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Feature</th>
+                            <th>IOptions</th>
+                            <th>IOptionsSnapshot</th>
+                            <th>IOptionsMonitor</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Lifetime</strong></td>
+                            <td>Singleton</td>
+                            <td>Scoped</td>
+                            <td>Singleton</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Reloads</strong></td>
+                            <td>❌ No</td>
+                            <td>✅ Per request</td>
+                            <td>✅ Immediately</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Named options</strong></td>
+                            <td>❌ No</td>
+                            <td>✅ Yes</td>
+                            <td>✅ Yes</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Change notifications</strong></td>
+                            <td>❌ No</td>
+                            <td>❌ No</td>
+                            <td>✅ Yes</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="callout callout-tip">
+                    <div class="callout-title">💡 Which One to Use?</div>
+                    <p>
+                        <strong>Default choice</strong>: Use <code>IOptions&lt;T&gt;</code> for most scenarios<br>
+                        <strong>Per-request config</strong>: Use <code>IOptionsSnapshot&lt;T&gt;</code><br>
+                        <strong>Real-time updates</strong>: Use <code>IOptionsMonitor&lt;T&gt;</code>
+                    </p>
+                </div>
+
+                <div class="section-divider"></div>
+
+                <h2>Validation with Data Annotations</h2>
+
+                <p>
+                    You can validate options using Data Annotations:
+                </p>
+
+                <div class="code-header">
+                    <span class="code-filename">JwtSettings.cs (with validation)</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-keyword">using</span> <span class="code-class">System</span>.<span class="code-class">ComponentModel</span>.<span class="code-class">DataAnnotations</span>;
+
+<span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">JwtSettings</span>
+{
+    [<span class="code-method">Required</span>(<span class="code-variable">ErrorMessage</span> = <span class="code-string">"JWT Secret is required"</span>)]
+    [<span class="code-method">MinLength</span>(<span class="code-number">32</span>, <span class="code-variable">ErrorMessage</span> = <span class="code-string">"JWT Secret must be at least 32 characters"</span>)]
+    <span class="code-keyword">public</span> <span class="code-type">string</span> <span class="code-variable">Secret</span> { <span class="code-keyword">get</span>; <span class="code-keyword">set</span>; } = <span class="code-type">string</span>.<span class="code-variable">Empty</span>;
+
+    [<span class="code-method">Required</span>]
+    <span class="code-keyword">public</span> <span class="code-type">string</span> <span class="code-variable">Issuer</span> { <span class="code-keyword">get</span>; <span class="code-keyword">set</span>; } = <span class="code-type">string</span>.<span class="code-variable">Empty</span>;
+
+    [<span class="code-method">Required</span>]
+    <span class="code-keyword">public</span> <span class="code-type">string</span> <span class="code-variable">Audience</span> { <span class="code-keyword">get</span>; <span class="code-keyword">set</span>; } = <span class="code-type">string</span>.<span class="code-variable">Empty</span>;
+
+    [<span class="code-method">Range</span>(<span class="code-number">1</span>, <span class="code-number">1440</span>, <span class="code-variable">ErrorMessage</span> = <span class="code-string">"Expiration must be between 1 and 1440 minutes"</span>)]
+    <span class="code-keyword">public</span> <span class="code-type">int</span> <span class="code-variable">ExpirationMinutes</span> { <span class="code-keyword">get</span>; <span class="code-keyword">set</span>; }
+}</code></pre>
+
+                <h3>Enable Validation</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">Program.cs</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-variable">builder</span>.<span class="code-variable">Services</span>.<span class="code-method">AddOptions</span>&lt;<span class="code-class">JwtSettings</span>&gt;()
+    .<span class="code-method">Bind</span>(<span class="code-variable">builder</span>.<span class="code-variable">Configuration</span>.<span class="code-method">GetSection</span>(<span class="code-string">"JwtSettings"</span>))
+    .<span class="code-method">ValidateDataAnnotations</span>()
+    .<span class="code-method">ValidateOnStart</span>();</code></pre>
+
+                <ul>
+                    <li><code>ValidateDataAnnotations()</code> - Enables Data Annotations validation</li>
+                    <li><code>ValidateOnStart()</code> - Validates at startup (fails fast)</li>
+                </ul>
+
+                <div class="callout callout-warning">
+                    <div class="callout-title">⚠️ Fail Fast</div>
+                    <p>
+                        Without <code>ValidateOnStart()</code>, validation only happens when options are first
+                        accessed. Use <code>ValidateOnStart()</code> to catch configuration errors at startup!
+                    </p>
+                </div>
+
+                <div class="section-divider"></div>
+
+                <h2>Custom Validation</h2>
+
+                <p>
+                    For complex validation, implement <code>IValidateOptions&lt;T&gt;</code>:
+                </p>
+
+                <div class="code-header">
+                    <span class="code-filename">JwtSettingsValidator.cs</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-keyword">using</span> <span class="code-class">Microsoft</span>.<span class="code-class">Extensions</span>.<span class="code-class">Options</span>;
+
+<span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">JwtSettingsValidator</span> : <span class="code-class">IValidateOptions</span>&lt;<span class="code-class">JwtSettings</span>&gt;
+{
+    <span class="code-keyword">public</span> <span class="code-class">ValidateOptionsResult</span> <span class="code-method">Validate</span>(<span class="code-type">string</span>? <span class="code-variable">name</span>, <span class="code-class">JwtSettings</span> <span class="code-variable">options</span>)
+    {
+        <span class="code-keyword">var</span> <span class="code-variable">errors</span> = <span class="code-keyword">new</span> <span class="code-class">List</span>&lt;<span class="code-type">string</span>&gt;();
+
+        <span class="code-keyword">if</span> (<span class="code-type">string</span>.<span class="code-method">IsNullOrWhiteSpace</span>(<span class="code-variable">options</span>.<span class="code-variable">Secret</span>))
+        {
+            <span class="code-variable">errors</span>.<span class="code-method">Add</span>(<span class="code-string">"JWT Secret is required"</span>);
+        }
+        <span class="code-keyword">else</span> <span class="code-keyword">if</span> (<span class="code-variable">options</span>.<span class="code-variable">Secret</span>.<span class="code-variable">Length</span> &lt; <span class="code-number">32</span>)
+        {
+            <span class="code-variable">errors</span>.<span class="code-method">Add</span>(<span class="code-string">"JWT Secret must be at least 32 characters"</span>);
+        }
+
+        <span class="code-keyword">if</span> (<span class="code-variable">options</span>.<span class="code-variable">ExpirationMinutes</span> &lt; <span class="code-number">1</span> || <span class="code-variable">options</span>.<span class="code-variable">ExpirationMinutes</span> &gt; <span class="code-number">1440</span>)
+        {
+            <span class="code-variable">errors</span>.<span class="code-method">Add</span>(<span class="code-string">"Expiration must be between 1 and 1440 minutes"</span>);
+        }
+
+        <span class="code-keyword">return</span> <span class="code-variable">errors</span>.<span class="code-variable">Count</span> == <span class="code-number">0</span>
+            ? <span class="code-class">ValidateOptionsResult</span>.<span class="code-variable">Success</span>
+            : <span class="code-class">ValidateOptionsResult</span>.<span class="code-method">Fail</span>(<span class="code-variable">errors</span>);
+    }
+}</code></pre>
+
+                <h3>Register Custom Validator</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">Program.cs</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-variable">builder</span>.<span class="code-variable">Services</span>.<span class="code-method">AddSingleton</span>&lt;<span class="code-class">IValidateOptions</span>&lt;<span class="code-class">JwtSettings</span>&gt;, <span class="code-class">JwtSettingsValidator</span>&gt;();
+
+<span class="code-variable">builder</span>.<span class="code-variable">Services</span>.<span class="code-method">AddOptions</span>&lt;<span class="code-class">JwtSettings</span>&gt;()
+    .<span class="code-method">Bind</span>(<span class="code-variable">builder</span>.<span class="code-variable">Configuration</span>.<span class="code-method">GetSection</span>(<span class="code-string">"JwtSettings"</span>))
+    .<span class="code-method">ValidateOnStart</span>();</code></pre>
+
+                <div class="section-divider"></div>
+
+                <h2>Post-Configuration</h2>
+
+                <p>
+                    You can modify options after they're bound from configuration:
+                </p>
+
+                <div class="code-header">
+                    <span class="code-filename">Post-Configure</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-variable">builder</span>.<span class="code-variable">Services</span>.<span class="code-method">PostConfigure</span>&lt;<span class="code-class">JwtSettings</span>&gt;(<span class="code-variable">options</span> =&gt;
+{
+    <span class="code-comment">// Ensure Secret is trimmed</span>
+    <span class="code-variable">options</span>.<span class="code-variable">Secret</span> = <span class="code-variable">options</span>.<span class="code-variable">Secret</span>.<span class="code-method">Trim</span>();
+    
+    <span class="code-comment">// Set default if not provided</span>
+    <span class="code-keyword">if</span> (<span class="code-variable">options</span>.<span class="code-variable">ExpirationMinutes</span> == <span class="code-number">0</span>)
+    {
+        <span class="code-variable">options</span>.<span class="code-variable">ExpirationMinutes</span> = <span class="code-number">60</span>;
+    }
+});</code></pre>
+
+                <div class="section-divider"></div>
+
+                <h2>Named Options</h2>
+
+                <p>
+                    You can have multiple configurations of the same type:
+                </p>
+
+                <div class="code-header">
+                    <span class="code-filename">appsettings.json</span>
+                    <span class="code-language">JSON</span>
+                </div>
+                <pre><code>{
+  <span class="code-string">"EmailSettings"</span>: {
+    <span class="code-string">"Transactional"</span>: {
+      <span class="code-string">"SmtpServer"</span>: <span class="code-string">"smtp.sendgrid.net"</span>,
+      <span class="code-string">"SmtpPort"</span>: <span class="code-number">587</span>
+    },
+    <span class="code-string">"Marketing"</span>: {
+      <span class="code-string">"SmtpServer"</span>: <span class="code-string">"smtp.mailchimp.com"</span>,
+      <span class="code-string">"SmtpPort"</span>: <span class="code-number">587</span>
+    }
+  }
+}</code></pre>
+
+                <div class="code-header">
+                    <span class="code-filename">Program.cs</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-variable">builder</span>.<span class="code-variable">Services</span>.<span class="code-method">Configure</span>&lt;<span class="code-class">EmailSettings</span>&gt;(<span class="code-string">"Transactional"</span>,
+    <span class="code-variable">builder</span>.<span class="code-variable">Configuration</span>.<span class="code-method">GetSection</span>(<span class="code-string">"EmailSettings:Transactional"</span>));
+
+<span class="code-variable">builder</span>.<span class="code-variable">Services</span>.<span class="code-method">Configure</span>&lt;<span class="code-class">EmailSettings</span>&gt;(<span class="code-string">"Marketing"</span>,
+    <span class="code-variable">builder</span>.<span class="code-variable">Configuration</span>.<span class="code-method">GetSection</span>(<span class="code-string">"EmailSettings:Marketing"</span>));</code></pre>
+
+                <div class="code-header">
+                    <span class="code-filename">EmailService.cs</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">EmailService</span>
+{
+    <span class="code-keyword">private</span> <span class="code-keyword">readonly</span> <span class="code-class">EmailSettings</span> <span class="code-variable">_transactionalSettings</span>;
+    <span class="code-keyword">private</span> <span class="code-keyword">readonly</span> <span class="code-class">EmailSettings</span> <span class="code-variable">_marketingSettings</span>;
+
+    <span class="code-keyword">public</span> <span class="code-method">EmailService</span>(<span class="code-class">IOptionsSnapshot</span>&lt;<span class="code-class">EmailSettings</span>&gt; <span class="code-variable">emailOptions</span>)
+    {
+        <span class="code-variable">_transactionalSettings</span> = <span class="code-variable">emailOptions</span>.<span class="code-method">Get</span>(<span class="code-string">"Transactional"</span>);
+        <span class="code-variable">_marketingSettings</span> = <span class="code-variable">emailOptions</span>.<span class="code-method">Get</span>(<span class="code-string">"Marketing"</span>);
+    }
+}</code></pre>
+
+                <div class="section-divider"></div>
+
+                <h2>Complete InvenTrack Example</h2>
+
+                <h3>Options Classes</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">Options/InventorySettings.cs</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-keyword">using</span> <span class="code-class">System</span>.<span class="code-class">ComponentModel</span>.<span class="code-class">DataAnnotations</span>;
+
+<span class="code-keyword">namespace</span> <span class="code-class">InvenTrack</span>.<span class="code-class">Api</span>.<span class="code-class">Options</span>;
+
+<span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">InventorySettings</span>
+{
+    [<span class="code-method">Range</span>(<span class="code-number">1</span>, <span class="code-number">1000</span>)]
+    <span class="code-keyword">public</span> <span class="code-type">int</span> <span class="code-variable">LowStockThreshold</span> { <span class="code-keyword">get</span>; <span class="code-keyword">set</span>; } = <span class="code-number">10</span>;
+
+    <span class="code-keyword">public</span> <span class="code-type">bool</span> <span class="code-variable">EnableAutoReorder</span> { <span class="code-keyword">get</span>; <span class="code-keyword">set</span>; }
+
+    [<span class="code-method">Required</span>]
+    [<span class="code-method">RegularExpression</span>(<span class="code-string">@"^[A-Z]{3}$"</span>, <span class="code-variable">ErrorMessage</span> = <span class="code-string">"Currency must be 3 uppercase letters"</span>)]
+    <span class="code-keyword">public</span> <span class="code-type">string</span> <span class="code-variable">DefaultCurrency</span> { <span class="code-keyword">get</span>; <span class="code-keyword">set</span>; } = <span class="code-string">"USD"</span>;
+}</code></pre>
+
+                <div class="code-header">
+                    <span class="code-filename">Options/EmailSettings.cs</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-keyword">using</span> <span class="code-class">System</span>.<span class="code-class">ComponentModel</span>.<span class="code-class">DataAnnotations</span>;
+
+<span class="code-keyword">namespace</span> <span class="code-class">InvenTrack</span>.<span class="code-class">Api</span>.<span class="code-class">Options</span>;
+
+<span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">EmailSettings</span>
+{
+    [<span class="code-method">Required</span>]
+    <span class="code-keyword">public</span> <span class="code-type">string</span> <span class="code-variable">SmtpServer</span> { <span class="code-keyword">get</span>; <span class="code-keyword">set</span>; } = <span class="code-type">string</span>.<span class="code-variable">Empty</span>;
+
+    [<span class="code-method">Range</span>(<span class="code-number">1</span>, <span class="code-number">65535</span>)]
+    <span class="code-keyword">public</span> <span class="code-type">int</span> <span class="code-variable">SmtpPort</span> { <span class="code-keyword">get</span>; <span class="code-keyword">set</span>; } = <span class="code-number">587</span>;
+
+    [<span class="code-method">Required</span>]
+    [<span class="code-method">EmailAddress</span>]
+    <span class="code-keyword">public</span> <span class="code-type">string</span> <span class="code-variable">SenderEmail</span> { <span class="code-keyword">get</span>; <span class="code-keyword">set</span>; } = <span class="code-type">string</span>.<span class="code-variable">Empty</span>;
+
+    [<span class="code-method">Required</span>]
+    <span class="code-keyword">public</span> <span class="code-type">string</span> <span class="code-variable">SenderName</span> { <span class="code-keyword">get</span>; <span class="code-keyword">set</span>; } = <span class="code-type">string</span>.<span class="code-variable">Empty</span>;
+
+    <span class="code-keyword">public</span> <span class="code-type">bool</span> <span class="code-variable">EnableSsl</span> { <span class="code-keyword">get</span>; <span class="code-keyword">set</span>; } = <span class="code-keyword">true</span>;
+}</code></pre>
+
+                <h3>Registration in Program.cs</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">Program.cs</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-comment">// Register all options with validation</span>
+<span class="code-variable">builder</span>.<span class="code-variable">Services</span>.<span class="code-method">AddOptions</span>&lt;<span class="code-class">JwtSettings</span>&gt;()
+    .<span class="code-method">Bind</span>(<span class="code-variable">builder</span>.<span class="code-variable">Configuration</span>.<span class="code-method">GetSection</span>(<span class="code-string">"JwtSettings"</span>))
+    .<span class="code-method">ValidateDataAnnotations</span>()
+    .<span class="code-method">ValidateOnStart</span>();
+
+<span class="code-variable">builder</span>.<span class="code-variable">Services</span>.<span class="code-method">AddOptions</span>&lt;<span class="code-class">InventorySettings</span>&gt;()
+    .<span class="code-method">Bind</span>(<span class="code-variable">builder</span>.<span class="code-variable">Configuration</span>.<span class="code-method">GetSection</span>(<span class="code-string">"InventorySettings"</span>))
+    .<span class="code-method">ValidateDataAnnotations</span>()
+    .<span class="code-method">ValidateOnStart</span>();
+
+<span class="code-variable">builder</span>.<span class="code-variable">Services</span>.<span class="code-method">AddOptions</span>&lt;<span class="code-class">EmailSettings</span>&gt;()
+    .<span class="code-method">Bind</span>(<span class="code-variable">builder</span>.<span class="code-variable">Configuration</span>.<span class="code-method">GetSection</span>(<span class="code-string">"EmailSettings"</span>))
+    .<span class="code-method">ValidateDataAnnotations</span>()
+    .<span class="code-method">ValidateOnStart</span>();</code></pre>
+
+                <h3>Usage in Services</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">InventoryService.cs</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">InventoryService</span>
+{
+    <span class="code-keyword">private</span> <span class="code-keyword">readonly</span> <span class="code-class">InventorySettings</span> <span class="code-variable">_settings</span>;
+
+    <span class="code-keyword">public</span> <span class="code-method">InventoryService</span>(<span class="code-class">IOptions</span>&lt;<span class="code-class">InventorySettings</span>&gt; <span class="code-variable">options</span>)
+    {
+        <span class="code-variable">_settings</span> = <span class="code-variable">options</span>.<span class="code-variable">Value</span>;
+    }
+
+    <span class="code-keyword">public</span> <span class="code-type">bool</span> <span class="code-method">IsLowStock</span>(<span class="code-type">int</span> <span class="code-variable">quantity</span>)
+    {
+        <span class="code-keyword">return</span> <span class="code-variable">quantity</span> &lt; <span class="code-variable">_settings</span>.<span class="code-variable">LowStockThreshold</span>;
+    }
+}</code></pre>
+
+                <h2>Key Takeaways</h2>
+
+                <ul>
+                    <li>The <strong>Options Pattern</strong> provides strongly-typed configuration</li>
+                    <li>Create POCO classes to represent configuration sections</li>
+                    <li>Register with <code>builder.Services.Configure&lt;T&gt;()</code></li>
+                    <li><strong>IOptions&lt;T&gt;</strong> - Singleton, no reloading (most common)</li>
+                    <li><strong>IOptionsSnapshot&lt;T&gt;</strong> - Scoped, reloads per request</li>
+                    <li><strong>IOptionsMonitor&lt;T&gt;</strong> - Singleton, immediate reloading</li>
+                    <li>Use <strong>Data Annotations</strong> for simple validation</li>
+                    <li>Implement <strong>IValidateOptions&lt;T&gt;</strong> for complex validation</li>
+                    <li><code>ValidateOnStart()</code> catches errors at startup</li>
+                    <li><code>PostConfigure()</code> modifies options after binding</li>
+                    <li><strong>Named options</strong> for multiple configurations of same type</li>
+                    <li>Always validate critical configuration</li>
+                </ul>
+
+                <div class="callout callout-concept">
+                    <div class="callout-title">🎯 Next Steps</div>
+                    <p>
+                        You now understand the Options Pattern for strongly-typed, validated configuration!
+                        In the final section of Part III, we'll explore <strong>Environments</strong>—how to
+                        manage Development, Staging, and Production environments, and how to configure your
+                        application differently for each.
+                    </p>
+                </div>
+
+                <nav class="page-nav">
+                    <a href="04-configuration.html" class="prev">Configuration & appsettings.json</a>
+                    <a href="06-environments.html" class="next">Environments</a>
+                </nav>
+
+            
+        <footer class="page-footer">
+          Built with 💜 by <a href="https://akwasi.dev" target="_blank" rel="noopener noreferrer">Akwasi Adu-Kyeremeh</a> for developers who want to truly understand what they're building.
+        </footer>
+
+      </div>
+        </main>
+    </div>
+</body>
+
+</html>

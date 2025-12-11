@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>gRPC | ASP.NET Core Mastery</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;500&family=Source+Serif+4:ital,wght@0,400;0,600;1,400&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="../assets/style.css">
+</head>
+
+<body>
+    <div class="page-wrapper">
+        <aside class="sidebar">
+            <a href="../index.html" class="sidebar-logo">ASP.NET Core Mastery</a>
+            <div class="sidebar-section">Part XIX: Advanced</div>
+            <ul class="sidebar-nav">
+                <li><a href="01-signalr.html">SignalR</a></li>
+                <li><a href="02-grpc.html" class="active">gRPC</a></li>
+                <li><a href="03-background-services.html">Background Services</a></li>
+                <li><a href="04-microservices-patterns.html">Microservices Patterns</a></li>
+                <li><a href="05-health-checks.html">Health Checks</a></li>
+                <li><a href="06-distributed-tracing.html">Distributed Tracing</a></li>
+            </ul>
+            <div class="sidebar-section">Resources</div>
+            <ul class="sidebar-nav">
+                <li><a href="../index.html">Full Roadmap</a></li>
+            </ul>
+        </aside>
+
+        <main class="main-content">
+            <div class="content-container">
+                <nav class="breadcrumb">
+                    <a href="../index.html">Home</a>
+                    <span>→</span>
+                    <a href="01-signalr.html">Part XIX: Advanced Topics</a>
+                    <span>→</span>
+                    gRPC
+                </nav>
+
+                <div class="progress-indicator">
+                    <span>Section 2 of 6</span>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 33.33%"></div>
+                    </div>
+                </div>
+
+                <h1>gRPC</h1>
+
+                <div class="learning-objectives">
+                    <h3>🎯 What You'll Learn</h3>
+                    <ul>
+                        <li>What is gRPC</li>
+                        <li>Protocol Buffers</li>
+                        <li>Creating gRPC service</li>
+                        <li>gRPC client</li>
+                        <li>Streaming</li>
+                    </ul>
+                </div>
+
+                <h2>What is gRPC?</h2>
+
+                <p>
+                    <strong>gRPC</strong> is a high-performance RPC framework using HTTP/2 and Protocol Buffers
+                    for efficient communication between services.
+                </p>
+
+                <div class="section-divider"></div>
+
+                <h2>gRPC vs REST</h2>
+
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Aspect</th>
+                            <th>gRPC</th>
+                            <th>REST</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Protocol</strong></td>
+                            <td>HTTP/2</td>
+                            <td>HTTP/1.1</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Format</strong></td>
+                            <td>Protocol Buffers (binary)</td>
+                            <td>JSON (text)</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Performance</strong></td>
+                            <td>Faster</td>
+                            <td>Slower</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Streaming</strong></td>
+                            <td>Built-in</td>
+                            <td>Not supported</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Browser Support</strong></td>
+                            <td>Limited</td>
+                            <td>Full</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="section-divider"></div>
+
+                <h2>Create gRPC Service</h2>
+
+                <div class="code-header">
+                    <span class="code-filename">Create Project</span>
+                    <span class="code-language">Bash</span>
+                </div>
+                <pre><code>dotnet new grpc -n ProductService</code></pre>
+
+                <div class="section-divider"></div>
+
+                <h2>Protocol Buffers (.proto)</h2>
+
+                <div class="code-header">
+                    <span class="code-filename">Protos/product.proto</span>
+                    <span class="code-language">Protobuf</span>
+                </div>
+                <pre><code>syntax = "proto3";
+
+option csharp_namespace = "ProductService";
+
+service ProductService {
+  rpc GetProduct (ProductRequest) returns (ProductReply);
+  rpc ListProducts (Empty) returns (stream ProductReply);
+}
+
+message ProductRequest {
+  int32 id = 1;
+}
+
+message ProductReply {
+  int32 id = 1;
+  string name = 2;
+  double price = 3;
+}
+
+message Empty {}</code></pre>
+
+                <div class="section-divider"></div>
+
+                <h2>Implement Service</h2>
+
+                <div class="code-header">
+                    <span class="code-filename">Services/ProductService.cs</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">ProductService</span> : <span class="code-class">ProductService</span>.<span class="code-class">ProductServiceBase</span>
+{
+    <span class="code-keyword">private</span> <span class="code-keyword">readonly</span> <span class="code-class">InvenTrackDbContext</span> <span class="code-variable">_context</span>;
+
+    <span class="code-keyword">public</span> <span class="code-keyword">override</span> <span class="code-keyword">async</span> <span class="code-class">Task</span>&lt;<span class="code-class">ProductReply</span>&gt; <span class="code-method">GetProduct</span>(
+        <span class="code-class">ProductRequest</span> <span class="code-variable">request</span>, 
+        <span class="code-class">ServerCallContext</span> <span class="code-variable">context</span>)
+    {
+        <span class="code-keyword">var</span> <span class="code-variable">product</span> = <span class="code-keyword">await</span> <span class="code-variable">_context</span>.<span class="code-variable">Products</span>.<span class="code-method">FindAsync</span>(<span class="code-variable">request</span>.<span class="code-variable">Id</span>);
+        
+        <span class="code-keyword">return</span> <span class="code-keyword">new</span> <span class="code-class">ProductReply</span>
+        {
+            <span class="code-variable">Id</span> = <span class="code-variable">product</span>.<span class="code-variable">Id</span>,
+            <span class="code-variable">Name</span> = <span class="code-variable">product</span>.<span class="code-variable">Name</span>,
+            <span class="code-variable">Price</span> = (<span class="code-type">double</span>)<span class="code-variable">product</span>.<span class="code-variable">Price</span>
+        };
+    }
+
+    <span class="code-keyword">public</span> <span class="code-keyword">override</span> <span class="code-keyword">async</span> <span class="code-class">Task</span> <span class="code-method">ListProducts</span>(
+        <span class="code-class">Empty</span> <span class="code-variable">request</span>, 
+        <span class="code-class">IServerStreamWriter</span>&lt;<span class="code-class">ProductReply</span>&gt; <span class="code-variable">responseStream</span>, 
+        <span class="code-class">ServerCallContext</span> <span class="code-variable">context</span>)
+    {
+        <span class="code-keyword">var</span> <span class="code-variable">products</span> = <span class="code-keyword">await</span> <span class="code-variable">_context</span>.<span class="code-variable">Products</span>.<span class="code-method">ToListAsync</span>();
+        
+        <span class="code-keyword">foreach</span> (<span class="code-keyword">var</span> <span class="code-variable">product</span> <span class="code-keyword">in</span> <span class="code-variable">products</span>)
+        {
+            <span class="code-keyword">await</span> <span class="code-variable">responseStream</span>.<span class="code-method">WriteAsync</span>(<span class="code-keyword">new</span> <span class="code-class">ProductReply</span>
+            {
+                <span class="code-variable">Id</span> = <span class="code-variable">product</span>.<span class="code-variable">Id</span>,
+                <span class="code-variable">Name</span> = <span class="code-variable">product</span>.<span class="code-variable">Name</span>,
+                <span class="code-variable">Price</span> = (<span class="code-type">double</span>)<span class="code-variable">product</span>.<span class="code-variable">Price</span>
+            });
+        }
+    }
+}</code></pre>
+
+                <div class="section-divider"></div>
+
+                <h2>Register Service</h2>
+
+                <div class="code-header">
+                    <span class="code-filename">Program.cs</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-variable">builder</span>.<span class="code-variable">Services</span>.<span class="code-method">AddGrpc</span>();
+
+<span class="code-keyword">var</span> <span class="code-variable">app</span> = <span class="code-variable">builder</span>.<span class="code-method">Build</span>();
+
+<span class="code-variable">app</span>.<span class="code-method">MapGrpcService</span>&lt;<span class="code-class">ProductService</span>&gt;();</code></pre>
+
+                <div class="section-divider"></div>
+
+                <h2>gRPC Client</h2>
+
+                <div class="code-header">
+                    <span class="code-filename">Install Package</span>
+                    <span class="code-language">Bash</span>
+                </div>
+                <pre><code>dotnet add package Grpc.Net.Client
+dotnet add package Google.Protobuf
+dotnet add package Grpc.Tools</code></pre>
+
+                <div class="code-header">
+                    <span class="code-filename">Client Code</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-keyword">using</span> <span class="code-variable">Grpc</span>.<span class="code-variable">Net</span>.<span class="code-variable">Client</span>;
+
+<span class="code-keyword">var</span> <span class="code-variable">channel</span> = <span class="code-class">GrpcChannel</span>.<span class="code-method">ForAddress</span>(<span class="code-string">"https://localhost:5001"</span>);
+<span class="code-keyword">var</span> <span class="code-variable">client</span> = <span class="code-keyword">new</span> <span class="code-class">ProductService</span>.<span class="code-class">ProductServiceClient</span>(<span class="code-variable">channel</span>);
+
+<span class="code-comment">// Call service</span>
+<span class="code-keyword">var</span> <span class="code-variable">reply</span> = <span class="code-keyword">await</span> <span class="code-variable">client</span>.<span class="code-method">GetProductAsync</span>(<span class="code-keyword">new</span> <span class="code-class">ProductRequest</span> { <span class="code-variable">Id</span> = <span class="code-number">1</span> });
+<span class="code-variable">Console</span>.<span class="code-method">WriteLine</span>(<span class="code-string">$"Product: </span><span class="code-variable">{reply.Name}</span><span class="code-string">, Price: </span><span class="code-variable">{reply.Price}</span><span class="code-string">"</span>);</code></pre>
+
+                <h2>Key Takeaways</h2>
+
+                <ul>
+                    <li><strong>gRPC</strong>: High-performance RPC framework</li>
+                    <li><strong>Protocol Buffers</strong>: Binary serialization format</li>
+                    <li><strong>.proto files</strong>: Define service contracts</li>
+                    <li><strong>HTTP/2</strong>: Faster than REST</li>
+                    <li><strong>Streaming</strong>: Server/client/bidirectional streaming</li>
+                    <li><strong>Best for</strong>: Microservices communication</li>
+                </ul>
+
+                <nav class="page-nav">
+                    <a href="01-signalr.html" class="prev">SignalR</a>
+                    <a href="03-background-services.html" class="next">Background Services</a>
+                </nav>
+
+            
+        <footer class="page-footer">
+          Built with 💜 by <a href="https://akwasi.dev" target="_blank" rel="noopener noreferrer">Akwasi Adu-Kyeremeh</a> for developers who want to truly understand what they're building.
+        </footer>
+
+      </div>
+        </main>
+    </div>
+</body>
+
+</html>

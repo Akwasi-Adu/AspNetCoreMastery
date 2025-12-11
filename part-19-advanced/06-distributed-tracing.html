@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Distributed Tracing | ASP.NET Core Mastery</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;500&family=Source+Serif+4:ital,wght@0,400;0,600;1,400&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="../assets/style.css">
+</head>
+
+<body>
+    <div class="page-wrapper">
+        <aside class="sidebar">
+            <a href="../index.html" class="sidebar-logo">ASP.NET Core Mastery</a>
+            <div class="sidebar-section">Part XIX: Advanced</div>
+            <ul class="sidebar-nav">
+                <li><a href="01-signalr.html">SignalR</a></li>
+                <li><a href="02-grpc.html">gRPC</a></li>
+                <li><a href="03-background-services.html">Background Services</a></li>
+                <li><a href="04-microservices-patterns.html">Microservices Patterns</a></li>
+                <li><a href="05-health-checks.html">Health Checks</a></li>
+                <li><a href="06-distributed-tracing.html" class="active">Distributed Tracing</a></li>
+            </ul>
+            <div class="sidebar-section">Resources</div>
+            <ul class="sidebar-nav">
+                <li><a href="../index.html">Full Roadmap</a></li>
+            </ul>
+        </aside>
+
+        <main class="main-content">
+            <div class="content-container">
+                <nav class="breadcrumb">
+                    <a href="../index.html">Home</a>
+                    <span>→</span>
+                    <a href="01-signalr.html">Part XIX: Advanced Topics</a>
+                    <span>→</span>
+                    Distributed Tracing
+                </nav>
+
+                <div class="progress-indicator">
+                    <span>Section 6 of 6</span>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 100%"></div>
+                    </div>
+                </div>
+
+                <h1>Distributed Tracing</h1>
+
+                <div class="learning-objectives">
+                    <h3>🎯 What You'll Learn</h3>
+                    <ul>
+                        <li>What is distributed tracing</li>
+                        <li>OpenTelemetry</li>
+                        <li>Jaeger setup</li>
+                        <li>Activity and spans</li>
+                        <li>Correlation IDs</li>
+                    </ul>
+                </div>
+
+                <h2>What is Distributed Tracing?</h2>
+
+                <p>
+                    <strong>Distributed tracing</strong> tracks requests as they flow through multiple services,
+                    helping you understand performance bottlenecks and debug issues in microservices.
+                </p>
+
+                <div class="section-divider"></div>
+
+                <h2>OpenTelemetry</h2>
+
+                <div class="code-header">
+                    <span class="code-filename">Install Packages</span>
+                    <span class="code-language">Bash</span>
+                </div>
+                <pre><code>dotnet add package OpenTelemetry.Extensions.Hosting
+dotnet add package OpenTelemetry.Instrumentation.AspNetCore
+dotnet add package OpenTelemetry.Instrumentation.Http
+dotnet add package OpenTelemetry.Exporter.Jaeger</code></pre>
+
+                <div class="code-header">
+                    <span class="code-filename">Program.cs</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-keyword">using</span> <span class="code-variable">OpenTelemetry</span>.<span class="code-variable">Resources</span>;
+<span class="code-keyword">using</span> <span class="code-variable">OpenTelemetry</span>.<span class="code-variable">Trace</span>;
+
+<span class="code-variable">builder</span>.<span class="code-variable">Services</span>.<span class="code-method">AddOpenTelemetry</span>()
+    .<span class="code-method">WithTracing</span>(<span class="code-variable">tracerProviderBuilder</span> =>
+    {
+        <span class="code-variable">tracerProviderBuilder</span>
+            .<span class="code-method">AddSource</span>(<span class="code-string">"InvenTrack"</span>)
+            .<span class="code-method">SetResourceBuilder</span>(
+                <span class="code-class">ResourceBuilder</span>.<span class="code-method">CreateDefault</span>()
+                    .<span class="code-method">AddService</span>(<span class="code-string">"InvenTrack"</span>))
+            .<span class="code-method">AddAspNetCoreInstrumentation</span>()
+            .<span class="code-method">AddHttpClientInstrumentation</span>()
+            .<span class="code-method">AddJaegerExporter</span>(<span class="code-variable">options</span> =>
+            {
+                <span class="code-variable">options</span>.<span class="code-variable">AgentHost</span> = <span class="code-string">"localhost"</span>;
+                <span class="code-variable">options</span>.<span class="code-variable">AgentPort</span> = <span class="code-number">6831</span>;
+            });
+    });</code></pre>
+
+                <div class="section-divider"></div>
+
+                <h2>Run Jaeger with Docker</h2>
+
+                <div class="code-header">
+                    <span class="code-filename">Start Jaeger</span>
+                    <span class="code-language">Bash</span>
+                </div>
+                <pre><code>docker run -d --name jaeger \
+  -p 6831:6831/udp \
+  -p 16686:16686 \
+  jaegertracing/all-in-one:latest</code></pre>
+
+                <p>Access Jaeger UI at: <code>http://localhost:16686</code></p>
+
+                <div class="section-divider"></div>
+
+                <h2>Custom Activity</h2>
+
+                <div class="code-header">
+                    <span class="code-filename">Create ActivitySource</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-keyword">public</span> <span class="code-keyword">static</span> <span class="code-keyword">class</span> <span class="code-class">Telemetry</span>
+{
+    <span class="code-keyword">public</span> <span class="code-keyword">static</span> <span class="code-keyword">readonly</span> <span class="code-class">ActivitySource</span> <span class="code-variable">ActivitySource</span> = 
+        <span class="code-keyword">new</span> <span class="code-class">ActivitySource</span>(<span class="code-string">"InvenTrack"</span>);
+}</code></pre>
+
+                <div class="code-header">
+                    <span class="code-filename">Use in Service</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">ProductService</span>
+{
+    <span class="code-keyword">public</span> <span class="code-keyword">async</span> <span class="code-class">Task</span>&lt;<span class="code-class">Product</span>&gt; <span class="code-method">GetProductAsync</span>(<span class="code-type">int</span> <span class="code-variable">id</span>)
+    {
+        <span class="code-keyword">using</span> (<span class="code-keyword">var</span> <span class="code-variable">activity</span> = <span class="code-class">Telemetry</span>.<span class="code-variable">ActivitySource</span>.<span class="code-method">StartActivity</span>(<span class="code-string">"GetProduct"</span>))
+        {
+            <span class="code-variable">activity</span>?.<span class="code-method">SetTag</span>(<span class="code-string">"product.id"</span>, <span class="code-variable">id</span>);
+            
+            <span class="code-keyword">var</span> <span class="code-variable">product</span> = <span class="code-keyword">await</span> <span class="code-variable">_context</span>.<span class="code-variable">Products</span>.<span class="code-method">FindAsync</span>(<span class="code-variable">id</span>);
+            
+            <span class="code-variable">activity</span>?.<span class="code-method">SetTag</span>(<span class="code-string">"product.name"</span>, <span class="code-variable">product</span>?.<span class="code-variable">Name</span>);
+            
+            <span class="code-keyword">return</span> <span class="code-variable">product</span>;
+        }
+    }
+}</code></pre>
+
+                <div class="section-divider"></div>
+
+                <h2>Correlation IDs</h2>
+
+                <div class="code-header">
+                    <span class="code-filename">Middleware</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">CorrelationIdMiddleware</span>
+{
+    <span class="code-keyword">private</span> <span class="code-keyword">readonly</span> <span class="code-class">RequestDelegate</span> <span class="code-variable">_next</span>;
+    <span class="code-keyword">private</span> <span class="code-keyword">const</span> <span class="code-type">string</span> <span class="code-variable">CorrelationIdHeader</span> = <span class="code-string">"X-Correlation-ID"</span>;
+
+    <span class="code-keyword">public</span> <span class="code-keyword">async</span> <span class="code-class">Task</span> <span class="code-method">InvokeAsync</span>(<span class="code-class">HttpContext</span> <span class="code-variable">context</span>)
+    {
+        <span class="code-keyword">var</span> <span class="code-variable">correlationId</span> = <span class="code-variable">context</span>.<span class="code-variable">Request</span>.<span class="code-variable">Headers</span>[<span class="code-variable">CorrelationIdHeader</span>].<span class="code-method">FirstOrDefault</span>() 
+            ?? <span class="code-class">Guid</span>.<span class="code-method">NewGuid</span>().<span class="code-method">ToString</span>();
+
+        <span class="code-variable">context</span>.<span class="code-variable">Response</span>.<span class="code-variable">Headers</span>.<span class="code-method">Add</span>(<span class="code-variable">CorrelationIdHeader</span>, <span class="code-variable">correlationId</span>);
+        <span class="code-variable">context</span>.<span class="code-variable">Items</span>[<span class="code-string">"CorrelationId"</span>] = <span class="code-variable">correlationId</span>;
+
+        <span class="code-keyword">await</span> <span class="code-method">_next</span>(<span class="code-variable">context</span>);
+    }
+}</code></pre>
+
+                <div class="code-header">
+                    <span class="code-filename">Register Middleware</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-variable">app</span>.<span class="code-method">UseMiddleware</span>&lt;<span class="code-class">CorrelationIdMiddleware</span>&gt;();</code></pre>
+
+                <h2>InvenTrack Example</h2>
+
+                <div class="code-header">
+                    <span class="code-filename">OrderService with Tracing</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">OrderService</span>
+{
+    <span class="code-keyword">public</span> <span class="code-keyword">async</span> <span class="code-class">Task</span> <span class="code-method">CreateOrderAsync</span>(<span class="code-class">Order</span> <span class="code-variable">order</span>)
+    {
+        <span class="code-keyword">using</span> (<span class="code-keyword">var</span> <span class="code-variable">activity</span> = <span class="code-class">Telemetry</span>.<span class="code-variable">ActivitySource</span>.<span class="code-method">StartActivity</span>(<span class="code-string">"CreateOrder"</span>))
+        {
+            <span class="code-variable">activity</span>?.<span class="code-method">SetTag</span>(<span class="code-string">"order.id"</span>, <span class="code-variable">order</span>.<span class="code-variable">Id</span>);
+            <span class="code-variable">activity</span>?.<span class="code-method">SetTag</span>(<span class="code-string">"order.total"</span>, <span class="code-variable">order</span>.<span class="code-variable">Total</span>);
+            
+            <span class="code-comment">// Validate stock</span>
+            <span class="code-keyword">using</span> (<span class="code-keyword">var</span> <span class="code-variable">stockActivity</span> = <span class="code-class">Telemetry</span>.<span class="code-variable">ActivitySource</span>.<span class="code-method">StartActivity</span>(<span class="code-string">"ValidateStock"</span>))
+            {
+                <span class="code-keyword">await</span> <span class="code-method">ValidateStockAsync</span>(<span class="code-variable">order</span>);
+            }
+            
+            <span class="code-comment">// Save order</span>
+            <span class="code-keyword">await</span> <span class="code-variable">_context</span>.<span class="code-variable">Orders</span>.<span class="code-method">AddAsync</span>(<span class="code-variable">order</span>);
+            <span class="code-keyword">await</span> <span class="code-variable">_context</span>.<span class="code-method">SaveChangesAsync</span>();
+        }
+    }
+}</code></pre>
+
+                <h2>Key Takeaways</h2>
+
+                <ul>
+                    <li><strong>Distributed tracing</strong>: Track requests across services</li>
+                    <li><strong>OpenTelemetry</strong>: Standard for observability</li>
+                    <li><strong>Jaeger</strong>: Tracing backend and UI</li>
+                    <li><strong>ActivitySource</strong>: Create custom spans</li>
+                    <li><strong>SetTag()</strong>: Add metadata to spans</li>
+                    <li><strong>Correlation IDs</strong>: Track requests across services</li>
+                </ul>
+
+                <div class="callout callout-concept">
+                    <div class="callout-title">🎉 Part XIX Complete!</div>
+                    <p>
+                        Congratulations! You've completed <strong>Part XIX: Advanced Topics</strong>. You now
+                        understand:
+                    </p>
+                    <ul>
+                        <li>✅ SignalR (real-time communication, Hubs, groups)</li>
+                        <li>✅ gRPC (high-performance RPC, Protocol Buffers)</li>
+                        <li>✅ Background Services (IHostedService, BackgroundService)</li>
+                        <li>✅ Microservices Patterns (API Gateway, circuit breaker, retry)</li>
+                        <li>✅ Health Checks (monitoring, custom checks, UI)</li>
+                        <li>✅ Distributed Tracing (OpenTelemetry, Jaeger, correlation IDs)</li>
+                    </ul>
+                    <p>
+                        You're now ready for advanced ASP.NET Core development! 🚀
+                    </p>
+                </div>
+
+                <nav class="page-nav">
+                    <a href="05-health-checks.html" class="prev">Health Checks</a>
+                    <a href="../index.html" class="next">Back to Roadmap</a>
+                </nav>
+
+            
+        <footer class="page-footer">
+          Built with 💜 by <a href="https://akwasi.dev" target="_blank" rel="noopener noreferrer">Akwasi Adu-Kyeremeh</a> for developers who want to truly understand what they're building.
+        </footer>
+
+      </div>
+        </main>
+    </div>
+</body>
+
+</html>

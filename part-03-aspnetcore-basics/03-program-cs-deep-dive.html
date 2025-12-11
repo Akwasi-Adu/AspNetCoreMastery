@@ -1,0 +1,645 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Program.cs Deep Dive | ASP.NET Core Mastery</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;500&family=Source+Serif+4:ital,wght@0,400;0,600;1,400&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="../assets/style.css">
+</head>
+
+<body>
+    <div class="page-wrapper">
+        <aside class="sidebar">
+            <a href="../index.html" class="sidebar-logo">ASP.NET Core Mastery</a>
+            <div class="sidebar-section">Part III: ASP.NET Core Basics</div>
+            <ul class="sidebar-nav">
+                <li><a href="01-what-is-aspnetcore.html">What is ASP.NET Core?</a></li>
+                <li><a href="02-first-web-app.html">Your First Web Application</a></li>
+                <li><a href="03-program-cs-deep-dive.html" class="active">Program.cs Deep Dive</a></li>
+                <li><a href="04-configuration.html">Configuration & appsettings.json</a></li>
+                <li><a href="05-options-pattern.html">The Options Pattern</a></li>
+                <li><a href="06-environments.html">Environments</a></li>
+            </ul>
+            <div class="sidebar-section">Resources</div>
+            <ul class="sidebar-nav">
+                <li><a href="../index.html">Full Roadmap</a></li>
+            </ul>
+        </aside>
+
+        <main class="main-content">
+            <div class="content-container">
+                <nav class="breadcrumb">
+                    <a href="../index.html">Home</a>
+                    <span>→</span>
+                    <a href="01-what-is-aspnetcore.html">Part III: ASP.NET Core Basics</a>
+                    <span>→</span>
+                    Program.cs Deep Dive
+                </nav>
+
+                <div class="progress-indicator">
+                    <span>Section 3 of 6</span>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 50%"></div>
+                    </div>
+                </div>
+
+                <h1>Program.cs Deep Dive</h1>
+
+                <div class="learning-objectives">
+                    <h3>🎯 What You'll Learn</h3>
+                    <ul>
+                        <li>Understanding the Program.cs file structure</li>
+                        <li>The WebApplicationBuilder and its purpose</li>
+                        <li>Configuring services with dependency injection</li>
+                        <li>The middleware pipeline and request processing</li>
+                        <li>Understanding app.Run() and the hosting model</li>
+                        <li>Common middleware and their order</li>
+                        <li>Customizing your application startup</li>
+                        <li>Best practices for Program.cs organization</li>
+                    </ul>
+                </div>
+
+                <h2>The Default Program.cs</h2>
+
+                <p>
+                    When you create a new Web API project, you get a <code>Program.cs</code> file that looks
+                    like this:
+                </p>
+
+                <div class="code-header">
+                    <span class="code-filename">Program.cs (Default)</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-keyword">var</span> <span class="code-variable">builder</span> = <span class="code-class">WebApplication</span>.<span class="code-method">CreateBuilder</span>(<span class="code-variable">args</span>);
+
+<span class="code-comment">// Add services to the container.</span>
+<span class="code-variable">builder</span>.<span class="code-variable">Services</span>.<span class="code-method">AddControllers</span>();
+<span class="code-variable">builder</span>.<span class="code-variable">Services</span>.<span class="code-method">AddEndpointsApiExplorer</span>();
+<span class="code-variable">builder</span>.<span class="code-variable">Services</span>.<span class="code-method">AddSwaggerGen</span>();
+
+<span class="code-keyword">var</span> <span class="code-variable">app</span> = <span class="code-variable">builder</span>.<span class="code-method">Build</span>();
+
+<span class="code-comment">// Configure the HTTP request pipeline.</span>
+<span class="code-keyword">if</span> (<span class="code-variable">app</span>.<span class="code-variable">Environment</span>.<span class="code-method">IsDevelopment</span>())
+{
+    <span class="code-variable">app</span>.<span class="code-method">UseSwagger</span>();
+    <span class="code-variable">app</span>.<span class="code-method">UseSwaggerUI</span>();
+}
+
+<span class="code-variable">app</span>.<span class="code-method">UseHttpsRedirection</span>();
+<span class="code-variable">app</span>.<span class="code-method">UseAuthorization</span>();
+<span class="code-variable">app</span>.<span class="code-method">MapControllers</span>();
+
+<span class="code-variable">app</span>.<span class="code-method">Run</span>();</code></pre>
+
+                <p>
+                    This file is the <strong>entry point</strong> of your application. Let's break it down
+                    line by line.
+                </p>
+
+                <div class="section-divider"></div>
+
+                <h2>Part 1: Building the Application</h2>
+
+                <h3>Creating the Builder</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">Creating the Builder</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-keyword">var</span> <span class="code-variable">builder</span> = <span class="code-class">WebApplication</span>.<span class="code-method">CreateBuilder</span>(<span class="code-variable">args</span>);</code></pre>
+
+                <p>
+                    <code>WebApplication.CreateBuilder(args)</code> creates a <strong>WebApplicationBuilder</strong>
+                    that configures:
+                </p>
+
+                <ul>
+                    <li><strong>Configuration</strong>: Loads appsettings.json, environment variables, command-line args
+                    </li>
+                    <li><strong>Logging</strong>: Sets up default logging providers</li>
+                    <li><strong>Dependency Injection</strong>: Initializes the service container</li>
+                    <li><strong>Hosting</strong>: Configures Kestrel web server</li>
+                </ul>
+
+                <div class="callout callout-concept">
+                    <div class="callout-title">💡 The Builder Pattern</div>
+                    <p>
+                        The builder pattern lets you configure your application step by step before actually
+                        creating it. Think of it like configuring a car before it's built—you specify the
+                        engine, wheels, color, etc., then call <code>Build()</code> to assemble it.
+                    </p>
+                </div>
+
+                <h3>Registering Services</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">Service Registration</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-variable">builder</span>.<span class="code-variable">Services</span>.<span class="code-method">AddControllers</span>();
+<span class="code-variable">builder</span>.<span class="code-variable">Services</span>.<span class="code-method">AddEndpointsApiExplorer</span>();
+<span class="code-variable">builder</span>.<span class="code-variable">Services</span>.<span class="code-method">AddSwaggerGen</span>();</code></pre>
+
+                <p>
+                    <code>builder.Services</code> is the <strong>dependency injection container</strong>.
+                    Here we're registering services:
+                </p>
+
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Method</th>
+                            <th>What It Does</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><code>AddControllers()</code></td>
+                            <td>Registers MVC controllers and related services</td>
+                        </tr>
+                        <tr>
+                            <td><code>AddEndpointsApiExplorer()</code></td>
+                            <td>Enables API endpoint discovery for Swagger</td>
+                        </tr>
+                        <tr>
+                            <td><code>AddSwaggerGen()</code></td>
+                            <td>Registers Swagger/OpenAPI documentation generator</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h3>Building the Application</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">Build</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-keyword">var</span> <span class="code-variable">app</span> = <span class="code-variable">builder</span>.<span class="code-method">Build</span>();</code></pre>
+
+                <p>
+                    <code>Build()</code> creates the <strong>WebApplication</strong> instance. After this point:
+                </p>
+
+                <ul>
+                    <li>You can't add more services</li>
+                    <li>You configure the middleware pipeline</li>
+                    <li>You define how requests are processed</li>
+                </ul>
+
+                <div class="section-divider"></div>
+
+                <h2>Part 2: Configuring the Middleware Pipeline</h2>
+
+                <h3>What is Middleware?</h3>
+
+                <p>
+                    <strong>Middleware</strong> are components that form a pipeline to process HTTP requests
+                    and responses. Each middleware can:
+                </p>
+
+                <ol>
+                    <li>Process the incoming request</li>
+                    <li>Pass the request to the next middleware</li>
+                    <li>Process the outgoing response</li>
+                    <li>Short-circuit the pipeline (return a response immediately)</li>
+                </ol>
+
+                <div class="code-header">
+                    <span class="code-filename">Middleware Pipeline Flow</span>
+                    <span class="code-language">Text</span>
+                </div>
+                <pre><code>Request → [Middleware 1] → [Middleware 2] → [Middleware 3] → Endpoint
+            ↓              ↓              ↓              ↓
+         Logging        CORS       Authentication   Controller
+            ↑              ↑              ↑              ↑
+Response ← [Middleware 1] ← [Middleware 2] ← [Middleware 3] ← Endpoint</code></pre>
+
+                <h3>Environment-Specific Middleware</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">Development-Only Middleware</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-keyword">if</span> (<span class="code-variable">app</span>.<span class="code-variable">Environment</span>.<span class="code-method">IsDevelopment</span>())
+{
+    <span class="code-variable">app</span>.<span class="code-method">UseSwagger</span>();
+    <span class="code-variable">app</span>.<span class="code-method">UseSwaggerUI</span>();
+}</code></pre>
+
+                <p>
+                    This code only runs in <strong>Development</strong> environment. Swagger UI is useful for
+                    testing but shouldn't be exposed in production.
+                </p>
+
+                <h3>Common Middleware</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">Standard Middleware</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-variable">app</span>.<span class="code-method">UseHttpsRedirection</span>();
+<span class="code-variable">app</span>.<span class="code-method">UseAuthorization</span>();
+<span class="code-variable">app</span>.<span class="code-method">MapControllers</span>();</code></pre>
+
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Middleware</th>
+                            <th>Purpose</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><code>UseHttpsRedirection()</code></td>
+                            <td>Redirects HTTP requests to HTTPS</td>
+                        </tr>
+                        <tr>
+                            <td><code>UseAuthorization()</code></td>
+                            <td>Enables authorization checks</td>
+                        </tr>
+                        <tr>
+                            <td><code>MapControllers()</code></td>
+                            <td>Maps controller endpoints to routes</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="callout callout-warning">
+                    <div class="callout-title">⚠️ Middleware Order Matters!</div>
+                    <p>
+                        The order you add middleware is critical. For example:<br>
+                        • <code>UseAuthentication()</code> must come before <code>UseAuthorization()</code><br>
+                        • <code>UseRouting()</code> must come before <code>UseAuthorization()</code><br>
+                        • <code>UseCors()</code> should be early in the pipeline
+                    </p>
+                </div>
+
+                <h3>Starting the Application</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">Run</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-variable">app</span>.<span class="code-method">Run</span>();</code></pre>
+
+                <p>
+                    <code>Run()</code> starts the web server and begins listening for requests. This is a
+                    <strong>blocking call</strong>—your application runs until you stop it (Ctrl+C).
+                </p>
+
+                <div class="section-divider"></div>
+
+                <h2>A More Complete Example</h2>
+
+                <p>
+                    Here's a more realistic <code>Program.cs</code> for InvenTrack:
+                </p>
+
+                <div class="code-header">
+                    <span class="code-filename">Program.cs (InvenTrack)</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-keyword">using</span> <span class="code-class">Microsoft</span>.<span class="code-class">EntityFrameworkCore</span>;
+<span class="code-keyword">using</span> <span class="code-class">Serilog</span>;
+
+<span class="code-comment">// Configure Serilog</span>
+<span class="code-class">Log</span>.<span class="code-variable">Logger</span> = <span class="code-keyword">new</span> <span class="code-class">LoggerConfiguration</span>()
+    .<span class="code-method">WriteTo</span>.<span class="code-method">Console</span>()
+    .<span class="code-method">CreateLogger</span>();
+
+<span class="code-keyword">try</span>
+{
+    <span class="code-class">Log</span>.<span class="code-method">Information</span>(<span class="code-string">"Starting InvenTrack API"</span>);
+
+    <span class="code-keyword">var</span> <span class="code-variable">builder</span> = <span class="code-class">WebApplication</span>.<span class="code-method">CreateBuilder</span>(<span class="code-variable">args</span>);
+
+    <span class="code-comment">// Add Serilog</span>
+    <span class="code-variable">builder</span>.<span class="code-variable">Host</span>.<span class="code-method">UseSerilog</span>();
+
+    <span class="code-comment">// Add services to the container</span>
+    <span class="code-variable">builder</span>.<span class="code-variable">Services</span>.<span class="code-method">AddControllers</span>();
+    
+    <span class="code-comment">// Add database context</span>
+    <span class="code-variable">builder</span>.<span class="code-variable">Services</span>.<span class="code-method">AddDbContext</span>&lt;<span class="code-class">InvenTrackDbContext</span>&gt;(<span class="code-variable">options</span> =&gt;
+        <span class="code-variable">options</span>.<span class="code-method">UseSqlServer</span>(<span class="code-variable">builder</span>.<span class="code-variable">Configuration</span>.<span class="code-method">GetConnectionString</span>(<span class="code-string">"DefaultConnection"</span>)));
+
+    <span class="code-comment">// Add CORS</span>
+    <span class="code-variable">builder</span>.<span class="code-variable">Services</span>.<span class="code-method">AddCors</span>(<span class="code-variable">options</span> =&gt;
+    {
+        <span class="code-variable">options</span>.<span class="code-method">AddPolicy</span>(<span class="code-string">"AllowFrontend"</span>, <span class="code-variable">policy</span> =&gt;
+        {
+            <span class="code-variable">policy</span>.<span class="code-method">WithOrigins</span>(<span class="code-string">"http://localhost:3000"</span>)
+                  .<span class="code-method">AllowAnyMethod</span>()
+                  .<span class="code-method">AllowAnyHeader</span>();
+        });
+    });
+
+    <span class="code-comment">// Add authentication</span>
+    <span class="code-variable">builder</span>.<span class="code-variable">Services</span>.<span class="code-method">AddAuthentication</span>()
+        .<span class="code-method">AddJwtBearer</span>();
+
+    <span class="code-comment">// Add Swagger</span>
+    <span class="code-variable">builder</span>.<span class="code-variable">Services</span>.<span class="code-method">AddEndpointsApiExplorer</span>();
+    <span class="code-variable">builder</span>.<span class="code-variable">Services</span>.<span class="code-method">AddSwaggerGen</span>();
+
+    <span class="code-comment">// Register application services</span>
+    <span class="code-variable">builder</span>.<span class="code-variable">Services</span>.<span class="code-method">AddScoped</span>&lt;<span class="code-class">IProductService</span>, <span class="code-class">ProductService</span>&gt;();
+    <span class="code-variable">builder</span>.<span class="code-variable">Services</span>.<span class="code-method">AddScoped</span>&lt;<span class="code-class">IInventoryService</span>, <span class="code-class">InventoryService</span>&gt;();
+
+    <span class="code-keyword">var</span> <span class="code-variable">app</span> = <span class="code-variable">builder</span>.<span class="code-method">Build</span>();
+
+    <span class="code-comment">// Configure the HTTP request pipeline</span>
+    <span class="code-keyword">if</span> (<span class="code-variable">app</span>.<span class="code-variable">Environment</span>.<span class="code-method">IsDevelopment</span>())
+    {
+        <span class="code-variable">app</span>.<span class="code-method">UseSwagger</span>();
+        <span class="code-variable">app</span>.<span class="code-method">UseSwaggerUI</span>();
+    }
+
+    <span class="code-comment">// Middleware pipeline (order matters!)</span>
+    <span class="code-variable">app</span>.<span class="code-method">UseSerilogRequestLogging</span>();
+    <span class="code-variable">app</span>.<span class="code-method">UseHttpsRedirection</span>();
+    <span class="code-variable">app</span>.<span class="code-method">UseCors</span>(<span class="code-string">"AllowFrontend"</span>);
+    <span class="code-variable">app</span>.<span class="code-method">UseAuthentication</span>();
+    <span class="code-variable">app</span>.<span class="code-method">UseAuthorization</span>();
+    <span class="code-variable">app</span>.<span class="code-method">MapControllers</span>();
+
+    <span class="code-variable">app</span>.<span class="code-method">Run</span>();
+}
+<span class="code-keyword">catch</span> (<span class="code-class">Exception</span> <span class="code-variable">ex</span>)
+{
+    <span class="code-class">Log</span>.<span class="code-method">Fatal</span>(<span class="code-variable">ex</span>, <span class="code-string">"Application terminated unexpectedly"</span>);
+}
+<span class="code-keyword">finally</span>
+{
+    <span class="code-class">Log</span>.<span class="code-method">CloseAndFlush</span>();
+}</code></pre>
+
+                <div class="section-divider"></div>
+
+                <h2>Understanding Service Lifetimes</h2>
+
+                <p>
+                    When registering services, you choose a <strong>lifetime</strong>:
+                </p>
+
+                <h3>Transient</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">Transient</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-variable">builder</span>.<span class="code-variable">Services</span>.<span class="code-method">AddTransient</span>&lt;<span class="code-class">IEmailService</span>, <span class="code-class">EmailService</span>&gt;();</code></pre>
+
+                <ul>
+                    <li>Created <strong>every time</strong> they're requested</li>
+                    <li>Best for lightweight, stateless services</li>
+                    <li>Example: Email sender, PDF generator</li>
+                </ul>
+
+                <h3>Scoped</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">Scoped</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-variable">builder</span>.<span class="code-variable">Services</span>.<span class="code-method">AddScoped</span>&lt;<span class="code-class">IProductService</span>, <span class="code-class">ProductService</span>&gt;();</code></pre>
+
+                <ul>
+                    <li>Created <strong>once per HTTP request</strong></li>
+                    <li>Best for services that work with databases</li>
+                    <li>Example: Repository, DbContext, business services</li>
+                </ul>
+
+                <h3>Singleton</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">Singleton</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-variable">builder</span>.<span class="code-variable">Services</span>.<span class="code-method">AddSingleton</span>&lt;<span class="code-class">ICacheService</span>, <span class="code-class">CacheService</span>&gt;();</code></pre>
+
+                <ul>
+                    <li>Created <strong>once for the application lifetime</strong></li>
+                    <li>Shared across all requests</li>
+                    <li>Must be thread-safe!</li>
+                    <li>Example: Configuration, cache, logging</li>
+                </ul>
+
+                <div class="callout callout-tip">
+                    <div class="callout-title">💡 Choosing a Lifetime</div>
+                    <p>
+                        <strong>Default choice</strong>: Use <code>Scoped</code> for most services<br>
+                        <strong>Stateless/lightweight</strong>: Use <code>Transient</code><br>
+                        <strong>Expensive to create</strong>: Use <code>Singleton</code> (if thread-safe)<br>
+                        <strong>DbContext</strong>: Always <code>Scoped</code>
+                    </p>
+                </div>
+
+                <div class="section-divider"></div>
+
+                <h2>Common Middleware in Order</h2>
+
+                <p>
+                    Here's the recommended middleware order for most applications:
+                </p>
+
+                <div class="code-header">
+                    <span class="code-filename">Recommended Middleware Order</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-comment">// 1. Exception handling (catch errors early)</span>
+<span class="code-variable">app</span>.<span class="code-method">UseExceptionHandler</span>(<span class="code-string">"/error"</span>);
+
+<span class="code-comment">// 2. HSTS (HTTP Strict Transport Security)</span>
+<span class="code-variable">app</span>.<span class="code-method">UseHsts</span>();
+
+<span class="code-comment">// 3. HTTPS redirection</span>
+<span class="code-variable">app</span>.<span class="code-method">UseHttpsRedirection</span>();
+
+<span class="code-comment">// 4. Static files (if serving HTML/CSS/JS)</span>
+<span class="code-variable">app</span>.<span class="code-method">UseStaticFiles</span>();
+
+<span class="code-comment">// 5. Routing</span>
+<span class="code-variable">app</span>.<span class="code-method">UseRouting</span>();
+
+<span class="code-comment">// 6. CORS (must be after UseRouting, before UseAuthentication)</span>
+<span class="code-variable">app</span>.<span class="code-method">UseCors</span>(<span class="code-string">"MyPolicy"</span>);
+
+<span class="code-comment">// 7. Authentication (who are you?)</span>
+<span class="code-variable">app</span>.<span class="code-method">UseAuthentication</span>();
+
+<span class="code-comment">// 8. Authorization (what can you do?)</span>
+<span class="code-variable">app</span>.<span class="code-method">UseAuthorization</span>();
+
+<span class="code-comment">// 9. Custom middleware</span>
+<span class="code-variable">app</span>.<span class="code-method">UseMiddleware</span>&lt;<span class="code-class">RequestTimingMiddleware</span>&gt;();
+
+<span class="code-comment">// 10. Endpoints (controllers, minimal APIs)</span>
+<span class="code-variable">app</span>.<span class="code-method">MapControllers</span>();</code></pre>
+
+                <div class="section-divider"></div>
+
+                <h2>Custom Middleware</h2>
+
+                <p>
+                    You can create custom middleware for cross-cutting concerns:
+                </p>
+
+                <h3>Inline Middleware</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">Inline Middleware</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-variable">app</span>.<span class="code-method">Use</span>(<span class="code-keyword">async</span> (<span class="code-variable">context</span>, <span class="code-variable">next</span>) =&gt;
+{
+    <span class="code-comment">// Before the next middleware</span>
+    <span class="code-class">Console</span>.<span class="code-method">WriteLine</span>(<span class="code-string">$"Request: </span>{<span class="code-variable">context</span>.<span class="code-variable">Request</span>.<span class="code-variable">Path</span>}<span class="code-string">"</span>);
+    
+    <span class="code-comment">// Call next middleware</span>
+    <span class="code-keyword">await</span> <span class="code-method">next</span>();
+    
+    <span class="code-comment">// After the next middleware</span>
+    <span class="code-class">Console</span>.<span class="code-method">WriteLine</span>(<span class="code-string">$"Response: </span>{<span class="code-variable">context</span>.<span class="code-variable">Response</span>.<span class="code-variable">StatusCode</span>}<span class="code-string">"</span>);
+});</code></pre>
+
+                <h3>Class-Based Middleware</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">RequestTimingMiddleware.cs</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">RequestTimingMiddleware</span>
+{
+    <span class="code-keyword">private</span> <span class="code-keyword">readonly</span> <span class="code-class">RequestDelegate</span> <span class="code-variable">_next</span>;
+    <span class="code-keyword">private</span> <span class="code-keyword">readonly</span> <span class="code-class">ILogger</span>&lt;<span class="code-class">RequestTimingMiddleware</span>&gt; <span class="code-variable">_logger</span>;
+
+    <span class="code-keyword">public</span> <span class="code-method">RequestTimingMiddleware</span>(
+        <span class="code-class">RequestDelegate</span> <span class="code-variable">next</span>, 
+        <span class="code-class">ILogger</span>&lt;<span class="code-class">RequestTimingMiddleware</span>&gt; <span class="code-variable">logger</span>)
+    {
+        <span class="code-variable">_next</span> = <span class="code-variable">next</span>;
+        <span class="code-variable">_logger</span> = <span class="code-variable">logger</span>;
+    }
+
+    <span class="code-keyword">public</span> <span class="code-keyword">async</span> <span class="code-class">Task</span> <span class="code-method">InvokeAsync</span>(<span class="code-class">HttpContext</span> <span class="code-variable">context</span>)
+    {
+        <span class="code-keyword">var</span> <span class="code-variable">stopwatch</span> = <span class="code-class">Stopwatch</span>.<span class="code-method">StartNew</span>();
+
+        <span class="code-keyword">await</span> <span class="code-method">_next</span>(<span class="code-variable">context</span>);
+
+        <span class="code-variable">stopwatch</span>.<span class="code-method">Stop</span>();
+        <span class="code-variable">_logger</span>.<span class="code-method">LogInformation</span>(
+            <span class="code-string">"Request </span>{<span class="code-variable">Method</span>}<span class="code-string"> </span>{<span class="code-variable">Path</span>}<span class="code-string"> took </span>{<span class="code-variable">ElapsedMilliseconds</span>}<span class="code-string">ms"</span>,
+            <span class="code-variable">context</span>.<span class="code-variable">Request</span>.<span class="code-variable">Method</span>,
+            <span class="code-variable">context</span>.<span class="code-variable">Request</span>.<span class="code-variable">Path</span>,
+            <span class="code-variable">stopwatch</span>.<span class="code-variable">ElapsedMilliseconds</span>
+        );
+    }
+}</code></pre>
+
+                <p>
+                    Register it in <code>Program.cs</code>:
+                </p>
+
+                <div class="code-header">
+                    <span class="code-filename">Program.cs</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-variable">app</span>.<span class="code-method">UseMiddleware</span>&lt;<span class="code-class">RequestTimingMiddleware</span>&gt;();</code></pre>
+
+                <div class="section-divider"></div>
+
+                <h2>Accessing Configuration</h2>
+
+                <p>
+                    The builder provides access to configuration:
+                </p>
+
+                <div class="code-header">
+                    <span class="code-filename">Reading Configuration</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-comment">// Get connection string</span>
+<span class="code-keyword">var</span> <span class="code-variable">connectionString</span> = <span class="code-variable">builder</span>.<span class="code-variable">Configuration</span>.<span class="code-method">GetConnectionString</span>(<span class="code-string">"DefaultConnection"</span>);
+
+<span class="code-comment">// Get app setting</span>
+<span class="code-keyword">var</span> <span class="code-variable">apiKey</span> = <span class="code-variable">builder</span>.<span class="code-variable">Configuration</span>[<span class="code-string">"ApiKey"</span>];
+
+<span class="code-comment">// Get section</span>
+<span class="code-keyword">var</span> <span class="code-variable">jwtSettings</span> = <span class="code-variable">builder</span>.<span class="code-variable">Configuration</span>.<span class="code-method">GetSection</span>(<span class="code-string">"JwtSettings"</span>);
+<span class="code-keyword">var</span> <span class="code-variable">secret</span> = <span class="code-variable">jwtSettings</span>[<span class="code-string">"Secret"</span>];</code></pre>
+
+                <div class="section-divider"></div>
+
+                <h2>Environment Detection</h2>
+
+                <div class="code-header">
+                    <span class="code-filename">Environment Checks</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-keyword">if</span> (<span class="code-variable">app</span>.<span class="code-variable">Environment</span>.<span class="code-method">IsDevelopment</span>())
+{
+    <span class="code-comment">// Development-only code</span>
+}
+
+<span class="code-keyword">if</span> (<span class="code-variable">app</span>.<span class="code-variable">Environment</span>.<span class="code-method">IsProduction</span>())
+{
+    <span class="code-comment">// Production-only code</span>
+}
+
+<span class="code-keyword">if</span> (<span class="code-variable">app</span>.<span class="code-variable">Environment</span>.<span class="code-method">IsEnvironment</span>(<span class="code-string">"Staging"</span>))
+{
+    <span class="code-comment">// Staging-only code</span>
+}</code></pre>
+
+                <h2>Key Takeaways</h2>
+
+                <ul>
+                    <li><code>Program.cs</code> is the <strong>entry point</strong> of your application</li>
+                    <li><code>WebApplicationBuilder</code> configures services and settings</li>
+                    <li><code>builder.Services</code> is the <strong>dependency injection container</strong></li>
+                    <li>Service lifetimes: <strong>Transient</strong>, <strong>Scoped</strong>,
+                        <strong>Singleton</strong></li>
+                    <li><code>builder.Build()</code> creates the <code>WebApplication</code></li>
+                    <li><strong>Middleware</strong> forms a pipeline to process requests</li>
+                    <li><strong>Middleware order matters</strong>—follow the recommended sequence</li>
+                    <li><code>app.Run()</code> starts the web server</li>
+                    <li>Use <code>app.Environment</code> to detect Development/Production</li>
+                    <li>Custom middleware can be inline or class-based</li>
+                    <li>Configuration is accessed via <code>builder.Configuration</code></li>
+                </ul>
+
+                <div class="callout callout-concept">
+                    <div class="callout-title">🎯 Next Steps</div>
+                    <p>
+                        You now understand how ASP.NET Core applications start up and how the middleware pipeline
+                        works! In the next section, we'll dive into <strong>Configuration & appsettings.json</strong>—
+                        how to manage application settings, connection strings, and environment-specific
+                        configuration.
+                    </p>
+                </div>
+
+                <nav class="page-nav">
+                    <a href="02-first-web-app.html" class="prev">Your First Web Application</a>
+                    <a href="04-configuration.html" class="next">Configuration & appsettings.json</a>
+                </nav>
+
+            
+        <footer class="page-footer">
+          Built with 💜 by <a href="https://akwasi.dev" target="_blank" rel="noopener noreferrer">Akwasi Adu-Kyeremeh</a> for developers who want to truly understand what they're building.
+        </footer>
+
+      </div>
+        </main>
+    </div>
+</body>
+
+</html>

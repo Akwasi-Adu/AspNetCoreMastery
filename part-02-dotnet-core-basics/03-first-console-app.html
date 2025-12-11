@@ -1,0 +1,656 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Your First Console Application | ASP.NET Core Mastery</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;500&family=Source+Serif+4:ital,wght@0,400;0,600;1,400&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="../assets/style.css">
+</head>
+
+<body>
+    <div class="page-wrapper">
+        <aside class="sidebar">
+            <a href="../index.html" class="sidebar-logo">ASP.NET Core Mastery</a>
+            <div class="sidebar-section">Part II: .NET Core Basics</div>
+            <ul class="sidebar-nav">
+                <li><a href="01-dotnet-ecosystem.html">The .NET Ecosystem</a></li>
+                <li><a href="02-installing-sdk.html">Installing the .NET SDK</a></li>
+                <li><a href="03-first-console-app.html" class="active">Your First Console App</a></li>
+                <li><a href="04-project-structure.html">Project Files & Structure</a></li>
+                <li><a href="05-dotnet-cli.html">The dotnet CLI</a></li>
+                <li><a href="06-nuget-packages.html">NuGet Package Management</a></li>
+            </ul>
+            <div class="sidebar-section">Resources</div>
+            <ul class="sidebar-nav">
+                <li><a href="../index.html">Full Roadmap</a></li>
+            </ul>
+        </aside>
+
+        <main class="main-content">
+            <div class="content-container">
+                <nav class="breadcrumb">
+                    <a href="../index.html">Home</a>
+                    <span>→</span>
+                    <a href="01-dotnet-ecosystem.html">Part II: .NET Core Basics</a>
+                    <span>→</span>
+                    Your First Console App
+                </nav>
+
+                <div class="progress-indicator">
+                    <span>Section 3 of 6</span>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 50%"></div>
+                    </div>
+                </div>
+
+                <h1>Your First Console Application</h1>
+
+                <div class="learning-objectives">
+                    <h3>🎯 What You'll Learn</h3>
+                    <ul>
+                        <li>Creating a console app with the dotnet CLI</li>
+                        <li>Understanding the generated project structure</li>
+                        <li>Writing your first C# code</li>
+                        <li>Building and running your application</li>
+                        <li>Understanding top-level statements</li>
+                        <li>Adding more functionality to your app</li>
+                        <li>Creating a simple InvenTrack inventory checker</li>
+                    </ul>
+                </div>
+
+                <h2>The Development Workflow</h2>
+
+                <p>
+                    Every .NET application follows this workflow:
+                </p>
+
+                <div class="code-header">
+                    <span class="code-filename">Development Workflow</span>
+                    <span class="code-language">Process</span>
+                </div>
+                <pre><code>1. Create Project    → dotnet new
+2. Write Code        → Edit .cs files
+3. Build             → dotnet build (compile C# to IL)
+4. Run               → dotnet run (execute your app)
+5. Test & Debug      → Fix issues, repeat 2-4
+6. Publish           → dotnet publish (deploy)</code></pre>
+
+                <p>
+                    Let's walk through this entire process step by step!
+                </p>
+
+                <div class="section-divider"></div>
+
+                <h2>Step 1: Create Your First Project</h2>
+
+                <p>
+                    Open a terminal (Command Prompt, PowerShell, or Terminal) and navigate to where you want
+                    to create your project. For example:
+                </p>
+
+                <div class="code-header">
+                    <span class="code-filename">Terminal</span>
+                    <span class="code-language">Shell</span>
+                </div>
+                <pre><code><span class="code-comment"># Windows</span>
+cd C:\Users\YourName\Projects
+
+<span class="code-comment"># macOS/Linux</span>
+cd ~/Projects</code></pre>
+
+                <p>
+                    Now create a new console application:
+                </p>
+
+                <div class="code-header">
+                    <span class="code-filename">Terminal</span>
+                    <span class="code-language">Shell</span>
+                </div>
+                <pre><code>dotnet new console -n HelloWorld</code></pre>
+
+                <div class="callout callout-info">
+                    <div class="callout-title">ℹ️ Command Breakdown</div>
+                    <p>
+                        <code>dotnet new</code> = Create a new project<br>
+                        <code>console</code> = Use the console application template<br>
+                        <code>-n HelloWorld</code> = Name the project "HelloWorld"
+                    </p>
+                </div>
+
+                <p>
+                    You'll see output like:
+                </p>
+
+                <div class="code-header">
+                    <span class="code-filename">Output</span>
+                    <span class="code-language">Text</span>
+                </div>
+                <pre><code>The template "Console App" was created successfully.
+
+Processing post-creation actions...
+Restoring C:\Users\YourName\Projects\HelloWorld\HelloWorld.csproj:
+  Determining projects to restore...
+  Restored C:\Users\YourName\Projects\HelloWorld\HelloWorld.csproj (in 234 ms).
+Restore succeeded.</code></pre>
+
+                <p>
+                    Navigate into your new project:
+                </p>
+
+                <div class="code-header">
+                    <span class="code-filename">Terminal</span>
+                    <span class="code-language">Shell</span>
+                </div>
+                <pre><code>cd HelloWorld</code></pre>
+
+                <div class="section-divider"></div>
+
+                <h2>Step 2: Explore What Was Created</h2>
+
+                <p>
+                    List the files in your project directory:
+                </p>
+
+                <div class="code-header">
+                    <span class="code-filename">Terminal</span>
+                    <span class="code-language">Shell</span>
+                </div>
+                <pre><code><span class="code-comment"># Windows (PowerShell)</span>
+dir
+
+<span class="code-comment"># macOS/Linux</span>
+ls -la</code></pre>
+
+                <p>
+                    You'll see:
+                </p>
+
+                <ul>
+                    <li><code>Program.cs</code> - Your C# source code file</li>
+                    <li><code>HelloWorld.csproj</code> - Project configuration file</li>
+                    <li><code>obj/</code> - Build artifacts (auto-generated)</li>
+                </ul>
+
+                <div class="callout callout-tip">
+                    <div class="callout-title">💡 What's What?</div>
+                    <p>
+                        <strong>Program.cs</strong>: Where you write your C# code<br>
+                        <strong>.csproj</strong>: Project file (like package.json for Node.js)<br>
+                        <strong>obj/</strong>: Temporary build files (ignore this folder)
+                    </p>
+                </div>
+
+                <div class="section-divider"></div>
+
+                <h2>Step 3: Look at the Generated Code</h2>
+
+                <p>
+                    Open <code>Program.cs</code> in any text editor. You'll see:
+                </p>
+
+                <div class="code-header">
+                    <span class="code-filename">Program.cs</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-comment">// See https://aka.ms/new-console-template for more information</span>
+Console.<span class="code-method">WriteLine</span>(<span class="code-string">"Hello, World!"</span>);</code></pre>
+
+                <p>
+                    That's it! Just one line of code. This is called a <strong>top-level statement</strong>—a
+                    simplified syntax introduced in C# 9 that removes boilerplate code.
+                </p>
+
+                <div class="callout callout-concept">
+                    <div class="callout-title">💡 Top-Level Statements</div>
+                    <p>
+                        In older C# versions, you needed a <code>Main</code> method inside a class. Modern C#
+                        lets you skip that and write code directly. The compiler automatically wraps your code
+                        in a <code>Main</code> method behind the scenes.
+                    </p>
+                </div>
+
+                <h3>Traditional vs Modern Syntax</h3>
+
+                <p>
+                    Here's what the same program looks like in traditional C# syntax:
+                </p>
+
+                <div class="code-header">
+                    <span class="code-filename">Traditional Syntax (C# 8 and earlier)</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-keyword">using</span> <span class="code-class">System</span>;
+
+<span class="code-keyword">namespace</span> <span class="code-class">HelloWorld</span>
+{
+    <span class="code-keyword">class</span> <span class="code-class">Program</span>
+    {
+        <span class="code-keyword">static</span> <span class="code-type">void</span> <span class="code-method">Main</span>(<span class="code-type">string</span>[] <span class="code-variable">args</span>)
+        {
+            Console.<span class="code-method">WriteLine</span>(<span class="code-string">"Hello, World!"</span>);
+        }
+    }
+}</code></pre>
+
+                <p>
+                    Both do the exact same thing! Modern C# just removes the ceremony.
+                </p>
+
+                <div class="section-divider"></div>
+
+                <h2>Step 4: Run Your Application</h2>
+
+                <p>
+                    Let's run the app! In your terminal (make sure you're in the HelloWorld directory):
+                </p>
+
+                <div class="code-header">
+                    <span class="code-filename">Terminal</span>
+                    <span class="code-language">Shell</span>
+                </div>
+                <pre><code>dotnet run</code></pre>
+
+                <p>
+                    You'll see:
+                </p>
+
+                <div class="code-header">
+                    <span class="code-filename">Output</span>
+                    <span class="code-language">Text</span>
+                </div>
+                <pre><code>Hello, World!</code></pre>
+
+                <div class="callout callout-tip">
+                    <div class="callout-title">🎉 Congratulations!</div>
+                    <p>
+                        You just created, compiled, and ran your first .NET application! The <code>dotnet run</code>
+                        command automatically builds your project and executes it.
+                    </p>
+                </div>
+
+                <h3>What Happened Behind the Scenes?</h3>
+
+                <ol>
+                    <li><strong>Compilation</strong>: C# compiler (Roslyn) compiled <code>Program.cs</code> to
+                        Intermediate Language (IL)</li>
+                    <li><strong>Output</strong>: Created <code>HelloWorld.dll</code> in the
+                        <code>bin/Debug/net8.0/</code> folder</li>
+                    <li><strong>Execution</strong>: .NET Runtime loaded the DLL and executed your code</li>
+                    <li><strong>Result</strong>: "Hello, World!" printed to the console</li>
+                </ol>
+
+                <div class="section-divider"></div>
+
+                <h2>Step 5: Modify Your Application</h2>
+
+                <p>
+                    Let's make it more interesting! Open <code>Program.cs</code> and replace the content with:
+                </p>
+
+                <div class="code-header">
+                    <span class="code-filename">Program.cs</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-comment">// Welcome message</span>
+Console.<span class="code-method">WriteLine</span>(<span class="code-string">"Welcome to .NET!"</span>);
+Console.<span class="code-method">WriteLine</span>(<span class="code-string">"==================\n"</span>);
+
+<span class="code-comment">// Get user's name</span>
+Console.<span class="code-method">Write</span>(<span class="code-string">"What's your name? "</span>);
+<span class="code-type">string</span>? <span class="code-variable">name</span> = Console.<span class="code-method">ReadLine</span>();
+
+<span class="code-comment">// Greet the user</span>
+Console.<span class="code-method">WriteLine</span>(<span class="code-string">$"\nHello, </span>{<span class="code-variable">name</span>}<span class="code-string">! Welcome to your .NET journey!"</span>);
+
+<span class="code-comment">// Show .NET version</span>
+Console.<span class="code-method">WriteLine</span>(<span class="code-string">$"You're running .NET </span>{<span class="code-class">Environment</span>.<span class="code-variable">Version</span>}<span class="code-string">"</span>);</code></pre>
+
+                <p>
+                    Run it again:
+                </p>
+
+                <div class="code-header">
+                    <span class="code-filename">Terminal</span>
+                    <span class="code-language">Shell</span>
+                </div>
+                <pre><code>dotnet run</code></pre>
+
+                <p>
+                    Now it's interactive! Try it:
+                </p>
+
+                <div class="code-header">
+                    <span class="code-filename">Output</span>
+                    <span class="code-language">Text</span>
+                </div>
+                <pre><code>Welcome to .NET!
+==================
+
+What's your name? John
+Hello, John! Welcome to your .NET journey!
+You're running .NET 8.0.0</code></pre>
+
+                <div class="callout callout-concept">
+                    <div class="callout-title">💡 New Concepts Used</div>
+                    <p>
+                        <code>Console.Write()</code> - Prints without a newline<br>
+                        <code>Console.ReadLine()</code> - Reads user input<br>
+                        <code>string?</code> - Nullable string (can be null)<br>
+                        <code>$"..."</code> - String interpolation (embed variables)<br>
+                        <code>Environment.Version</code> - Get .NET runtime version
+                    </p>
+                </div>
+
+                <div class="section-divider"></div>
+
+                <h2>Step 6: Build a Simple InvenTrack Inventory Checker</h2>
+
+                <p>
+                    Let's create something more practical—a simple inventory checker for InvenTrack!
+                    Replace <code>Program.cs</code> with:
+                </p>
+
+                <div class="code-header">
+                    <span class="code-filename">Program.cs</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-comment">// InvenTrack - Simple Inventory Checker</span>
+Console.<span class="code-method">WriteLine</span>(<span class="code-string">"╔════════════════════════════════════╗"</span>);
+Console.<span class="code-method">WriteLine</span>(<span class="code-string">"║   InvenTrack Inventory Checker    ║"</span>);
+Console.<span class="code-method">WriteLine</span>(<span class="code-string">"╚════════════════════════════════════╝\n"</span>);
+
+<span class="code-comment">// Sample inventory data</span>
+<span class="code-type">string</span> <span class="code-variable">productName</span> = <span class="code-string">"Laptop - Dell XPS 15"</span>;
+<span class="code-type">string</span> <span class="code-variable">sku</span> = <span class="code-string">"LAP-DELL-XPS15"</span>;
+<span class="code-type">int</span> <span class="code-variable">quantityInStock</span> = <span class="code-number">15</span>;
+<span class="code-type">decimal</span> <span class="code-variable">unitPrice</span> = <span class="code-number">1299.99m</span>;
+<span class="code-type">int</span> <span class="code-variable">reorderLevel</span> = <span class="code-number">10</span>;
+
+<span class="code-comment">// Display product information</span>
+Console.<span class="code-method">WriteLine</span>(<span class="code-string">"Product Information:"</span>);
+Console.<span class="code-method">WriteLine</span>(<span class="code-string">"--------------------"</span>);
+Console.<span class="code-method">WriteLine</span>(<span class="code-string">$"Name:     </span>{<span class="code-variable">productName</span>}<span class="code-string">"</span>);
+Console.<span class="code-method">WriteLine</span>(<span class="code-string">$"SKU:      </span>{<span class="code-variable">sku</span>}<span class="code-string">"</span>);
+Console.<span class="code-method">WriteLine</span>(<span class="code-string">$"Price:    $</span>{<span class="code-variable">unitPrice</span>:N2}<span class="code-string">"</span>);
+Console.<span class="code-method">WriteLine</span>(<span class="code-string">$"In Stock: </span>{<span class="code-variable">quantityInStock</span>}<span class="code-string"> units\n"</span>);
+
+<span class="code-comment">// Calculate total value</span>
+<span class="code-type">decimal</span> <span class="code-variable">totalValue</span> = <span class="code-variable">quantityInStock</span> * <span class="code-variable">unitPrice</span>;
+Console.<span class="code-method">WriteLine</span>(<span class="code-string">$"Total Inventory Value: $</span>{<span class="code-variable">totalValue</span>:N2}<span class="code-string">\n"</span>);
+
+<span class="code-comment">// Check stock status</span>
+Console.<span class="code-method">WriteLine</span>(<span class="code-string">"Stock Status:"</span>);
+Console.<span class="code-method">WriteLine</span>(<span class="code-string">"-------------"</span>);
+
+<span class="code-keyword">if</span> (<span class="code-variable">quantityInStock</span> == <span class="code-number">0</span>)
+{
+    Console.<span class="code-variable">ForegroundColor</span> = <span class="code-class">ConsoleColor</span>.<span class="code-variable">Red</span>;
+    Console.<span class="code-method">WriteLine</span>(<span class="code-string">"⚠️  OUT OF STOCK - Reorder immediately!"</span>);
+}
+<span class="code-keyword">else</span> <span class="code-keyword">if</span> (<span class="code-variable">quantityInStock</span> &lt;= <span class="code-variable">reorderLevel</span>)
+{
+    Console.<span class="code-variable">ForegroundColor</span> = <span class="code-class">ConsoleColor</span>.<span class="code-variable">Yellow</span>;
+    Console.<span class="code-method">WriteLine</span>(<span class="code-string">$"⚠️  LOW STOCK - Only </span>{<span class="code-variable">quantityInStock</span>}<span class="code-string"> units remaining"</span>);
+    Console.<span class="code-method">WriteLine</span>(<span class="code-string">$"   Consider reordering (threshold: </span>{<span class="code-variable">reorderLevel</span>}<span class="code-string"> units)"</span>);
+}
+<span class="code-keyword">else</span>
+{
+    Console.<span class="code-variable">ForegroundColor</span> = <span class="code-class">ConsoleColor</span>.<span class="code-variable">Green</span>;
+    Console.<span class="code-method">WriteLine</span>(<span class="code-string">"✓ Stock levels are healthy"</span>);
+}
+
+<span class="code-comment">// Reset console color</span>
+Console.<span class="code-method">ResetColor</span>();
+
+<span class="code-comment">// Interactive: Check another product</span>
+Console.<span class="code-method">WriteLine</span>(<span class="code-string">"\n--------------------"</span>);
+Console.<span class="code-method">Write</span>(<span class="code-string">"Enter quantity to check: "</span>);
+<span class="code-type">string</span>? <span class="code-variable">input</span> = Console.<span class="code-method">ReadLine</span>();
+
+<span class="code-keyword">if</span> (<span class="code-type">int</span>.<span class="code-method">TryParse</span>(<span class="code-variable">input</span>, <span class="code-keyword">out</span> <span class="code-type">int</span> <span class="code-variable">checkQuantity</span>))
+{
+    <span class="code-type">decimal</span> <span class="code-variable">value</span> = <span class="code-variable">checkQuantity</span> * <span class="code-variable">unitPrice</span>;
+    Console.<span class="code-method">WriteLine</span>(<span class="code-string">$"\n</span>{<span class="code-variable">checkQuantity</span>}<span class="code-string"> units would be worth: $</span>{<span class="code-variable">value</span>:N2}<span class="code-string">"</span>);
+}
+<span class="code-keyword">else</span>
+{
+    Console.<span class="code-method">WriteLine</span>(<span class="code-string">"\nInvalid quantity entered."</span>);
+}</code></pre>
+
+                <p>
+                    Run it:
+                </p>
+
+                <div class="code-header">
+                    <span class="code-filename">Terminal</span>
+                    <span class="code-language">Shell</span>
+                </div>
+                <pre><code>dotnet run</code></pre>
+
+                <p>
+                    You'll see a beautiful, color-coded inventory report:
+                </p>
+
+                <div class="code-header">
+                    <span class="code-filename">Output</span>
+                    <span class="code-language">Text</span>
+                </div>
+                <pre><code>╔════════════════════════════════════╗
+║   InvenTrack Inventory Checker    ║
+╚════════════════════════════════════╝
+
+Product Information:
+--------------------
+Name:     Laptop - Dell XPS 15
+SKU:      LAP-DELL-XPS15
+Price:    $1,299.99
+In Stock: 15 units
+
+Total Inventory Value: $19,499.85
+
+Stock Status:
+-------------
+⚠️  LOW STOCK - Only 15 units remaining
+   Consider reordering (threshold: 10 units)
+
+--------------------
+Enter quantity to check: 50
+
+50 units would be worth: $64,999.50</code></pre>
+
+                <div class="callout callout-tip">
+                    <div class="callout-title">🚀 What You Just Built!</div>
+                    <p>
+                        This simple console app demonstrates:<br>
+                        • Variables and data types<br>
+                        • String interpolation and formatting<br>
+                        • Arithmetic operations<br>
+                        • Conditional logic (if/else)<br>
+                        • Console colors for visual feedback<br>
+                        • User input and validation<br>
+                        • Number parsing with <code>TryParse</code>
+                    </p>
+                </div>
+
+                <div class="section-divider"></div>
+
+                <h2>Understanding the Build Process</h2>
+
+                <h3>dotnet run vs dotnet build</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">Terminal</span>
+                    <span class="code-language">Shell</span>
+                </div>
+                <pre><code><span class="code-comment"># Build only (compile, don't run)</span>
+dotnet build
+
+<span class="code-comment"># Build and run</span>
+dotnet run</code></pre>
+
+                <p>
+                    When you run <code>dotnet build</code>, you'll see:
+                </p>
+
+                <div class="code-header">
+                    <span class="code-filename">Output</span>
+                    <span class="code-language">Text</span>
+                </div>
+                <pre><code>MSBuild version 17.8.0+b89cb5fde for .NET
+  Determining projects to restore...
+  All projects are up-to-date for restore.
+  HelloWorld -> C:\Projects\HelloWorld\bin\Debug\net8.0\HelloWorld.dll
+
+Build succeeded.
+    0 Warning(s)
+    0 Error(s)</code></pre>
+
+                <h3>Where's the Output?</h3>
+
+                <p>
+                    After building, check the <code>bin/Debug/net8.0/</code> folder:
+                </p>
+
+                <ul>
+                    <li><code>HelloWorld.dll</code> - Your compiled application (IL code)</li>
+                    <li><code>HelloWorld.exe</code> - Windows launcher (on Windows only)</li>
+                    <li><code>HelloWorld.deps.json</code> - Dependency information</li>
+                    <li><code>HelloWorld.runtimeconfig.json</code> - Runtime configuration</li>
+                </ul>
+
+                <div class="callout callout-info">
+                    <div class="callout-title">ℹ️ Running the Compiled App Directly</div>
+                    <p>
+                        You can run the compiled DLL directly:<br>
+                        <code>dotnet bin/Debug/net8.0/HelloWorld.dll</code><br>
+                        Or on Windows, just double-click <code>HelloWorld.exe</code>
+                    </p>
+                </div>
+
+                <div class="section-divider"></div>
+
+                <h2>Opening Your Project in an IDE</h2>
+
+                <h3>Visual Studio 2022</h3>
+
+                <ol>
+                    <li>Open Visual Studio</li>
+                    <li>Click <strong>"Open a project or solution"</strong></li>
+                    <li>Navigate to your project folder</li>
+                    <li>Select <code>HelloWorld.csproj</code></li>
+                    <li>Click <strong>"Open"</strong></li>
+                </ol>
+
+                <p>
+                    Now you can edit, build, and run from within Visual Studio. Press <code>F5</code> to run
+                    with debugging, or <code>Ctrl+F5</code> to run without debugging.
+                </p>
+
+                <h3>Visual Studio Code</h3>
+
+                <ol>
+                    <li>Open VS Code</li>
+                    <li>Click <strong>"File" → "Open Folder"</strong></li>
+                    <li>Select your <code>HelloWorld</code> folder</li>
+                    <li>VS Code will detect the C# project and offer to add build assets—click <strong>"Yes"</strong>
+                    </li>
+                </ol>
+
+                <p>
+                    Press <code>F5</code> to run with debugging.
+                </p>
+
+                <div class="section-divider"></div>
+
+                <h2>Common Commands Reference</h2>
+
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Command</th>
+                            <th>What It Does</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><code>dotnet new console -n MyApp</code></td>
+                            <td>Create a new console application</td>
+                        </tr>
+                        <tr>
+                            <td><code>dotnet run</code></td>
+                            <td>Build and run the application</td>
+                        </tr>
+                        <tr>
+                            <td><code>dotnet build</code></td>
+                            <td>Compile the application</td>
+                        </tr>
+                        <tr>
+                            <td><code>dotnet clean</code></td>
+                            <td>Delete build artifacts (bin/obj folders)</td>
+                        </tr>
+                        <tr>
+                            <td><code>dotnet watch run</code></td>
+                            <td>Run and auto-restart on file changes</td>
+                        </tr>
+                        <tr>
+                            <td><code>dotnet publish</code></td>
+                            <td>Prepare app for deployment</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="callout callout-tip">
+                    <div class="callout-title">💡 Hot Reload with dotnet watch</div>
+                    <p>
+                        Try <code>dotnet watch run</code>! It automatically rebuilds and restarts your app
+                        whenever you save changes to your code. Perfect for rapid development!
+                    </p>
+                </div>
+
+                <h2>Key Takeaways</h2>
+
+                <ul>
+                    <li>Create projects with <code>dotnet new console -n ProjectName</code></li>
+                    <li><strong>Program.cs</strong> contains your C# code</li>
+                    <li><strong>Top-level statements</strong> simplify console apps (no Main method needed)</li>
+                    <li><code>dotnet run</code> builds and executes your application</li>
+                    <li><code>dotnet build</code> compiles without running</li>
+                    <li>Compiled output goes to <code>bin/Debug/net8.0/</code></li>
+                    <li><strong>String interpolation</strong> (<code>$"..."</code>) embeds variables in strings</li>
+                    <li><code>Console.WriteLine()</code> prints output</li>
+                    <li><code>Console.ReadLine()</code> reads user input</li>
+                    <li>You can change console colors with <code>Console.ForegroundColor</code></li>
+                    <li>Use <code>int.TryParse()</code> to safely convert strings to numbers</li>
+                </ul>
+
+                <div class="callout callout-concept">
+                    <div class="callout-title">🎯 Next Steps</div>
+                    <p>
+                        You've created and run your first .NET application! In the next section, we'll dive
+                        deeper into <strong>project files and structure</strong>—understanding what the
+                        <code>.csproj</code> file does, how dependencies work, and how to configure your projects.
+                    </p>
+                </div>
+
+                <nav class="page-nav">
+                    <a href="02-installing-sdk.html" class="prev">Installing the .NET SDK</a>
+                    <a href="04-project-structure.html" class="next">Project Files & Structure</a>
+                </nav>
+
+            
+        <footer class="page-footer">
+          Built with 💜 by <a href="https://akwasi.dev" target="_blank" rel="noopener noreferrer">Akwasi Adu-Kyeremeh</a> for developers who want to truly understand what they're building.
+        </footer>
+
+      </div>
+        </main>
+    </div>
+</body>
+
+</html>

@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OWASP Top 10 | ASP.NET Core Mastery</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;500&family=Source+Serif+4:ital,wght@0,400;0,600;1,400&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="../assets/style.css">
+</head>
+
+<body>
+    <div class="page-wrapper">
+        <aside class="sidebar">
+            <a href="../index.html" class="sidebar-logo">ASP.NET Core Mastery</a>
+            <div class="sidebar-section">Part XIV: Security</div>
+            <ul class="sidebar-nav">
+                <li><a href="01-owasp-top-10.html" class="active">OWASP Top 10</a></li>
+                <li><a href="02-xss-protection.html">Cross-Site Scripting (XSS)</a></li>
+                <li><a href="03-csrf-protection.html">Cross-Site Request Forgery (CSRF)</a></li>
+                <li><a href="04-sql-injection.html">SQL Injection</a></li>
+                <li><a href="05-data-protection-api.html">Data Protection API</a></li>
+                <li><a href="06-https-security-headers.html">HTTPS and Security Headers</a></li>
+            </ul>
+            <div class="sidebar-section">Resources</div>
+            <ul class="sidebar-nav">
+                <li><a href="../index.html">Full Roadmap</a></li>
+            </ul>
+        </aside>
+
+        <main class="main-content">
+            <div class="content-container">
+                <nav class="breadcrumb">
+                    <a href="../index.html">Home</a>
+                    <span>→</span>
+                    <a href="01-owasp-top-10.html">Part XIV: Security</a>
+                    <span>→</span>
+                    OWASP Top 10
+                </nav>
+
+                <div class="progress-indicator">
+                    <span>Section 1 of 6</span>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 16.67%"></div>
+                    </div>
+                </div>
+
+                <h1>OWASP Top 10</h1>
+
+                <div class="learning-objectives">
+                    <h3>🎯 What You'll Learn</h3>
+                    <ul>
+                        <li>What is OWASP</li>
+                        <li>OWASP Top 10 vulnerabilities</li>
+                        <li>How they affect ASP.NET Core</li>
+                        <li>Prevention strategies</li>
+                    </ul>
+                </div>
+
+                <h2>What is OWASP?</h2>
+
+                <p>
+                    <strong>OWASP (Open Web Application Security Project)</strong> is a nonprofit foundation that works
+                    to improve software security.
+                    The <strong>OWASP Top 10</strong> is a standard awareness document for web application security
+                    risks.
+                </p>
+
+                <div class="section-divider"></div>
+
+                <h2>OWASP Top 10 (2021)</h2>
+
+                <h3>1. Broken Access Control</h3>
+                <p><strong>Risk:</strong> Users can access unauthorized resources.</p>
+                <p><strong>Example:</strong> User changes URL to access admin panel.</p>
+                <p><strong>Prevention:</strong> Use [Authorize] attributes, implement proper authorization policies.</p>
+
+                <h3>2. Cryptographic Failures</h3>
+                <p><strong>Risk:</strong> Sensitive data exposed due to weak encryption.</p>
+                <p><strong>Example:</strong> Passwords stored in plain text.</p>
+                <p><strong>Prevention:</strong> Use ASP.NET Core Data Protection API, hash passwords with Identity.</p>
+
+                <h3>3. Injection</h3>
+                <p><strong>Risk:</strong> Malicious code injected into queries (SQL, NoSQL, OS commands).</p>
+                <p><strong>Example:</strong> SQL Injection: <code>SELECT * FROM Users WHERE Id = '1 OR 1=1'</code></p>
+                <p><strong>Prevention:</strong> Use parameterized queries, Entity Framework Core, input validation.</p>
+
+                <h3>4. Insecure Design</h3>
+                <p><strong>Risk:</strong> Missing or ineffective security controls in design.</p>
+                <p><strong>Example:</strong> No rate limiting on login attempts.</p>
+                <p><strong>Prevention:</strong> Threat modeling, secure design patterns, defense in depth.</p>
+
+                <h3>5. Security Misconfiguration</h3>
+                <p><strong>Risk:</strong> Insecure default configurations, incomplete setups.</p>
+                <p><strong>Example:</strong> Detailed error messages in production.</p>
+                <p><strong>Prevention:</strong> Disable detailed errors in production, remove unused features, keep
+                    dependencies updated.</p>
+
+                <div class="code-header">
+                    <span class="code-filename">Production Error Handling</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-keyword">if</span> (<span class="code-variable">app</span>.<span class="code-variable">Environment</span>.<span class="code-method">IsDevelopment</span>())
+{
+    <span class="code-variable">app</span>.<span class="code-method">UseDeveloperExceptionPage</span>();
+}
+<span class="code-keyword">else</span>
+{
+    <span class="code-variable">app</span>.<span class="code-method">UseExceptionHandler</span>(<span class="code-string">"/Error"</span>);
+    <span class="code-variable">app</span>.<span class="code-method">UseHsts</span>();
+}</code></pre>
+
+                <h3>6. Vulnerable and Outdated Components</h3>
+                <p><strong>Risk:</strong> Using libraries with known vulnerabilities.</p>
+                <p><strong>Example:</strong> Old NuGet packages with security flaws.</p>
+                <p><strong>Prevention:</strong> Regularly update NuGet packages, use
+                    <code>dotnet list package --vulnerable</code>.</p>
+
+                <h3>7. Identification and Authentication Failures</h3>
+                <p><strong>Risk:</strong> Weak authentication mechanisms.</p>
+                <p><strong>Example:</strong> No password complexity requirements, no MFA.</p>
+                <p><strong>Prevention:</strong> Use ASP.NET Core Identity, implement MFA, enforce strong passwords.</p>
+
+                <h3>8. Software and Data Integrity Failures</h3>
+                <p><strong>Risk:</strong> Code/data modified without integrity verification.</p>
+                <p><strong>Example:</strong> Insecure CI/CD pipeline, unsigned packages.</p>
+                <p><strong>Prevention:</strong> Use signed packages, verify integrity, secure CI/CD.</p>
+
+                <h3>9. Security Logging and Monitoring Failures</h3>
+                <p><strong>Risk:</strong> Attacks go undetected due to insufficient logging.</p>
+                <p><strong>Example:</strong> No logging of failed login attempts.</p>
+                <p><strong>Prevention:</strong> Use ILogger, log security events, set up alerts.</p>
+
+                <div class="code-header">
+                    <span class="code-filename">Log Security Events</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-variable">_logger</span>.<span class="code-method">LogWarning</span>(<span class="code-string">"Failed login attempt for user {Email}"</span>, <span class="code-variable">email</span>);</code></pre>
+
+                <h3>10. Server-Side Request Forgery (SSRF)</h3>
+                <p><strong>Risk:</strong> Application fetches remote resources without validation.</p>
+                <p><strong>Example:</strong> User provides URL that accesses internal network.</p>
+                <p><strong>Prevention:</strong> Validate and sanitize URLs, use allowlists, disable unnecessary
+                    protocols.</p>
+
+                <div class="section-divider"></div>
+
+                <h2>ASP.NET Core Built-in Protections</h2>
+
+                <ul>
+                    <li><strong>Anti-forgery tokens</strong>: Automatic CSRF protection</li>
+                    <li><strong>Razor encoding</strong>: Automatic XSS protection</li>
+                    <li><strong>Data Protection API</strong>: Secure data encryption</li>
+                    <li><strong>HTTPS enforcement</strong>: UseHttpsRedirection()</li>
+                    <li><strong>CORS</strong>: Cross-origin resource sharing control</li>
+                    <li><strong>Rate limiting</strong>: Built-in middleware</li>
+                </ul>
+
+                <h2>Key Takeaways</h2>
+
+                <ul>
+                    <li><strong>OWASP Top 10</strong>: Most critical web security risks</li>
+                    <li><strong>Broken Access Control</strong>: #1 risk - use authorization</li>
+                    <li><strong>Injection</strong>: Use parameterized queries</li>
+                    <li><strong>Security Misconfiguration</strong>: Disable detailed errors in production</li>
+                    <li><strong>Logging</strong>: Monitor security events</li>
+                    <li><strong>ASP.NET Core</strong>: Many built-in protections</li>
+                </ul>
+
+                <div class="callout callout-info">
+                    <div class="callout-title">📚 Learn More</div>
+                    <p>
+                        Visit <a href="https://owasp.org/www-project-top-ten/" target="_blank">OWASP Top 10</a> for
+                        detailed information.
+                    </p>
+                </div>
+
+                <nav class="page-nav">
+                    <a href="../index.html" class="prev">Back to Roadmap</a>
+                    <a href="02-xss-protection.html" class="next">Cross-Site Scripting (XSS)</a>
+                </nav>
+
+            
+        <footer class="page-footer">
+          Built with 💜 by <a href="https://akwasi.dev" target="_blank" rel="noopener noreferrer">Akwasi Adu-Kyeremeh</a> for developers who want to truly understand what they're building.
+        </footer>
+
+      </div>
+        </main>
+    </div>
+</body>
+
+</html>

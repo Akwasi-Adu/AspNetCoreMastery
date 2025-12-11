@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test-Driven Development | ASP.NET Core Mastery</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;500&family=Source+Serif+4:ital,wght@0,400;0,600;1,400&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="../assets/style.css">
+</head>
+
+<body>
+    <div class="page-wrapper">
+        <aside class="sidebar">
+            <a href="../index.html" class="sidebar-logo">ASP.NET Core Mastery</a>
+            <div class="sidebar-section">Part XVI: Testing</div>
+            <ul class="sidebar-nav">
+                <li><a href="01-unit-testing-xunit.html">Unit Testing with xUnit</a></li>
+                <li><a href="02-mocking-with-moq.html">Mocking with Moq</a></li>
+                <li><a href="03-integration-testing.html">Integration Testing</a></li>
+                <li><a href="04-webapplicationfactory.html">WebApplicationFactory</a></li>
+                <li><a href="05-test-driven-development.html" class="active">Test-Driven Development</a></li>
+            </ul>
+            <div class="sidebar-section">Resources</div>
+            <ul class="sidebar-nav">
+                <li><a href="../index.html">Full Roadmap</a></li>
+            </ul>
+        </aside>
+
+        <main class="main-content">
+            <div class="content-container">
+                <nav class="breadcrumb">
+                    <a href="../index.html">Home</a>
+                    <span>→</span>
+                    <a href="01-unit-testing-xunit.html">Part XVI: Testing</a>
+                    <span>→</span>
+                    Test-Driven Development
+                </nav>
+
+                <div class="progress-indicator">
+                    <span>Section 5 of 5</span>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 100%"></div>
+                    </div>
+                </div>
+
+                <h1>Test-Driven Development (TDD)</h1>
+
+                <div class="learning-objectives">
+                    <h3>🎯 What You'll Learn</h3>
+                    <ul>
+                        <li>What is TDD</li>
+                        <li>Red-Green-Refactor cycle</li>
+                        <li>Benefits of TDD</li>
+                        <li>TDD workflow</li>
+                        <li>Practical TDD example</li>
+                    </ul>
+                </div>
+
+                <h2>What is TDD?</h2>
+
+                <p>
+                    <strong>Test-Driven Development (TDD)</strong> is a development approach where you write tests
+                    <em>before</em> writing the implementation code.
+                </p>
+
+                <div class="section-divider"></div>
+
+                <h2>Red-Green-Refactor Cycle</h2>
+
+                <div class="callout callout-concept">
+                    <div class="callout-title">The TDD Cycle</div>
+                    <ol>
+                        <li><strong>🔴 Red</strong>: Write a failing test</li>
+                        <li><strong>🟢 Green</strong>: Write minimal code to make it pass</li>
+                        <li><strong>🔵 Refactor</strong>: Improve code while keeping tests green</li>
+                    </ol>
+                </div>
+
+                <div class="section-divider"></div>
+
+                <h2>Benefits of TDD</h2>
+
+                <ul>
+                    <li><strong>Better design</strong>: Forces you to think about API before implementation</li>
+                    <li><strong>Fewer bugs</strong>: Catches issues early</li>
+                    <li><strong>Confidence</strong>: Refactor without fear</li>
+                    <li><strong>Documentation</strong>: Tests show how code should be used</li>
+                    <li><strong>Testable code</strong>: Naturally leads to better architecture</li>
+                </ul>
+
+                <div class="section-divider"></div>
+
+                <h2>TDD Workflow Example</h2>
+
+                <h3>Step 1: 🔴 Red - Write Failing Test</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">DiscountCalculatorTests.cs</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">DiscountCalculatorTests</span>
+{
+    [<span class="code-class">Fact</span>]
+    <span class="code-keyword">public</span> <span class="code-keyword">void</span> <span class="code-method">CalculateDiscount_TenPercent_ReturnsDiscountedPrice</span>()
+    {
+        <span class="code-comment">// Arrange</span>
+        <span class="code-keyword">var</span> <span class="code-variable">calculator</span> = <span class="code-keyword">new</span> <span class="code-class">DiscountCalculator</span>();
+
+        <span class="code-comment">// Act</span>
+        <span class="code-keyword">var</span> <span class="code-variable">result</span> = <span class="code-variable">calculator</span>.<span class="code-method">CalculateDiscount</span>(<span class="code-number">100</span>, <span class="code-number">0.1m</span>);
+
+        <span class="code-comment">// Assert</span>
+        <span class="code-class">Assert</span>.<span class="code-method">Equal</span>(<span class="code-number">90</span>, <span class="code-variable">result</span>);
+    }
+}
+
+<span class="code-comment">// This test FAILS - DiscountCalculator doesn't exist yet!</span></code></pre>
+
+                <h3>Step 2: 🟢 Green - Make Test Pass</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">DiscountCalculator.cs</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">DiscountCalculator</span>
+{
+    <span class="code-keyword">public</span> <span class="code-type">decimal</span> <span class="code-method">CalculateDiscount</span>(<span class="code-type">decimal</span> <span class="code-variable">price</span>, <span class="code-type">decimal</span> <span class="code-variable">discountPercent</span>)
+    {
+        <span class="code-keyword">return</span> <span class="code-variable">price</span> - (<span class="code-variable">price</span> * <span class="code-variable">discountPercent</span>);
+    }
+}
+
+<span class="code-comment">// Test now PASSES! ✅</span></code></pre>
+
+                <h3>Step 3: 🔵 Refactor - Improve Code</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">Add More Tests</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code>[<span class="code-class">Theory</span>]
+[<span class="code-class">InlineData</span>(<span class="code-number">100</span>, <span class="code-number">0.1</span>, <span class="code-number">90</span>)]
+[<span class="code-class">InlineData</span>(<span class="code-number">50</span>, <span class="code-number">0.2</span>, <span class="code-number">40</span>)]
+[<span class="code-class">InlineData</span>(<span class="code-number">200</span>, <span class="code-number">0.5</span>, <span class="code-number">100</span>)]
+<span class="code-keyword">public</span> <span class="code-keyword">void</span> <span class="code-method">CalculateDiscount_VariousInputs_ReturnsCorrectPrice</span>(
+    <span class="code-type">decimal</span> <span class="code-variable">price</span>, <span class="code-type">decimal</span> <span class="code-variable">discount</span>, <span class="code-type">decimal</span> <span class="code-variable">expected</span>)
+{
+    <span class="code-keyword">var</span> <span class="code-variable">calculator</span> = <span class="code-keyword">new</span> <span class="code-class">DiscountCalculator</span>();
+    
+    <span class="code-keyword">var</span> <span class="code-variable">result</span> = <span class="code-variable">calculator</span>.<span class="code-method">CalculateDiscount</span>(<span class="code-variable">price</span>, <span class="code-variable">discount</span>);
+    
+    <span class="code-class">Assert</span>.<span class="code-method">Equal</span>(<span class="code-variable">expected</span>, <span class="code-variable">result</span>);
+}</code></pre>
+
+                <div class="section-divider"></div>
+
+                <h2>InvenTrack TDD Example</h2>
+
+                <p>Let's build a stock validator using TDD.</p>
+
+                <h3>🔴 Red: Write Test</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">StockValidatorTests.cs</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code>[<span class="code-class">Fact</span>]
+<span class="code-keyword">public</span> <span class="code-keyword">void</span> <span class="code-method">IsInStock_QuantityGreaterThanZero_ReturnsTrue</span>()
+{
+    <span class="code-keyword">var</span> <span class="code-variable">validator</span> = <span class="code-keyword">new</span> <span class="code-class">StockValidator</span>();
+    <span class="code-keyword">var</span> <span class="code-variable">product</span> = <span class="code-keyword">new</span> <span class="code-class">Product</span> { <span class="code-variable">Quantity</span> = <span class="code-number">10</span> };
+
+    <span class="code-keyword">var</span> <span class="code-variable">result</span> = <span class="code-variable">validator</span>.<span class="code-method">IsInStock</span>(<span class="code-variable">product</span>);
+
+    <span class="code-class">Assert</span>.<span class="code-method">True</span>(<span class="code-variable">result</span>);
+}</code></pre>
+
+                <h3>🟢 Green: Implement</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">StockValidator.cs</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">StockValidator</span>
+{
+    <span class="code-keyword">public</span> <span class="code-type">bool</span> <span class="code-method">IsInStock</span>(<span class="code-class">Product</span> <span class="code-variable">product</span>)
+    {
+        <span class="code-keyword">return</span> <span class="code-variable">product</span>.<span class="code-variable">Quantity</span> > <span class="code-number">0</span>;
+    }
+}</code></pre>
+
+                <h3>🔴 Red: Add Edge Case</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">Test Zero Quantity</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code>[<span class="code-class">Fact</span>]
+<span class="code-keyword">public</span> <span class="code-keyword">void</span> <span class="code-method">IsInStock_QuantityZero_ReturnsFalse</span>()
+{
+    <span class="code-keyword">var</span> <span class="code-variable">validator</span> = <span class="code-keyword">new</span> <span class="code-class">StockValidator</span>();
+    <span class="code-keyword">var</span> <span class="code-variable">product</span> = <span class="code-keyword">new</span> <span class="code-class">Product</span> { <span class="code-variable">Quantity</span> = <span class="code-number">0</span> };
+
+    <span class="code-keyword">var</span> <span class="code-variable">result</span> = <span class="code-variable">validator</span>.<span class="code-method">IsInStock</span>(<span class="code-variable">product</span>);
+
+    <span class="code-class">Assert</span>.<span class="code-method">False</span>(<span class="code-variable">result</span>);
+}
+
+<span class="code-comment">// Test PASSES - implementation already handles this! ✅</span></code></pre>
+
+                <h2>TDD Best Practices</h2>
+
+                <ul>
+                    <li><strong>Start simple</strong>: Begin with simplest test case</li>
+                    <li><strong>One test at a time</strong>: Focus on one behavior</li>
+                    <li><strong>Minimal code</strong>: Write just enough to pass</li>
+                    <li><strong>Refactor often</strong>: Keep code clean</li>
+                    <li><strong>Fast tests</strong>: Tests should run quickly</li>
+                    <li><strong>Descriptive names</strong>: Test names explain behavior</li>
+                </ul>
+
+                <h2>Key Takeaways</h2>
+
+                <ul>
+                    <li><strong>TDD</strong>: Write tests before code</li>
+                    <li><strong>Red-Green-Refactor</strong>: The TDD cycle</li>
+                    <li><strong>🔴 Red</strong>: Write failing test</li>
+                    <li><strong>🟢 Green</strong>: Make it pass</li>
+                    <li><strong>🔵 Refactor</strong>: Improve code</li>
+                    <li><strong>Benefits</strong>: Better design, fewer bugs, confidence</li>
+                </ul>
+
+                <div class="callout callout-concept">
+                    <div class="callout-title">🎉 Part XVI Complete!</div>
+                    <p>
+                        Congratulations! You've completed <strong>Part XVI: Testing</strong>. You now understand:
+                    </p>
+                    <ul>
+                        <li>✅ Unit testing with xUnit ([Fact]/[Theory], assertions)</li>
+                        <li>✅ Mocking with Moq (Mock&lt;T&gt;, Setup, Verify)</li>
+                        <li>✅ Integration testing (in-memory database)</li>
+                        <li>✅ WebApplicationFactory (testing HTTP endpoints)</li>
+                        <li>✅ Test-Driven Development (Red-Green-Refactor)</li>
+                    </ul>
+                    <p>
+                        You can now write comprehensive tests for your ASP.NET Core applications! ✅
+                    </p>
+                </div>
+
+                <nav class="page-nav">
+                    <a href="04-webapplicationfactory.html" class="prev">WebApplicationFactory</a>
+                    <a href="../index.html" class="next">Back to Roadmap</a>
+                </nav>
+
+            
+        <footer class="page-footer">
+          Built with 💜 by <a href="https://akwasi.dev" target="_blank" rel="noopener noreferrer">Akwasi Adu-Kyeremeh</a> for developers who want to truly understand what they're building.
+        </footer>
+
+      </div>
+        </main>
+    </div>
+</body>
+
+</html>

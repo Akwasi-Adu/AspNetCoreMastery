@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HTTPS and Security Headers | ASP.NET Core Mastery</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;500&family=Source+Serif+4:ital,wght@0,400;0,600;1,400&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="../assets/style.css">
+</head>
+
+<body>
+    <div class="page-wrapper">
+        <aside class="sidebar">
+            <a href="../index.html" class="sidebar-logo">ASP.NET Core Mastery</a>
+            <div class="sidebar-section">Part XIV: Security</div>
+            <ul class="sidebar-nav">
+                <li><a href="01-owasp-top-10.html">OWASP Top 10</a></li>
+                <li><a href="02-xss-protection.html">Cross-Site Scripting (XSS)</a></li>
+                <li><a href="03-csrf-protection.html">Cross-Site Request Forgery (CSRF)</a></li>
+                <li><a href="04-sql-injection.html">SQL Injection</a></li>
+                <li><a href="05-data-protection-api.html">Data Protection API</a></li>
+                <li><a href="06-https-security-headers.html" class="active">HTTPS and Security Headers</a></li>
+            </ul>
+            <div class="sidebar-section">Resources</div>
+            <ul class="sidebar-nav">
+                <li><a href="../index.html">Full Roadmap</a></li>
+            </ul>
+        </aside>
+
+        <main class="main-content">
+            <div class="content-container">
+                <nav class="breadcrumb">
+                    <a href="../index.html">Home</a>
+                    <span>→</span>
+                    <a href="01-owasp-top-10.html">Part XIV: Security</a>
+                    <span>→</span>
+                    HTTPS and Security Headers
+                </nav>
+
+                <div class="progress-indicator">
+                    <span>Section 6 of 6</span>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 100%"></div>
+                    </div>
+                </div>
+
+                <h1>HTTPS and Security Headers</h1>
+
+                <div class="learning-objectives">
+                    <h3>🎯 What You'll Learn</h3>
+                    <ul>
+                        <li>Enforcing HTTPS</li>
+                        <li>HSTS (HTTP Strict Transport Security)</li>
+                        <li>Security headers</li>
+                        <li>Content Security Policy</li>
+                        <li>X-Frame-Options</li>
+                    </ul>
+                </div>
+
+                <h2>Enforcing HTTPS</h2>
+
+                <div class="code-header">
+                    <span class="code-filename">Program.cs</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-keyword">var</span> <span class="code-variable">app</span> = <span class="code-variable">builder</span>.<span class="code-method">Build</span>();
+
+<span class="code-keyword">if</span> (!<span class="code-variable">app</span>.<span class="code-variable">Environment</span>.<span class="code-method">IsDevelopment</span>())
+{
+    <span class="code-variable">app</span>.<span class="code-method">UseHttpsRedirection</span>(); <span class="code-comment">// Redirect HTTP to HTTPS</span>
+    <span class="code-variable">app</span>.<span class="code-method">UseHsts</span>();              <span class="code-comment">// HTTP Strict Transport Security</span>
+}</code></pre>
+
+                <div class="section-divider"></div>
+
+                <h2>HSTS (HTTP Strict Transport Security)</h2>
+
+                <p>HSTS tells browsers to only use HTTPS for your site.</p>
+
+                <div class="code-header">
+                    <span class="code-filename">Configure HSTS</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-variable">builder</span>.<span class="code-variable">Services</span>.<span class="code-method">AddHsts</span>(<span class="code-variable">options</span> =>
+{
+    <span class="code-variable">options</span>.<span class="code-variable">MaxAge</span> = <span class="code-class">TimeSpan</span>.<span class="code-method">FromDays</span>(<span class="code-number">365</span>);
+    <span class="code-variable">options</span>.<span class="code-variable">IncludeSubDomains</span> = <span class="code-keyword">true</span>;
+    <span class="code-variable">options</span>.<span class="code-variable">Preload</span> = <span class="code-keyword">true</span>;
+});</code></pre>
+
+                <div class="section-divider"></div>
+
+                <h2>Security Headers</h2>
+
+                <h3>1. X-Content-Type-Options</h3>
+                <p>Prevents MIME type sniffing.</p>
+
+                <div class="code-header">
+                    <span class="code-filename">Add Header</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-variable">app</span>.<span class="code-method">Use</span>(<span class="code-keyword">async</span> (<span class="code-variable">context</span>, <span class="code-variable">next</span>) =>
+{
+    <span class="code-variable">context</span>.<span class="code-variable">Response</span>.<span class="code-variable">Headers</span>.<span class="code-method">Add</span>(<span class="code-string">"X-Content-Type-Options"</span>, <span class="code-string">"nosniff"</span>);
+    <span class="code-keyword">await</span> <span class="code-method">next</span>();
+});</code></pre>
+
+                <h3>2. X-Frame-Options</h3>
+                <p>Prevents clickjacking by controlling iframe embedding.</p>
+
+                <div class="code-header">
+                    <span class="code-filename">Add Header</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-variable">context</span>.<span class="code-variable">Response</span>.<span class="code-variable">Headers</span>.<span class="code-method">Add</span>(<span class="code-string">"X-Frame-Options"</span>, <span class="code-string">"DENY"</span>);
+<span class="code-comment">// or "SAMEORIGIN" to allow same-origin framing</span></code></pre>
+
+                <h3>3. X-XSS-Protection</h3>
+                <p>Enables browser's XSS filter (legacy, CSP is better).</p>
+
+                <div class="code-header">
+                    <span class="code-filename">Add Header</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-variable">context</span>.<span class="code-variable">Response</span>.<span class="code-variable">Headers</span>.<span class="code-method">Add</span>(<span class="code-string">"X-XSS-Protection"</span>, <span class="code-string">"1; mode=block"</span>);</code></pre>
+
+                <h3>4. Referrer-Policy</h3>
+                <p>Controls how much referrer information is sent.</p>
+
+                <div class="code-header">
+                    <span class="code-filename">Add Header</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-variable">context</span>.<span class="code-variable">Response</span>.<span class="code-variable">Headers</span>.<span class="code-method">Add</span>(<span class="code-string">"Referrer-Policy"</span>, <span class="code-string">"strict-origin-when-cross-origin"</span>);</code></pre>
+
+                <h3>5. Content-Security-Policy (CSP)</h3>
+                <p>Controls which resources can be loaded.</p>
+
+                <div class="code-header">
+                    <span class="code-filename">Add CSP Header</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-variable">context</span>.<span class="code-variable">Response</span>.<span class="code-variable">Headers</span>.<span class="code-method">Add</span>(
+    <span class="code-string">"Content-Security-Policy"</span>,
+    <span class="code-string">"default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; font-src 'self'"</span>
+);</code></pre>
+
+                <div class="section-divider"></div>
+
+                <h2>Complete Security Headers Middleware</h2>
+
+                <div class="code-header">
+                    <span class="code-filename">Program.cs</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-variable">app</span>.<span class="code-method">Use</span>(<span class="code-keyword">async</span> (<span class="code-variable">context</span>, <span class="code-variable">next</span>) =>
+{
+    <span class="code-variable">context</span>.<span class="code-variable">Response</span>.<span class="code-variable">Headers</span>.<span class="code-method">Add</span>(<span class="code-string">"X-Content-Type-Options"</span>, <span class="code-string">"nosniff"</span>);
+    <span class="code-variable">context</span>.<span class="code-variable">Response</span>.<span class="code-variable">Headers</span>.<span class="code-method">Add</span>(<span class="code-string">"X-Frame-Options"</span>, <span class="code-string">"DENY"</span>);
+    <span class="code-variable">context</span>.<span class="code-variable">Response</span>.<span class="code-variable">Headers</span>.<span class="code-method">Add</span>(<span class="code-string">"X-XSS-Protection"</span>, <span class="code-string">"1; mode=block"</span>);
+    <span class="code-variable">context</span>.<span class="code-variable">Response</span>.<span class="code-variable">Headers</span>.<span class="code-method">Add</span>(<span class="code-string">"Referrer-Policy"</span>, <span class="code-string">"strict-origin-when-cross-origin"</span>);
+    <span class="code-variable">context</span>.<span class="code-variable">Response</span>.<span class="code-variable">Headers</span>.<span class="code-method">Add</span>(
+        <span class="code-string">"Content-Security-Policy"</span>,
+        <span class="code-string">"default-src 'self'; script-src 'self'; style-src 'self'"</span>
+    );
+    <span class="code-keyword">await</span> <span class="code-method">next</span>();
+});</code></pre>
+
+                <h2>Best Practices</h2>
+
+                <ul>
+                    <li><strong>Always use HTTPS</strong>: In production</li>
+                    <li><strong>Enable HSTS</strong>: Force HTTPS</li>
+                    <li><strong>Add security headers</strong>: Defense in depth</li>
+                    <li><strong>Use CSP</strong>: Prevent XSS and injection</li>
+                    <li><strong>Test headers</strong>: Use securityheaders.com</li>
+                </ul>
+
+                <h2>Key Takeaways</h2>
+
+                <ul>
+                    <li><strong>UseHttpsRedirection()</strong>: Redirect to HTTPS</li>
+                    <li><strong>UseHsts()</strong>: HTTP Strict Transport Security</li>
+                    <li><strong>X-Content-Type-Options</strong>: Prevent MIME sniffing</li>
+                    <li><strong>X-Frame-Options</strong>: Prevent clickjacking</li>
+                    <li><strong>CSP</strong>: Control resource loading</li>
+                    <li><strong>Security headers</strong>: Multiple layers of protection</li>
+                </ul>
+
+                <div class="callout callout-concept">
+                    <div class="callout-title">🎉 Part XIV Complete!</div>
+                    <p>
+                        Congratulations! You've completed <strong>Part XIV: Security Best Practices</strong>. You now
+                        understand:
+                    </p>
+                    <ul>
+                        <li>✅ OWASP Top 10 vulnerabilities and prevention</li>
+                        <li>✅ XSS protection (Razor encoding, CSP)</li>
+                        <li>✅ CSRF protection (anti-forgery tokens)</li>
+                        <li>✅ SQL Injection prevention (parameterized queries, EF Core)</li>
+                        <li>✅ Data Protection API (encryption/decryption)</li>
+                        <li>✅ HTTPS enforcement and security headers</li>
+                    </ul>
+                    <p>
+                        You now have the knowledge to build secure ASP.NET Core applications! 🔒
+                    </p>
+                </div>
+
+                <nav class="page-nav">
+                    <a href="05-data-protection-api.html" class="prev">Data Protection API</a>
+                    <a href="../index.html" class="next">Back to Roadmap</a>
+                </nav>
+
+            
+        <footer class="page-footer">
+          Built with 💜 by <a href="https://akwasi.dev" target="_blank" rel="noopener noreferrer">Akwasi Adu-Kyeremeh</a> for developers who want to truly understand what they're building.
+        </footer>
+
+      </div>
+        </main>
+    </div>
+</body>
+
+</html>

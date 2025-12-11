@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Request Pipeline | ASP.NET Core Mastery</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;500&family=Source+Serif+4:ital,wght@0,400;0,600;1,400&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="../assets/style.css">
+</head>
+
+<body>
+    <div class="page-wrapper">
+        <aside class="sidebar">
+            <a href="../index.html" class="sidebar-logo">ASP.NET Core Mastery</a>
+            <div class="sidebar-section">Part V: Middleware & Pipeline</div>
+            <ul class="sidebar-nav">
+                <li><a href="01-request-pipeline.html" class="active">The Request Pipeline</a></li>
+                <li><a href="02-built-in-middleware.html">Built-in Middleware</a></li>
+                <li><a href="03-custom-middleware.html">Creating Custom Middleware</a></li>
+                <li><a href="04-middleware-ordering.html">Middleware Ordering</a></li>
+                <li><a href="05-exception-handling.html">Exception Handling Middleware</a></li>
+            </ul>
+            <div class="sidebar-section">Resources</div>
+            <ul class="sidebar-nav">
+                <li><a href="../index.html">Full Roadmap</a></li>
+            </ul>
+        </aside>
+
+        <main class="main-content">
+            <div class="content-container">
+                <nav class="breadcrumb">
+                    <a href="../index.html">Home</a>
+                    <span>→</span>
+                    <a href="01-request-pipeline.html">Part V: Middleware & Pipeline</a>
+                    <span>→</span>
+                    The Request Pipeline
+                </nav>
+
+                <div class="progress-indicator">
+                    <span>Section 1 of 5</span>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 20%"></div>
+                    </div>
+                </div>
+
+                <h1>The Request Pipeline</h1>
+
+                <div class="learning-objectives">
+                    <h3>🎯 What You'll Learn</h3>
+                    <ul>
+                        <li>What the request pipeline is</li>
+                        <li>How HTTP requests flow through ASP.NET Core</li>
+                        <li>Understanding middleware components</li>
+                        <li>The pipeline execution model</li>
+                        <li>Request and response flow</li>
+                        <li>Short-circuiting the pipeline</li>
+                        <li>Terminal vs non-terminal middleware</li>
+                        <li>Visualizing the pipeline</li>
+                    </ul>
+                </div>
+
+                <h2>What is the Request Pipeline?</h2>
+
+                <p>
+                    The <strong>request pipeline</strong> is a series of components (called <strong>middleware</strong>)
+                    that handle HTTP requests and responses in ASP.NET Core.
+                </p>
+
+                <div class="callout callout-concept">
+                    <div class="callout-title">💡 Key Concept</div>
+                    <p>
+                        Every HTTP request that comes into your application flows through the pipeline. Each
+                        middleware component can:
+                    </p>
+                    <ul>
+                        <li>Process the request</li>
+                        <li>Pass it to the next middleware</li>
+                        <li>Process the response on the way back</li>
+                        <li>Short-circuit (stop) the pipeline</li>
+                    </ul>
+                </div>
+
+                <div class="section-divider"></div>
+
+                <h2>How the Pipeline Works</h2>
+
+                <div class="code-header">
+                    <span class="code-filename">Visual Flow</span>
+                    <span class="code-language">Text</span>
+                </div>
+                <pre><code>HTTP Request
+    ↓
+┌───────────────────────────────────────┐
+│  Middleware 1 (e.g., Logging)         │ → Request processing
+│    ↓                                  │
+│  Middleware 2 (e.g., Authentication)  │ → Request processing
+│    ↓                                  │
+│  Middleware 3 (e.g., Routing)         │ → Request processing
+│    ↓                                  │
+│  Endpoint (Controller/Minimal API)    │ → Generate response
+│    ↓                                  │
+│  Middleware 3                         │ ← Response processing
+│    ↓                                  │
+│  Middleware 2                         │ ← Response processing
+│    ↓                                  │
+│  Middleware 1                         │ ← Response processing
+└───────────────────────────────────────┘
+    ↓
+HTTP Response</code></pre>
+
+                <h3>The Flow</h3>
+
+                <ol>
+                    <li><strong>Request comes in</strong>: HTTP request enters the pipeline</li>
+                    <li><strong>Forward pass</strong>: Each middleware processes the request in order</li>
+                    <li><strong>Endpoint</strong>: Final middleware generates a response</li>
+                    <li><strong>Backward pass</strong>: Response flows back through middleware in reverse</li>
+                    <li><strong>Response sent</strong>: HTTP response sent to client</li>
+                </ol>
+
+                <div class="section-divider"></div>
+
+                <h2>Basic Pipeline Example</h2>
+
+                <div class="code-header">
+                    <span class="code-filename">Program.cs</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-keyword">var</span> <span class="code-variable">builder</span> = <span class="code-class">WebApplication</span>.<span class="code-method">CreateBuilder</span>(<span class="code-variable">args</span>);
+<span class="code-keyword">var</span> <span class="code-variable">app</span> = <span class="code-variable">builder</span>.<span class="code-method">Build</span>();
+
+<span class="code-comment">// Middleware 1: Logging</span>
+<span class="code-variable">app</span>.<span class="code-method">Use</span>(<span class="code-keyword">async</span> (<span class="code-variable">context</span>, <span class="code-variable">next</span>) =&gt;
+{
+    <span class="code-class">Console</span>.<span class="code-method">WriteLine</span>(<span class="code-string">"[1] Before next"</span>);
+    <span class="code-keyword">await</span> <span class="code-variable">next</span>(); <span class="code-comment">// Call next middleware</span>
+    <span class="code-class">Console</span>.<span class="code-method">WriteLine</span>(<span class="code-string">"[1] After next"</span>);
+});
+
+<span class="code-comment">// Middleware 2: Authentication</span>
+<span class="code-variable">app</span>.<span class="code-method">Use</span>(<span class="code-keyword">async</span> (<span class="code-variable">context</span>, <span class="code-variable">next</span>) =&gt;
+{
+    <span class="code-class">Console</span>.<span class="code-method">WriteLine</span>(<span class="code-string">"[2] Before next"</span>);
+    <span class="code-keyword">await</span> <span class="code-variable">next</span>();
+    <span class="code-class">Console</span>.<span class="code-method">WriteLine</span>(<span class="code-string">"[2] After next"</span>);
+});
+
+<span class="code-comment">// Middleware 3: Endpoint (Terminal)</span>
+<span class="code-variable">app</span>.<span class="code-method">Run</span>(<span class="code-keyword">async</span> <span class="code-variable">context</span> =&gt;
+{
+    <span class="code-class">Console</span>.<span class="code-method">WriteLine</span>(<span class="code-string">"[3] Handling request"</span>);
+    <span class="code-keyword">await</span> <span class="code-variable">context</span>.<span class="code-variable">Response</span>.<span class="code-method">WriteAsync</span>(<span class="code-string">"Hello World!"</span>);
+});
+
+<span class="code-variable">app</span>.<span class="code-method">Run</span>();</code></pre>
+
+                <h3>Output</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">Console Output</span>
+                    <span class="code-language">Text</span>
+                </div>
+                <pre><code>[1] Before next
+[2] Before next
+[3] Handling request
+[2] After next
+[1] After next</code></pre>
+
+                <div class="callout callout-tip">
+                    <div class="callout-title">💡 Notice the Pattern</div>
+                    <p>
+                        The request flows <strong>forward</strong> (1 → 2 → 3), then the response flows
+                        <strong>backward</strong> (3 → 2 → 1). This is the "onion" model.
+                    </p>
+                </div>
+
+                <div class="section-divider"></div>
+
+                <h2>Middleware Methods</h2>
+
+                <h3>1. app.Use() - Non-Terminal</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">app.Use()</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-variable">app</span>.<span class="code-method">Use</span>(<span class="code-keyword">async</span> (<span class="code-variable">context</span>, <span class="code-variable">next</span>) =&gt;
+{
+    <span class="code-comment">// Do something before</span>
+    <span class="code-keyword">await</span> <span class="code-variable">next</span>(); <span class="code-comment">// Call next middleware</span>
+    <span class="code-comment">// Do something after</span>
+});</code></pre>
+
+                <p>
+                    <strong>Use</strong>: Can call the next middleware. Non-terminal.
+                </p>
+
+                <h3>2. app.Run() - Terminal</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">app.Run()</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-variable">app</span>.<span class="code-method">Run</span>(<span class="code-keyword">async</span> <span class="code-variable">context</span> =&gt;
+{
+    <span class="code-comment">// Handle request - no next middleware</span>
+    <span class="code-keyword">await</span> <span class="code-variable">context</span>.<span class="code-variable">Response</span>.<span class="code-method">WriteAsync</span>(<span class="code-string">"Done!"</span>);
+});</code></pre>
+
+                <p>
+                    <strong>Run</strong>: Terminal middleware. Ends the pipeline. No <code>next</code> parameter.
+                </p>
+
+                <h3>3. app.Map() - Branching</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">app.Map()</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-variable">app</span>.<span class="code-method">Map</span>(<span class="code-string">"/api"</span>, <span class="code-variable">apiApp</span> =&gt;
+{
+    <span class="code-variable">apiApp</span>.<span class="code-method">Run</span>(<span class="code-keyword">async</span> <span class="code-variable">context</span> =&gt;
+    {
+        <span class="code-keyword">await</span> <span class="code-variable">context</span>.<span class="code-variable">Response</span>.<span class="code-method">WriteAsync</span>(<span class="code-string">"API endpoint"</span>);
+    });
+});</code></pre>
+
+                <p>
+                    <strong>Map</strong>: Branch the pipeline based on request path.
+                </p>
+
+                <h3>4. app.MapWhen() - Conditional Branching</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">app.MapWhen()</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-variable">app</span>.<span class="code-method">MapWhen</span>(
+    <span class="code-variable">context</span> =&gt; <span class="code-variable">context</span>.<span class="code-variable">Request</span>.<span class="code-variable">Query</span>.<span class="code-method">ContainsKey</span>(<span class="code-string">"debug"</span>),
+    <span class="code-variable">debugApp</span> =&gt;
+    {
+        <span class="code-variable">debugApp</span>.<span class="code-method">Run</span>(<span class="code-keyword">async</span> <span class="code-variable">context</span> =&gt;
+        {
+            <span class="code-keyword">await</span> <span class="code-variable">context</span>.<span class="code-variable">Response</span>.<span class="code-method">WriteAsync</span>(<span class="code-string">"Debug mode"</span>);
+        });
+    });</code></pre>
+
+                <p>
+                    <strong>MapWhen</strong>: Branch based on a condition.
+                </p>
+
+                <div class="section-divider"></div>
+
+                <h2>Short-Circuiting the Pipeline</h2>
+
+                <p>
+                    Middleware can <strong>short-circuit</strong> by not calling <code>next()</code>:
+                </p>
+
+                <div class="code-header">
+                    <span class="code-filename">Short-Circuit Example</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-variable">app</span>.<span class="code-method">Use</span>(<span class="code-keyword">async</span> (<span class="code-variable">context</span>, <span class="code-variable">next</span>) =&gt;
+{
+    <span class="code-keyword">if</span> (!<span class="code-variable">context</span>.<span class="code-variable">Request</span>.<span class="code-variable">Headers</span>.<span class="code-method">ContainsKey</span>(<span class="code-string">"Authorization"</span>))
+    {
+        <span class="code-comment">// Short-circuit! Don't call next()</span>
+        <span class="code-variable">context</span>.<span class="code-variable">Response</span>.<span class="code-variable">StatusCode</span> = <span class="code-number">401</span>;
+        <span class="code-keyword">await</span> <span class="code-variable">context</span>.<span class="code-variable">Response</span>.<span class="code-method">WriteAsync</span>(<span class="code-string">"Unauthorized"</span>);
+        <span class="code-keyword">return</span>; <span class="code-comment">// Stop here!</span>
+    }
+    
+    <span class="code-keyword">await</span> <span class="code-variable">next</span>(); <span class="code-comment">// Continue if authorized</span>
+});</code></pre>
+
+                <div class="callout callout-warning">
+                    <div class="callout-title">⚠️ When to Short-Circuit</div>
+                    <p>
+                        Short-circuit when:
+                    </p>
+                    <ul>
+                        <li>Request is unauthorized</li>
+                        <li>Request is invalid</li>
+                        <li>Response can be served from cache</li>
+                        <li>Static file can be served</li>
+                    </ul>
+                </div>
+
+                <div class="section-divider"></div>
+
+                <h2>HttpContext</h2>
+
+                <p>
+                    Every middleware receives an <code>HttpContext</code> object that contains:
+                </p>
+
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Property</th>
+                            <th>Description</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><code>Request</code></td>
+                            <td>HTTP request details (headers, body, query, etc.)</td>
+                        </tr>
+                        <tr>
+                            <td><code>Response</code></td>
+                            <td>HTTP response to send back</td>
+                        </tr>
+                        <tr>
+                            <td><code>User</code></td>
+                            <td>Authenticated user information</td>
+                        </tr>
+                        <tr>
+                            <td><code>Items</code></td>
+                            <td>Per-request data storage</td>
+                        </tr>
+                        <tr>
+                            <td><code>RequestServices</code></td>
+                            <td>DI service provider (scoped)</td>
+                        </tr>
+                        <tr>
+                            <td><code>Session</code></td>
+                            <td>User session data</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="code-header">
+                    <span class="code-filename">Using HttpContext</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-variable">app</span>.<span class="code-method">Use</span>(<span class="code-keyword">async</span> (<span class="code-variable">context</span>, <span class="code-variable">next</span>) =&gt;
+{
+    <span class="code-comment">// Read request</span>
+    <span class="code-keyword">var</span> <span class="code-variable">path</span> = <span class="code-variable">context</span>.<span class="code-variable">Request</span>.<span class="code-variable">Path</span>;
+    <span class="code-keyword">var</span> <span class="code-variable">method</span> = <span class="code-variable">context</span>.<span class="code-variable">Request</span>.<span class="code-variable">Method</span>;
+    
+    <span class="code-comment">// Store data for later middleware</span>
+    <span class="code-variable">context</span>.<span class="code-variable">Items</span>[<span class="code-string">"RequestTime"</span>] = <span class="code-class">DateTime</span>.<span class="code-variable">UtcNow</span>;
+    
+    <span class="code-keyword">await</span> <span class="code-variable">next</span>();
+    
+    <span class="code-comment">// Modify response</span>
+    <span class="code-variable">context</span>.<span class="code-variable">Response</span>.<span class="code-variable">Headers</span>[<span class="code-string">"X-Custom-Header"</span>] = <span class="code-string">"InvenTrack"</span>;
+});</code></pre>
+
+                <div class="section-divider"></div>
+
+                <h2>Complete InvenTrack Example</h2>
+
+                <div class="code-header">
+                    <span class="code-filename">Program.cs (InvenTrack Pipeline)</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-keyword">var</span> <span class="code-variable">builder</span> = <span class="code-class">WebApplication</span>.<span class="code-method">CreateBuilder</span>(<span class="code-variable">args</span>);
+
+<span class="code-variable">builder</span>.<span class="code-variable">Services</span>.<span class="code-method">AddControllers</span>();
+
+<span class="code-keyword">var</span> <span class="code-variable">app</span> = <span class="code-variable">builder</span>.<span class="code-method">Build</span>();
+
+<span class="code-comment">// 1. Request logging</span>
+<span class="code-variable">app</span>.<span class="code-method">Use</span>(<span class="code-keyword">async</span> (<span class="code-variable">context</span>, <span class="code-variable">next</span>) =&gt;
+{
+    <span class="code-keyword">var</span> <span class="code-variable">start</span> = <span class="code-class">DateTime</span>.<span class="code-variable">UtcNow</span>;
+    <span class="code-class">Console</span>.<span class="code-method">WriteLine</span>(<span class="code-string">$"→ </span>{<span class="code-variable">context</span>.<span class="code-variable">Request</span>.<span class="code-variable">Method</span>}<span class="code-string"> </span>{<span class="code-variable">context</span>.<span class="code-variable">Request</span>.<span class="code-variable">Path</span>}<span class="code-string">"</span>);
+    
+    <span class="code-keyword">await</span> <span class="code-variable">next</span>();
+    
+    <span class="code-keyword">var</span> <span class="code-variable">duration</span> = (<span class="code-class">DateTime</span>.<span class="code-variable">UtcNow</span> - <span class="code-variable">start</span>).<span class="code-variable">TotalMilliseconds</span>;
+    <span class="code-class">Console</span>.<span class="code-method">WriteLine</span>(<span class="code-string">$"← </span>{<span class="code-variable">context</span>.<span class="code-variable">Response</span>.<span class="code-variable">StatusCode</span>}<span class="code-string"> (</span>{<span class="code-variable">duration</span>:F2}<span class="code-string">ms)"</span>);
+});
+
+<span class="code-comment">// 2. CORS</span>
+<span class="code-variable">app</span>.<span class="code-method">UseCors</span>();
+
+<span class="code-comment">// 3. Authentication</span>
+<span class="code-variable">app</span>.<span class="code-method">UseAuthentication</span>();
+
+<span class="code-comment">// 4. Authorization</span>
+<span class="code-variable">app</span>.<span class="code-method">UseAuthorization</span>();
+
+<span class="code-comment">// 5. Routing &amp; Endpoints</span>
+<span class="code-variable">app</span>.<span class="code-method">MapControllers</span>();
+
+<span class="code-variable">app</span>.<span class="code-method">Run</span>();</code></pre>
+
+                <h2>Key Takeaways</h2>
+
+                <ul>
+                    <li>The <strong>request pipeline</strong> is a series of middleware components</li>
+                    <li>Requests flow <strong>forward</strong>, responses flow <strong>backward</strong></li>
+                    <li><code>app.Use()</code> is non-terminal (calls next middleware)</li>
+                    <li><code>app.Run()</code> is terminal (ends the pipeline)</li>
+                    <li><code>app.Map()</code> branches the pipeline by path</li>
+                    <li><code>app.MapWhen()</code> branches by condition</li>
+                    <li>Middleware can <strong>short-circuit</strong> by not calling <code>next()</code></li>
+                    <li><code>HttpContext</code> contains request and response details</li>
+                    <li>Middleware order matters (covered in Section 4)</li>
+                    <li>Each middleware can process both request and response</li>
+                </ul>
+
+                <div class="callout callout-concept">
+                    <div class="callout-title">🎯 Next Steps</div>
+                    <p>
+                        You now understand how the request pipeline works! In the next section, we'll explore
+                        <strong>Built-in Middleware</strong>—the middleware components that ASP.NET Core provides
+                        out of the box for common tasks like authentication, CORS, static files, and more.
+                    </p>
+                </div>
+
+                <nav class="page-nav">
+                    <a href="../index.html" class="prev">Back to Roadmap</a>
+                    <a href="02-built-in-middleware.html" class="next">Built-in Middleware</a>
+                </nav>
+
+            
+        <footer class="page-footer">
+          Built with 💜 by <a href="https://akwasi.dev" target="_blank" rel="noopener noreferrer">Akwasi Adu-Kyeremeh</a> for developers who want to truly understand what they're building.
+        </footer>
+
+      </div>
+        </main>
+    </div>
+</body>
+
+</html>

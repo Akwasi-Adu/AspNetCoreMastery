@@ -1,0 +1,549 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Built-in DI Container | ASP.NET Core Mastery</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;500&family=Source+Serif+4:ital,wght@0,400;0,600;1,400&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="../assets/style.css">
+</head>
+
+<body>
+    <div class="page-wrapper">
+        <aside class="sidebar">
+            <a href="../index.html" class="sidebar-logo">ASP.NET Core Mastery</a>
+            <div class="sidebar-section">Part IV: Dependency Injection</div>
+            <ul class="sidebar-nav">
+                <li><a href="01-what-is-di.html">What is Dependency Injection?</a></li>
+                <li><a href="02-built-in-container.html" class="active">The Built-in DI Container</a></li>
+                <li><a href="03-service-lifetimes.html">Service Lifetimes</a></li>
+                <li><a href="04-registering-services.html">Registering Services</a></li>
+                <li><a href="05-constructor-injection.html">Constructor Injection</a></li>
+                <li><a href="06-common-patterns.html">Common DI Patterns</a></li>
+            </ul>
+            <div class="sidebar-section">Resources</div>
+            <ul class="sidebar-nav">
+                <li><a href="../index.html">Full Roadmap</a></li>
+            </ul>
+        </aside>
+
+        <main class="main-content">
+            <div class="content-container">
+                <nav class="breadcrumb">
+                    <a href="../index.html">Home</a>
+                    <span>→</span>
+                    <a href="01-what-is-di.html">Part IV: Dependency Injection</a>
+                    <span>→</span>
+                    The Built-in DI Container
+                </nav>
+
+                <div class="progress-indicator">
+                    <span>Section 2 of 6</span>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 33.33%"></div>
+                    </div>
+                </div>
+
+                <h1>The Built-in DI Container</h1>
+
+                <div class="learning-objectives">
+                    <h3>🎯 What You'll Learn</h3>
+                    <ul>
+                        <li>Understanding ASP.NET Core's built-in DI container</li>
+                        <li>The IServiceCollection interface</li>
+                        <li>The IServiceProvider interface</li>
+                        <li>How service registration works</li>
+                        <li>How service resolution works</li>
+                        <li>Service descriptors</li>
+                        <li>When to use third-party containers</li>
+                        <li>Container capabilities and limitations</li>
+                    </ul>
+                </div>
+
+                <h2>What is the Built-in Container?</h2>
+
+                <p>
+                    ASP.NET Core includes a <strong>built-in DI container</strong> that manages service
+                    registration and resolution. It's lightweight, fast, and sufficient for most applications.
+                </p>
+
+                <div class="callout callout-concept">
+                    <div class="callout-title">💡 Two Key Interfaces</div>
+                    <p>
+                        <strong>IServiceCollection</strong>: Used to <strong>register</strong> services<br>
+                        <strong>IServiceProvider</strong>: Used to <strong>resolve</strong> (retrieve) services
+                    </p>
+                </div>
+
+                <div class="section-divider"></div>
+
+                <h2>IServiceCollection: Registering Services</h2>
+
+                <p>
+                    <code>IServiceCollection</code> is where you register your services. You access it via
+                    <code>builder.Services</code> in <code>Program.cs</code>.
+                </p>
+
+                <div class="code-header">
+                    <span class="code-filename">Program.cs</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-keyword">var</span> <span class="code-variable">builder</span> = <span class="code-class">WebApplication</span>.<span class="code-method">CreateBuilder</span>(<span class="code-variable">args</span>);
+
+<span class="code-comment">// builder.Services is an IServiceCollection</span>
+<span class="code-variable">builder</span>.<span class="code-variable">Services</span>.<span class="code-method">AddScoped</span>&lt;<span class="code-class">IProductRepository</span>, <span class="code-class">ProductRepository</span>&gt;();
+<span class="code-variable">builder</span>.<span class="code-variable">Services</span>.<span class="code-method">AddScoped</span>&lt;<span class="code-class">IProductService</span>, <span class="code-class">ProductService</span>&gt;();
+<span class="code-variable">builder</span>.<span class="code-variable">Services</span>.<span class="code-method">AddSingleton</span>&lt;<span class="code-class">ICacheService</span>, <span class="code-class">CacheService</span>&gt;();
+
+<span class="code-keyword">var</span> <span class="code-variable">app</span> = <span class="code-variable">builder</span>.<span class="code-method">Build</span>();</code></pre>
+
+                <h3>Registration Methods</h3>
+
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Method</th>
+                            <th>Lifetime</th>
+                            <th>When to Use</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><code>AddTransient&lt;T&gt;()</code></td>
+                            <td>Transient</td>
+                            <td>Lightweight, stateless services</td>
+                        </tr>
+                        <tr>
+                            <td><code>AddScoped&lt;T&gt;()</code></td>
+                            <td>Scoped</td>
+                            <td>Per-request services (most common)</td>
+                        </tr>
+                        <tr>
+                            <td><code>AddSingleton&lt;T&gt;()</code></td>
+                            <td>Singleton</td>
+                            <td>Shared, thread-safe services</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="section-divider"></div>
+
+                <h2>IServiceProvider: Resolving Services</h2>
+
+                <p>
+                    <code>IServiceProvider</code> is used to retrieve services from the container. ASP.NET Core
+                    does this automatically via constructor injection, but you can also resolve manually.
+                </p>
+
+                <h3>Automatic Resolution (Preferred)</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">ProductsController.cs</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">ProductsController</span> : <span class="code-class">ControllerBase</span>
+{
+    <span class="code-keyword">private</span> <span class="code-keyword">readonly</span> <span class="code-class">IProductService</span> <span class="code-variable">_productService</span>;
+
+    <span class="code-comment">// ASP.NET Core automatically resolves IProductService</span>
+    <span class="code-keyword">public</span> <span class="code-method">ProductsController</span>(<span class="code-class">IProductService</span> <span class="code-variable">productService</span>)
+    {
+        <span class="code-variable">_productService</span> = <span class="code-variable">productService</span>;
+    }
+}</code></pre>
+
+                <h3>Manual Resolution (Rare)</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">Manual Service Resolution</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-comment">// In Program.cs, after building the app</span>
+<span class="code-keyword">var</span> <span class="code-variable">app</span> = <span class="code-variable">builder</span>.<span class="code-method">Build</span>();
+
+<span class="code-comment">// Get the service provider</span>
+<span class="code-keyword">var</span> <span class="code-variable">serviceProvider</span> = <span class="code-variable">app</span>.<span class="code-variable">Services</span>;
+
+<span class="code-comment">// Resolve a service manually</span>
+<span class="code-keyword">var</span> <span class="code-variable">cacheService</span> = <span class="code-variable">serviceProvider</span>.<span class="code-method">GetRequiredService</span>&lt;<span class="code-class">ICacheService</span>&gt;();
+
+<span class="code-comment">// Or use GetService (returns null if not found)</span>
+<span class="code-keyword">var</span> <span class="code-variable">optionalService</span> = <span class="code-variable">serviceProvider</span>.<span class="code-method">GetService</span>&lt;<span class="code-class">IOptionalService</span>&gt;();</code></pre>
+
+                <div class="callout callout-warning">
+                    <div class="callout-title">⚠️ Avoid Service Locator Pattern</div>
+                    <p>
+                        Don't inject <code>IServiceProvider</code> into your classes to manually resolve services.
+                        This is the <strong>Service Locator anti-pattern</strong>. Use constructor injection instead!
+                    </p>
+                </div>
+
+                <div class="section-divider"></div>
+
+                <h2>How Registration Works</h2>
+
+                <p>
+                    When you register a service, you're creating a <strong>ServiceDescriptor</strong> that tells
+                    the container:
+                </p>
+
+                <ol>
+                    <li><strong>Service Type</strong>: The interface or abstract class (e.g.,
+                        <code>IProductService</code>)</li>
+                    <li><strong>Implementation Type</strong>: The concrete class (e.g., <code>ProductService</code>)
+                    </li>
+                    <li><strong>Lifetime</strong>: How long the instance lives (Transient, Scoped, Singleton)</li>
+                </ol>
+
+                <div class="code-header">
+                    <span class="code-filename">Registration Example</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-comment">// This registration...</span>
+<span class="code-variable">builder</span>.<span class="code-variable">Services</span>.<span class="code-method">AddScoped</span>&lt;<span class="code-class">IProductService</span>, <span class="code-class">ProductService</span>&gt;();
+
+<span class="code-comment">// ...creates a ServiceDescriptor like this:</span>
+<span class="code-keyword">new</span> <span class="code-class">ServiceDescriptor</span>(
+    <span class="code-variable">serviceType</span>: <span class="code-keyword">typeof</span>(<span class="code-class">IProductService</span>),
+    <span class="code-variable">implementationType</span>: <span class="code-keyword">typeof</span>(<span class="code-class">ProductService</span>),
+    <span class="code-variable">lifetime</span>: <span class="code-class">ServiceLifetime</span>.<span class="code-variable">Scoped</span>
+);</code></pre>
+
+                <div class="section-divider"></div>
+
+                <h2>How Resolution Works</h2>
+
+                <p>
+                    When ASP.NET Core needs to create an object (like a controller), it:
+                </p>
+
+                <ol>
+                    <li>Looks at the constructor parameters</li>
+                    <li>Finds the registered services for those types</li>
+                    <li>Creates instances (recursively resolving their dependencies)</li>
+                    <li>Injects them into the constructor</li>
+                </ol>
+
+                <div class="code-header">
+                    <span class="code-filename">Resolution Example</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-comment">// 1. Registrations</span>
+<span class="code-variable">builder</span>.<span class="code-variable">Services</span>.<span class="code-method">AddScoped</span>&lt;<span class="code-class">IProductRepository</span>, <span class="code-class">ProductRepository</span>&gt;();
+<span class="code-variable">builder</span>.<span class="code-variable">Services</span>.<span class="code-method">AddScoped</span>&lt;<span class="code-class">IProductService</span>, <span class="code-class">ProductService</span>&gt;();
+
+<span class="code-comment">// 2. ProductService depends on IProductRepository</span>
+<span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">ProductService</span> : <span class="code-class">IProductService</span>
+{
+    <span class="code-keyword">public</span> <span class="code-method">ProductService</span>(<span class="code-class">IProductRepository</span> <span class="code-variable">repository</span>) { }
+}
+
+<span class="code-comment">// 3. Controller depends on IProductService</span>
+<span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">ProductsController</span> : <span class="code-class">ControllerBase</span>
+{
+    <span class="code-keyword">public</span> <span class="code-method">ProductsController</span>(<span class="code-class">IProductService</span> <span class="code-variable">service</span>) { }
+}
+
+<span class="code-comment">// 4. When a request comes in, the container:</span>
+<span class="code-comment">//    a. Sees ProductsController needs IProductService</span>
+<span class="code-comment">//    b. Creates ProductService</span>
+<span class="code-comment">//    c. Sees ProductService needs IProductRepository</span>
+<span class="code-comment">//    d. Creates ProductRepository</span>
+<span class="code-comment">//    e. Injects ProductRepository into ProductService</span>
+<span class="code-comment">//    f. Injects ProductService into ProductsController</span></code></pre>
+
+                <div class="section-divider"></div>
+
+                <h2>Registration Variations</h2>
+
+                <h3>1. Register Interface and Implementation</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">Interface + Implementation</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-variable">builder</span>.<span class="code-variable">Services</span>.<span class="code-method">AddScoped</span>&lt;<span class="code-class">IProductService</span>, <span class="code-class">ProductService</span>&gt;();</code></pre>
+
+                <p>Request <code>IProductService</code>, get <code>ProductService</code> instance.</p>
+
+                <h3>2. Register Concrete Type Only</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">Concrete Type</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-variable">builder</span>.<span class="code-variable">Services</span>.<span class="code-method">AddScoped</span>&lt;<span class="code-class">ProductService</span>&gt;();</code></pre>
+
+                <p>Request <code>ProductService</code> directly (no interface).</p>
+
+                <h3>3. Register with Factory</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">Factory Method</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-variable">builder</span>.<span class="code-variable">Services</span>.<span class="code-method">AddScoped</span>&lt;<span class="code-class">IProductService</span>&gt;(<span class="code-variable">serviceProvider</span> =&gt;
+{
+    <span class="code-keyword">var</span> <span class="code-variable">repository</span> = <span class="code-variable">serviceProvider</span>.<span class="code-method">GetRequiredService</span>&lt;<span class="code-class">IProductRepository</span>&gt;();
+    <span class="code-keyword">var</span> <span class="code-variable">logger</span> = <span class="code-variable">serviceProvider</span>.<span class="code-method">GetRequiredService</span>&lt;<span class="code-class">ILogger</span>&lt;<span class="code-class">ProductService</span>&gt;&gt;();
+    
+    <span class="code-keyword">return</span> <span class="code-keyword">new</span> <span class="code-class">ProductService</span>(<span class="code-variable">repository</span>, <span class="code-variable">logger</span>);
+});</code></pre>
+
+                <p>Use when you need custom initialization logic.</p>
+
+                <h3>4. Register Instance</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">Existing Instance</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-keyword">var</span> <span class="code-variable">cacheService</span> = <span class="code-keyword">new</span> <span class="code-class">CacheService</span>();
+<span class="code-variable">builder</span>.<span class="code-variable">Services</span>.<span class="code-method">AddSingleton</span>&lt;<span class="code-class">ICacheService</span>&gt;(<span class="code-variable">cacheService</span>);</code></pre>
+
+                <p>Register an already-created instance (always Singleton).</p>
+
+                <div class="section-divider"></div>
+
+                <h2>Multiple Implementations</h2>
+
+                <p>
+                    You can register multiple implementations for the same interface:
+                </p>
+
+                <div class="code-header">
+                    <span class="code-filename">Multiple Registrations</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-variable">builder</span>.<span class="code-variable">Services</span>.<span class="code-method">AddScoped</span>&lt;<span class="code-class">INotificationService</span>, <span class="code-class">EmailNotificationService</span>&gt;();
+<span class="code-variable">builder</span>.<span class="code-variable">Services</span>.<span class="code-method">AddScoped</span>&lt;<span class="code-class">INotificationService</span>, <span class="code-class">SmsNotificationService</span>&gt;();
+<span class="code-variable">builder</span>.<span class="code-variable">Services</span>.<span class="code-method">AddScoped</span>&lt;<span class="code-class">INotificationService</span>, <span class="code-class">PushNotificationService</span>&gt;();</code></pre>
+
+                <h3>Injecting All Implementations</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">IEnumerable Injection</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">NotificationManager</span>
+{
+    <span class="code-keyword">private</span> <span class="code-keyword">readonly</span> <span class="code-class">IEnumerable</span>&lt;<span class="code-class">INotificationService</span>&gt; <span class="code-variable">_notificationServices</span>;
+
+    <span class="code-keyword">public</span> <span class="code-method">NotificationManager</span>(<span class="code-class">IEnumerable</span>&lt;<span class="code-class">INotificationService</span>&gt; <span class="code-variable">notificationServices</span>)
+    {
+        <span class="code-variable">_notificationServices</span> = <span class="code-variable">notificationServices</span>;
+    }
+
+    <span class="code-keyword">public</span> <span class="code-keyword">async</span> <span class="code-class">Task</span> <span class="code-method">NotifyAllAsync</span>(<span class="code-type">string</span> <span class="code-variable">message</span>)
+    {
+        <span class="code-keyword">foreach</span> (<span class="code-keyword">var</span> <span class="code-variable">service</span> <span class="code-keyword">in</span> <span class="code-variable">_notificationServices</span>)
+        {
+            <span class="code-keyword">await</span> <span class="code-variable">service</span>.<span class="code-method">SendAsync</span>(<span class="code-variable">message</span>);
+        }
+    }
+}</code></pre>
+
+                <h3>Injecting Last Registration</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">Single Instance</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">SomeService</span>
+{
+    <span class="code-comment">// Gets the LAST registered INotificationService (PushNotificationService)</span>
+    <span class="code-keyword">public</span> <span class="code-method">SomeService</span>(<span class="code-class">INotificationService</span> <span class="code-variable">notificationService</span>) { }
+}</code></pre>
+
+                <div class="section-divider"></div>
+
+                <h2>Service Replacement</h2>
+
+                <p>
+                    Later registrations replace earlier ones:
+                </p>
+
+                <div class="code-header">
+                    <span class="code-filename">Replacement</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-variable">builder</span>.<span class="code-variable">Services</span>.<span class="code-method">AddScoped</span>&lt;<span class="code-class">IEmailService</span>, <span class="code-class">EmailService</span>&gt;();
+
+<span class="code-keyword">if</span> (<span class="code-variable">builder</span>.<span class="code-variable">Environment</span>.<span class="code-method">IsDevelopment</span>())
+{
+    <span class="code-comment">// Replace with console version in development</span>
+    <span class="code-variable">builder</span>.<span class="code-variable">Services</span>.<span class="code-method">AddScoped</span>&lt;<span class="code-class">IEmailService</span>, <span class="code-class">ConsoleEmailService</span>&gt;();
+}</code></pre>
+
+                <div class="section-divider"></div>
+
+                <h2>TryAdd Methods</h2>
+
+                <p>
+                    <code>TryAdd</code> methods only register if the service isn't already registered:
+                </p>
+
+                <div class="code-header">
+                    <span class="code-filename">TryAdd</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-variable">builder</span>.<span class="code-variable">Services</span>.<span class="code-method">TryAddScoped</span>&lt;<span class="code-class">IEmailService</span>, <span class="code-class">EmailService</span>&gt;();
+<span class="code-variable">builder</span>.<span class="code-variable">Services</span>.<span class="code-method">TryAddScoped</span>&lt;<span class="code-class">IEmailService</span>, <span class="code-class">ConsoleEmailService</span>&gt;();
+
+<span class="code-comment">// Result: EmailService is registered (first one wins)</span></code></pre>
+
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Method</th>
+                            <th>Behavior</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><code>TryAddTransient</code></td>
+                            <td>Add if not already registered</td>
+                        </tr>
+                        <tr>
+                            <td><code>TryAddScoped</code></td>
+                            <td>Add if not already registered</td>
+                        </tr>
+                        <tr>
+                            <td><code>TryAddSingleton</code></td>
+                            <td>Add if not already registered</td>
+                        </tr>
+                        <tr>
+                            <td><code>TryAddEnumerable</code></td>
+                            <td>Add if implementation not already registered</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="section-divider"></div>
+
+                <h2>Container Capabilities</h2>
+
+                <h3>✅ What the Built-in Container Can Do</h3>
+
+                <ul>
+                    <li>Constructor injection</li>
+                    <li>Service lifetimes (Transient, Scoped, Singleton)</li>
+                    <li>Dependency resolution</li>
+                    <li>Circular dependency detection</li>
+                    <li>Disposable service cleanup</li>
+                    <li>Generic type registration</li>
+                    <li>Open generic registration</li>
+                    <li>Multiple implementations</li>
+                </ul>
+
+                <h3>❌ What It Cannot Do</h3>
+
+                <ul>
+                    <li>Property injection (without attributes)</li>
+                    <li>Method injection</li>
+                    <li>Named registrations</li>
+                    <li>Conditional registration based on context</li>
+                    <li>Interception/AOP</li>
+                    <li>Auto-registration by convention</li>
+                </ul>
+
+                <div class="callout callout-info">
+                    <div class="callout-title">ℹ️ Third-Party Containers</div>
+                    <p>
+                        If you need advanced features, you can replace the built-in container with:
+                    </p>
+                    <ul>
+                        <li><strong>Autofac</strong>: Most popular, feature-rich</li>
+                        <li><strong>Ninject</strong>: Simple, fluent API</li>
+                        <li><strong>StructureMap</strong>: Convention-based</li>
+                    </ul>
+                    <p>
+                        However, the built-in container is sufficient for 95% of applications!
+                    </p>
+                </div>
+
+                <div class="section-divider"></div>
+
+                <h2>Complete InvenTrack Example</h2>
+
+                <div class="code-header">
+                    <span class="code-filename">Program.cs (InvenTrack)</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-keyword">var</span> <span class="code-variable">builder</span> = <span class="code-class">WebApplication</span>.<span class="code-method">CreateBuilder</span>(<span class="code-variable">args</span>);
+
+<span class="code-comment">// Framework services</span>
+<span class="code-variable">builder</span>.<span class="code-variable">Services</span>.<span class="code-method">AddControllers</span>();
+
+<span class="code-comment">// Database</span>
+<span class="code-variable">builder</span>.<span class="code-variable">Services</span>.<span class="code-method">AddDbContext</span>&lt;<span class="code-class">InvenTrackDbContext</span>&gt;(<span class="code-variable">options</span> =&gt;
+    <span class="code-variable">options</span>.<span class="code-method">UseSqlServer</span>(<span class="code-variable">builder</span>.<span class="code-variable">Configuration</span>.<span class="code-method">GetConnectionString</span>(<span class="code-string">"DefaultConnection"</span>)));
+
+<span class="code-comment">// Repositories (Scoped - per request)</span>
+<span class="code-variable">builder</span>.<span class="code-variable">Services</span>.<span class="code-method">AddScoped</span>&lt;<span class="code-class">IProductRepository</span>, <span class="code-class">ProductRepository</span>&gt;();
+<span class="code-variable">builder</span>.<span class="code-variable">Services</span>.<span class="code-method">AddScoped</span>&lt;<span class="code-class">ICustomerRepository</span>, <span class="code-class">CustomerRepository</span>&gt;();
+<span class="code-variable">builder</span>.<span class="code-variable">Services</span>.<span class="code-method">AddScoped</span>&lt;<span class="code-class">IOrderRepository</span>, <span class="code-class">OrderRepository</span>&gt;();
+
+<span class="code-comment">// Business services (Scoped)</span>
+<span class="code-variable">builder</span>.<span class="code-variable">Services</span>.<span class="code-method">AddScoped</span>&lt;<span class="code-class">IProductService</span>, <span class="code-class">ProductService</span>&gt;();
+<span class="code-variable">builder</span>.<span class="code-variable">Services</span>.<span class="code-method">AddScoped</span>&lt;<span class="code-class">IInventoryService</span>, <span class="code-class">InventoryService</span>&gt;();
+<span class="code-variable">builder</span>.<span class="code-variable">Services</span>.<span class="code-method">AddScoped</span>&lt;<span class="code-class">IOrderService</span>, <span class="code-class">OrderService</span>&gt;();
+
+<span class="code-comment">// Infrastructure services (Singleton - shared)</span>
+<span class="code-variable">builder</span>.<span class="code-variable">Services</span>.<span class="code-method">AddSingleton</span>&lt;<span class="code-class">ICacheService</span>, <span class="code-class">RedisCacheService</span>&gt;();
+<span class="code-variable">builder</span>.<span class="code-variable">Services</span>.<span class="code-method">AddSingleton</span>&lt;<span class="code-class">IEmailService</span>, <span class="code-class">SendGridEmailService</span>&gt;();
+
+<span class="code-comment">// Transient services (created each time)</span>
+<span class="code-variable">builder</span>.<span class="code-variable">Services</span>.<span class="code-method">AddTransient</span>&lt;<span class="code-class">IPdfGenerator</span>, <span class="code-class">PdfGenerator</span>&gt;();
+
+<span class="code-keyword">var</span> <span class="code-variable">app</span> = <span class="code-variable">builder</span>.<span class="code-method">Build</span>();
+
+<span class="code-variable">app</span>.<span class="code-method">MapControllers</span>();
+<span class="code-variable">app</span>.<span class="code-method">Run</span>();</code></pre>
+
+                <h2>Key Takeaways</h2>
+
+                <ul>
+                    <li>ASP.NET Core has a <strong>built-in DI container</strong></li>
+                    <li><strong>IServiceCollection</strong> is used to register services</li>
+                    <li><strong>IServiceProvider</strong> is used to resolve services</li>
+                    <li>Registration creates a <strong>ServiceDescriptor</strong> (type, implementation, lifetime)</li>
+                    <li>Resolution happens automatically via <strong>constructor injection</strong></li>
+                    <li>Use <code>AddTransient</code>, <code>AddScoped</code>, or <code>AddSingleton</code></li>
+                    <li>Multiple implementations: inject <code>IEnumerable&lt;T&gt;</code></li>
+                    <li>Later registrations <strong>replace</strong> earlier ones</li>
+                    <li><code>TryAdd</code> methods only register if not already registered</li>
+                    <li>Built-in container is sufficient for most applications</li>
+                    <li>Avoid the <strong>Service Locator anti-pattern</strong></li>
+                </ul>
+
+                <div class="callout callout-concept">
+                    <div class="callout-title">🎯 Next Steps</div>
+                    <p>
+                        You now understand how the built-in DI container works! In the next section, we'll dive
+                        deep into <strong>Service Lifetimes</strong>—understanding Transient, Scoped, and Singleton,
+                        when to use each, and the critical rules to avoid common pitfalls.
+                    </p>
+                </div>
+
+                <nav class="page-nav">
+                    <a href="01-what-is-di.html" class="prev">What is Dependency Injection?</a>
+                    <a href="03-service-lifetimes.html" class="next">Service Lifetimes</a>
+                </nav>
+
+            
+        <footer class="page-footer">
+          Built with 💜 by <a href="https://akwasi.dev" target="_blank" rel="noopener noreferrer">Akwasi Adu-Kyeremeh</a> for developers who want to truly understand what they're building.
+        </footer>
+
+      </div>
+        </main>
+    </div>
+</body>
+
+</html>

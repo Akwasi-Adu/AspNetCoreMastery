@@ -1,0 +1,538 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registering Services | ASP.NET Core Mastery</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;500&family=Source+Serif+4:ital,wght@0,400;0,600;1,400&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="../assets/style.css">
+</head>
+
+<body>
+    <div class="page-wrapper">
+        <aside class="sidebar">
+            <a href="../index.html" class="sidebar-logo">ASP.NET Core Mastery</a>
+            <div class="sidebar-section">Part IV: Dependency Injection</div>
+            <ul class="sidebar-nav">
+                <li><a href="01-what-is-di.html">What is Dependency Injection?</a></li>
+                <li><a href="02-built-in-container.html">The Built-in DI Container</a></li>
+                <li><a href="03-service-lifetimes.html">Service Lifetimes</a></li>
+                <li><a href="04-registering-services.html" class="active">Registering Services</a></li>
+                <li><a href="05-constructor-injection.html">Constructor Injection</a></li>
+                <li><a href="06-common-patterns.html">Common DI Patterns</a></li>
+            </ul>
+            <div class="sidebar-section">Resources</div>
+            <ul class="sidebar-nav">
+                <li><a href="../index.html">Full Roadmap</a></li>
+            </ul>
+        </aside>
+
+        <main class="main-content">
+            <div class="content-container">
+                <nav class="breadcrumb">
+                    <a href="../index.html">Home</a>
+                    <span>→</span>
+                    <a href="01-what-is-di.html">Part IV: Dependency Injection</a>
+                    <span>→</span>
+                    Registering Services
+                </nav>
+
+                <div class="progress-indicator">
+                    <span>Section 4 of 6</span>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 66.67%"></div>
+                    </div>
+                </div>
+
+                <h1>Registering Services</h1>
+
+                <div class="learning-objectives">
+                    <h3>🎯 What You'll Learn</h3>
+                    <ul>
+                        <li>Different service registration patterns</li>
+                        <li>Generic type registration</li>
+                        <li>Open generic registration</li>
+                        <li>Conditional registration</li>
+                        <li>Extension methods for organization</li>
+                        <li>Assembly scanning and auto-registration</li>
+                        <li>Decorators and forwarding</li>
+                        <li>Best practices for InvenTrack</li>
+                    </ul>
+                </div>
+
+                <h2>Basic Registration Patterns</h2>
+
+                <h3>1. Interface to Implementation</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">Standard Pattern</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-variable">builder</span>.<span class="code-variable">Services</span>.<span class="code-method">AddScoped</span>&lt;<span class="code-class">IProductService</span>, <span class="code-class">ProductService</span>&gt;();</code></pre>
+
+                <p>Request <code>IProductService</code>, get <code>ProductService</code>.</p>
+
+                <h3>2. Concrete Type Only</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">No Interface</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-variable">builder</span>.<span class="code-variable">Services</span>.<span class="code-method">AddScoped</span>&lt;<span class="code-class">ProductService</span>&gt;();</code></pre>
+
+                <p>Request <code>ProductService</code> directly (no abstraction).</p>
+
+                <h3>3. Factory Function</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">Custom Creation Logic</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-variable">builder</span>.<span class="code-variable">Services</span>.<span class="code-method">AddScoped</span>&lt;<span class="code-class">IProductService</span>&gt;(<span class="code-variable">serviceProvider</span> =&gt;
+{
+    <span class="code-keyword">var</span> <span class="code-variable">repository</span> = <span class="code-variable">serviceProvider</span>.<span class="code-method">GetRequiredService</span>&lt;<span class="code-class">IProductRepository</span>&gt;();
+    <span class="code-keyword">var</span> <span class="code-variable">logger</span> = <span class="code-variable">serviceProvider</span>.<span class="code-method">GetRequiredService</span>&lt;<span class="code-class">ILogger</span>&lt;<span class="code-class">ProductService</span>&gt;&gt;();
+    <span class="code-keyword">var</span> <span class="code-variable">config</span> = <span class="code-variable">serviceProvider</span>.<span class="code-method">GetRequiredService</span>&lt;<span class="code-class">IConfiguration</span>&gt;();
+    
+    <span class="code-keyword">var</span> <span class="code-variable">maxRetries</span> = <span class="code-variable">config</span>.<span class="code-method">GetValue</span>&lt;<span class="code-type">int</span>&gt;(<span class="code-string">"ProductService:MaxRetries"</span>);
+    
+    <span class="code-keyword">return</span> <span class="code-keyword">new</span> <span class="code-class">ProductService</span>(<span class="code-variable">repository</span>, <span class="code-variable">logger</span>, <span class="code-variable">maxRetries</span>);
+});</code></pre>
+
+                <h3>4. Instance Registration</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">Pre-created Instance</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-keyword">var</span> <span class="code-variable">cacheService</span> = <span class="code-keyword">new</span> <span class="code-class">RedisCacheService</span>(<span class="code-string">"localhost:6379"</span>);
+<span class="code-variable">builder</span>.<span class="code-variable">Services</span>.<span class="code-method">AddSingleton</span>&lt;<span class="code-class">ICacheService</span>&gt;(<span class="code-variable">cacheService</span>);</code></pre>
+
+                <p>Always registered as Singleton (instance already exists).</p>
+
+                <div class="section-divider"></div>
+
+                <h2>Generic Type Registration</h2>
+
+                <h3>Closed Generic Types</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">Specific Generic Types</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-comment">// Register IRepository&lt;Product&gt;</span>
+<span class="code-variable">builder</span>.<span class="code-variable">Services</span>.<span class="code-method">AddScoped</span>&lt;<span class="code-class">IRepository</span>&lt;<span class="code-class">Product</span>&gt;, <span class="code-class">Repository</span>&lt;<span class="code-class">Product</span>&gt;&gt;();
+
+<span class="code-comment">// Register IRepository&lt;Customer&gt;</span>
+<span class="code-variable">builder</span>.<span class="code-variable">Services</span>.<span class="code-method">AddScoped</span>&lt;<span class="code-class">IRepository</span>&lt;<span class="code-class">Customer</span>&gt;, <span class="code-class">Repository</span>&lt;<span class="code-class">Customer</span>&gt;&gt;();</code></pre>
+
+                <h3>Open Generic Types</h3>
+
+                <p>
+                    Register a generic service for <strong>any</strong> type parameter:
+                </p>
+
+                <div class="code-header">
+                    <span class="code-filename">Open Generics</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-comment">// Generic repository interface</span>
+<span class="code-keyword">public</span> <span class="code-keyword">interface</span> <span class="code-class">IRepository</span>&lt;<span class="code-class">T</span>&gt; <span class="code-keyword">where</span> <span class="code-class">T</span> : <span class="code-keyword">class</span>
+{
+    <span class="code-class">Task</span>&lt;<span class="code-class">T</span>?&gt; <span class="code-method">GetByIdAsync</span>(<span class="code-type">int</span> <span class="code-variable">id</span>);
+    <span class="code-class">Task</span>&lt;<span class="code-class">List</span>&lt;<span class="code-class">T</span>&gt;&gt; <span class="code-method">GetAllAsync</span>();
+    <span class="code-class">Task</span> <span class="code-method">AddAsync</span>(<span class="code-class">T</span> <span class="code-variable">entity</span>);
+}
+
+<span class="code-comment">// Generic repository implementation</span>
+<span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">Repository</span>&lt;<span class="code-class">T</span>&gt; : <span class="code-class">IRepository</span>&lt;<span class="code-class">T</span>&gt; <span class="code-keyword">where</span> <span class="code-class">T</span> : <span class="code-keyword">class</span>
+{
+    <span class="code-keyword">private</span> <span class="code-keyword">readonly</span> <span class="code-class">InvenTrackDbContext</span> <span class="code-variable">_context</span>;
+    
+    <span class="code-keyword">public</span> <span class="code-method">Repository</span>(<span class="code-class">InvenTrackDbContext</span> <span class="code-variable">context</span>) =&gt; <span class="code-variable">_context</span> = <span class="code-variable">context</span>;
+    
+    <span class="code-keyword">public</span> <span class="code-keyword">async</span> <span class="code-class">Task</span>&lt;<span class="code-class">T</span>?&gt; <span class="code-method">GetByIdAsync</span>(<span class="code-type">int</span> <span class="code-variable">id</span>) =&gt;
+        <span class="code-keyword">await</span> <span class="code-variable">_context</span>.<span class="code-method">Set</span>&lt;<span class="code-class">T</span>&gt;().<span class="code-method">FindAsync</span>(<span class="code-variable">id</span>);
+}
+
+<span class="code-comment">// Register for ANY type T</span>
+<span class="code-variable">builder</span>.<span class="code-variable">Services</span>.<span class="code-method">AddScoped</span>(<span class="code-keyword">typeof</span>(<span class="code-class">IRepository</span>&lt;&gt;), <span class="code-keyword">typeof</span>(<span class="code-class">Repository</span>&lt;&gt;));
+
+<span class="code-comment">// Now you can inject IRepository&lt;Product&gt;, IRepository&lt;Customer&gt;, etc.</span></code></pre>
+
+                <div class="callout callout-tip">
+                    <div class="callout-title">💡 Open Generics Benefits</div>
+                    <p>
+                        One registration works for all types! No need to register
+                        <code>IRepository&lt;Product&gt;</code>, <code>IRepository&lt;Customer&gt;</code>, etc.
+                        separately.
+                    </p>
+                </div>
+
+                <div class="section-divider"></div>
+
+                <h2>Conditional Registration</h2>
+
+                <h3>Environment-Based Registration</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">Different Services per Environment</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-keyword">if</span> (<span class="code-variable">builder</span>.<span class="code-variable">Environment</span>.<span class="code-method">IsDevelopment</span>())
+{
+    <span class="code-comment">// Development: Log emails to console</span>
+    <span class="code-variable">builder</span>.<span class="code-variable">Services</span>.<span class="code-method">AddScoped</span>&lt;<span class="code-class">IEmailService</span>, <span class="code-class">ConsoleEmailService</span>&gt;();
+}
+<span class="code-keyword">else</span>
+{
+    <span class="code-comment">// Production: Send real emails</span>
+    <span class="code-variable">builder</span>.<span class="code-variable">Services</span>.<span class="code-method">AddScoped</span>&lt;<span class="code-class">IEmailService</span>, <span class="code-class">SendGridEmailService</span>&gt;();
+}</code></pre>
+
+                <h3>Configuration-Based Registration</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">Based on App Settings</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-keyword">var</span> <span class="code-variable">useRedis</span> = <span class="code-variable">builder</span>.<span class="code-variable">Configuration</span>.<span class="code-method">GetValue</span>&lt;<span class="code-type">bool</span>&gt;(<span class="code-string">"UseRedisCache"</span>);
+
+<span class="code-keyword">if</span> (<span class="code-variable">useRedis</span>)
+{
+    <span class="code-variable">builder</span>.<span class="code-variable">Services</span>.<span class="code-method">AddSingleton</span>&lt;<span class="code-class">ICacheService</span>, <span class="code-class">RedisCacheService</span>&gt;();
+}
+<span class="code-keyword">else</span>
+{
+    <span class="code-variable">builder</span>.<span class="code-variable">Services</span>.<span class="code-method">AddSingleton</span>&lt;<span class="code-class">ICacheService</span>, <span class="code-class">MemoryCacheService</span>&gt;();
+}</code></pre>
+
+                <div class="section-divider"></div>
+
+                <h2>Extension Methods for Organization</h2>
+
+                <p>
+                    Keep <code>Program.cs</code> clean by organizing registrations into extension methods:
+                </p>
+
+                <div class="code-header">
+                    <span class="code-filename">Extensions/ServiceCollectionExtensions.cs</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-keyword">namespace</span> <span class="code-class">InvenTrack</span>.<span class="code-class">Api</span>.<span class="code-class">Extensions</span>;
+
+<span class="code-keyword">public</span> <span class="code-keyword">static</span> <span class="code-keyword">class</span> <span class="code-class">ServiceCollectionExtensions</span>
+{
+    <span class="code-keyword">public</span> <span class="code-keyword">static</span> <span class="code-class">IServiceCollection</span> <span class="code-method">AddRepositories</span>(
+        <span class="code-keyword">this</span> <span class="code-class">IServiceCollection</span> <span class="code-variable">services</span>)
+    {
+        <span class="code-variable">services</span>.<span class="code-method">AddScoped</span>&lt;<span class="code-class">IProductRepository</span>, <span class="code-class">ProductRepository</span>&gt;();
+        <span class="code-variable">services</span>.<span class="code-method">AddScoped</span>&lt;<span class="code-class">ICustomerRepository</span>, <span class="code-class">CustomerRepository</span>&gt;();
+        <span class="code-variable">services</span>.<span class="code-method">AddScoped</span>&lt;<span class="code-class">IOrderRepository</span>, <span class="code-class">OrderRepository</span>&gt;();
+        
+        <span class="code-keyword">return</span> <span class="code-variable">services</span>;
+    }
+
+    <span class="code-keyword">public</span> <span class="code-keyword">static</span> <span class="code-class">IServiceCollection</span> <span class="code-method">AddBusinessServices</span>(
+        <span class="code-keyword">this</span> <span class="code-class">IServiceCollection</span> <span class="code-variable">services</span>)
+    {
+        <span class="code-variable">services</span>.<span class="code-method">AddScoped</span>&lt;<span class="code-class">IProductService</span>, <span class="code-class">ProductService</span>&gt;();
+        <span class="code-variable">services</span>.<span class="code-method">AddScoped</span>&lt;<span class="code-class">IInventoryService</span>, <span class="code-class">InventoryService</span>&gt;();
+        <span class="code-variable">services</span>.<span class="code-method">AddScoped</span>&lt;<span class="code-class">IOrderService</span>, <span class="code-class">OrderService</span>&gt;();
+        
+        <span class="code-keyword">return</span> <span class="code-variable">services</span>;
+    }
+
+    <span class="code-keyword">public</span> <span class="code-keyword">static</span> <span class="code-class">IServiceCollection</span> <span class="code-method">AddInfrastructure</span>(
+        <span class="code-keyword">this</span> <span class="code-class">IServiceCollection</span> <span class="code-variable">services</span>,
+        <span class="code-class">IConfiguration</span> <span class="code-variable">configuration</span>)
+    {
+        <span class="code-comment">// Database</span>
+        <span class="code-variable">services</span>.<span class="code-method">AddDbContext</span>&lt;<span class="code-class">InvenTrackDbContext</span>&gt;(<span class="code-variable">options</span> =&gt;
+            <span class="code-variable">options</span>.<span class="code-method">UseSqlServer</span>(<span class="code-variable">configuration</span>.<span class="code-method">GetConnectionString</span>(<span class="code-string">"DefaultConnection"</span>)));
+
+        <span class="code-comment">// Caching</span>
+        <span class="code-variable">services</span>.<span class="code-method">AddSingleton</span>&lt;<span class="code-class">ICacheService</span>, <span class="code-class">RedisCacheService</span>&gt;();
+        
+        <span class="code-comment">// Email</span>
+        <span class="code-variable">services</span>.<span class="code-method">AddTransient</span>&lt;<span class="code-class">IEmailService</span>, <span class="code-class">SendGridEmailService</span>&gt;();
+        
+        <span class="code-keyword">return</span> <span class="code-variable">services</span>;
+    }
+}</code></pre>
+
+                <div class="code-header">
+                    <span class="code-filename">Program.cs (Clean!)</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-keyword">var</span> <span class="code-variable">builder</span> = <span class="code-class">WebApplication</span>.<span class="code-method">CreateBuilder</span>(<span class="code-variable">args</span>);
+
+<span class="code-comment">// Clean, organized registration</span>
+<span class="code-variable">builder</span>.<span class="code-variable">Services</span>.<span class="code-method">AddControllers</span>();
+<span class="code-variable">builder</span>.<span class="code-variable">Services</span>.<span class="code-method">AddInfrastructure</span>(<span class="code-variable">builder</span>.<span class="code-variable">Configuration</span>);
+<span class="code-variable">builder</span>.<span class="code-variable">Services</span>.<span class="code-method">AddRepositories</span>();
+<span class="code-variable">builder</span>.<span class="code-variable">Services</span>.<span class="code-method">AddBusinessServices</span>();
+
+<span class="code-keyword">var</span> <span class="code-variable">app</span> = <span class="code-variable">builder</span>.<span class="code-method">Build</span>();
+<span class="code-variable">app</span>.<span class="code-method">MapControllers</span>();
+<span class="code-variable">app</span>.<span class="code-method">Run</span>();</code></pre>
+
+                <div class="section-divider"></div>
+
+                <h2>Assembly Scanning</h2>
+
+                <p>
+                    Automatically register services by scanning assemblies (requires a third-party library like
+                    <strong>Scrutor</strong>):
+                </p>
+
+                <div class="code-header">
+                    <span class="code-filename">Terminal</span>
+                    <span class="code-language">Shell</span>
+                </div>
+                <pre><code>dotnet add package Scrutor</code></pre>
+
+                <div class="code-header">
+                    <span class="code-filename">Auto-Registration with Scrutor</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-variable">builder</span>.<span class="code-variable">Services</span>.<span class="code-method">Scan</span>(<span class="code-variable">scan</span> =&gt; <span class="code-variable">scan</span>
+    <span class="code-comment">// Scan the current assembly</span>
+    .<span class="code-method">FromAssemblyOf</span>&lt;<span class="code-class">Program</span>&gt;()
+    
+    <span class="code-comment">// Register all classes ending with "Service"</span>
+    .<span class="code-method">AddClasses</span>(<span class="code-variable">classes</span> =&gt; <span class="code-variable">classes</span>.<span class="code-method">Where</span>(<span class="code-variable">t</span> =&gt; <span class="code-variable">t</span>.<span class="code-variable">Name</span>.<span class="code-method">EndsWith</span>(<span class="code-string">"Service"</span>)))
+    .<span class="code-method">AsImplementedInterfaces</span>()
+    .<span class="code-method">WithScopedLifetime</span>()
+    
+    <span class="code-comment">// Register all classes ending with "Repository"</span>
+    .<span class="code-method">AddClasses</span>(<span class="code-variable">classes</span> =&gt; <span class="code-variable">classes</span>.<span class="code-method">Where</span>(<span class="code-variable">t</span> =&gt; <span class="code-variable">t</span>.<span class="code-variable">Name</span>.<span class="code-method">EndsWith</span>(<span class="code-string">"Repository"</span>)))
+    .<span class="code-method">AsImplementedInterfaces</span>()
+    .<span class="code-method">WithScopedLifetime</span>()
+);</code></pre>
+
+                <div class="callout callout-info">
+                    <div class="callout-title">ℹ️ Convention-Based Registration</div>
+                    <p>
+                        This automatically registers:<br>
+                        • <code>ProductService</code> as <code>IProductService</code><br>
+                        • <code>ProductRepository</code> as <code>IProductRepository</code><br>
+                        • Any class ending with "Service" or "Repository"
+                    </p>
+                </div>
+
+                <div class="section-divider"></div>
+
+                <h2>Decorator Pattern</h2>
+
+                <p>
+                    Wrap a service with additional behavior (e.g., logging, caching):
+                </p>
+
+                <div class="code-header">
+                    <span class="code-filename">Decorator Example</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-comment">// Original service</span>
+<span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">ProductService</span> : <span class="code-class">IProductService</span>
+{
+    <span class="code-keyword">public</span> <span class="code-keyword">async</span> <span class="code-class">Task</span>&lt;<span class="code-class">Product</span>?&gt; <span class="code-method">GetByIdAsync</span>(<span class="code-type">int</span> <span class="code-variable">id</span>)
+    {
+        <span class="code-comment">// Get from database</span>
+    }
+}
+
+<span class="code-comment">// Decorator that adds caching</span>
+<span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">CachedProductService</span> : <span class="code-class">IProductService</span>
+{
+    <span class="code-keyword">private</span> <span class="code-keyword">readonly</span> <span class="code-class">IProductService</span> <span class="code-variable">_inner</span>;
+    <span class="code-keyword">private</span> <span class="code-keyword">readonly</span> <span class="code-class">ICacheService</span> <span class="code-variable">_cache</span>;
+
+    <span class="code-keyword">public</span> <span class="code-method">CachedProductService</span>(<span class="code-class">IProductService</span> <span class="code-variable">inner</span>, <span class="code-class">ICacheService</span> <span class="code-variable">cache</span>)
+    {
+        <span class="code-variable">_inner</span> = <span class="code-variable">inner</span>;
+        <span class="code-variable">_cache</span> = <span class="code-variable">cache</span>;
+    }
+
+    <span class="code-keyword">public</span> <span class="code-keyword">async</span> <span class="code-class">Task</span>&lt;<span class="code-class">Product</span>?&gt; <span class="code-method">GetByIdAsync</span>(<span class="code-type">int</span> <span class="code-variable">id</span>)
+    {
+        <span class="code-keyword">var</span> <span class="code-variable">cacheKey</span> = <span class="code-string">$"product:</span>{<span class="code-variable">id</span>}<span class="code-string">"</span>;
+        
+        <span class="code-comment">// Try cache first</span>
+        <span class="code-keyword">var</span> <span class="code-variable">cached</span> = <span class="code-keyword">await</span> <span class="code-variable">_cache</span>.<span class="code-method">GetAsync</span>&lt;<span class="code-class">Product</span>&gt;(<span class="code-variable">cacheKey</span>);
+        <span class="code-keyword">if</span> (<span class="code-variable">cached</span> != <span class="code-keyword">null</span>) <span class="code-keyword">return</span> <span class="code-variable">cached</span>;
+        
+        <span class="code-comment">// Call inner service</span>
+        <span class="code-keyword">var</span> <span class="code-variable">product</span> = <span class="code-keyword">await</span> <span class="code-variable">_inner</span>.<span class="code-method">GetByIdAsync</span>(<span class="code-variable">id</span>);
+        
+        <span class="code-comment">// Cache result</span>
+        <span class="code-keyword">if</span> (<span class="code-variable">product</span> != <span class="code-keyword">null</span>)
+        {
+            <span class="code-keyword">await</span> <span class="code-variable">_cache</span>.<span class="code-method">SetAsync</span>(<span class="code-variable">cacheKey</span>, <span class="code-variable">product</span>);
+        }
+        
+        <span class="code-keyword">return</span> <span class="code-variable">product</span>;
+    }
+}</code></pre>
+
+                <h3>Registering Decorators with Scrutor</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">Decorator Registration</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-comment">// Register the base service</span>
+<span class="code-variable">builder</span>.<span class="code-variable">Services</span>.<span class="code-method">AddScoped</span>&lt;<span class="code-class">IProductService</span>, <span class="code-class">ProductService</span>&gt;();
+
+<span class="code-comment">// Decorate it with caching</span>
+<span class="code-variable">builder</span>.<span class="code-variable">Services</span>.<span class="code-method">Decorate</span>&lt;<span class="code-class">IProductService</span>, <span class="code-class">CachedProductService</span>&gt;();</code></pre>
+
+                <div class="section-divider"></div>
+
+                <h2>Service Forwarding</h2>
+
+                <p>
+                    Register the same implementation for multiple interfaces:
+                </p>
+
+                <div class="code-header">
+                    <span class="code-filename">Multiple Interfaces</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">NotificationService</span> : <span class="code-class">IEmailService</span>, <span class="code-class">ISmsService</span>
+{
+    <span class="code-keyword">public</span> <span class="code-keyword">void</span> <span class="code-method">SendEmail</span>(<span class="code-type">string</span> <span class="code-variable">to</span>, <span class="code-type">string</span> <span class="code-variable">message</span>) { }
+    <span class="code-keyword">public</span> <span class="code-keyword">void</span> <span class="code-method">SendSms</span>(<span class="code-type">string</span> <span class="code-variable">to</span>, <span class="code-type">string</span> <span class="code-variable">message</span>) { }
+}
+
+<span class="code-comment">// Register the concrete type</span>
+<span class="code-variable">builder</span>.<span class="code-variable">Services</span>.<span class="code-method">AddScoped</span>&lt;<span class="code-class">NotificationService</span>&gt;();
+
+<span class="code-comment">// Forward both interfaces to the same instance</span>
+<span class="code-variable">builder</span>.<span class="code-variable">Services</span>.<span class="code-method">AddScoped</span>&lt;<span class="code-class">IEmailService</span>&gt;(<span class="code-variable">sp</span> =&gt; 
+    <span class="code-variable">sp</span>.<span class="code-method">GetRequiredService</span>&lt;<span class="code-class">NotificationService</span>&gt;());
+<span class="code-variable">builder</span>.<span class="code-variable">Services</span>.<span class="code-method">AddScoped</span>&lt;<span class="code-class">ISmsService</span>&gt;(<span class="code-variable">sp</span> =&gt; 
+    <span class="code-variable">sp</span>.<span class="code-method">GetRequiredService</span>&lt;<span class="code-class">NotificationService</span>&gt;());</code></pre>
+
+                <div class="section-divider"></div>
+
+                <h2>Best Practices</h2>
+
+                <h3>1. Organize by Layer</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">Layered Organization</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-comment">// Infrastructure (Database, Cache, Email)</span>
+<span class="code-variable">builder</span>.<span class="code-variable">Services</span>.<span class="code-method">AddInfrastructure</span>(<span class="code-variable">builder</span>.<span class="code-variable">Configuration</span>);
+
+<span class="code-comment">// Data Access (Repositories)</span>
+<span class="code-variable">builder</span>.<span class="code-variable">Services</span>.<span class="code-method">AddRepositories</span>();
+
+<span class="code-comment">// Business Logic (Services)</span>
+<span class="code-variable">builder</span>.<span class="code-variable">Services</span>.<span class="code-method">AddBusinessServices</span>();
+
+<span class="code-comment">// Presentation (Controllers, Filters)</span>
+<span class="code-variable">builder</span>.<span class="code-variable">Services</span>.<span class="code-method">AddControllers</span>();</code></pre>
+
+                <h3>2. Use Extension Methods</h3>
+
+                <p>
+                    Keep <code>Program.cs</code> clean and focused. Move registrations to extension methods.
+                </p>
+
+                <h3>3. Register Interface, Not Implementation</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">✅ Good</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-variable">builder</span>.<span class="code-variable">Services</span>.<span class="code-method">AddScoped</span>&lt;<span class="code-class">IProductService</span>, <span class="code-class">ProductService</span>&gt;();</code></pre>
+
+                <div class="code-header">
+                    <span class="code-filename">❌ Bad (usually)</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-variable">builder</span>.<span class="code-variable">Services</span>.<span class="code-method">AddScoped</span>&lt;<span class="code-class">ProductService</span>&gt;();</code></pre>
+
+                <h3>4. Validate Registrations</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">Validation</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-keyword">var</span> <span class="code-variable">app</span> = <span class="code-variable">builder</span>.<span class="code-method">Build</span>();
+
+<span class="code-comment">// Validate all services can be resolved</span>
+<span class="code-keyword">if</span> (<span class="code-variable">app</span>.<span class="code-variable">Environment</span>.<span class="code-method">IsDevelopment</span>())
+{
+    <span class="code-keyword">using</span> <span class="code-keyword">var</span> <span class="code-variable">scope</span> = <span class="code-variable">app</span>.<span class="code-variable">Services</span>.<span class="code-method">CreateScope</span>();
+    <span class="code-keyword">var</span> <span class="code-variable">services</span> = <span class="code-variable">scope</span>.<span class="code-variable">ServiceProvider</span>;
+    
+    <span class="code-comment">// Try to resolve critical services</span>
+    <span class="code-variable">services</span>.<span class="code-method">GetRequiredService</span>&lt;<span class="code-class">IProductService</span>&gt;();
+    <span class="code-variable">services</span>.<span class="code-method">GetRequiredService</span>&lt;<span class="code-class">IOrderService</span>&gt;();
+}</code></pre>
+
+                <h3>5. Document Complex Registrations</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">Comments for Clarity</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-comment">// Register ProductService with custom retry logic</span>
+<span class="code-comment">// MaxRetries is configured in appsettings.json</span>
+<span class="code-variable">builder</span>.<span class="code-variable">Services</span>.<span class="code-method">AddScoped</span>&lt;<span class="code-class">IProductService</span>&gt;(<span class="code-variable">sp</span> =&gt;
+{
+    <span class="code-keyword">var</span> <span class="code-variable">maxRetries</span> = <span class="code-variable">sp</span>.<span class="code-method">GetRequiredService</span>&lt;<span class="code-class">IConfiguration</span>&gt;()
+        .<span class="code-method">GetValue</span>&lt;<span class="code-type">int</span>&gt;(<span class="code-string">"ProductService:MaxRetries"</span>);
+    <span class="code-keyword">return</span> <span class="code-keyword">new</span> <span class="code-class">ProductService</span>(<span class="code-variable">maxRetries</span>);
+});</code></pre>
+
+                <h2>Key Takeaways</h2>
+
+                <ul>
+                    <li>Basic patterns: Interface → Implementation, Concrete type, Factory, Instance</li>
+                    <li><strong>Open generics</strong>: Register <code>IRepository&lt;&gt;</code> for any type</li>
+                    <li><strong>Conditional registration</strong>: Different services per environment/config</li>
+                    <li><strong>Extension methods</strong>: Organize registrations by layer/feature</li>
+                    <li><strong>Assembly scanning</strong>: Auto-register by convention (Scrutor)</li>
+                    <li><strong>Decorators</strong>: Wrap services with additional behavior</li>
+                    <li><strong>Service forwarding</strong>: Same instance for multiple interfaces</li>
+                    <li>Keep <code>Program.cs</code> clean and organized</li>
+                    <li>Register interfaces, not implementations (usually)</li>
+                    <li>Validate critical services can be resolved</li>
+                    <li>Document complex registrations</li>
+                </ul>
+
+                <div class="callout callout-concept">
+                    <div class="callout-title">🎯 Next Steps</div>
+                    <p>
+                        You now know how to register services in various ways! In the next section, we'll explore
+                        <strong>Constructor Injection</strong>—best practices, handling multiple constructors,
+                        optional dependencies, and common patterns for InvenTrack.
+                    </p>
+                </div>
+
+                <nav class="page-nav">
+                    <a href="03-service-lifetimes.html" class="prev">Service Lifetimes</a>
+                    <a href="05-constructor-injection.html" class="next">Constructor Injection</a>
+                </nav>
+
+            
+        <footer class="page-footer">
+          Built with 💜 by <a href="https://akwasi.dev" target="_blank" rel="noopener noreferrer">Akwasi Adu-Kyeremeh</a> for developers who want to truly understand what they're building.
+        </footer>
+
+      </div>
+        </main>
+    </div>
+</body>
+
+</html>

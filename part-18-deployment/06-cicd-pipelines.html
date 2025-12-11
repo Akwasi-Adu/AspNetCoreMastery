@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CI/CD Pipelines | ASP.NET Core Mastery</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;500&family=Source+Serif+4:ital,wght@0,400;0,600;1,400&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="../assets/style.css">
+</head>
+
+<body>
+    <div class="page-wrapper">
+        <aside class="sidebar">
+            <a href="../index.html" class="sidebar-logo">ASP.NET Core Mastery</a>
+            <div class="sidebar-section">Part XVIII: Deployment</div>
+            <ul class="sidebar-nav">
+                <li><a href="01-kestrel-reverse-proxies.html">Kestrel and Reverse Proxies</a></li>
+                <li><a href="02-iis-hosting.html">IIS Hosting</a></li>
+                <li><a href="03-linux-hosting.html">Linux Hosting</a></li>
+                <li><a href="04-docker-containers.html">Docker Containers</a></li>
+                <li><a href="05-azure-app-service.html">Azure App Service</a></li>
+                <li><a href="06-cicd-pipelines.html" class="active">CI/CD Pipelines</a></li>
+            </ul>
+            <div class="sidebar-section">Resources</div>
+            <ul class="sidebar-nav">
+                <li><a href="../index.html">Full Roadmap</a></li>
+            </ul>
+        </aside>
+
+        <main class="main-content">
+            <div class="content-container">
+                <nav class="breadcrumb">
+                    <a href="../index.html">Home</a>
+                    <span>→</span>
+                    <a href="01-kestrel-reverse-proxies.html">Part XVIII: Deployment</a>
+                    <span>→</span>
+                    CI/CD Pipelines
+                </nav>
+
+                <div class="progress-indicator">
+                    <span>Section 6 of 6</span>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 100%"></div>
+                    </div>
+                </div>
+
+                <h1>CI/CD Pipelines</h1>
+
+                <div class="learning-objectives">
+                    <h3>🎯 What You'll Learn</h3>
+                    <ul>
+                        <li>What is CI/CD</li>
+                        <li>GitHub Actions</li>
+                        <li>Azure DevOps Pipelines</li>
+                        <li>GitLab CI/CD</li>
+                        <li>Best practices</li>
+                    </ul>
+                </div>
+
+                <h2>What is CI/CD?</h2>
+
+                <p>
+                    <strong>CI/CD</strong> (Continuous Integration/Continuous Deployment) automates building, testing,
+                    and deploying applications whenever code changes.
+                </p>
+
+                <ul>
+                    <li><strong>CI (Continuous Integration)</strong>: Automatically build and test code</li>
+                    <li><strong>CD (Continuous Deployment)</strong>: Automatically deploy to production</li>
+                </ul>
+
+                <div class="section-divider"></div>
+
+                <h2>GitHub Actions</h2>
+
+                <div class="code-header">
+                    <span class="code-filename">.github/workflows/deploy.yml</span>
+                    <span class="code-language">YAML</span>
+                </div>
+                <pre><code>name: Deploy to Azure
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v3
+      with:
+        dotnet-version: '8.0.x'
+    
+    - name: Restore dependencies
+      run: dotnet restore
+    
+    - name: Build
+      run: dotnet build --configuration Release --no-restore
+    
+    - name: Test
+      run: dotnet test --no-build --verbosity normal
+    
+    - name: Publish
+      run: dotnet publish -c Release -o ./publish
+    
+    - name: Deploy to Azure Web App
+      uses: azure/webapps-deploy@v2
+      with:
+        app-name: 'inventtrack'
+        publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
+        package: ./publish</code></pre>
+
+                <div class="section-divider"></div>
+
+                <h2>Azure DevOps Pipelines</h2>
+
+                <div class="code-header">
+                    <span class="code-filename">azure-pipelines.yml</span>
+                    <span class="code-language">YAML</span>
+                </div>
+                <pre><code>trigger:
+  - main
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+variables:
+  buildConfiguration: 'Release'
+
+steps:
+- task: UseDotNet@2
+  inputs:
+    version: '8.0.x'
+
+- task: DotNetCoreCLI@2
+  displayName: 'Restore'
+  inputs:
+    command: 'restore'
+
+- task: DotNetCoreCLI@2
+  displayName: 'Build'
+  inputs:
+    command: 'build'
+    arguments: '--configuration $(buildConfiguration)'
+
+- task: DotNetCoreCLI@2
+  displayName: 'Test'
+  inputs:
+    command: 'test'
+    arguments: '--configuration $(buildConfiguration)'
+
+- task: DotNetCoreCLI@2
+  displayName: 'Publish'
+  inputs:
+    command: 'publish'
+    publishWebProjects: true
+    arguments: '--configuration $(buildConfiguration) --output $(Build.ArtifactStagingDirectory)'
+
+- task: AzureWebApp@1
+  displayName: 'Deploy to Azure'
+  inputs:
+    azureSubscription: 'Azure-Subscription'
+    appName: 'inventtrack'
+    package: '$(Build.ArtifactStagingDirectory)/**/*.zip'</code></pre>
+
+                <div class="section-divider"></div>
+
+                <h2>GitLab CI/CD</h2>
+
+                <div class="code-header">
+                    <span class="code-filename">.gitlab-ci.yml</span>
+                    <span class="code-language">YAML</span>
+                </div>
+                <pre><code>stages:
+  - build
+  - test
+  - deploy
+
+variables:
+  DOTNET_VERSION: "8.0"
+
+build:
+  stage: build
+  image: mcr.microsoft.com/dotnet/sdk:8.0
+  script:
+    - dotnet restore
+    - dotnet build --configuration Release
+  artifacts:
+    paths:
+      - bin/Release/
+
+test:
+  stage: test
+  image: mcr.microsoft.com/dotnet/sdk:8.0
+  script:
+    - dotnet test --configuration Release
+
+deploy:
+  stage: deploy
+  image: mcr.microsoft.com/dotnet/sdk:8.0
+  script:
+    - dotnet publish -c Release -o ./publish
+    - scp -r ./publish/* user@server:/var/www/inventtrack
+    - ssh user@server "sudo systemctl restart inventtrack"
+  only:
+    - main</code></pre>
+
+                <div class="section-divider"></div>
+
+                <h2>Docker Build and Push</h2>
+
+                <div class="code-header">
+                    <span class="code-filename">GitHub Actions with Docker</span>
+                    <span class="code-language">YAML</span>
+                </div>
+                <pre><code>name: Docker Build and Push
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Login to Docker Hub
+      uses: docker/login-action@v2
+      with:
+        username: ${{ secrets.DOCKER_USERNAME }}
+        password: ${{ secrets.DOCKER_PASSWORD }}
+    
+    - name: Build and push
+      uses: docker/build-push-action@v4
+      with:
+        context: .
+        push: true
+        tags: yourusername/inventtrack:latest</code></pre>
+
+                <h2>Best Practices</h2>
+
+                <ul>
+                    <li><strong>Run tests</strong>: Always run tests before deployment</li>
+                    <li><strong>Use secrets</strong>: Store credentials securely</li>
+                    <li><strong>Deploy to staging first</strong>: Test before production</li>
+                    <li><strong>Rollback plan</strong>: Have a way to revert</li>
+                    <li><strong>Monitor deployments</strong>: Track success/failure</li>
+                    <li><strong>Version tags</strong>: Tag Docker images with versions</li>
+                </ul>
+
+                <h2>Key Takeaways</h2>
+
+                <ul>
+                    <li><strong>CI/CD</strong>: Automate build, test, deploy</li>
+                    <li><strong>GitHub Actions</strong>: .github/workflows/*.yml</li>
+                    <li><strong>Azure DevOps</strong>: azure-pipelines.yml</li>
+                    <li><strong>GitLab CI/CD</strong>: .gitlab-ci.yml</li>
+                    <li><strong>Stages</strong>: Build → Test → Deploy</li>
+                    <li><strong>Secrets</strong>: Store credentials securely</li>
+                </ul>
+
+                <div class="callout callout-concept">
+                    <div class="callout-title">🎉 Part XVIII Complete!</div>
+                    <p>
+                        Congratulations! You've completed <strong>Part XVIII: Deployment & Hosting</strong>. You now
+                        understand:
+                    </p>
+                    <ul>
+                        <li>✅ Kestrel and reverse proxies (Nginx, Apache)</li>
+                        <li>✅ IIS hosting (ASP.NET Core Module, web.config)</li>
+                        <li>✅ Linux hosting (systemd, Let's Encrypt)</li>
+                        <li>✅ Docker containers (Dockerfile, Docker Compose)</li>
+                        <li>✅ Azure App Service (deployment, configuration)</li>
+                        <li>✅ CI/CD pipelines (GitHub Actions, Azure DevOps, GitLab)</li>
+                    </ul>
+                    <p>
+                        Your applications are ready for production! 🚀
+                    </p>
+                </div>
+
+                <nav class="page-nav">
+                    <a href="05-azure-app-service.html" class="prev">Azure App Service</a>
+                    <a href="../index.html" class="next">Back to Roadmap</a>
+                </nav>
+
+            
+        <footer class="page-footer">
+          Built with 💜 by <a href="https://akwasi.dev" target="_blank" rel="noopener noreferrer">Akwasi Adu-Kyeremeh</a> for developers who want to truly understand what they're building.
+        </footer>
+
+      </div>
+        </main>
+    </div>
+</body>
+
+</html>

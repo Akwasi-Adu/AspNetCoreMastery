@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RESTful Principles | ASP.NET Core Mastery</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;500&family=Source+Serif+4:ital,wght@0,400;0,600;1,400&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="../assets/style.css">
+</head>
+
+<body>
+    <div class="page-wrapper">
+        <aside class="sidebar">
+            <a href="../index.html" class="sidebar-logo">ASP.NET Core Mastery</a>
+            <div class="sidebar-section">Part VIII: Building Web APIs</div>
+            <ul class="sidebar-nav">
+                <li><a href="01-restful-principles.html" class="active">RESTful Principles</a></li>
+                <li><a href="02-api-controllers.html">API Controllers</a></li>
+                <li><a href="03-model-binding.html">Model Binding</a></li>
+                <li><a href="04-validation.html">Validation</a></li>
+                <li><a href="05-minimal-apis.html">Minimal APIs</a></li>
+                <li><a href="06-dtos-automapper.html">DTOs and AutoMapper</a></li>
+                <li><a href="07-api-versioning.html">API Versioning</a></li>
+            </ul>
+            <div class="sidebar-section">Resources</div>
+            <ul class="sidebar-nav">
+                <li><a href="../index.html">Full Roadmap</a></li>
+            </ul>
+        </aside>
+
+        <main class="main-content">
+            <div class="content-container">
+                <nav class="breadcrumb">
+                    <a href="../index.html">Home</a>
+                    <span>→</span>
+                    <a href="01-restful-principles.html">Part VIII: Building Web APIs</a>
+                    <span>→</span>
+                    RESTful Principles
+                </nav>
+
+                <div class="progress-indicator">
+                    <span>Section 1 of 7</span>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 14.29%"></div>
+                    </div>
+                </div>
+
+                <h1>RESTful Principles</h1>
+
+                <div class="learning-objectives">
+                    <h3>🎯 What You'll Learn</h3>
+                    <ul>
+                        <li>What REST is and why it matters</li>
+                        <li>REST constraints and principles</li>
+                        <li>Resource-based URLs</li>
+                        <li>HTTP methods for CRUD operations</li>
+                        <li>Status codes for API responses</li>
+                        <li>Best practices for RESTful APIs</li>
+                    </ul>
+                </div>
+
+                <h2>What is REST?</h2>
+
+                <p>
+                    <strong>REST</strong> (Representational State Transfer) is an architectural style for
+                    designing networked applications. It uses HTTP methods to perform CRUD operations on resources.
+                </p>
+
+                <div class="callout callout-concept">
+                    <div class="callout-title">💡 Key Concept</div>
+                    <p>
+                        REST treats everything as a <strong>resource</strong> (product, user, order) that can
+                        be accessed via a unique URL and manipulated using standard HTTP methods.
+                    </p>
+                </div>
+
+                <div class="section-divider"></div>
+
+                <h2>REST Constraints</h2>
+
+                <h3>1. Client-Server Architecture</h3>
+                <p>Separation of concerns: client handles UI, server handles data and business logic.</p>
+
+                <h3>2. Stateless</h3>
+                <p>Each request contains all information needed. Server doesn't store client state between requests.</p>
+
+                <h3>3. Cacheable</h3>
+                <p>Responses must define themselves as cacheable or non-cacheable.</p>
+
+                <h3>4. Uniform Interface</h3>
+                <p>Consistent way to interact with resources using standard HTTP methods.</p>
+
+                <h3>5. Layered System</h3>
+                <p>Client can't tell if connected directly to server or through intermediaries (load balancers,
+                    proxies).</p>
+
+                <div class="section-divider"></div>
+
+                <h2>Resource-Based URLs</h2>
+
+                <p>
+                    URLs should represent <strong>resources</strong> (nouns), not actions (verbs).
+                </p>
+
+                <table>
+                    <thead>
+                        <tr>
+                            <th>❌ Bad (Action-Based)</th>
+                            <th>✅ Good (Resource-Based)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><code>/getProducts</code></td>
+                            <td><code>/products</code></td>
+                        </tr>
+                        <tr>
+                            <td><code>/createProduct</code></td>
+                            <td><code>/products</code> (POST)</td>
+                        </tr>
+                        <tr>
+                            <td><code>/updateProduct/123</code></td>
+                            <td><code>/products/123</code> (PUT)</td>
+                        </tr>
+                        <tr>
+                            <td><code>/deleteProduct/123</code></td>
+                            <td><code>/products/123</code> (DELETE)</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h3>URL Naming Conventions</h3>
+
+                <ul>
+                    <li><strong>Use nouns</strong>: <code>/products</code>, not <code>/getProducts</code></li>
+                    <li><strong>Use plurals</strong>: <code>/products</code>, not <code>/product</code></li>
+                    <li><strong>Use lowercase</strong>: <code>/products</code>, not <code>/Products</code></li>
+                    <li><strong>Use hyphens</strong>: <code>/order-items</code>, not <code>/orderItems</code></li>
+                    <li><strong>No trailing slashes</strong>: <code>/products</code>, not <code>/products/</code></li>
+                </ul>
+
+                <div class="section-divider"></div>
+
+                <h2>HTTP Methods for CRUD</h2>
+
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Operation</th>
+                            <th>HTTP Method</th>
+                            <th>URL</th>
+                            <th>Description</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Create</strong></td>
+                            <td>POST</td>
+                            <td><code>/products</code></td>
+                            <td>Create a new product</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Read (all)</strong></td>
+                            <td>GET</td>
+                            <td><code>/products</code></td>
+                            <td>Get all products</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Read (one)</strong></td>
+                            <td>GET</td>
+                            <td><code>/products/123</code></td>
+                            <td>Get product with ID 123</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Update (full)</strong></td>
+                            <td>PUT</td>
+                            <td><code>/products/123</code></td>
+                            <td>Replace product 123</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Update (partial)</strong></td>
+                            <td>PATCH</td>
+                            <td><code>/products/123</code></td>
+                            <td>Update parts of product 123</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Delete</strong></td>
+                            <td>DELETE</td>
+                            <td><code>/products/123</code></td>
+                            <td>Delete product 123</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="section-divider"></div>
+
+                <h2>Status Codes</h2>
+
+                <h3>Success Codes (2xx)</h3>
+
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Code</th>
+                            <th>Name</th>
+                            <th>When to Use</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>200</strong></td>
+                            <td>OK</td>
+                            <td>Successful GET, PUT, PATCH</td>
+                        </tr>
+                        <tr>
+                            <td><strong>201</strong></td>
+                            <td>Created</td>
+                            <td>Successful POST (resource created)</td>
+                        </tr>
+                        <tr>
+                            <td><strong>204</strong></td>
+                            <td>No Content</td>
+                            <td>Successful DELETE, PUT (no response body)</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h3>Client Error Codes (4xx)</h3>
+
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Code</th>
+                            <th>Name</th>
+                            <th>When to Use</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>400</strong></td>
+                            <td>Bad Request</td>
+                            <td>Invalid request data</td>
+                        </tr>
+                        <tr>
+                            <td><strong>401</strong></td>
+                            <td>Unauthorized</td>
+                            <td>Not authenticated</td>
+                        </tr>
+                        <tr>
+                            <td><strong>403</strong></td>
+                            <td>Forbidden</td>
+                            <td>Not authorized</td>
+                        </tr>
+                        <tr>
+                            <td><strong>404</strong></td>
+                            <td>Not Found</td>
+                            <td>Resource doesn't exist</td>
+                        </tr>
+                        <tr>
+                            <td><strong>409</strong></td>
+                            <td>Conflict</td>
+                            <td>Resource conflict (duplicate)</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="section-divider"></div>
+
+                <h2>Complete RESTful API Example</h2>
+
+                <div class="code-header">
+                    <span class="code-filename">InvenTrack Products API</span>
+                    <span class="code-language">HTTP</span>
+                </div>
+                <pre><code><span class="code-comment">// Get all products</span>
+GET /api/products
+→ 200 OK
+[
+  { "id": 1, "name": "Laptop", "price": 999.99 },
+  { "id": 2, "name": "Mouse", "price": 29.99 }
+]
+
+<span class="code-comment">// Get single product</span>
+GET /api/products/1
+→ 200 OK
+{ "id": 1, "name": "Laptop", "price": 999.99 }
+
+<span class="code-comment">// Create product</span>
+POST /api/products
+{ "name": "Keyboard", "price": 79.99 }
+→ 201 Created
+Location: /api/products/3
+{ "id": 3, "name": "Keyboard", "price": 79.99 }
+
+<span class="code-comment">// Update product (full)</span>
+PUT /api/products/3
+{ "name": "Mechanical Keyboard", "price": 129.99 }
+→ 200 OK or 204 No Content
+
+<span class="code-comment">// Update product (partial)</span>
+PATCH /api/products/3
+{ "price": 99.99 }
+→ 200 OK or 204 No Content
+
+<span class="code-comment">// Delete product</span>
+DELETE /api/products/3
+→ 204 No Content</code></pre>
+
+                <div class="section-divider"></div>
+
+                <h2>Nested Resources</h2>
+
+                <p>
+                    For related resources, use nested URLs (but limit to 2 levels).
+                </p>
+
+                <div class="code-header">
+                    <span class="code-filename">Nested Resources</span>
+                    <span class="code-language">HTTP</span>
+                </div>
+                <pre><code><span class="code-comment">// Get all orders for a customer</span>
+GET /api/customers/123/orders
+
+<span class="code-comment">// Get specific order for a customer</span>
+GET /api/customers/123/orders/456
+
+<span class="code-comment">// Create order for a customer</span>
+POST /api/customers/123/orders
+
+<span class="code-comment">// ❌ Too deep (avoid)</span>
+GET /api/customers/123/orders/456/items/789</code></pre>
+
+                <div class="callout callout-warning">
+                    <div class="callout-title">⚠️ Avoid Deep Nesting</div>
+                    <p>
+                        Limit nesting to 2 levels. For deeper relationships, use query parameters or
+                        separate endpoints.
+                    </p>
+                </div>
+
+                <div class="section-divider"></div>
+
+                <h2>Filtering, Sorting, and Pagination</h2>
+
+                <h3>Filtering</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">Query Parameters for Filtering</span>
+                    <span class="code-language">HTTP</span>
+                </div>
+                <pre><code>GET /api/products?category=electronics
+GET /api/products?minPrice=100&maxPrice=500
+GET /api/products?inStock=true</code></pre>
+
+                <h3>Sorting</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">Query Parameters for Sorting</span>
+                    <span class="code-language">HTTP</span>
+                </div>
+                <pre><code>GET /api/products?sortBy=price
+GET /api/products?sortBy=price&sortOrder=desc
+GET /api/products?sortBy=name,price</code></pre>
+
+                <h3>Pagination</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">Query Parameters for Pagination</span>
+                    <span class="code-language">HTTP</span>
+                </div>
+                <pre><code>GET /api/products?page=1&pageSize=20
+GET /api/products?skip=20&take=20
+
+<span class="code-comment">// Response with pagination metadata</span>
+{
+  "data": [...],
+  "page": 1,
+  "pageSize": 20,
+  "totalCount": 100,
+  "totalPages": 5
+}</code></pre>
+
+                <div class="section-divider"></div>
+
+                <h2>Best Practices</h2>
+
+                <ul>
+                    <li><strong>Use nouns for resources</strong>: <code>/products</code>, not <code>/getProducts</code>
+                    </li>
+                    <li><strong>Use HTTP methods correctly</strong>: GET for read, POST for create, etc.</li>
+                    <li><strong>Return appropriate status codes</strong>: 200, 201, 204, 400, 404, etc.</li>
+                    <li><strong>Use plural nouns</strong>: <code>/products</code>, not <code>/product</code></li>
+                    <li><strong>Version your API</strong>: <code>/api/v1/products</code></li>
+                    <li><strong>Use HTTPS</strong>: Always in production</li>
+                    <li><strong>Consistent naming</strong>: Use lowercase and hyphens</li>
+                    <li><strong>Limit nesting</strong>: Maximum 2 levels</li>
+                    <li><strong>Support filtering/sorting/pagination</strong>: For collections</li>
+                    <li><strong>Include Location header</strong>: For 201 Created responses</li>
+                    <li><strong>Use JSON</strong>: Default format for APIs</li>
+                    <li><strong>Document your API</strong>: Use Swagger/OpenAPI</li>
+                </ul>
+
+                <h2>RESTful API Checklist</h2>
+
+                <ul>
+                    <li>✅ Resource-based URLs (nouns, not verbs)</li>
+                    <li>✅ Proper HTTP methods (GET, POST, PUT, PATCH, DELETE)</li>
+                    <li>✅ Correct status codes (2xx, 4xx, 5xx)</li>
+                    <li>✅ Stateless (no server-side sessions)</li>
+                    <li>✅ JSON format</li>
+                    <li>✅ Pagination for large collections</li>
+                    <li>✅ Filtering and sorting support</li>
+                    <li>✅ Versioning strategy</li>
+                    <li>✅ HTTPS in production</li>
+                    <li>✅ API documentation</li>
+                </ul>
+
+                <h2>Key Takeaways</h2>
+
+                <ul>
+                    <li><strong>REST</strong>: Architectural style using HTTP for CRUD operations</li>
+                    <li><strong>Resources</strong>: Everything is a resource with a unique URL</li>
+                    <li><strong>HTTP methods</strong>: GET (read), POST (create), PUT (update), DELETE (delete)</li>
+                    <li><strong>Status codes</strong>: 200 OK, 201 Created, 204 No Content, 400 Bad Request, 404 Not
+                        Found</li>
+                    <li><strong>Nouns, not verbs</strong>: <code>/products</code>, not <code>/getProducts</code></li>
+                    <li><strong>Stateless</strong>: Each request is independent</li>
+                    <li><strong>Consistent naming</strong>: Lowercase, plurals, hyphens</li>
+                    <li><strong>Pagination</strong>: For large collections</li>
+                    <li><strong>Versioning</strong>: Plan for API evolution</li>
+                </ul>
+
+                <div class="callout callout-concept">
+                    <div class="callout-title">🎯 Next Steps</div>
+                    <p>
+                        You now understand RESTful principles! In the next section, we'll explore
+                        <strong>API Controllers</strong>—how to implement RESTful APIs in ASP.NET Core
+                        using controllers and attributes.
+                    </p>
+                </div>
+
+                <nav class="page-nav">
+                    <a href="../index.html" class="prev">Back to Roadmap</a>
+                    <a href="02-api-controllers.html" class="next">API Controllers</a>
+                </nav>
+
+            
+        <footer class="page-footer">
+          Built with 💜 by <a href="https://akwasi.dev" target="_blank" rel="noopener noreferrer">Akwasi Adu-Kyeremeh</a> for developers who want to truly understand what they're building.
+        </footer>
+
+      </div>
+        </main>
+    </div>
+</body>
+
+</html>

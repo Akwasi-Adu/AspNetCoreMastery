@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>What are Razor Pages? | ASP.NET Core Mastery</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;500&family=Source+Serif+4:ital,wght@0,400;0,600;1,400&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="../assets/style.css">
+</head>
+
+<body>
+    <div class="page-wrapper">
+        <aside class="sidebar">
+            <a href="../index.html" class="sidebar-logo">ASP.NET Core Mastery</a>
+            <div class="sidebar-section">Part XI: Razor Pages</div>
+            <ul class="sidebar-nav">
+                <li><a href="01-what-are-razor-pages.html" class="active">What are Razor Pages?</a></li>
+                <li><a href="02-page-model-pattern.html">Page Model Pattern</a></li>
+                <li><a href="03-handlers.html">Handlers (OnGet, OnPost)</a></li>
+                <li><a href="04-forms-validation.html">Forms and Validation</a></li>
+                <li><a href="05-razor-pages-vs-mvc.html">Razor Pages vs MVC</a></li>
+            </ul>
+            <div class="sidebar-section">Resources</div>
+            <ul class="sidebar-nav">
+                <li><a href="../index.html">Full Roadmap</a></li>
+            </ul>
+        </aside>
+
+        <main class="main-content">
+            <div class="content-container">
+                <nav class="breadcrumb">
+                    <a href="../index.html">Home</a>
+                    <span>→</span>
+                    <a href="01-what-are-razor-pages.html">Part XI: Razor Pages</a>
+                    <span>→</span>
+                    What are Razor Pages?
+                </nav>
+
+                <div class="progress-indicator">
+                    <span>Section 1 of 5</span>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 20%"></div>
+                    </div>
+                </div>
+
+                <h1>What are Razor Pages?</h1>
+
+                <div class="learning-objectives">
+                    <h3>🎯 What You'll Learn</h3>
+                    <ul>
+                        <li>What Razor Pages are</li>
+                        <li>Page-focused development</li>
+                        <li>Setting up Razor Pages</li>
+                        <li>Folder structure</li>
+                        <li>Routing conventions</li>
+                        <li>When to use Razor Pages</li>
+                    </ul>
+                </div>
+
+                <h2>What are Razor Pages?</h2>
+
+                <p>
+                    <strong>Razor Pages</strong> is a page-focused framework for building web UI in ASP.NET Core.
+                    It's simpler than MVC for scenarios where you don't need the full separation of concerns.
+                </p>
+
+                <div class="callout callout-concept">
+                    <div class="callout-title">💡 Key Concept</div>
+                    <p>
+                        Razor Pages combines the view and controller logic into a single file, making it easier
+                        to organize page-focused scenarios.
+                    </p>
+                </div>
+
+                <h3>Razor Pages vs MVC</h3>
+
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Aspect</th>
+                            <th>Razor Pages</th>
+                            <th>MVC</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Organization</strong></td>
+                            <td>Page-focused</td>
+                            <td>Controller-focused</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Files</strong></td>
+                            <td>.cshtml + .cshtml.cs</td>
+                            <td>Controller + View</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Routing</strong></td>
+                            <td>Convention-based (folder structure)</td>
+                            <td>Attribute or route config</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Use Case</strong></td>
+                            <td>Simple CRUD, forms</td>
+                            <td>Complex apps, APIs</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Learning Curve</strong></td>
+                            <td>Easier</td>
+                            <td>Steeper</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="section-divider"></div>
+
+                <h2>Setting Up Razor Pages</h2>
+
+                <h3>Create Razor Pages Project</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">Create Project</span>
+                    <span class="code-language">Bash</span>
+                </div>
+                <pre><code>dotnet new webapp -n InvenTrack.Web
+cd InvenTrack.Web
+dotnet run</code></pre>
+
+                <h3>Configure Services</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">Program.cs</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-keyword">var</span> <span class="code-variable">builder</span> = <span class="code-class">WebApplication</span>.<span class="code-method">CreateBuilder</span>(<span class="code-variable">args</span>);
+
+<span class="code-comment">// Add Razor Pages services</span>
+<span class="code-variable">builder</span>.<span class="code-variable">Services</span>.<span class="code-method">AddRazorPages</span>();
+
+<span class="code-keyword">var</span> <span class="code-variable">app</span> = <span class="code-variable">builder</span>.<span class="code-method">Build</span>();
+
+<span class="code-variable">app</span>.<span class="code-method">UseHttpsRedirection</span>();
+<span class="code-variable">app</span>.<span class="code-method">UseStaticFiles</span>();
+<span class="code-variable">app</span>.<span class="code-method">UseRouting</span>();
+<span class="code-variable">app</span>.<span class="code-method">UseAuthorization</span>();
+
+<span class="code-comment">// Map Razor Pages</span>
+<span class="code-variable">app</span>.<span class="code-method">MapRazorPages</span>();
+
+<span class="code-variable">app</span>.<span class="code-method">Run</span>();</code></pre>
+
+                <div class="section-divider"></div>
+
+                <h2>Folder Structure</h2>
+
+                <pre><code>InvenTrack.Web/
+├── Pages/
+│   ├── Index.cshtml
+│   ├── Index.cshtml.cs
+│   ├── Products/
+│   │   ├── Index.cshtml
+│   │   ├── Index.cshtml.cs
+│   │   ├── Create.cshtml
+│   │   └── Create.cshtml.cs
+│   ├── Shared/
+│   │   ├── _Layout.cshtml
+│   │   └── _ValidationScriptsPartial.cshtml
+│   ├── _ViewStart.cshtml
+│   └── _ViewImports.cshtml
+├── wwwroot/
+│   ├── css/
+│   ├── js/
+│   └── lib/
+├── Program.cs
+└── appsettings.json</code></pre>
+
+                <h3>Key Folders</h3>
+
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Folder/File</th>
+                            <th>Purpose</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><code>Pages/</code></td>
+                            <td>Razor Pages (.cshtml + .cshtml.cs)</td>
+                        </tr>
+                        <tr>
+                            <td><code>.cshtml</code></td>
+                            <td>Razor view (HTML + Razor syntax)</td>
+                        </tr>
+                        <tr>
+                            <td><code>.cshtml.cs</code></td>
+                            <td>PageModel (code-behind)</td>
+                        </tr>
+                        <tr>
+                            <td><code>Pages/Shared/</code></td>
+                            <td>Shared layouts and partials</td>
+                        </tr>
+                        <tr>
+                            <td><code>wwwroot/</code></td>
+                            <td>Static files</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="section-divider"></div>
+
+                <h2>Creating a Razor Page</h2>
+
+                <h3>1. Create the PageModel (.cshtml.cs)</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">Pages/Products/Index.cshtml.cs</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">IndexModel</span> : <span class="code-class">PageModel</span>
+{
+    <span class="code-keyword">private</span> <span class="code-keyword">readonly</span> <span class="code-class">InvenTrackDbContext</span> <span class="code-variable">_context</span>;
+
+    <span class="code-keyword">public</span> <span class="code-method">IndexModel</span>(<span class="code-class">InvenTrackDbContext</span> <span class="code-variable">context</span>)
+    {
+        <span class="code-variable">_context</span> = <span class="code-variable">context</span>;
+    }
+
+    <span class="code-keyword">public</span> <span class="code-class">List</span>&lt;<span class="code-class">Product</span>&gt; <span class="code-variable">Products</span> { <span class="code-keyword">get</span>; <span class="code-keyword">set</span>; } = <span class="code-keyword">new</span>();
+
+    <span class="code-keyword">public</span> <span class="code-keyword">async</span> <span class="code-class">Task</span> <span class="code-method">OnGetAsync</span>()
+    {
+        <span class="code-variable">Products</span> = <span class="code-keyword">await</span> <span class="code-variable">_context</span>.<span class="code-variable">Products</span>.<span class="code-method">ToListAsync</span>();
+    }
+}</code></pre>
+
+                <h3>2. Create the View (.cshtml)</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">Pages/Products/Index.cshtml</span>
+                    <span class="code-language">HTML</span>
+                </div>
+                <pre><code><span class="code-tag">@page</span>
+<span class="code-tag">@model</span> <span class="code-class">IndexModel</span>
+
+<span class="code-tag">@</span>{
+    <span class="code-variable">ViewData</span>[<span class="code-string">"Title"</span>] = <span class="code-string">"Products"</span>;
+}
+
+&lt;<span class="code-tag">h1</span>&gt;Products&lt;/<span class="code-tag">h1</span>&gt;
+
+&lt;<span class="code-tag">table</span> <span class="code-attribute">class</span>=<span class="code-string">"table"</span>&gt;
+    &lt;<span class="code-tag">thead</span>&gt;
+        &lt;<span class="code-tag">tr</span>&gt;
+            &lt;<span class="code-tag">th</span>&gt;Name&lt;/<span class="code-tag">th</span>&gt;
+            &lt;<span class="code-tag">th</span>&gt;Price&lt;/<span class="code-tag">th</span>&gt;
+            &lt;<span class="code-tag">th</span>&gt;Quantity&lt;/<span class="code-tag">th</span>&gt;
+        &lt;/<span class="code-tag">tr</span>&gt;
+    &lt;/<span class="code-tag">thead</span>&gt;
+    &lt;<span class="code-tag">tbody</span>&gt;
+        <span class="code-tag">@foreach</span> (<span class="code-keyword">var</span> <span class="code-variable">product</span> <span class="code-keyword">in</span> <span class="code-variable">Model</span>.<span class="code-variable">Products</span>)
+        {
+            &lt;<span class="code-tag">tr</span>&gt;
+                &lt;<span class="code-tag">td</span>&gt;<span class="code-tag">@product</span>.<span class="code-variable">Name</span>&lt;/<span class="code-tag">td</span>&gt;
+                &lt;<span class="code-tag">td</span>&gt;$<span class="code-tag">@product</span>.<span class="code-variable">Price</span>&lt;/<span class="code-tag">td</span>&gt;
+                &lt;<span class="code-tag">td</span>&gt;<span class="code-tag">@product</span>.<span class="code-variable">Quantity</span>&lt;/<span class="code-tag">td</span>&gt;
+            &lt;/<span class="code-tag">tr</span>&gt;
+        }
+    &lt;/<span class="code-tag">tbody</span>&gt;
+&lt;/<span class="code-tag">table</span>&gt;</code></pre>
+
+                <div class="callout callout-info">
+                    <div class="callout-title">💡 @page Directive</div>
+                    <p>
+                        The <code>@page</code> directive at the top makes the file a Razor Page.
+                        Without it, it's just a regular Razor view.
+                    </p>
+                </div>
+
+                <div class="section-divider"></div>
+
+                <h2>Routing Conventions</h2>
+
+                <p>
+                    Razor Pages uses <strong>convention-based routing</strong> based on folder structure.
+                </p>
+
+                <table>
+                    <thead>
+                        <tr>
+                            <th>File Path</th>
+                            <th>URL</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><code>Pages/Index.cshtml</code></td>
+                            <td><code>/</code> or <code>/Index</code></td>
+                        </tr>
+                        <tr>
+                            <td><code>Pages/Products/Index.cshtml</code></td>
+                            <td><code>/Products</code> or <code>/Products/Index</code></td>
+                        </tr>
+                        <tr>
+                            <td><code>Pages/Products/Create.cshtml</code></td>
+                            <td><code>/Products/Create</code></td>
+                        </tr>
+                        <tr>
+                            <td><code>Pages/About.cshtml</code></td>
+                            <td><code>/About</code></td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h3>Custom Routes</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">Custom Route with @page</span>
+                    <span class="code-language">HTML</span>
+                </div>
+                <pre><code><span class="code-tag">@page</span> <span class="code-string">"/products"</span>
+<span class="code-comment">&lt;!-- Now accessible at /products instead of default --&gt;</span>
+
+<span class="code-tag">@page</span> <span class="code-string">"{id:int}"</span>
+<span class="code-comment">&lt;!-- Route parameter: /Products/5 --&gt;</span>
+
+<span class="code-tag">@page</span> <span class="code-string">"{id:int?}"</span>
+<span class="code-comment">&lt;!-- Optional parameter: /Products or /Products/5 --&gt;</span></code></pre>
+
+                <div class="section-divider"></div>
+
+                <h2>Complete InvenTrack Example</h2>
+
+                <div class="code-header">
+                    <span class="code-filename">Pages/Products/Index.cshtml.cs</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">IndexModel</span> : <span class="code-class">PageModel</span>
+{
+    <span class="code-keyword">private</span> <span class="code-keyword">readonly</span> <span class="code-class">InvenTrackDbContext</span> <span class="code-variable">_context</span>;
+
+    <span class="code-keyword">public</span> <span class="code-method">IndexModel</span>(<span class="code-class">InvenTrackDbContext</span> <span class="code-variable">context</span>)
+    {
+        <span class="code-variable">_context</span> = <span class="code-variable">context</span>;
+    }
+
+    <span class="code-keyword">public</span> <span class="code-class">List</span>&lt;<span class="code-class">Product</span>&gt; <span class="code-variable">Products</span> { <span class="code-keyword">get</span>; <span class="code-keyword">set</span>; } = <span class="code-keyword">new</span>();
+    <span class="code-keyword">public</span> <span class="code-type">string</span>? <span class="code-variable">SearchTerm</span> { <span class="code-keyword">get</span>; <span class="code-keyword">set</span>; }
+
+    <span class="code-keyword">public</span> <span class="code-keyword">async</span> <span class="code-class">Task</span> <span class="code-method">OnGetAsync</span>(<span class="code-type">string</span>? <span class="code-variable">search</span>)
+    {
+        <span class="code-variable">SearchTerm</span> = <span class="code-variable">search</span>;
+
+        <span class="code-keyword">var</span> <span class="code-variable">query</span> = <span class="code-variable">_context</span>.<span class="code-variable">Products</span>.<span class="code-method">AsQueryable</span>();
+
+        <span class="code-keyword">if</span> (!<span class="code-type">string</span>.<span class="code-method">IsNullOrEmpty</span>(<span class="code-variable">search</span>))
+        {
+            <span class="code-variable">query</span> = <span class="code-variable">query</span>.<span class="code-method">Where</span>(<span class="code-variable">p</span> => <span class="code-variable">p</span>.<span class="code-variable">Name</span>.<span class="code-method">Contains</span>(<span class="code-variable">search</span>));
+        }
+
+        <span class="code-variable">Products</span> = <span class="code-keyword">await</span> <span class="code-variable">query</span>.<span class="code-method">ToListAsync</span>();
+    }
+}</code></pre>
+
+                <div class="code-header">
+                    <span class="code-filename">Pages/Products/Index.cshtml</span>
+                    <span class="code-language">HTML</span>
+                </div>
+                <pre><code><span class="code-tag">@page</span>
+<span class="code-tag">@model</span> <span class="code-class">IndexModel</span>
+
+<span class="code-tag">@</span>{
+    <span class="code-variable">ViewData</span>[<span class="code-string">"Title"</span>] = <span class="code-string">"Products"</span>;
+}
+
+&lt;<span class="code-tag">h1</span>&gt;InvenTrack Products&lt;/<span class="code-tag">h1</span>&gt;
+
+&lt;<span class="code-tag">form</span> <span class="code-attribute">method</span>=<span class="code-string">"get"</span>&gt;
+    &lt;<span class="code-tag">div</span> <span class="code-attribute">class</span>=<span class="code-string">"input-group mb-3"</span>&gt;
+        &lt;<span class="code-tag">input</span> <span class="code-attribute">type</span>=<span class="code-string">"text"</span> <span class="code-attribute">name</span>=<span class="code-string">"search"</span> <span class="code-attribute">value</span>=<span class="code-string">"@Model.SearchTerm"</span> 
+               <span class="code-attribute">class</span>=<span class="code-string">"form-control"</span> <span class="code-attribute">placeholder</span>=<span class="code-string">"Search products..."</span>&gt;
+        &lt;<span class="code-tag">button</span> <span class="code-attribute">class</span>=<span class="code-string">"btn btn-primary"</span> <span class="code-attribute">type</span>=<span class="code-string">"submit"</span>&gt;Search&lt;/<span class="code-tag">button</span>&gt;
+    &lt;/<span class="code-tag">div</span>&gt;
+&lt;/<span class="code-tag">form</span>&gt;
+
+&lt;<span class="code-tag">a</span> <span class="code-attribute">asp-page</span>=<span class="code-string">"Create"</span> <span class="code-attribute">class</span>=<span class="code-string">"btn btn-success mb-3"</span>&gt;Add New Product&lt;/<span class="code-tag">a</span>&gt;
+
+&lt;<span class="code-tag">table</span> <span class="code-attribute">class</span>=<span class="code-string">"table table-striped"</span>&gt;
+    &lt;<span class="code-tag">thead</span>&gt;
+        &lt;<span class="code-tag">tr</span>&gt;
+            &lt;<span class="code-tag">th</span>&gt;Name&lt;/<span class="code-tag">th</span>&gt;
+            &lt;<span class="code-tag">th</span>&gt;Category&lt;/<span class="code-tag">th</span>&gt;
+            &lt;<span class="code-tag">th</span>&gt;Price&lt;/<span class="code-tag">th</span>&gt;
+            &lt;<span class="code-tag">th</span>&gt;Quantity&lt;/<span class="code-tag">th</span>&gt;
+            &lt;<span class="code-tag">th</span>&gt;Actions&lt;/<span class="code-tag">th</span>&gt;
+        &lt;/<span class="code-tag">tr</span>&gt;
+    &lt;/<span class="code-tag">thead</span>&gt;
+    &lt;<span class="code-tag">tbody</span>&gt;
+        <span class="code-tag">@foreach</span> (<span class="code-keyword">var</span> <span class="code-variable">product</span> <span class="code-keyword">in</span> <span class="code-variable">Model</span>.<span class="code-variable">Products</span>)
+        {
+            &lt;<span class="code-tag">tr</span>&gt;
+                &lt;<span class="code-tag">td</span>&gt;<span class="code-tag">@product</span>.<span class="code-variable">Name</span>&lt;/<span class="code-tag">td</span>&gt;
+                &lt;<span class="code-tag">td</span>&gt;<span class="code-tag">@product</span>.<span class="code-variable">Category</span>&lt;/<span class="code-tag">td</span>&gt;
+                &lt;<span class="code-tag">td</span>&gt;$<span class="code-tag">@product</span>.<span class="code-variable">Price</span>&lt;/<span class="code-tag">td</span>&gt;
+                &lt;<span class="code-tag">td</span>&gt;<span class="code-tag">@product</span>.<span class="code-variable">Quantity</span>&lt;/<span class="code-tag">td</span>&gt;
+                &lt;<span class="code-tag">td</span>&gt;
+                    &lt;<span class="code-tag">a</span> <span class="code-attribute">asp-page</span>=<span class="code-string">"Edit"</span> <span class="code-attribute">asp-route-id</span>=<span class="code-string">"@product.Id"</span> <span class="code-attribute">class</span>=<span class="code-string">"btn btn-sm btn-warning"</span>&gt;Edit&lt;/<span class="code-tag">a</span>&gt;
+                &lt;/<span class="code-tag">td</span>&gt;
+            &lt;/<span class="code-tag">tr</span>&gt;
+        }
+    &lt;/<span class="code-tag">tbody</span>&gt;
+&lt;/<span class="code-tag">table</span>&gt;</code></pre>
+
+                <h2>When to Use Razor Pages</h2>
+
+                <h3>✅ Good For:</h3>
+                <ul>
+                    <li><strong>Simple CRUD apps</strong>: Create, Read, Update, Delete operations</li>
+                    <li><strong>Forms-heavy apps</strong>: Contact forms, surveys, data entry</li>
+                    <li><strong>Page-focused scenarios</strong>: Each page is independent</li>
+                    <li><strong>Beginners</strong>: Easier learning curve than MVC</li>
+                    <li><strong>Small to medium apps</strong>: Less boilerplate than MVC</li>
+                </ul>
+
+                <h3>❌ Not Ideal For:</h3>
+                <ul>
+                    <li><strong>Complex routing</strong>: Custom routing patterns</li>
+                    <li><strong>RESTful APIs</strong>: Use Web API instead</li>
+                    <li><strong>Shared logic</strong>: Multiple pages with same logic</li>
+                    <li><strong>Large enterprise apps</strong>: MVC provides better separation</li>
+                </ul>
+
+                <h2>Best Practices</h2>
+
+                <ul>
+                    <li><strong>@page directive</strong>: Always include at the top</li>
+                    <li><strong>Async handlers</strong>: Use OnGetAsync/OnPostAsync</li>
+                    <li><strong>Dependency injection</strong>: Inject services in constructor</li>
+                    <li><strong>Folder organization</strong>: Group related pages in folders</li>
+                    <li><strong>PageModel properties</strong>: Use for data binding</li>
+                    <li><strong>Naming convention</strong>: PageModel class name matches file</li>
+                </ul>
+
+                <h2>Key Takeaways</h2>
+
+                <ul>
+                    <li><strong>Razor Pages</strong>: Page-focused framework for web UI</li>
+                    <li><strong>@page</strong>: Directive that makes a file a Razor Page</li>
+                    <li><strong>PageModel</strong>: Code-behind class (.cshtml.cs)</li>
+                    <li><strong>Convention-based routing</strong>: Based on folder structure</li>
+                    <li><strong>AddRazorPages()</strong>: Registers Razor Pages services</li>
+                    <li><strong>MapRazorPages()</strong>: Maps Razor Pages endpoints</li>
+                    <li><strong>Simpler than MVC</strong>: For page-focused scenarios</li>
+                    <li><strong>Two files</strong>: .cshtml (view) + .cshtml.cs (code-behind)</li>
+                </ul>
+
+                <div class="callout callout-concept">
+                    <div class="callout-title">🎯 Next Steps</div>
+                    <p>
+                        You now understand what Razor Pages are! In the next section, we'll explore
+                        the <strong>Page Model Pattern</strong>—how to structure your code-behind
+                        and work with properties and methods.
+                    </p>
+                </div>
+
+                <nav class="page-nav">
+                    <a href="../index.html" class="prev">Back to Roadmap</a>
+                    <a href="02-page-model-pattern.html" class="next">Page Model Pattern</a>
+                </nav>
+
+            
+        <footer class="page-footer">
+          Built with 💜 by <a href="https://akwasi.dev" target="_blank" rel="noopener noreferrer">Akwasi Adu-Kyeremeh</a> for developers who want to truly understand what they're building.
+        </footer>
+
+      </div>
+        </main>
+    </div>
+</body>
+
+</html>

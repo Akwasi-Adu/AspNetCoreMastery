@@ -1,0 +1,560 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Middleware Ordering | ASP.NET Core Mastery</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;500&family=Source+Serif+4:ital,wght@0,400;0,600;1,400&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="../assets/style.css">
+</head>
+
+<body>
+    <div class="page-wrapper">
+        <aside class="sidebar">
+            <a href="../index.html" class="sidebar-logo">ASP.NET Core Mastery</a>
+            <div class="sidebar-section">Part V: Middleware & Pipeline</div>
+            <ul class="sidebar-nav">
+                <li><a href="01-request-pipeline.html">The Request Pipeline</a></li>
+                <li><a href="02-built-in-middleware.html">Built-in Middleware</a></li>
+                <li><a href="03-custom-middleware.html">Creating Custom Middleware</a></li>
+                <li><a href="04-middleware-ordering.html" class="active">Middleware Ordering</a></li>
+                <li><a href="05-exception-handling.html">Exception Handling Middleware</a></li>
+            </ul>
+            <div class="sidebar-section">Resources</div>
+            <ul class="sidebar-nav">
+                <li><a href="../index.html">Full Roadmap</a></li>
+            </ul>
+        </aside>
+
+        <main class="main-content">
+            <div class="content-container">
+                <nav class="breadcrumb">
+                    <a href="../index.html">Home</a>
+                    <span>→</span>
+                    <a href="01-request-pipeline.html">Part V: Middleware & Pipeline</a>
+                    <span>→</span>
+                    Middleware Ordering
+                </nav>
+
+                <div class="progress-indicator">
+                    <span>Section 4 of 5</span>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 80%"></div>
+                    </div>
+                </div>
+
+                <h1>Middleware Ordering</h1>
+
+                <div class="learning-objectives">
+                    <h3>🎯 What You'll Learn</h3>
+                    <ul>
+                        <li>Why middleware order matters</li>
+                        <li>The recommended middleware order</li>
+                        <li>Common ordering mistakes</li>
+                        <li>How order affects behavior</li>
+                        <li>Special ordering considerations</li>
+                        <li>Debugging order issues</li>
+                        <li>InvenTrack pipeline organization</li>
+                    </ul>
+                </div>
+
+                <h2>Why Order Matters</h2>
+
+                <p>
+                    Middleware executes in the order it's registered. The order determines:
+                </p>
+
+                <ul>
+                    <li><strong>What runs first</strong>: Early middleware sees all requests</li>
+                    <li><strong>What can short-circuit</strong>: Early middleware can stop the pipeline</li>
+                    <li><strong>What modifies requests/responses</strong>: Order affects transformations</li>
+                    <li><strong>Security</strong>: Authentication must come before authorization</li>
+                </ul>
+
+                <div class="callout callout-warning">
+                    <div class="callout-title">⚠️ Wrong Order = Broken App</div>
+                    <p>
+                        Incorrect middleware order can cause:
+                    </p>
+                    <ul>
+                        <li>Security vulnerabilities (authorization before authentication)</li>
+                        <li>404 errors (routing after static files)</li>
+                        <li>Missing CORS headers</li>
+                        <li>Unhandled exceptions</li>
+                    </ul>
+                </div>
+
+                <div class="section-divider"></div>
+
+                <h2>Recommended Middleware Order</h2>
+
+                <p>
+                    Microsoft recommends this order for ASP.NET Core applications:
+                </p>
+
+                <div class="code-header">
+                    <span class="code-filename">Recommended Order</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-keyword">var</span> <span class="code-variable">app</span> = <span class="code-variable">builder</span>.<span class="code-method">Build</span>();
+
+<span class="code-comment">// 1. Exception Handling (catch all errors)</span>
+<span class="code-keyword">if</span> (<span class="code-variable">app</span>.<span class="code-variable">Environment</span>.<span class="code-method">IsDevelopment</span>())
+{
+    <span class="code-variable">app</span>.<span class="code-method">UseDeveloperExceptionPage</span>();
+}
+<span class="code-keyword">else</span>
+{
+    <span class="code-variable">app</span>.<span class="code-method">UseExceptionHandler</span>(<span class="code-string">"/error"</span>);
+    <span class="code-variable">app</span>.<span class="code-method">UseHsts</span>();
+}
+
+<span class="code-comment">// 2. HTTPS Redirection (force HTTPS early)</span>
+<span class="code-variable">app</span>.<span class="code-method">UseHttpsRedirection</span>();
+
+<span class="code-comment">// 3. Static Files (short-circuit for static content)</span>
+<span class="code-variable">app</span>.<span class="code-method">UseStaticFiles</span>();
+
+<span class="code-comment">// 4. Routing (match endpoints)</span>
+<span class="code-variable">app</span>.<span class="code-method">UseRouting</span>();
+
+<span class="code-comment">// 5. CORS (after routing, before auth)</span>
+<span class="code-variable">app</span>.<span class="code-method">UseCors</span>();
+
+<span class="code-comment">// 6. Authentication (identify user)</span>
+<span class="code-variable">app</span>.<span class="code-method">UseAuthentication</span>();
+
+<span class="code-comment">// 7. Authorization (check permissions)</span>
+<span class="code-variable">app</span>.<span class="code-method">UseAuthorization</span>();
+
+<span class="code-comment">// 8. Custom Middleware (business logic)</span>
+<span class="code-variable">app</span>.<span class="code-method">UseRequestTiming</span>();
+
+<span class="code-comment">// 9. Endpoints (controllers, minimal APIs)</span>
+<span class="code-variable">app</span>.<span class="code-method">MapControllers</span>();
+
+<span class="code-variable">app</span>.<span class="code-method">Run</span>();</code></pre>
+
+                <h3>Visual Representation</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">Pipeline Flow</span>
+                    <span class="code-language">Text</span>
+                </div>
+                <pre><code>Request
+  ↓
+┌─────────────────────────────────┐
+│ 1. Exception Handler            │ ← Catches all errors
+├─────────────────────────────────┤
+│ 2. HTTPS Redirection            │ ← Redirect HTTP → HTTPS
+├─────────────────────────────────┤
+│ 3. Static Files                 │ ← Serve CSS/JS/images
+│                                 │   (may short-circuit)
+├─────────────────────────────────┤
+│ 4. Routing                      │ ← Match request to endpoint
+├─────────────────────────────────┤
+│ 5. CORS                         │ ← Add CORS headers
+├─────────────────────────────────┤
+│ 6. Authentication               │ ← Identify user
+├─────────────────────────────────┤
+│ 7. Authorization                │ ← Check permissions
+├─────────────────────────────────┤
+│ 8. Custom Middleware            │ ← Your logic
+├─────────────────────────────────┤
+│ 9. Endpoint                     │ ← Controller/API
+└─────────────────────────────────┘
+  ↓
+Response</code></pre>
+
+                <div class="section-divider"></div>
+
+                <h2>Critical Ordering Rules</h2>
+
+                <h3>1. Exception Handler First</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">✅ Correct</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-variable">app</span>.<span class="code-method">UseExceptionHandler</span>(<span class="code-string">"/error"</span>); <span class="code-comment">// First!</span>
+<span class="code-variable">app</span>.<span class="code-method">UseAuthentication</span>();
+<span class="code-variable">app</span>.<span class="code-method">UseAuthorization</span>();
+<span class="code-variable">app</span>.<span class="code-method">MapControllers</span>();</code></pre>
+
+                <div class="code-header">
+                    <span class="code-filename">❌ Wrong</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-variable">app</span>.<span class="code-method">UseAuthentication</span>();
+<span class="code-variable">app</span>.<span class="code-method">UseExceptionHandler</span>(<span class="code-string">"/error"</span>); <span class="code-comment">// Too late!</span>
+<span class="code-variable">app</span>.<span class="code-method">MapControllers</span>();
+
+<span class="code-comment">// Problem: Exceptions in authentication won't be caught!</span></code></pre>
+
+                <h3>2. Authentication Before Authorization</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">✅ Correct</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-variable">app</span>.<span class="code-method">UseAuthentication</span>(); <span class="code-comment">// First: Identify user</span>
+<span class="code-variable">app</span>.<span class="code-method">UseAuthorization</span>();  <span class="code-comment">// Then: Check permissions</span></code></pre>
+
+                <div class="code-header">
+                    <span class="code-filename">❌ Wrong</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-variable">app</span>.<span class="code-method">UseAuthorization</span>();  <span class="code-comment">// Can't check permissions without knowing who the user is!</span>
+<span class="code-variable">app</span>.<span class="code-method">UseAuthentication</span>();</code></pre>
+
+                <h3>3. CORS After Routing</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">✅ Correct</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-variable">app</span>.<span class="code-method">UseRouting</span>();
+<span class="code-variable">app</span>.<span class="code-method">UseCors</span>(); <span class="code-comment">// After routing</span>
+<span class="code-variable">app</span>.<span class="code-method">UseAuthentication</span>();</code></pre>
+
+                <div class="code-header">
+                    <span class="code-filename">❌ Wrong</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-variable">app</span>.<span class="code-method">UseCors</span>(); <span class="code-comment">// Before routing - may not work!</span>
+<span class="code-variable">app</span>.<span class="code-method">UseRouting</span>();</code></pre>
+
+                <h3>4. Static Files Early</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">✅ Correct</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-variable">app</span>.<span class="code-method">UseStaticFiles</span>(); <span class="code-comment">// Early - short-circuit for static files</span>
+<span class="code-variable">app</span>.<span class="code-method">UseRouting</span>();
+<span class="code-variable">app</span>.<span class="code-method">UseAuthentication</span>();
+<span class="code-variable">app</span>.<span class="code-method">MapControllers</span>();</code></pre>
+
+                <div class="code-header">
+                    <span class="code-filename">❌ Wrong</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-variable">app</span>.<span class="code-method">UseRouting</span>();
+<span class="code-variable">app</span>.<span class="code-method">UseAuthentication</span>();
+<span class="code-variable">app</span>.<span class="code-method">MapControllers</span>();
+<span class="code-variable">app</span>.<span class="code-method">UseStaticFiles</span>(); <span class="code-comment">// Too late - static files won't be served!</span></code></pre>
+
+                <div class="section-divider"></div>
+
+                <h2>Common Mistakes</h2>
+
+                <h3>Mistake 1: Authorization Before Authentication</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">Problem</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-variable">app</span>.<span class="code-method">UseAuthorization</span>();
+<span class="code-variable">app</span>.<span class="code-method">UseAuthentication</span>(); <span class="code-comment">// Wrong order!</span>
+
+<span class="code-comment">// Result: Authorization fails because user is not identified yet</span></code></pre>
+
+                <h3>Mistake 2: Custom Middleware Before Authentication</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">Problem</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-variable">app</span>.<span class="code-method">Use</span>(<span class="code-keyword">async</span> (<span class="code-variable">context</span>, <span class="code-variable">next</span>) =&gt;
+{
+    <span class="code-keyword">var</span> <span class="code-variable">userId</span> = <span class="code-variable">context</span>.<span class="code-variable">User</span>.<span class="code-method">FindFirst</span>(<span class="code-string">"sub"</span>)?.<span class="code-variable">Value</span>; <span class="code-comment">// null!</span>
+    <span class="code-keyword">await</span> <span class="code-variable">next</span>();
+});
+
+<span class="code-variable">app</span>.<span class="code-method">UseAuthentication</span>(); <span class="code-comment">// User not set yet!</span></code></pre>
+
+                <h3>Mistake 3: Exception Handler Too Late</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">Problem</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-variable">app</span>.<span class="code-method">UseAuthentication</span>();
+<span class="code-variable">app</span>.<span class="code-method">UseExceptionHandler</span>(<span class="code-string">"/error"</span>); <span class="code-comment">// Too late!</span>
+
+<span class="code-comment">// Result: Exceptions in authentication middleware are not caught</span></code></pre>
+
+                <div class="section-divider"></div>
+
+                <h2>Special Considerations</h2>
+
+                <h3>Response Compression</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">Compression Placement</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-variable">app</span>.<span class="code-method">UseResponseCompression</span>(); <span class="code-comment">// Before static files</span>
+<span class="code-variable">app</span>.<span class="code-method">UseStaticFiles</span>();
+
+<span class="code-comment">// Why? Static files can be compressed too</span></code></pre>
+
+                <h3>Response Caching</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">Caching Placement</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-variable">app</span>.<span class="code-method">UseResponseCaching</span>(); <span class="code-comment">// Before authentication</span>
+<span class="code-variable">app</span>.<span class="code-method">UseAuthentication</span>();
+
+<span class="code-comment">// Why? Cached responses can be served without authentication</span></code></pre>
+
+                <h3>Session Middleware</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">Session Placement</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-variable">app</span>.<span class="code-method">UseRouting</span>();
+<span class="code-variable">app</span>.<span class="code-method">UseSession</span>(); <span class="code-comment">// After routing, before endpoints</span>
+<span class="code-variable">app</span>.<span class="code-method">MapControllers</span>();</code></pre>
+
+                <div class="section-divider"></div>
+
+                <h2>Complete InvenTrack Pipeline</h2>
+
+                <div class="code-header">
+                    <span class="code-filename">Program.cs (Production-Ready)</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-keyword">var</span> <span class="code-variable">builder</span> = <span class="code-class">WebApplication</span>.<span class="code-method">CreateBuilder</span>(<span class="code-variable">args</span>);
+
+<span class="code-comment">// Configure services</span>
+<span class="code-variable">builder</span>.<span class="code-variable">Services</span>.<span class="code-method">AddControllers</span>();
+<span class="code-variable">builder</span>.<span class="code-variable">Services</span>.<span class="code-method">AddDbContext</span>&lt;<span class="code-class">InvenTrackDbContext</span>&gt;();
+<span class="code-variable">builder</span>.<span class="code-variable">Services</span>.<span class="code-method">AddAuthentication</span>(<span class="code-class">JwtBearerDefaults</span>.<span class="code-variable">AuthenticationScheme</span>)
+    .<span class="code-method">AddJwtBearer</span>();
+<span class="code-variable">builder</span>.<span class="code-variable">Services</span>.<span class="code-method">AddAuthorization</span>();
+<span class="code-variable">builder</span>.<span class="code-variable">Services</span>.<span class="code-method">AddCors</span>(<span class="code-variable">options</span> =&gt;
+{
+    <span class="code-variable">options</span>.<span class="code-method">AddPolicy</span>(<span class="code-string">"AllowFrontend"</span>, <span class="code-variable">policy</span> =&gt;
+        <span class="code-variable">policy</span>.<span class="code-method">WithOrigins</span>(<span class="code-string">"https://inventrackapp.com"</span>)
+              .<span class="code-method">AllowAnyMethod</span>()
+              .<span class="code-method">AllowAnyHeader</span>());
+});
+<span class="code-variable">builder</span>.<span class="code-variable">Services</span>.<span class="code-method">AddResponseCompression</span>();
+
+<span class="code-keyword">var</span> <span class="code-variable">app</span> = <span class="code-variable">builder</span>.<span class="code-method">Build</span>();
+
+<span class="code-comment">// ============================================</span>
+<span class="code-comment">// MIDDLEWARE PIPELINE (ORDER MATTERS!)</span>
+<span class="code-comment">// ============================================</span>
+
+<span class="code-comment">// 1. Exception Handling (FIRST - catch all errors)</span>
+<span class="code-keyword">if</span> (<span class="code-variable">app</span>.<span class="code-variable">Environment</span>.<span class="code-method">IsDevelopment</span>())
+{
+    <span class="code-variable">app</span>.<span class="code-method">UseDeveloperExceptionPage</span>();
+}
+<span class="code-keyword">else</span>
+{
+    <span class="code-variable">app</span>.<span class="code-method">UseExceptionHandler</span>(<span class="code-string">"/error"</span>);
+    <span class="code-variable">app</span>.<span class="code-method">UseHsts</span>();
+}
+
+<span class="code-comment">// 2. HTTPS Redirection</span>
+<span class="code-variable">app</span>.<span class="code-method">UseHttpsRedirection</span>();
+
+<span class="code-comment">// 3. Response Compression (before static files)</span>
+<span class="code-variable">app</span>.<span class="code-method">UseResponseCompression</span>();
+
+<span class="code-comment">// 4. Static Files (early - can short-circuit)</span>
+<span class="code-variable">app</span>.<span class="code-method">UseStaticFiles</span>();
+
+<span class="code-comment">// 5. Routing</span>
+<span class="code-variable">app</span>.<span class="code-method">UseRouting</span>();
+
+<span class="code-comment">// 6. CORS (after routing, before auth)</span>
+<span class="code-variable">app</span>.<span class="code-method">UseCors</span>(<span class="code-string">"AllowFrontend"</span>);
+
+<span class="code-comment">// 7. Custom Middleware - Correlation ID</span>
+<span class="code-variable">app</span>.<span class="code-method">UseCorrelationId</span>();
+
+<span class="code-comment">// 8. Custom Middleware - Request Timing</span>
+<span class="code-variable">app</span>.<span class="code-method">UseRequestTiming</span>();
+
+<span class="code-comment">// 9. Authentication (identify user)</span>
+<span class="code-variable">app</span>.<span class="code-method">UseAuthentication</span>();
+
+<span class="code-comment">// 10. Authorization (check permissions)</span>
+<span class="code-variable">app</span>.<span class="code-method">UseAuthorization</span>();
+
+<span class="code-comment">// 11. Custom Middleware - API Key (after auth)</span>
+<span class="code-variable">app</span>.<span class="code-method">UseApiKey</span>();
+
+<span class="code-comment">// 12. Endpoints (LAST)</span>
+<span class="code-variable">app</span>.<span class="code-method">MapControllers</span>();
+
+<span class="code-variable">app</span>.<span class="code-method">Run</span>();</code></pre>
+
+                <h3>Why This Order?</h3>
+
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Position</th>
+                            <th>Middleware</th>
+                            <th>Reason</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>1</td>
+                            <td>Exception Handler</td>
+                            <td>Catch all errors from any middleware</td>
+                        </tr>
+                        <tr>
+                            <td>2</td>
+                            <td>HTTPS Redirection</td>
+                            <td>Force HTTPS before any processing</td>
+                        </tr>
+                        <tr>
+                            <td>3</td>
+                            <td>Response Compression</td>
+                            <td>Compress all responses (including static files)</td>
+                        </tr>
+                        <tr>
+                            <td>4</td>
+                            <td>Static Files</td>
+                            <td>Short-circuit early for performance</td>
+                        </tr>
+                        <tr>
+                            <td>5</td>
+                            <td>Routing</td>
+                            <td>Match request to endpoint</td>
+                        </tr>
+                        <tr>
+                            <td>6</td>
+                            <td>CORS</td>
+                            <td>Add CORS headers after routing</td>
+                        </tr>
+                        <tr>
+                            <td>7-8</td>
+                            <td>Custom (Correlation, Timing)</td>
+                            <td>Track requests before auth</td>
+                        </tr>
+                        <tr>
+                            <td>9</td>
+                            <td>Authentication</td>
+                            <td>Identify user</td>
+                        </tr>
+                        <tr>
+                            <td>10</td>
+                            <td>Authorization</td>
+                            <td>Check permissions (after auth)</td>
+                        </tr>
+                        <tr>
+                            <td>11</td>
+                            <td>Custom (API Key)</td>
+                            <td>Additional security after auth</td>
+                        </tr>
+                        <tr>
+                            <td>12</td>
+                            <td>Endpoints</td>
+                            <td>Execute controller/API logic</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="section-divider"></div>
+
+                <h2>Debugging Order Issues</h2>
+
+                <h3>Add Logging Middleware</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">Debug Middleware Order</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-variable">app</span>.<span class="code-method">Use</span>(<span class="code-keyword">async</span> (<span class="code-variable">context</span>, <span class="code-variable">next</span>) =&gt;
+{
+    <span class="code-class">Console</span>.<span class="code-method">WriteLine</span>(<span class="code-string">$"[1] Before: </span>{<span class="code-variable">context</span>.<span class="code-variable">Request</span>.<span class="code-variable">Path</span>}<span class="code-string">"</span>);
+    <span class="code-keyword">await</span> <span class="code-variable">next</span>();
+    <span class="code-class">Console</span>.<span class="code-method">WriteLine</span>(<span class="code-string">$"[1] After: </span>{<span class="code-variable">context</span>.<span class="code-variable">Response</span>.<span class="code-variable">StatusCode</span>}<span class="code-string">"</span>);
+});
+
+<span class="code-variable">app</span>.<span class="code-method">UseAuthentication</span>();
+
+<span class="code-variable">app</span>.<span class="code-method">Use</span>(<span class="code-keyword">async</span> (<span class="code-variable">context</span>, <span class="code-variable">next</span>) =&gt;
+{
+    <span class="code-class">Console</span>.<span class="code-method">WriteLine</span>(<span class="code-string">$"[2] User: </span>{<span class="code-variable">context</span>.<span class="code-variable">User</span>.<span class="code-variable">Identity</span>?.<span class="code-variable">Name</span> ?? <span class="code-string">"Anonymous"</span>}<span class="code-string">"</span>);
+    <span class="code-keyword">await</span> <span class="code-variable">next</span>();
+});</code></pre>
+
+                <h3>Check User Identity</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">Verify Authentication Order</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-variable">app</span>.<span class="code-method">Use</span>(<span class="code-keyword">async</span> (<span class="code-variable">context</span>, <span class="code-variable">next</span>) =&gt;
+{
+    <span class="code-keyword">if</span> (<span class="code-variable">context</span>.<span class="code-variable">User</span>.<span class="code-variable">Identity</span>?.<span class="code-variable">IsAuthenticated</span> == <span class="code-keyword">true</span>)
+    {
+        <span class="code-class">Console</span>.<span class="code-method">WriteLine</span>(<span class="code-string">"User is authenticated"</span>);
+    }
+    <span class="code-keyword">else</span>
+    {
+        <span class="code-class">Console</span>.<span class="code-method">WriteLine</span>(<span class="code-string">"User is NOT authenticated"</span>);
+    }
+    <span class="code-keyword">await</span> <span class="code-variable">next</span>();
+});</code></pre>
+
+                <h2>Key Takeaways</h2>
+
+                <ul>
+                    <li><strong>Order matters</strong>: Middleware executes in registration order</li>
+                    <li><strong>Exception handler first</strong>: Catch all errors</li>
+                    <li><strong>Authentication before authorization</strong>: Can't check permissions without knowing
+                        the user</li>
+                    <li><strong>CORS after routing</strong>: Routing must happen first</li>
+                    <li><strong>Static files early</strong>: Short-circuit for performance</li>
+                    <li><strong>Custom middleware placement</strong>: Depends on what it needs (user, routing, etc.)
+                    </li>
+                    <li><strong>Endpoints last</strong>: Final destination</li>
+                    <li>Wrong order = broken app or security issues</li>
+                    <li>Use logging to debug order issues</li>
+                    <li>Follow Microsoft's recommended order</li>
+                </ul>
+
+                <div class="callout callout-concept">
+                    <div class="callout-title">🎯 Next Steps</div>
+                    <p>
+                        You now understand middleware ordering! In the final section, we'll explore
+                        <strong>Exception Handling Middleware</strong>—creating robust error handling, custom
+                        error pages, logging exceptions, and building a production-ready error handling strategy
+                        for InvenTrack.
+                    </p>
+                </div>
+
+                <nav class="page-nav">
+                    <a href="03-custom-middleware.html" class="prev">Creating Custom Middleware</a>
+                    <a href="05-exception-handling.html" class="next">Exception Handling Middleware</a>
+                </nav>
+
+            
+        <footer class="page-footer">
+          Built with 💜 by <a href="https://akwasi.dev" target="_blank" rel="noopener noreferrer">Akwasi Adu-Kyeremeh</a> for developers who want to truly understand what they're building.
+        </footer>
+
+      </div>
+        </main>
+    </div>
+</body>
+
+</html>

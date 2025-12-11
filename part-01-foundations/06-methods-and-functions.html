@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Methods and Functions | ASP.NET Core Mastery</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;500&family=Source+Serif+4:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../assets/style.css">
+</head>
+<body>
+  <div class="page-wrapper">
+    <aside class="sidebar">
+      <a href="../index.html" class="sidebar-logo">ASP.NET Core Mastery</a>
+      <div class="sidebar-section">Part I: Foundations</div>
+      <ul class="sidebar-nav">
+        <li><a href="01-what-is-programming.html">What is Programming?</a></li>
+        <li><a href="02-what-is-csharp-dotnet.html">What is C# and .NET?</a></li>
+        <li><a href="03-variables-and-data-types.html">Variables and Data Types</a></li>
+        <li><a href="04-operators-and-expressions.html">Operators and Expressions</a></li>
+        <li><a href="05-control-flow.html">Control Flow</a></li>
+        <li><a href="06-methods-and-functions.html" class="active">Methods and Functions</a></li>
+        <li><a href="07-oop-classes-objects.html">OOP: Classes &amp; Objects</a></li>
+        <li><a href="08-collections-and-generics.html">Collections and Generics</a></li>
+        <li><a href="09-linq.html">LINQ</a></li>
+        <li><a href="10-async-await.html">Async/Await</a></li>
+      </ul>
+      <div class="sidebar-section">Resources</div>
+      <ul class="sidebar-nav">
+        <li><a href="../index.html">Full Roadmap</a></li>
+      </ul>
+    </aside>
+
+    <main class="main-content">
+      <div class="content-container">
+        <nav class="breadcrumb">
+          <a href="../index.html">Home</a>
+          <span>→</span>
+          <a href="01-what-is-programming.html">Part I: Foundations</a>
+          <span>→</span>
+          Methods and Functions
+        </nav>
+
+        <div class="progress-indicator">
+          <span>Section 6 of 10</span>
+          <div class="progress-bar">
+            <div class="progress-fill" style="width: 60%"></div>
+          </div>
+        </div>
+
+        <h1>Methods and Functions</h1>
+
+        <div class="learning-objectives">
+          <h3>🎯 What You'll Learn</h3>
+          <ul>
+            <li>What methods are and why they're essential for code organization</li>
+            <li>How to define and call methods</li>
+            <li>Working with parameters: value, ref, out, and params</li>
+            <li>Return values and the void keyword</li>
+            <li>Method overloading (same name, different parameters)</li>
+            <li>Optional parameters and named arguments</li>
+            <li>Expression-bodied methods for concise syntax</li>
+            <li>Local functions for encapsulating helper logic</li>
+            <li>Recursion: methods that call themselves</li>
+            <li>Best practices for writing clean, maintainable methods</li>
+          </ul>
+        </div>
+
+        <h2>What is a Method?</h2>
+
+        <p>
+          As your programs grow, you'll notice patterns—the same code appearing in multiple 
+          places, long sequences of related statements, complex logic that's hard to follow. 
+          Methods solve these problems by letting you group code into named, reusable blocks.
+        </p>
+
+        <div class="callout callout-concept">
+          <div class="callout-title">💡 Key Concept</div>
+          <p>
+            A <strong>method</strong> is a named block of code that performs a specific task. 
+            You define it once and can call (execute) it from anywhere in your program, as many 
+            times as needed. Methods can accept input (parameters) and return output (return value).
+          </p>
+        </div>
+
+        <div class="analogy">
+          Think of a method like a recipe. The recipe has a name ("Chocolate Cake"), takes 
+          ingredients (parameters), follows steps (the code inside), and produces a result 
+          (return value). You don't rewrite the recipe every time you bake—you just reference 
+          it by name. Methods work the same way.
+        </div>
+
+        <h3>Why Use Methods?</h3>
+
+        <ul>
+          <li><strong>Reusability</strong>: Write once, use many times</li>
+          <li><strong>Organization</strong>: Break complex problems into smaller, manageable pieces</li>
+          <li><strong>Readability</strong>: <code>CalculateTax()</code> is clearer than 20 lines of tax logic</li>
+          <li><strong>Maintainability</strong>: Fix a bug in one place, fixed everywhere</li>
+          <li><strong>Testing</strong>: Small methods are easier to test than large code blocks</li>
+        </ul>
+
+        <h2>Defining and Calling Methods</h2>
+
+        <h3>Method Syntax</h3>
+
+        <div class="code-header">
+          <span class="code-filename">MethodSyntax.cs</span>
+          <span class="code-language">C#</span>
+        </div>
+        <pre><code><span class="code-comment">// A simple method with no parameters and no return value</span>
+<span class="code-keyword">static</span> <span class="code-keyword">void</span> <span class="code-method">SayHello</span>()
+{
+    Console.<span class="code-method">WriteLine</span>(<span class="code-string">"Hello, World!"</span>);
+}
+
+<span class="code-comment">// Calling the method</span>
+<span class="code-method">SayHello</span>();  <span class="code-comment">// Output: Hello, World!</span>
+<span class="code-method">SayHello</span>();  <span class="code-comment">// Can call it multiple times</span></code></pre>
+
+        <table>
+          <thead>
+            <tr>
+              <th>Part</th>
+              <th>Example</th>
+              <th>Description</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Access Modifier</td>
+              <td><code>static</code></td>
+              <td>Who can access this method</td>
+            </tr>
+            <tr>
+              <td>Return Type</td>
+              <td><code>void</code></td>
+              <td>What the method gives back (<code>void</code> means nothing)</td>
+            </tr>
+            <tr>
+              <td>Method Name</td>
+              <td><code>SayHello</code></td>
+              <td>How you refer to the method (PascalCase)</td>
+            </tr>
+            <tr>
+              <td>Parameters</td>
+              <td><code>()</code></td>
+              <td>Input values the method accepts</td>
+            </tr>
+            <tr>
+              <td>Method Body</td>
+              <td><code>{ ... }</code></td>
+              <td>The code that runs when called</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <h3>Methods with Parameters</h3>
+
+        <div class="code-header">
+          <span class="code-filename">MethodsWithParameters.cs</span>
+          <span class="code-language">C#</span>
+        </div>
+        <pre><code><span class="code-comment">// One parameter</span>
+<span class="code-keyword">static</span> <span class="code-keyword">void</span> <span class="code-method">Greet</span>(<span class="code-type">string</span> <span class="code-variable">name</span>)
+{
+    Console.<span class="code-method">WriteLine</span>(<span class="code-string">$"Hello, </span>{<span class="code-variable">name</span>}<span class="code-string">!"</span>);
+}
+
+<span class="code-method">Greet</span>(<span class="code-string">"Akwasi"</span>);   <span class="code-comment">// Output: Hello, Akwasi!</span>
+
+<span class="code-comment">// Multiple parameters</span>
+<span class="code-keyword">static</span> <span class="code-keyword">void</span> <span class="code-method">DisplayProduct</span>(<span class="code-type">string</span> <span class="code-variable">name</span>, <span class="code-type">decimal</span> <span class="code-variable">price</span>, <span class="code-type">int</span> <span class="code-variable">quantity</span>)
+{
+    Console.<span class="code-method">WriteLine</span>(<span class="code-string">$"Product: </span>{<span class="code-variable">name</span>}<span class="code-string">, Price: </span>{<span class="code-variable">price</span>:C}<span class="code-string">, Qty: </span>{<span class="code-variable">quantity</span>}<span class="code-string">"</span>);
+}
+
+<span class="code-method">DisplayProduct</span>(<span class="code-string">"Widget"</span>, <span class="code-number">19.99m</span>, <span class="code-number">100</span>);</code></pre>
+
+        <h3>Methods with Return Values</h3>
+
+        <div class="code-header">
+          <span class="code-filename">MethodsWithReturnValues.cs</span>
+          <span class="code-language">C#</span>
+        </div>
+        <pre><code><span class="code-comment">// Method that returns an int</span>
+<span class="code-keyword">static</span> <span class="code-type">int</span> <span class="code-method">Add</span>(<span class="code-type">int</span> <span class="code-variable">a</span>, <span class="code-type">int</span> <span class="code-variable">b</span>)
+{
+    <span class="code-keyword">return</span> <span class="code-variable">a</span> + <span class="code-variable">b</span>;
+}
+
+<span class="code-type">int</span> <span class="code-variable">sum</span> = <span class="code-method">Add</span>(<span class="code-number">5</span>, <span class="code-number">3</span>);  <span class="code-comment">// sum = 8</span>
+
+<span class="code-comment">// Method that returns a decimal</span>
+<span class="code-keyword">static</span> <span class="code-type">decimal</span> <span class="code-method">CalculateTotal</span>(<span class="code-type">decimal</span> <span class="code-variable">price</span>, <span class="code-type">int</span> <span class="code-variable">quantity</span>)
+{
+    <span class="code-keyword">return</span> <span class="code-variable">price</span> * <span class="code-variable">quantity</span>;
+}
+
+<span class="code-comment">// Method that returns a bool</span>
+<span class="code-keyword">static</span> <span class="code-type">bool</span> <span class="code-method">IsAdult</span>(<span class="code-type">int</span> <span class="code-variable">age</span>)
+{
+    <span class="code-keyword">return</span> <span class="code-variable">age</span> >= <span class="code-number">18</span>;
+}
+
+<span class="code-keyword">if</span> (<span class="code-method">IsAdult</span>(<span class="code-number">25</span>))
+{
+    Console.<span class="code-method">WriteLine</span>(<span class="code-string">"Welcome!"</span>);
+}</code></pre>
+
+        <h2>Parameter Passing: Value, ref, out</h2>
+
+        <h3>Pass by Value (Default)</h3>
+
+        <p>
+          By default, parameters are passed by value—the method receives a copy.
+        </p>
+
+        <div class="code-header">
+          <span class="code-filename">PassByValue.cs</span>
+          <span class="code-language">C#</span>
+        </div>
+        <pre><code><span class="code-keyword">static</span> <span class="code-keyword">void</span> <span class="code-method">Double</span>(<span class="code-type">int</span> <span class="code-variable">number</span>)
+{
+    <span class="code-variable">number</span> = <span class="code-variable">number</span> * <span class="code-number">2</span>;  <span class="code-comment">// Modifies the copy only</span>
+}
+
+<span class="code-type">int</span> <span class="code-variable">x</span> = <span class="code-number">10</span>;
+<span class="code-method">Double</span>(<span class="code-variable">x</span>);
+Console.<span class="code-method">WriteLine</span>(<span class="code-variable">x</span>);  <span class="code-comment">// Still 10! (unchanged)</span></code></pre>
+
+        <h3>Pass by Reference (ref)</h3>
+
+        <div class="code-header">
+          <span class="code-filename">PassByRef.cs</span>
+          <span class="code-language">C#</span>
+        </div>
+        <pre><code><span class="code-keyword">static</span> <span class="code-keyword">void</span> <span class="code-method">Double</span>(<span class="code-keyword">ref</span> <span class="code-type">int</span> <span class="code-variable">number</span>)
+{
+    <span class="code-variable">number</span> = <span class="code-variable">number</span> * <span class="code-number">2</span>;  <span class="code-comment">// Modifies the original!</span>
+}
+
+<span class="code-type">int</span> <span class="code-variable">x</span> = <span class="code-number">10</span>;
+<span class="code-method">Double</span>(<span class="code-keyword">ref</span> <span class="code-variable">x</span>);  <span class="code-comment">// Must use 'ref' when calling</span>
+Console.<span class="code-method">WriteLine</span>(<span class="code-variable">x</span>);  <span class="code-comment">// 20 (changed!)</span></code></pre>
+
+        <h3>Output Parameters (out)</h3>
+
+        <div class="code-header">
+          <span class="code-filename">OutParameters.cs</span>
+          <span class="code-language">C#</span>
+        </div>
+        <pre><code><span class="code-keyword">static</span> <span class="code-keyword">void</span> <span class="code-method">Divide</span>(<span class="code-type">int</span> <span class="code-variable">dividend</span>, <span class="code-type">int</span> <span class="code-variable">divisor</span>, <span class="code-keyword">out</span> <span class="code-type">int</span> <span class="code-variable">quotient</span>, <span class="code-keyword">out</span> <span class="code-type">int</span> <span class="code-variable">remainder</span>)
+{
+    <span class="code-variable">quotient</span> = <span class="code-variable">dividend</span> / <span class="code-variable">divisor</span>;
+    <span class="code-variable">remainder</span> = <span class="code-variable">dividend</span> % <span class="code-variable">divisor</span>;
+}
+
+<span class="code-method">Divide</span>(<span class="code-number">17</span>, <span class="code-number">5</span>, <span class="code-keyword">out</span> <span class="code-type">int</span> <span class="code-variable">q</span>, <span class="code-keyword">out</span> <span class="code-type">int</span> <span class="code-variable">r</span>);
+Console.<span class="code-method">WriteLine</span>(<span class="code-string">$"17 ÷ 5 = </span>{<span class="code-variable">q</span>}<span class="code-string"> remainder </span>{<span class="code-variable">r</span>}<span class="code-string">"</span>);  <span class="code-comment">// 3 remainder 2</span>
+
+<span class="code-comment">// You've already seen this with TryParse!</span>
+<span class="code-keyword">if</span> (<span class="code-type">int</span>.<span class="code-method">TryParse</span>(<span class="code-string">"42"</span>, <span class="code-keyword">out</span> <span class="code-type">int</span> <span class="code-variable">result</span>))
+{
+    Console.<span class="code-method">WriteLine</span>(<span class="code-variable">result</span>);
+}</code></pre>
+
+        <h3>params: Variable Number of Arguments</h3>
+
+        <div class="code-header">
+          <span class="code-filename">ParamsKeyword.cs</span>
+          <span class="code-language">C#</span>
+        </div>
+        <pre><code><span class="code-keyword">static</span> <span class="code-type">int</span> <span class="code-method">Sum</span>(<span class="code-keyword">params</span> <span class="code-type">int</span>[] <span class="code-variable">numbers</span>)
+{
+    <span class="code-type">int</span> <span class="code-variable">total</span> = <span class="code-number">0</span>;
+    <span class="code-keyword">foreach</span> (<span class="code-type">int</span> <span class="code-variable">num</span> <span class="code-keyword">in</span> <span class="code-variable">numbers</span>)
+    {
+        <span class="code-variable">total</span> += <span class="code-variable">num</span>;
+    }
+    <span class="code-keyword">return</span> <span class="code-variable">total</span>;
+}
+
+Console.<span class="code-method">WriteLine</span>(<span class="code-method">Sum</span>(<span class="code-number">1</span>, <span class="code-number">2</span>));              <span class="code-comment">// 3</span>
+Console.<span class="code-method">WriteLine</span>(<span class="code-method">Sum</span>(<span class="code-number">1</span>, <span class="code-number">2</span>, <span class="code-number">3</span>, <span class="code-number">4</span>, <span class="code-number">5</span>));   <span class="code-comment">// 15</span>
+Console.<span class="code-method">WriteLine</span>(<span class="code-method">Sum</span>());                  <span class="code-comment">// 0</span></code></pre>
+
+        <h2>Optional Parameters and Named Arguments</h2>
+
+        <div class="code-header">
+          <span class="code-filename">OptionalAndNamed.cs</span>
+          <span class="code-language">C#</span>
+        </div>
+        <pre><code><span class="code-comment">// Optional parameters have default values</span>
+<span class="code-keyword">static</span> <span class="code-type">decimal</span> <span class="code-method">CalculatePrice</span>(
+    <span class="code-type">decimal</span> <span class="code-variable">basePrice</span>,
+    <span class="code-type">int</span> <span class="code-variable">quantity</span> = <span class="code-number">1</span>,
+    <span class="code-type">decimal</span> <span class="code-variable">taxRate</span> = <span class="code-number">0.125m</span>,
+    <span class="code-type">decimal</span> <span class="code-variable">discountPercent</span> = <span class="code-number">0m</span>)
+{
+    <span class="code-type">decimal</span> <span class="code-variable">subtotal</span> = <span class="code-variable">basePrice</span> * <span class="code-variable">quantity</span>;
+    <span class="code-type">decimal</span> <span class="code-variable">discount</span> = <span class="code-variable">subtotal</span> * (<span class="code-variable">discountPercent</span> / <span class="code-number">100m</span>);
+    <span class="code-type">decimal</span> <span class="code-variable">afterDiscount</span> = <span class="code-variable">subtotal</span> - <span class="code-variable">discount</span>;
+    <span class="code-keyword">return</span> <span class="code-variable">afterDiscount</span> * (<span class="code-number">1</span> + <span class="code-variable">taxRate</span>);
+}
+
+<span class="code-comment">// Various ways to call</span>
+<span class="code-method">CalculatePrice</span>(<span class="code-number">100m</span>);                           <span class="code-comment">// Just base price</span>
+<span class="code-method">CalculatePrice</span>(<span class="code-number">100m</span>, <span class="code-number">5</span>);                       <span class="code-comment">// With quantity</span>
+<span class="code-method">CalculatePrice</span>(<span class="code-number">100m</span>, quantity: <span class="code-number">5</span>, discountPercent: <span class="code-number">10m</span>);  <span class="code-comment">// Named args</span></code></pre>
+
+        <h2>Expression-Bodied Methods</h2>
+
+        <div class="code-header">
+          <span class="code-filename">ExpressionBodied.cs</span>
+          <span class="code-language">C#</span>
+        </div>
+        <pre><code><span class="code-comment">// Traditional</span>
+<span class="code-keyword">static</span> <span class="code-type">int</span> <span class="code-method">Add</span>(<span class="code-type">int</span> <span class="code-variable">a</span>, <span class="code-type">int</span> <span class="code-variable">b</span>)
+{
+    <span class="code-keyword">return</span> <span class="code-variable">a</span> + <span class="code-variable">b</span>;
+}
+
+<span class="code-comment">// Expression-bodied (same behavior, more concise)</span>
+<span class="code-keyword">static</span> <span class="code-type">int</span> <span class="code-method">Add</span>(<span class="code-type">int</span> <span class="code-variable">a</span>, <span class="code-type">int</span> <span class="code-variable">b</span>) => <span class="code-variable">a</span> + <span class="code-variable">b</span>;
+
+<span class="code-keyword">static</span> <span class="code-type">bool</span> <span class="code-method">IsPositive</span>(<span class="code-type">int</span> <span class="code-variable">n</span>) => <span class="code-variable">n</span> > <span class="code-number">0</span>;
+<span class="code-keyword">static</span> <span class="code-type">decimal</span> <span class="code-method">CalculateTax</span>(<span class="code-type">decimal</span> <span class="code-variable">amount</span>) => <span class="code-variable">amount</span> * <span class="code-number">0.125m</span>;
+<span class="code-keyword">static</span> <span class="code-keyword">void</span> <span class="code-method">Log</span>(<span class="code-type">string</span> <span class="code-variable">msg</span>) => Console.<span class="code-method">WriteLine</span>(<span class="code-string">$"[LOG] </span>{<span class="code-variable">msg</span>}<span class="code-string">"</span>);</code></pre>
+
+        <h2>Method Overloading</h2>
+
+        <div class="code-header">
+          <span class="code-filename">MethodOverloading.cs</span>
+          <span class="code-language">C#</span>
+        </div>
+        <pre><code><span class="code-comment">// Same name, different parameters</span>
+<span class="code-keyword">static</span> <span class="code-type">int</span> <span class="code-method">Add</span>(<span class="code-type">int</span> <span class="code-variable">a</span>, <span class="code-type">int</span> <span class="code-variable">b</span>) => <span class="code-variable">a</span> + <span class="code-variable">b</span>;
+<span class="code-keyword">static</span> <span class="code-type">int</span> <span class="code-method">Add</span>(<span class="code-type">int</span> <span class="code-variable">a</span>, <span class="code-type">int</span> <span class="code-variable">b</span>, <span class="code-type">int</span> <span class="code-variable">c</span>) => <span class="code-variable">a</span> + <span class="code-variable">b</span> + <span class="code-variable">c</span>;
+<span class="code-keyword">static</span> <span class="code-type">double</span> <span class="code-method">Add</span>(<span class="code-type">double</span> <span class="code-variable">a</span>, <span class="code-type">double</span> <span class="code-variable">b</span>) => <span class="code-variable">a</span> + <span class="code-variable">b</span>;
+
+<span class="code-comment">// Compiler picks the right one</span>
+<span class="code-method">Add</span>(<span class="code-number">1</span>, <span class="code-number">2</span>);           <span class="code-comment">// int version</span>
+<span class="code-method">Add</span>(<span class="code-number">1</span>, <span class="code-number">2</span>, <span class="code-number">3</span>);       <span class="code-comment">// 3-param version</span>
+<span class="code-method">Add</span>(<span class="code-number">1.5</span>, <span class="code-number">2.5</span>);      <span class="code-comment">// double version</span></code></pre>
+
+        <h2>Local Functions</h2>
+
+        <div class="code-header">
+          <span class="code-filename">LocalFunctions.cs</span>
+          <span class="code-language">C#</span>
+        </div>
+        <pre><code><span class="code-keyword">static</span> <span class="code-type">decimal</span> <span class="code-method">CalculateOrderTotal</span>(<span class="code-type">decimal</span>[] <span class="code-variable">prices</span>, <span class="code-type">decimal</span> <span class="code-variable">discountPercent</span>)
+{
+    <span class="code-comment">// Local function - only visible inside this method</span>
+    <span class="code-type">decimal</span> <span class="code-method">ApplyDiscount</span>(<span class="code-type">decimal</span> <span class="code-variable">amount</span>) => <span class="code-variable">amount</span> * (<span class="code-number">1</span> - <span class="code-variable">discountPercent</span> / <span class="code-number">100m</span>);
+    
+    <span class="code-type">decimal</span> <span class="code-variable">subtotal</span> = <span class="code-number">0m</span>;
+    <span class="code-keyword">foreach</span> (<span class="code-type">decimal</span> <span class="code-variable">price</span> <span class="code-keyword">in</span> <span class="code-variable">prices</span>)
+    {
+        <span class="code-variable">subtotal</span> += <span class="code-variable">price</span>;
+    }
+    
+    <span class="code-keyword">return</span> <span class="code-method">ApplyDiscount</span>(<span class="code-variable">subtotal</span>);
+}</code></pre>
+
+        <h2>Recursion</h2>
+
+        <div class="code-header">
+          <span class="code-filename">Recursion.cs</span>
+          <span class="code-language">C#</span>
+        </div>
+        <pre><code><span class="code-comment">// Factorial: n! = n × (n-1) × ... × 1</span>
+<span class="code-keyword">static</span> <span class="code-type">int</span> <span class="code-method">Factorial</span>(<span class="code-type">int</span> <span class="code-variable">n</span>)
+{
+    <span class="code-keyword">if</span> (<span class="code-variable">n</span> <= <span class="code-number">1</span>) <span class="code-keyword">return</span> <span class="code-number">1</span>;  <span class="code-comment">// Base case</span>
+    <span class="code-keyword">return</span> <span class="code-variable">n</span> * <span class="code-method">Factorial</span>(<span class="code-variable">n</span> - <span class="code-number">1</span>);  <span class="code-comment">// Recursive case</span>
+}
+
+Console.<span class="code-method">WriteLine</span>(<span class="code-method">Factorial</span>(<span class="code-number">5</span>));  <span class="code-comment">// 120</span></code></pre>
+
+        <div class="callout callout-warning">
+          <div class="callout-title">⚠️ Recursion Pitfalls</div>
+          <p>
+            Every recursive method needs a <strong>base case</strong> to stop. Without it, 
+            you'll get a <code>StackOverflowException</code>.
+          </p>
+        </div>
+
+        <h2>Best Practices</h2>
+
+        <div class="code-header">
+          <span class="code-filename">BestPractices.cs</span>
+          <span class="code-language">C#</span>
+        </div>
+        <pre><code><span class="code-comment">// 1. Single Responsibility - each method does ONE thing</span>
+<span class="code-keyword">static</span> <span class="code-type">bool</span> <span class="code-method">ValidateOrder</span>(Order <span class="code-variable">order</span>) { ... }
+<span class="code-keyword">static</span> <span class="code-type">decimal</span> <span class="code-method">CalculateTotal</span>(Order <span class="code-variable">order</span>) { ... }
+<span class="code-keyword">static</span> <span class="code-keyword">void</span> <span class="code-method">SaveOrder</span>(Order <span class="code-variable">order</span>) { ... }
+
+<span class="code-comment">// 2. Descriptive Names - use verbs, be specific</span>
+<span class="code-keyword">static</span> <span class="code-type">bool</span> <span class="code-method">IsUserActive</span>(User <span class="code-variable">user</span>) { ... }  <span class="code-comment">// Good</span>
+<span class="code-keyword">static</span> <span class="code-type">bool</span> <span class="code-method">Check</span>(User <span class="code-variable">u</span>) { ... }           <span class="code-comment">// Bad</span>
+
+<span class="code-comment">// 3. Keep methods short (20-30 lines max)</span>
+<span class="code-comment">// 4. Limit parameters (3-4 max, group into objects if more)</span></code></pre>
+
+        <div class="section-divider"></div>
+
+        <h2>Key Takeaways</h2>
+
+        <ul>
+          <li><strong>Methods</strong> are named, reusable blocks of code that perform specific tasks</li>
+          <li><strong>Parameters</strong> pass data in; <strong>return values</strong> send data back</li>
+          <li>Default is <strong>pass-by-value</strong>; use <strong>ref</strong> or <strong>out</strong> for pass-by-reference</li>
+          <li><strong>params</strong> allows variable number of arguments</li>
+          <li><strong>Optional parameters</strong> have default values; <strong>named arguments</strong> improve clarity</li>
+          <li><strong>Expression-bodied methods</strong> (<code>=&gt;</code>) are concise for simple methods</li>
+          <li><strong>Method overloading</strong>: same name, different parameters</li>
+          <li><strong>Local functions</strong> encapsulate helper logic within a method</li>
+          <li><strong>Recursion</strong>: methods calling themselves (always need a base case!)</li>
+          <li>Best practices: single responsibility, descriptive names, short methods, few parameters</li>
+        </ul>
+
+        <div class="callout callout-tip">
+          <div class="callout-title">🚀 Ready for Object-Oriented Programming!</div>
+          <p>
+            You now understand how to organize code into reusable methods. In the next section, 
+            we'll take this further with <strong>classes and objects</strong>—the foundation of 
+            object-oriented programming.
+          </p>
+        </div>
+
+        <nav class="page-nav">
+          <a href="05-control-flow.html" class="prev">Control Flow</a>
+          <a href="07-oop-classes-objects.html" class="next">OOP: Classes &amp; Objects</a>
+        </nav>
+
+      
+        <footer class="page-footer">
+          Built with 💜 by <a href="https://akwasi.dev" target="_blank" rel="noopener noreferrer">Akwasi Adu-Kyeremeh</a> for developers who want to truly understand what they're building.
+        </footer>
+
+      </div>
+    </main>
+  </div>
+</body>
+</html>

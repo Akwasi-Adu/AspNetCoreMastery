@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JWT Bearer Authentication | ASP.NET Core Mastery</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;500&family=Source+Serif+4:ital,wght@0,400;0,600;1,400&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="../assets/style.css">
+</head>
+
+<body>
+    <div class="page-wrapper">
+        <aside class="sidebar">
+            <a href="../index.html" class="sidebar-logo">ASP.NET Core Mastery</a>
+            <div class="sidebar-section">Part XII: Authentication</div>
+            <ul class="sidebar-nav">
+                <li><a href="01-authentication-fundamentals.html">Authentication Fundamentals</a></li>
+                <li><a href="02-aspnet-core-identity.html">ASP.NET Core Identity</a></li>
+                <li><a href="03-cookie-authentication.html">Cookie Authentication</a></li>
+                <li><a href="04-jwt-bearer-authentication.html" class="active">JWT Bearer Authentication</a></li>
+                <li><a href="05-oauth-openid-connect.html">OAuth 2.0 & OpenID Connect</a></li>
+                <li><a href="06-external-login-providers.html">External Login Providers</a></li>
+            </ul>
+            <div class="sidebar-section">Resources</div>
+            <ul class="sidebar-nav">
+                <li><a href="../index.html">Full Roadmap</a></li>
+            </ul>
+        </aside>
+
+        <main class="main-content">
+            <div class="content-container">
+                <nav class="breadcrumb">
+                    <a href="../index.html">Home</a>
+                    <span>→</span>
+                    <a href="01-authentication-fundamentals.html">Part XII: Authentication</a>
+                    <span>→</span>
+                    JWT Bearer Authentication
+                </nav>
+
+                <div class="progress-indicator">
+                    <span>Section 4 of 6</span>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 66.67%"></div>
+                    </div>
+                </div>
+
+                <h1>JWT Bearer Authentication</h1>
+
+                <div class="learning-objectives">
+                    <h3>🎯 What You'll Learn</h3>
+                    <ul>
+                        <li>What is JWT</li>
+                        <li>Setting up JWT authentication</li>
+                        <li>Generating JWT tokens</li>
+                        <li>Validating JWT tokens</li>
+                        <li>Using JWT in APIs</li>
+                    </ul>
+                </div>
+
+                <h2>What is JWT?</h2>
+
+                <p>
+                    <strong>JWT (JSON Web Token)</strong> is a compact, self-contained token for securely transmitting
+                    information between parties. It's commonly used for API authentication.
+                </p>
+
+                <p><strong>JWT Structure:</strong> <code>header.payload.signature</code></p>
+
+                <div class="section-divider"></div>
+
+                <h2>Setting Up JWT Authentication</h2>
+
+                <h3>1. Install Package</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">Install NuGet Package</span>
+                    <span class="code-language">Bash</span>
+                </div>
+                <pre><code>dotnet add package Microsoft.AspNetCore.Authentication.JwtBearer</code></pre>
+
+                <h3>2. Configure JWT</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">appsettings.json</span>
+                    <span class="code-language">JSON</span>
+                </div>
+                <pre><code>{
+  <span class="code-string">"Jwt"</span>: {
+    <span class="code-string">"Key"</span>: <span class="code-string">"your-secret-key-min-32-characters"</span>,
+    <span class="code-string">"Issuer"</span>: <span class="code-string">"InvenTrack"</span>,
+    <span class="code-string">"Audience"</span>: <span class="code-string">"InvenTrackUsers"</span>
+  }
+}</code></pre>
+
+                <h3>3. Add JWT Authentication</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">Program.cs</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-variable">builder</span>.<span class="code-variable">Services</span>.<span class="code-method">AddAuthentication</span>(<span class="code-class">JwtBearerDefaults</span>.<span class="code-variable">AuthenticationScheme</span>)
+    .<span class="code-method">AddJwtBearer</span>(<span class="code-variable">options</span> =>
+    {
+        <span class="code-variable">options</span>.<span class="code-variable">TokenValidationParameters</span> = <span class="code-keyword">new</span> <span class="code-class">TokenValidationParameters</span>
+        {
+            <span class="code-variable">ValidateIssuer</span> = <span class="code-keyword">true</span>,
+            <span class="code-variable">ValidateAudience</span> = <span class="code-keyword">true</span>,
+            <span class="code-variable">ValidateLifetime</span> = <span class="code-keyword">true</span>,
+            <span class="code-variable">ValidateIssuerSigningKey</span> = <span class="code-keyword">true</span>,
+            <span class="code-variable">ValidIssuer</span> = <span class="code-variable">builder</span>.<span class="code-variable">Configuration</span>[<span class="code-string">"Jwt:Issuer"</span>],
+            <span class="code-variable">ValidAudience</span> = <span class="code-variable">builder</span>.<span class="code-variable">Configuration</span>[<span class="code-string">"Jwt:Audience"</span>],
+            <span class="code-variable">IssuerSigningKey</span> = <span class="code-keyword">new</span> <span class="code-class">SymmetricSecurityKey</span>(
+                <span class="code-class">Encoding</span>.<span class="code-variable">UTF8</span>.<span class="code-method">GetBytes</span>(<span class="code-variable">builder</span>.<span class="code-variable">Configuration</span>[<span class="code-string">"Jwt:Key"</span>]!))
+        };
+    });</code></pre>
+
+                <div class="section-divider"></div>
+
+                <h2>Generating JWT Tokens</h2>
+
+                <div class="code-header">
+                    <span class="code-filename">Login Endpoint</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code>[<span class="code-class">HttpPost</span>(<span class="code-string">"login"</span>)]
+<span class="code-keyword">public</span> <span class="code-keyword">async</span> <span class="code-class">Task</span>&lt;<span class="code-class">IActionResult</span>&gt; <span class="code-method">Login</span>(<span class="code-class">LoginRequest</span> <span class="code-variable">request</span>)
+{
+    <span class="code-comment">// Validate credentials</span>
+    <span class="code-keyword">var</span> <span class="code-variable">user</span> = <span class="code-keyword">await</span> <span class="code-method">ValidateUser</span>(<span class="code-variable">request</span>.<span class="code-variable">Email</span>, <span class="code-variable">request</span>.<span class="code-variable">Password</span>);
+    <span class="code-keyword">if</span> (<span class="code-variable">user</span> == <span class="code-keyword">null</span>)
+        <span class="code-keyword">return</span> <span class="code-method">Unauthorized</span>();
+
+    <span class="code-comment">// Create claims</span>
+    <span class="code-keyword">var</span> <span class="code-variable">claims</span> = <span class="code-keyword">new</span>[]
+    {
+        <span class="code-keyword">new</span> <span class="code-class">Claim</span>(<span class="code-class">ClaimTypes</span>.<span class="code-variable">Name</span>, <span class="code-variable">user</span>.<span class="code-variable">Email</span>),
+        <span class="code-keyword">new</span> <span class="code-class">Claim</span>(<span class="code-class">ClaimTypes</span>.<span class="code-variable">Email</span>, <span class="code-variable">user</span>.<span class="code-variable">Email</span>),
+        <span class="code-keyword">new</span> <span class="code-class">Claim</span>(<span class="code-class">JwtRegisteredClaimNames</span>.<span class="code-variable">Sub</span>, <span class="code-variable">user</span>.<span class="code-variable">Id</span>.<span class="code-method">ToString</span>()),
+        <span class="code-keyword">new</span> <span class="code-class">Claim</span>(<span class="code-class">JwtRegisteredClaimNames</span>.<span class="code-variable">Jti</span>, <span class="code-class">Guid</span>.<span class="code-method">NewGuid</span>().<span class="code-method">ToString</span>())
+    };
+
+    <span class="code-comment">// Create token</span>
+    <span class="code-keyword">var</span> <span class="code-variable">key</span> = <span class="code-keyword">new</span> <span class="code-class">SymmetricSecurityKey</span>(<span class="code-class">Encoding</span>.<span class="code-variable">UTF8</span>.<span class="code-method">GetBytes</span>(<span class="code-variable">_configuration</span>[<span class="code-string">"Jwt:Key"</span>]!));
+    <span class="code-keyword">var</span> <span class="code-variable">creds</span> = <span class="code-keyword">new</span> <span class="code-class">SigningCredentials</span>(<span class="code-variable">key</span>, <span class="code-class">SecurityAlgorithms</span>.<span class="code-variable">HmacSha256</span>);
+
+    <span class="code-keyword">var</span> <span class="code-variable">token</span> = <span class="code-keyword">new</span> <span class="code-class">JwtSecurityToken</span>(
+        <span class="code-variable">issuer</span>: <span class="code-variable">_configuration</span>[<span class="code-string">"Jwt:Issuer"</span>],
+        <span class="code-variable">audience</span>: <span class="code-variable">_configuration</span>[<span class="code-string">"Jwt:Audience"</span>],
+        <span class="code-variable">claims</span>: <span class="code-variable">claims</span>,
+        <span class="code-variable">expires</span>: <span class="code-class">DateTime</span>.<span class="code-variable">UtcNow</span>.<span class="code-method">AddHours</span>(<span class="code-number">24</span>),
+        <span class="code-variable">signingCredentials</span>: <span class="code-variable">creds</span>
+    );
+
+    <span class="code-keyword">return</span> <span class="code-method">Ok</span>(<span class="code-keyword">new</span>
+    {
+        <span class="code-variable">token</span> = <span class="code-keyword">new</span> <span class="code-class">JwtSecurityTokenHandler</span>().<span class="code-method">WriteToken</span>(<span class="code-variable">token</span>),
+        <span class="code-variable">expiration</span> = <span class="code-variable">token</span>.<span class="code-variable">ValidTo</span>
+    });
+}</code></pre>
+
+                <div class="section-divider"></div>
+
+                <h2>Using JWT in API Calls</h2>
+
+                <div class="code-header">
+                    <span class="code-filename">HTTP Request Header</span>
+                    <span class="code-language">HTTP</span>
+                </div>
+                <pre><code>GET /api/products
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...</code></pre>
+
+                <div class="code-header">
+                    <span class="code-filename">Protect API Endpoint</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code>[<span class="code-class">Authorize</span>]
+[<span class="code-class">ApiController</span>]
+[<span class="code-class">Route</span>(<span class="code-string">"api/[controller]"</span>)]
+<span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">ProductsController</span> : <span class="code-class">ControllerBase</span>
+{
+    [<span class="code-class">HttpGet</span>]
+    <span class="code-keyword">public</span> <span class="code-class">IActionResult</span> <span class="code-method">GetProducts</span>()
+    {
+        <span class="code-keyword">var</span> <span class="code-variable">userId</span> = <span class="code-variable">User</span>.<span class="code-method">FindFirst</span>(<span class="code-class">ClaimTypes</span>.<span class="code-variable">NameIdentifier</span>)?.<span class="code-variable">Value</span>;
+        <span class="code-keyword">return</span> <span class="code-method">Ok</span>(<span class="code-variable">products</span>);
+    }
+}</code></pre>
+
+                <h2>Key Takeaways</h2>
+
+                <ul>
+                    <li><strong>JWT</strong>: Self-contained token for APIs</li>
+                    <li><strong>Structure</strong>: header.payload.signature</li>
+                    <li><strong>AddJwtBearer()</strong>: Configure JWT authentication</li>
+                    <li><strong>JwtSecurityToken</strong>: Generate tokens</li>
+                    <li><strong>Authorization header</strong>: Bearer {token}</li>
+                    <li><strong>Best for</strong>: APIs, SPAs, mobile apps</li>
+                </ul>
+
+                <nav class="page-nav">
+                    <a href="03-cookie-authentication.html" class="prev">Cookie Authentication</a>
+                    <a href="05-oauth-openid-connect.html" class="next">OAuth 2.0 & OpenID Connect</a>
+                </nav>
+
+            
+        <footer class="page-footer">
+          Built with 💜 by <a href="https://akwasi.dev" target="_blank" rel="noopener noreferrer">Akwasi Adu-Kyeremeh</a> for developers who want to truly understand what they're building.
+        </footer>
+
+      </div>
+        </main>
+    </div>
+</body>
+
+</html>

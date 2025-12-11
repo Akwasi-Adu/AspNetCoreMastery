@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Relationships | ASP.NET Core Mastery</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;500&family=Source+Serif+4:ital,wght@0,400;0,600;1,400&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="../assets/style.css">
+</head>
+
+<body>
+    <div class="page-wrapper">
+        <aside class="sidebar">
+            <a href="../index.html" class="sidebar-logo">ASP.NET Core Mastery</a>
+            <div class="sidebar-section">Part IX: Entity Framework Core</div>
+            <ul class="sidebar-nav">
+                <li><a href="01-what-is-orm.html">What is an ORM?</a></li>
+                <li><a href="02-dbcontext-entities.html">DbContext and Entities</a></li>
+                <li><a href="03-code-first-migrations.html">Code-First Migrations</a></li>
+                <li><a href="04-querying-linq.html">Querying Data with LINQ</a></li>
+                <li><a href="05-relationships.html" class="active">Relationships</a></li>
+                <li><a href="06-loading-strategies.html">Loading Strategies</a></li>
+                <li><a href="07-advanced-ef-core.html">Advanced EF Core</a></li>
+            </ul>
+            <div class="sidebar-section">Resources</div>
+            <ul class="sidebar-nav">
+                <li><a href="../index.html">Full Roadmap</a></li>
+            </ul>
+        </aside>
+
+        <main class="main-content">
+            <div class="content-container">
+                <nav class="breadcrumb">
+                    <a href="../index.html">Home</a>
+                    <span>→</span>
+                    <a href="01-what-is-orm.html">Part IX: Entity Framework Core</a>
+                    <span>→</span>
+                    Relationships
+                </nav>
+
+                <div class="progress-indicator">
+                    <span>Section 5 of 7</span>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 71.43%"></div>
+                    </div>
+                </div>
+
+                <h1>Relationships</h1>
+
+                <div class="learning-objectives">
+                    <h3>🎯 What You'll Learn</h3>
+                    <ul>
+                        <li>One-to-many relationships</li>
+                        <li>One-to-one relationships</li>
+                        <li>Many-to-many relationships</li>
+                        <li>Navigation properties</li>
+                        <li>Foreign keys</li>
+                        <li>Configuring relationships</li>
+                    </ul>
+                </div>
+
+                <h2>What are Relationships?</h2>
+
+                <p>
+                    <strong>Relationships</strong> define how entities are related to each other, just like
+                    foreign keys in relational databases.
+                </p>
+
+                <h3>Types of Relationships</h3>
+
+                <ul>
+                    <li><strong>One-to-Many</strong>: One category has many products</li>
+                    <li><strong>One-to-One</strong>: One user has one profile</li>
+                    <li><strong>Many-to-Many</strong>: Products have many tags, tags have many products</li>
+                </ul>
+
+                <div class="section-divider"></div>
+
+                <h2>One-to-Many Relationships</h2>
+
+                <p>
+                    The most common relationship type. Example: One <strong>Category</strong> has many
+                    <strong>Products</strong>.
+                </p>
+
+                <h3>Entity Classes</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">Models/Category.cs</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">Category</span>
+{
+    <span class="code-keyword">public</span> <span class="code-type">int</span> <span class="code-variable">Id</span> { <span class="code-keyword">get</span>; <span class="code-keyword">set</span>; }
+    <span class="code-keyword">public</span> <span class="code-type">string</span> <span class="code-variable">Name</span> { <span class="code-keyword">get</span>; <span class="code-keyword">set</span>; } = <span class="code-keyword">string</span>.<span class="code-variable">Empty</span>;
+
+    <span class="code-comment">// Navigation property: Collection of products</span>
+    <span class="code-keyword">public</span> <span class="code-class">ICollection</span>&lt;<span class="code-class">Product</span>&gt; <span class="code-variable">Products</span> { <span class="code-keyword">get</span>; <span class="code-keyword">set</span>; } = <span class="code-keyword">new</span> <span class="code-class">List</span>&lt;<span class="code-class">Product</span>&gt;();
+}</code></pre>
+
+                <div class="code-header">
+                    <span class="code-filename">Models/Product.cs</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">Product</span>
+{
+    <span class="code-keyword">public</span> <span class="code-type">int</span> <span class="code-variable">Id</span> { <span class="code-keyword">get</span>; <span class="code-keyword">set</span>; }
+    <span class="code-keyword">public</span> <span class="code-type">string</span> <span class="code-variable">Name</span> { <span class="code-keyword">get</span>; <span class="code-keyword">set</span>; } = <span class="code-keyword">string</span>.<span class="code-variable">Empty</span>;
+    <span class="code-keyword">public</span> <span class="code-type">decimal</span> <span class="code-variable">Price</span> { <span class="code-keyword">get</span>; <span class="code-keyword">set</span>; }
+
+    <span class="code-comment">// Foreign key</span>
+    <span class="code-keyword">public</span> <span class="code-type">int</span> <span class="code-variable">CategoryId</span> { <span class="code-keyword">get</span>; <span class="code-keyword">set</span>; }
+
+    <span class="code-comment">// Navigation property: Reference to category</span>
+    <span class="code-keyword">public</span> <span class="code-class">Category</span> <span class="code-variable">Category</span> { <span class="code-keyword">get</span>; <span class="code-keyword">set</span>; } = <span class="code-keyword">null</span>!;
+}</code></pre>
+
+                <h3>Fluent API Configuration</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">Configure Relationship</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-keyword">protected</span> <span class="code-keyword">override</span> <span class="code-type">void</span> <span class="code-method">OnModelCreating</span>(<span class="code-class">ModelBuilder</span> <span class="code-variable">modelBuilder</span>)
+{
+    <span class="code-variable">modelBuilder</span>.<span class="code-method">Entity</span>&lt;<span class="code-class">Product</span>&gt;()
+        .<span class="code-method">HasOne</span>(<span class="code-variable">p</span> => <span class="code-variable">p</span>.<span class="code-variable">Category</span>)        <span class="code-comment">// Product has one Category</span>
+        .<span class="code-method">WithMany</span>(<span class="code-variable">c</span> => <span class="code-variable">c</span>.<span class="code-variable">Products</span>)      <span class="code-comment">// Category has many Products</span>
+        .<span class="code-method">HasForeignKey</span>(<span class="code-variable">p</span> => <span class="code-variable">p</span>.<span class="code-variable">CategoryId</span>) <span class="code-comment">// Foreign key</span>
+        .<span class="code-method">OnDelete</span>(<span class="code-class">DeleteBehavior</span>.<span class="code-variable">Cascade</span>);  <span class="code-comment">// Delete products when category deleted</span>
+}</code></pre>
+
+                <h3>Delete Behaviors</h3>
+
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Behavior</th>
+                            <th>Description</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><code>Cascade</code></td>
+                            <td>Delete dependent entities when principal deleted</td>
+                        </tr>
+                        <tr>
+                            <td><code>Restrict</code></td>
+                            <td>Prevent deletion if dependents exist</td>
+                        </tr>
+                        <tr>
+                            <td><code>SetNull</code></td>
+                            <td>Set foreign key to null when principal deleted</td>
+                        </tr>
+                        <tr>
+                            <td><code>NoAction</code></td>
+                            <td>Do nothing (database handles it)</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="section-divider"></div>
+
+                <h2>One-to-One Relationships</h2>
+
+                <p>
+                    Example: One <strong>User</strong> has one <strong>UserProfile</strong>.
+                </p>
+
+                <div class="code-header">
+                    <span class="code-filename">Models/User.cs</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">User</span>
+{
+    <span class="code-keyword">public</span> <span class="code-type">int</span> <span class="code-variable">Id</span> { <span class="code-keyword">get</span>; <span class="code-keyword">set</span>; }
+    <span class="code-keyword">public</span> <span class="code-type">string</span> <span class="code-variable">Email</span> { <span class="code-keyword">get</span>; <span class="code-keyword">set</span>; } = <span class="code-keyword">string</span>.<span class="code-variable">Empty</span>;
+
+    <span class="code-comment">// Navigation property</span>
+    <span class="code-keyword">public</span> <span class="code-class">UserProfile</span>? <span class="code-variable">Profile</span> { <span class="code-keyword">get</span>; <span class="code-keyword">set</span>; }
+}</code></pre>
+
+                <div class="code-header">
+                    <span class="code-filename">Models/UserProfile.cs</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">UserProfile</span>
+{
+    <span class="code-keyword">public</span> <span class="code-type">int</span> <span class="code-variable">Id</span> { <span class="code-keyword">get</span>; <span class="code-keyword">set</span>; }
+    <span class="code-keyword">public</span> <span class="code-type">string</span> <span class="code-variable">FirstName</span> { <span class="code-keyword">get</span>; <span class="code-keyword">set</span>; } = <span class="code-keyword">string</span>.<span class="code-variable">Empty</span>;
+    <span class="code-keyword">public</span> <span class="code-type">string</span> <span class="code-variable">LastName</span> { <span class="code-keyword">get</span>; <span class="code-keyword">set</span>; } = <span class="code-keyword">string</span>.<span class="code-variable">Empty</span>;
+
+    <span class="code-comment">// Foreign key</span>
+    <span class="code-keyword">public</span> <span class="code-type">int</span> <span class="code-variable">UserId</span> { <span class="code-keyword">get</span>; <span class="code-keyword">set</span>; }
+
+    <span class="code-comment">// Navigation property</span>
+    <span class="code-keyword">public</span> <span class="code-class">User</span> <span class="code-variable">User</span> { <span class="code-keyword">get</span>; <span class="code-keyword">set</span>; } = <span class="code-keyword">null</span>!;
+}</code></pre>
+
+                <div class="code-header">
+                    <span class="code-filename">Configure One-to-One</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-variable">modelBuilder</span>.<span class="code-method">Entity</span>&lt;<span class="code-class">User</span>&gt;()
+    .<span class="code-method">HasOne</span>(<span class="code-variable">u</span> => <span class="code-variable">u</span>.<span class="code-variable">Profile</span>)          <span class="code-comment">// User has one Profile</span>
+    .<span class="code-method">WithOne</span>(<span class="code-variable">p</span> => <span class="code-variable">p</span>.<span class="code-variable">User</span>)            <span class="code-comment">// Profile has one User</span>
+    .<span class="code-method">HasForeignKey</span>&lt;<span class="code-class">UserProfile</span>&gt;(<span class="code-variable">p</span> => <span class="code-variable">p</span>.<span class="code-variable">UserId</span>);</code></pre>
+
+                <div class="section-divider"></div>
+
+                <h2>Many-to-Many Relationships</h2>
+
+                <p>
+                    Example: <strong>Products</strong> have many <strong>Tags</strong>, and
+                    <strong>Tags</strong> have many <strong>Products</strong>.
+                </p>
+
+                <h3>Modern Approach (EF Core 5+)</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">Models/Product.cs</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">Product</span>
+{
+    <span class="code-keyword">public</span> <span class="code-type">int</span> <span class="code-variable">Id</span> { <span class="code-keyword">get</span>; <span class="code-keyword">set</span>; }
+    <span class="code-keyword">public</span> <span class="code-type">string</span> <span class="code-variable">Name</span> { <span class="code-keyword">get</span>; <span class="code-keyword">set</span>; } = <span class="code-keyword">string</span>.<span class="code-variable">Empty</span>;
+
+    <span class="code-comment">// Navigation property</span>
+    <span class="code-keyword">public</span> <span class="code-class">ICollection</span>&lt;<span class="code-class">Tag</span>&gt; <span class="code-variable">Tags</span> { <span class="code-keyword">get</span>; <span class="code-keyword">set</span>; } = <span class="code-keyword">new</span> <span class="code-class">List</span>&lt;<span class="code-class">Tag</span>&gt;();
+}</code></pre>
+
+                <div class="code-header">
+                    <span class="code-filename">Models/Tag.cs</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">Tag</span>
+{
+    <span class="code-keyword">public</span> <span class="code-type">int</span> <span class="code-variable">Id</span> { <span class="code-keyword">get</span>; <span class="code-keyword">set</span>; }
+    <span class="code-keyword">public</span> <span class="code-type">string</span> <span class="code-variable">Name</span> { <span class="code-keyword">get</span>; <span class="code-keyword">set</span>; } = <span class="code-keyword">string</span>.<span class="code-variable">Empty</span>;
+
+    <span class="code-comment">// Navigation property</span>
+    <span class="code-keyword">public</span> <span class="code-class">ICollection</span>&lt;<span class="code-class">Product</span>&gt; <span class="code-variable">Products</span> { <span class="code-keyword">get</span>; <span class="code-keyword">set</span>; } = <span class="code-keyword">new</span> <span class="code-class">List</span>&lt;<span class="code-class">Product</span>&gt;();
+}</code></pre>
+
+                <div class="code-header">
+                    <span class="code-filename">Configure Many-to-Many</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-variable">modelBuilder</span>.<span class="code-method">Entity</span>&lt;<span class="code-class">Product</span>&gt;()
+    .<span class="code-method">HasMany</span>(<span class="code-variable">p</span> => <span class="code-variable">p</span>.<span class="code-variable">Tags</span>)
+    .<span class="code-method">WithMany</span>(<span class="code-variable">t</span> => <span class="code-variable">t</span>.<span class="code-variable">Products</span>);
+
+<span class="code-comment">// EF Core automatically creates join table: ProductTag</span></code></pre>
+
+                <h3>Explicit Join Entity (For Extra Data)</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">Models/ProductTag.cs</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">ProductTag</span>
+{
+    <span class="code-keyword">public</span> <span class="code-type">int</span> <span class="code-variable">ProductId</span> { <span class="code-keyword">get</span>; <span class="code-keyword">set</span>; }
+    <span class="code-keyword">public</span> <span class="code-class">Product</span> <span class="code-variable">Product</span> { <span class="code-keyword">get</span>; <span class="code-keyword">set</span>; } = <span class="code-keyword">null</span>!;
+
+    <span class="code-keyword">public</span> <span class="code-type">int</span> <span class="code-variable">TagId</span> { <span class="code-keyword">get</span>; <span class="code-keyword">set</span>; }
+    <span class="code-keyword">public</span> <span class="code-class">Tag</span> <span class="code-variable">Tag</span> { <span class="code-keyword">get</span>; <span class="code-keyword">set</span>; } = <span class="code-keyword">null</span>!;
+
+    <span class="code-comment">// Additional data</span>
+    <span class="code-keyword">public</span> <span class="code-class">DateTime</span> <span class="code-variable">AddedAt</span> { <span class="code-keyword">get</span>; <span class="code-keyword">set</span>; }
+}</code></pre>
+
+                <div class="code-header">
+                    <span class="code-filename">Configure with Join Entity</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-variable">modelBuilder</span>.<span class="code-method">Entity</span>&lt;<span class="code-class">ProductTag</span>&gt;()
+    .<span class="code-method">HasKey</span>(<span class="code-variable">pt</span> => <span class="code-keyword">new</span> { <span class="code-variable">pt</span>.<span class="code-variable">ProductId</span>, <span class="code-variable">pt</span>.<span class="code-variable">TagId</span> });
+
+<span class="code-variable">modelBuilder</span>.<span class="code-method">Entity</span>&lt;<span class="code-class">ProductTag</span>&gt;()
+    .<span class="code-method">HasOne</span>(<span class="code-variable">pt</span> => <span class="code-variable">pt</span>.<span class="code-variable">Product</span>)
+    .<span class="code-method">WithMany</span>()
+    .<span class="code-method">HasForeignKey</span>(<span class="code-variable">pt</span> => <span class="code-variable">pt</span>.<span class="code-variable">ProductId</span>);
+
+<span class="code-variable">modelBuilder</span>.<span class="code-method">Entity</span>&lt;<span class="code-class">ProductTag</span>&gt;()
+    .<span class="code-method">HasOne</span>(<span class="code-variable">pt</span> => <span class="code-variable">pt</span>.<span class="code-variable">Tag</span>)
+    .<span class="code-method">WithMany</span>()
+    .<span class="code-method">HasForeignKey</span>(<span class="code-variable">pt</span> => <span class="code-variable">pt</span>.<span class="code-variable">TagId</span>);</code></pre>
+
+                <div class="section-divider"></div>
+
+                <h2>Querying Related Data</h2>
+
+                <div class="code-header">
+                    <span class="code-filename">Include Related Data</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-comment">// Include category</span>
+<span class="code-keyword">var</span> <span class="code-variable">products</span> = <span class="code-keyword">await</span> <span class="code-variable">_context</span>.<span class="code-variable">Products</span>
+    .<span class="code-method">Include</span>(<span class="code-variable">p</span> => <span class="code-variable">p</span>.<span class="code-variable">Category</span>)
+    .<span class="code-method">ToListAsync</span>();
+
+<span class="code-comment">// Include multiple levels</span>
+<span class="code-keyword">var</span> <span class="code-variable">products</span> = <span class="code-keyword">await</span> <span class="code-variable">_context</span>.<span class="code-variable">Products</span>
+    .<span class="code-method">Include</span>(<span class="code-variable">p</span> => <span class="code-variable">p</span>.<span class="code-variable">Category</span>)
+        .<span class="code-method">ThenInclude</span>(<span class="code-variable">c</span> => <span class="code-variable">c</span>.<span class="code-variable">ParentCategory</span>)
+    .<span class="code-method">ToListAsync</span>();
+
+<span class="code-comment">// Include multiple relationships</span>
+<span class="code-keyword">var</span> <span class="code-variable">products</span> = <span class="code-keyword">await</span> <span class="code-variable">_context</span>.<span class="code-variable">Products</span>
+    .<span class="code-method">Include</span>(<span class="code-variable">p</span> => <span class="code-variable">p</span>.<span class="code-variable">Category</span>)
+    .<span class="code-method">Include</span>(<span class="code-variable">p</span> => <span class="code-variable">p</span>.<span class="code-variable">Tags</span>)
+    .<span class="code-method">ToListAsync</span>();</code></pre>
+
+                <h2>Complete InvenTrack Example</h2>
+
+                <div class="code-header">
+                    <span class="code-filename">Models/Order.cs</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">Order</span>
+{
+    <span class="code-keyword">public</span> <span class="code-type">int</span> <span class="code-variable">Id</span> { <span class="code-keyword">get</span>; <span class="code-keyword">set</span>; }
+    <span class="code-keyword">public</span> <span class="code-class">DateTime</span> <span class="code-variable">OrderDate</span> { <span class="code-keyword">get</span>; <span class="code-keyword">set</span>; }
+    <span class="code-keyword">public</span> <span class="code-type">string</span> <span class="code-variable">CustomerName</span> { <span class="code-keyword">get</span>; <span class="code-keyword">set</span>; } = <span class="code-keyword">string</span>.<span class="code-variable">Empty</span>;
+
+    <span class="code-comment">// One-to-many: Order has many OrderItems</span>
+    <span class="code-keyword">public</span> <span class="code-class">ICollection</span>&lt;<span class="code-class">OrderItem</span>&gt; <span class="code-variable">Items</span> { <span class="code-keyword">get</span>; <span class="code-keyword">set</span>; } = <span class="code-keyword">new</span> <span class="code-class">List</span>&lt;<span class="code-class">OrderItem</span>&gt;();
+}
+
+<span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">OrderItem</span>
+{
+    <span class="code-keyword">public</span> <span class="code-type">int</span> <span class="code-variable">Id</span> { <span class="code-keyword">get</span>; <span class="code-keyword">set</span>; }
+    <span class="code-keyword">public</span> <span class="code-type">int</span> <span class="code-variable">Quantity</span> { <span class="code-keyword">get</span>; <span class="code-keyword">set</span>; }
+    <span class="code-keyword">public</span> <span class="code-type">decimal</span> <span class="code-variable">Price</span> { <span class="code-keyword">get</span>; <span class="code-keyword">set</span>; }
+
+    <span class="code-comment">// Foreign keys</span>
+    <span class="code-keyword">public</span> <span class="code-type">int</span> <span class="code-variable">OrderId</span> { <span class="code-keyword">get</span>; <span class="code-keyword">set</span>; }
+    <span class="code-keyword">public</span> <span class="code-type">int</span> <span class="code-variable">ProductId</span> { <span class="code-keyword">get</span>; <span class="code-keyword">set</span>; }
+
+    <span class="code-comment">// Navigation properties</span>
+    <span class="code-keyword">public</span> <span class="code-class">Order</span> <span class="code-variable">Order</span> { <span class="code-keyword">get</span>; <span class="code-keyword">set</span>; } = <span class="code-keyword">null</span>!;
+    <span class="code-keyword">public</span> <span class="code-class">Product</span> <span class="code-variable">Product</span> { <span class="code-keyword">get</span>; <span class="code-keyword">set</span>; } = <span class="code-keyword">null</span>!;
+}</code></pre>
+
+                <div class="code-header">
+                    <span class="code-filename">Controllers/OrdersController.cs</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code>[<span class="code-class">HttpGet</span>(<span class="code-string">"{id}"</span>)]
+<span class="code-keyword">public</span> <span class="code-keyword">async</span> <span class="code-class">Task</span>&lt;<span class="code-class">ActionResult</span>&gt; <span class="code-method">GetOrder</span>(<span class="code-type">int</span> <span class="code-variable">id</span>)
+{
+    <span class="code-keyword">var</span> <span class="code-variable">order</span> = <span class="code-keyword">await</span> <span class="code-variable">_context</span>.<span class="code-variable">Orders</span>
+        .<span class="code-method">Include</span>(<span class="code-variable">o</span> => <span class="code-variable">o</span>.<span class="code-variable">Items</span>)
+            .<span class="code-method">ThenInclude</span>(<span class="code-variable">i</span> => <span class="code-variable">i</span>.<span class="code-variable">Product</span>)
+                .<span class="code-method">ThenInclude</span>(<span class="code-variable">p</span> => <span class="code-variable">p</span>.<span class="code-variable">Category</span>)
+        .<span class="code-method">FirstOrDefaultAsync</span>(<span class="code-variable">o</span> => <span class="code-variable">o</span>.<span class="code-variable">Id</span> == <span class="code-variable">id</span>);
+
+    <span class="code-keyword">if</span> (<span class="code-variable">order</span> == <span class="code-keyword">null</span>)
+        <span class="code-keyword">return</span> <span class="code-method">NotFound</span>();
+
+    <span class="code-keyword">return</span> <span class="code-method">Ok</span>(<span class="code-keyword">new</span>
+    {
+        <span class="code-variable">order</span>.<span class="code-variable">Id</span>,
+        <span class="code-variable">order</span>.<span class="code-variable">OrderDate</span>,
+        <span class="code-variable">order</span>.<span class="code-variable">CustomerName</span>,
+        <span class="code-variable">items</span> = <span class="code-variable">order</span>.<span class="code-variable">Items</span>.<span class="code-method">Select</span>(<span class="code-variable">i</span> => <span class="code-keyword">new</span>
+        {
+            <span class="code-variable">i</span>.<span class="code-variable">Id</span>,
+            <span class="code-variable">i</span>.<span class="code-variable">Quantity</span>,
+            <span class="code-variable">i</span>.<span class="code-variable">Price</span>,
+            <span class="code-variable">product</span> = <span class="code-keyword">new</span>
+            {
+                <span class="code-variable">i</span>.<span class="code-variable">Product</span>.<span class="code-variable">Id</span>,
+                <span class="code-variable">i</span>.<span class="code-variable">Product</span>.<span class="code-variable">Name</span>,
+                <span class="code-variable">category</span> = <span class="code-variable">i</span>.<span class="code-variable">Product</span>.<span class="code-variable">Category</span>.<span class="code-variable">Name</span>
+            }
+        }),
+        <span class="code-variable">total</span> = <span class="code-variable">order</span>.<span class="code-variable">Items</span>.<span class="code-method">Sum</span>(<span class="code-variable">i</span> => <span class="code-variable">i</span>.<span class="code-variable">Quantity</span> * <span class="code-variable">i</span>.<span class="code-variable">Price</span>)
+    });
+}</code></pre>
+
+                <h2>Best Practices</h2>
+
+                <ul>
+                    <li><strong>Navigation properties</strong>: Always define both sides</li>
+                    <li><strong>Foreign keys</strong>: Explicitly define for clarity</li>
+                    <li><strong>Delete behavior</strong>: Choose appropriate cascade behavior</li>
+                    <li><strong>Include wisely</strong>: Only load related data when needed</li>
+                    <li><strong>Avoid circular references</strong>: Use DTOs for API responses</li>
+                    <li><strong>Many-to-many</strong>: Use automatic join tables when possible</li>
+                    <li><strong>Composite keys</strong>: Use for join entities</li>
+                </ul>
+
+                <h2>Key Takeaways</h2>
+
+                <ul>
+                    <li><strong>One-to-Many</strong>: Most common, one parent has many children</li>
+                    <li><strong>One-to-One</strong>: One entity has exactly one related entity</li>
+                    <li><strong>Many-to-Many</strong>: Multiple entities on both sides</li>
+                    <li><strong>Navigation properties</strong>: Reference related entities</li>
+                    <li><strong>Foreign keys</strong>: Link entities together</li>
+                    <li><strong>Fluent API</strong>: Configure relationships in OnModelCreating</li>
+                    <li><strong>Include()</strong>: Load related data (eager loading)</li>
+                    <li><strong>Delete behaviors</strong>: Cascade, Restrict, SetNull, NoAction</li>
+                </ul>
+
+                <div class="callout callout-concept">
+                    <div class="callout-title">🎯 Next Steps</div>
+                    <p>
+                        You now understand relationships in EF Core! In the next section, we'll explore
+                        <strong>Loading Strategies</strong>—eager loading, lazy loading, and explicit
+                        loading of related data.
+                    </p>
+                </div>
+
+                <nav class="page-nav">
+                    <a href="04-querying-linq.html" class="prev">Querying Data with LINQ</a>
+                    <a href="06-loading-strategies.html" class="next">Loading Strategies</a>
+                </nav>
+
+            
+        <footer class="page-footer">
+          Built with 💜 by <a href="https://akwasi.dev" target="_blank" rel="noopener noreferrer">Akwasi Adu-Kyeremeh</a> for developers who want to truly understand what they're building.
+        </footer>
+
+      </div>
+        </main>
+    </div>
+</body>
+
+</html>

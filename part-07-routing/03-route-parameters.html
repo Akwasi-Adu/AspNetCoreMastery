@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Route Parameters | ASP.NET Core Mastery</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;500&family=Source+Serif+4:ital,wght@0,400;0,600;1,400&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="../assets/style.css">
+</head>
+
+<body>
+    <div class="page-wrapper">
+        <aside class="sidebar">
+            <a href="../index.html" class="sidebar-logo">ASP.NET Core Mastery</a>
+            <div class="sidebar-section">Part VII: Routing</div>
+            <ul class="sidebar-nav">
+                <li><a href="01-endpoint-routing.html">Endpoint Routing Basics</a></li>
+                <li><a href="02-conventional-vs-attribute.html">Conventional vs Attribute Routing</a></li>
+                <li><a href="03-route-parameters.html" class="active">Route Parameters</a></li>
+                <li><a href="04-route-constraints.html">Route Constraints</a></li>
+                <li><a href="05-url-generation.html">URL Generation</a></li>
+                <li><a href="06-areas.html">Areas</a></li>
+            </ul>
+            <div class="sidebar-section">Resources</div>
+            <ul class="sidebar-nav">
+                <li><a href="../index.html">Full Roadmap</a></li>
+            </ul>
+        </aside>
+
+        <main class="main-content">
+            <div class="content-container">
+                <nav class="breadcrumb">
+                    <a href="../index.html">Home</a>
+                    <span>→</span>
+                    <a href="01-endpoint-routing.html">Part VII: Routing</a>
+                    <span>→</span>
+                    Route Parameters
+                </nav>
+
+                <div class="progress-indicator">
+                    <span>Section 3 of 6</span>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 50%"></div>
+                    </div>
+                </div>
+
+                <h1>Route Parameters</h1>
+
+                <div class="learning-objectives">
+                    <h3>🎯 What You'll Learn</h3>
+                    <ul>
+                        <li>Required route parameters</li>
+                        <li>Optional route parameters</li>
+                        <li>Default values</li>
+                        <li>Catch-all parameters</li>
+                        <li>Complex route patterns</li>
+                        <li>Parameter binding</li>
+                    </ul>
+                </div>
+
+                <h2>What are Route Parameters?</h2>
+
+                <p>
+                    <strong>Route parameters</strong> capture values from the URL and pass them to your action methods.
+                </p>
+
+                <div class="code-header">
+                    <span class="code-filename">Route Parameter Example</span>
+                    <span class="code-language">Text</span>
+                </div>
+                <pre><code>Route: /api/products/{id}
+URL:   /api/products/123
+       ↓
+Parameter: id = 123</code></pre>
+
+                <div class="section-divider"></div>
+
+                <h2>Required Parameters</h2>
+
+                <p>
+                    Required parameters must be present in the URL.
+                </p>
+
+                <div class="code-header">
+                    <span class="code-filename">Required Parameter</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code>[<span class="code-class">HttpGet</span>(<span class="code-string">"{id}"</span>)]
+<span class="code-keyword">public</span> <span class="code-class">IActionResult</span> <span class="code-method">GetProduct</span>(<span class="code-type">int</span> <span class="code-variable">id</span>)
+{
+    <span class="code-keyword">return</span> <span class="code-method">Ok</span>(<span class="code-string">$"Product </span>{<span class="code-variable">id</span>}<span class="code-string">"</span>);
+}
+
+<span class="code-comment">// ✅ /api/products/123 → id = 123</span>
+<span class="code-comment">// ❌ /api/products → 404 Not Found</span></code></pre>
+
+                <h3>Multiple Required Parameters</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">Multiple Parameters</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code>[<span class="code-class">HttpGet</span>(<span class="code-string">"{category}/{id}"</span>)]
+<span class="code-keyword">public</span> <span class="code-class">IActionResult</span> <span class="code-method">GetProduct</span>(<span class="code-type">string</span> <span class="code-variable">category</span>, <span class="code-type">int</span> <span class="code-variable">id</span>)
+{
+    <span class="code-keyword">return</span> <span class="code-method">Ok</span>(<span class="code-string">$"Category: </span>{<span class="code-variable">category</span>}<span class="code-string">, Product: </span>{<span class="code-variable">id</span>}<span class="code-string">"</span>);
+}
+
+<span class="code-comment">// /api/products/electronics/123</span>
+<span class="code-comment">// → category = "electronics", id = 123</span></code></pre>
+
+                <div class="section-divider"></div>
+
+                <h2>Optional Parameters</h2>
+
+                <p>
+                    Optional parameters use <code>?</code> suffix and can be omitted.
+                </p>
+
+                <div class="code-header">
+                    <span class="code-filename">Optional Parameter</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code>[<span class="code-class">HttpGet</span>(<span class="code-string">"{id?}"</span>)]
+<span class="code-keyword">public</span> <span class="code-class">IActionResult</span> <span class="code-method">GetProducts</span>(<span class="code-type">int</span>? <span class="code-variable">id</span>)
+{
+    <span class="code-keyword">if</span> (<span class="code-variable">id</span>.<span class="code-variable">HasValue</span>)
+        <span class="code-keyword">return</span> <span class="code-method">Ok</span>(<span class="code-string">$"Product </span>{<span class="code-variable">id</span>}<span class="code-string">"</span>);
+    
+    <span class="code-keyword">return</span> <span class="code-method">Ok</span>(<span class="code-string">"All products"</span>);
+}
+
+<span class="code-comment">// ✅ /api/products → id = null</span>
+<span class="code-comment">// ✅ /api/products/123 → id = 123</span></code></pre>
+
+                <div class="callout callout-info">
+                    <div class="callout-title">ℹ️ Nullable Types</div>
+                    <p>
+                        Optional route parameters should use nullable types (<code>int?</code>, <code>string?</code>)
+                        in the action method.
+                    </p>
+                </div>
+
+                <div class="section-divider"></div>
+
+                <h2>Default Values</h2>
+
+                <p>
+                    Default values are used when the parameter is not provided.
+                </p>
+
+                <div class="code-header">
+                    <span class="code-filename">Default Value</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code>[<span class="code-class">HttpGet</span>(<span class="code-string">"{page=1}"</span>)]
+<span class="code-keyword">public</span> <span class="code-class">IActionResult</span> <span class="code-method">GetProducts</span>(<span class="code-type">int</span> <span class="code-variable">page</span>)
+{
+    <span class="code-keyword">return</span> <span class="code-method">Ok</span>(<span class="code-string">$"Page </span>{<span class="code-variable">page</span>}<span class="code-string">"</span>);
+}
+
+<span class="code-comment">// /api/products → page = 1 (default)</span>
+<span class="code-comment">// /api/products/5 → page = 5</span></code></pre>
+
+                <h3>Conventional Routing Default</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">Program.cs</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-variable">app</span>.<span class="code-method">MapControllerRoute</span>(
+    <span class="code-variable">name</span>: <span class="code-string">"default"</span>,
+    <span class="code-variable">pattern</span>: <span class="code-string">"{controller=Home}/{action=Index}/{id?}"</span>);
+
+<span class="code-comment">// / → Home/Index</span>
+<span class="code-comment">// /Products → Products/Index</span>
+<span class="code-comment">// /Products/Details/123 → Products/Details/123</span></code></pre>
+
+                <div class="section-divider"></div>
+
+                <h2>Catch-All Parameters</h2>
+
+                <p>
+                    Catch-all parameters capture the rest of the URL path.
+                </p>
+
+                <div class="code-header">
+                    <span class="code-filename">Catch-All Parameter</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code>[<span class="code-class">HttpGet</span>(<span class="code-string">"{*path}"</span>)]
+<span class="code-keyword">public</span> <span class="code-class">IActionResult</span> <span class="code-method">CatchAll</span>(<span class="code-type">string</span> <span class="code-variable">path</span>)
+{
+    <span class="code-keyword">return</span> <span class="code-method">Ok</span>(<span class="code-string">$"Path: </span>{<span class="code-variable">path</span>}<span class="code-string">"</span>);
+}
+
+<span class="code-comment">// /api/files/docs/2024/report.pdf</span>
+<span class="code-comment">// → path = "docs/2024/report.pdf"</span></code></pre>
+
+                <h3>Practical Use Case: File Serving</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">File Controller</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code>[<span class="code-class">Route</span>(<span class="code-string">"api/files"</span>)]
+<span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">FilesController</span> : <span class="code-class">ControllerBase</span>
+{
+    [<span class="code-class">HttpGet</span>(<span class="code-string">"{*filePath}"</span>)]
+    <span class="code-keyword">public</span> <span class="code-class">IActionResult</span> <span class="code-method">GetFile</span>(<span class="code-type">string</span> <span class="code-variable">filePath</span>)
+    {
+        <span class="code-keyword">var</span> <span class="code-variable">fullPath</span> = <span class="code-class">Path</span>.<span class="code-method">Combine</span>(<span class="code-string">"uploads"</span>, <span class="code-variable">filePath</span>);
+        
+        <span class="code-keyword">if</span> (!<span class="code-class">System</span>.<span class="code-class">IO</span>.<span class="code-class">File</span>.<span class="code-method">Exists</span>(<span class="code-variable">fullPath</span>))
+            <span class="code-keyword">return</span> <span class="code-method">NotFound</span>();
+        
+        <span class="code-keyword">return</span> <span class="code-method">PhysicalFile</span>(<span class="code-variable">fullPath</span>, <span class="code-string">"application/octet-stream"</span>);
+    }
+}</code></pre>
+
+                <div class="section-divider"></div>
+
+                <h2>Complex Route Patterns</h2>
+
+                <h3>Blog Post Example</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">Blog Routes</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code>[<span class="code-class">Route</span>(<span class="code-string">"blog"</span>)]
+<span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">BlogController</span> : <span class="code-class">Controller</span>
+{
+    <span class="code-comment">// /blog/2024/12/10/my-post-title</span>
+    [<span class="code-class">HttpGet</span>(<span class="code-string">"{year}/{month}/{day}/{slug}"</span>)]
+    <span class="code-keyword">public</span> <span class="code-class">IActionResult</span> <span class="code-method">Post</span>(
+        <span class="code-type">int</span> <span class="code-variable">year</span>,
+        <span class="code-type">int</span> <span class="code-variable">month</span>,
+        <span class="code-type">int</span> <span class="code-variable">day</span>,
+        <span class="code-type">string</span> <span class="code-variable">slug</span>)
+    {
+        <span class="code-keyword">return</span> <span class="code-method">Ok</span>(<span class="code-string">$"Post: </span>{<span class="code-variable">year</span>}<span class="code-string">-</span>{<span class="code-variable">month</span>}<span class="code-string">-</span>{<span class="code-variable">day</span>}<span class="code-string"> - </span>{<span class="code-variable">slug</span>}<span class="code-string">"</span>);
+    }
+}</code></pre>
+
+                <h3>Product Search Example</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">Search Routes</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code>[<span class="code-class">Route</span>(<span class="code-string">"api/products"</span>)]
+<span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">ProductsController</span> : <span class="code-class">ControllerBase</span>
+{
+    <span class="code-comment">// /api/products/category/electronics/price/100-500</span>
+    [<span class="code-class">HttpGet</span>(<span class="code-string">"category/{category}/price/{minPrice}-{maxPrice}"</span>)]
+    <span class="code-keyword">public</span> <span class="code-class">IActionResult</span> <span class="code-method">SearchByPriceRange</span>(
+        <span class="code-type">string</span> <span class="code-variable">category</span>,
+        <span class="code-type">decimal</span> <span class="code-variable">minPrice</span>,
+        <span class="code-type">decimal</span> <span class="code-variable">maxPrice</span>)
+    {
+        <span class="code-keyword">return</span> <span class="code-method">Ok</span>(<span class="code-string">$"</span>{<span class="code-variable">category</span>}<span class="code-string">: $</span>{<span class="code-variable">minPrice</span>}<span class="code-string">-$</span>{<span class="code-variable">maxPrice</span>}<span class="code-string">"</span>);
+    }
+}</code></pre>
+
+                <div class="section-divider"></div>
+
+                <h2>Parameter Binding</h2>
+
+                <p>
+                    ASP.NET Core automatically binds route parameters to action method parameters.
+                </p>
+
+                <h3>Automatic Type Conversion</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">Type Conversion</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code>[<span class="code-class">HttpGet</span>(<span class="code-string">"{id}/{active}"</span>)]
+<span class="code-keyword">public</span> <span class="code-class">IActionResult</span> <span class="code-method">GetProduct</span>(<span class="code-type">int</span> <span class="code-variable">id</span>, <span class="code-type">bool</span> <span class="code-variable">active</span>)
+{
+    <span class="code-comment">// /api/products/123/true</span>
+    <span class="code-comment">// → id = 123 (int), active = true (bool)</span>
+    <span class="code-keyword">return</span> <span class="code-method">Ok</span>();
+}</code></pre>
+
+                <h3>Custom Model Binding</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">Complex Object from Route</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-keyword">public</span> <span class="code-keyword">record</span> <span class="code-class">DateRange</span>(<span class="code-type">int</span> <span class="code-variable">Year</span>, <span class="code-type">int</span> <span class="code-variable">Month</span>, <span class="code-type">int</span> <span class="code-variable">Day</span>);
+
+[<span class="code-class">HttpGet</span>(<span class="code-string">"{year}/{month}/{day}"</span>)]
+<span class="code-keyword">public</span> <span class="code-class">IActionResult</span> <span class="code-method">GetByDate</span>([<span class="code-class">FromRoute</span>] <span class="code-class">DateRange</span> <span class="code-variable">date</span>)
+{
+    <span class="code-comment">// /api/products/2024/12/10</span>
+    <span class="code-comment">// → date.Year = 2024, date.Month = 12, date.Day = 10</span>
+    <span class="code-keyword">return</span> <span class="code-method">Ok</span>(<span class="code-variable">date</span>);
+}</code></pre>
+
+                <div class="section-divider"></div>
+
+                <h2>Complete InvenTrack Example</h2>
+
+                <div class="code-header">
+                    <span class="code-filename">Controllers/ProductsController.cs</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code>[<span class="code-class">ApiController</span>]
+[<span class="code-class">Route</span>(<span class="code-string">"api/[controller]"</span>)]
+<span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">ProductsController</span> : <span class="code-class">ControllerBase</span>
+{
+    <span class="code-comment">// Required parameter</span>
+    <span class="code-comment">// GET /api/products/123</span>
+    [<span class="code-class">HttpGet</span>(<span class="code-string">"{id:int}"</span>)]
+    <span class="code-keyword">public</span> <span class="code-class">IActionResult</span> <span class="code-method">GetById</span>(<span class="code-type">int</span> <span class="code-variable">id</span>)
+    {
+        <span class="code-keyword">return</span> <span class="code-method">Ok</span>(<span class="code-string">$"Product </span>{<span class="code-variable">id</span>}<span class="code-string">"</span>);
+    }
+
+    <span class="code-comment">// Optional parameter</span>
+    <span class="code-comment">// GET /api/products/page or /api/products/page/2</span>
+    [<span class="code-class">HttpGet</span>(<span class="code-string">"page/{pageNumber?}"</span>)]
+    <span class="code-keyword">public</span> <span class="code-class">IActionResult</span> <span class="code-method">GetPage</span>(<span class="code-type">int</span>? <span class="code-variable">pageNumber</span>)
+    {
+        <span class="code-keyword">var</span> <span class="code-variable">page</span> = <span class="code-variable">pageNumber</span> ?? <span class="code-number">1</span>;
+        <span class="code-keyword">return</span> <span class="code-method">Ok</span>(<span class="code-string">$"Page </span>{<span class="code-variable">page</span>}<span class="code-string">"</span>);
+    }
+
+    <span class="code-comment">// Default value</span>
+    <span class="code-comment">// GET /api/products/list or /api/products/list/10</span>
+    [<span class="code-class">HttpGet</span>(<span class="code-string">"list/{pageSize=20}"</span>)]
+    <span class="code-keyword">public</span> <span class="code-class">IActionResult</span> <span class="code-method">GetList</span>(<span class="code-type">int</span> <span class="code-variable">pageSize</span>)
+    {
+        <span class="code-keyword">return</span> <span class="code-method">Ok</span>(<span class="code-string">$"Page size: </span>{<span class="code-variable">pageSize</span>}<span class="code-string">"</span>);
+    }
+
+    <span class="code-comment">// Multiple parameters</span>
+    <span class="code-comment">// GET /api/products/category/electronics/123</span>
+    [<span class="code-class">HttpGet</span>(<span class="code-string">"category/{category}/{id}"</span>)]
+    <span class="code-keyword">public</span> <span class="code-class">IActionResult</span> <span class="code-method">GetByCategory</span>(<span class="code-type">string</span> <span class="code-variable">category</span>, <span class="code-type">int</span> <span class="code-variable">id</span>)
+    {
+        <span class="code-keyword">return</span> <span class="code-method">Ok</span>(<span class="code-string">$"</span>{<span class="code-variable">category</span>}<span class="code-string">: Product </span>{<span class="code-variable">id</span>}<span class="code-string">"</span>);
+    }
+
+    <span class="code-comment">// Complex pattern</span>
+    <span class="code-comment">// GET /api/products/price/100-500</span>
+    [<span class="code-class">HttpGet</span>(<span class="code-string">"price/{minPrice:decimal}-{maxPrice:decimal}"</span>)]
+    <span class="code-keyword">public</span> <span class="code-class">IActionResult</span> <span class="code-method">GetByPriceRange</span>(<span class="code-type">decimal</span> <span class="code-variable">minPrice</span>, <span class="code-type">decimal</span> <span class="code-variable">maxPrice</span>)
+    {
+        <span class="code-keyword">return</span> <span class="code-method">Ok</span>(<span class="code-string">$"Price range: $</span>{<span class="code-variable">minPrice</span>}<span class="code-string"> - $</span>{<span class="code-variable">maxPrice</span>}<span class="code-string">"</span>);
+    }
+
+    <span class="code-comment">// Catch-all for file paths</span>
+    <span class="code-comment">// GET /api/products/images/2024/product-123.jpg</span>
+    [<span class="code-class">HttpGet</span>(<span class="code-string">"images/{*imagePath}"</span>)]
+    <span class="code-keyword">public</span> <span class="code-class">IActionResult</span> <span class="code-method">GetImage</span>(<span class="code-type">string</span> <span class="code-variable">imagePath</span>)
+    {
+        <span class="code-keyword">return</span> <span class="code-method">Ok</span>(<span class="code-string">$"Image path: </span>{<span class="code-variable">imagePath</span>}<span class="code-string">"</span>);
+    }
+}</code></pre>
+
+                <h2>Key Takeaways</h2>
+
+                <ul>
+                    <li><strong>Required parameters</strong>: <code>{id}</code> - must be present</li>
+                    <li><strong>Optional parameters</strong>: <code>{id?}</code> - can be omitted</li>
+                    <li><strong>Default values</strong>: <code>{page=1}</code> - fallback value</li>
+                    <li><strong>Catch-all</strong>: <code>{*path}</code> - captures rest of URL</li>
+                    <li><strong>Multiple parameters</strong>: <code>{category}/{id}</code></li>
+                    <li><strong>Complex patterns</strong>: <code>{min}-{max}</code></li>
+                    <li><strong>Automatic binding</strong>: Route values → action parameters</li>
+                    <li><strong>Type conversion</strong>: Strings → int, bool, decimal, etc.</li>
+                    <li><strong>Nullable types</strong>: Use for optional parameters</li>
+                </ul>
+
+                <div class="callout callout-concept">
+                    <div class="callout-title">🎯 Next Steps</div>
+                    <p>
+                        You now understand route parameters! In the next section, we'll explore
+                        <strong>Route Constraints</strong>—how to restrict parameter values and ensure
+                        only valid URLs match your routes.
+                    </p>
+                </div>
+
+                <nav class="page-nav">
+                    <a href="02-conventional-vs-attribute.html" class="prev">Conventional vs Attribute Routing</a>
+                    <a href="04-route-constraints.html" class="next">Route Constraints</a>
+                </nav>
+
+            
+        <footer class="page-footer">
+          Built with 💜 by <a href="https://akwasi.dev" target="_blank" rel="noopener noreferrer">Akwasi Adu-Kyeremeh</a> for developers who want to truly understand what they're building.
+        </footer>
+
+      </div>
+        </main>
+    </div>
+</body>
+
+</html>

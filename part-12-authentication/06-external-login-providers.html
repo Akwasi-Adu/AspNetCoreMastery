@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>External Login Providers | ASP.NET Core Mastery</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;500&family=Source+Serif+4:ital,wght@0,400;0,600;1,400&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="../assets/style.css">
+</head>
+
+<body>
+    <div class="page-wrapper">
+        <aside class="sidebar">
+            <a href="../index.html" class="sidebar-logo">ASP.NET Core Mastery</a>
+            <div class="sidebar-section">Part XII: Authentication</div>
+            <ul class="sidebar-nav">
+                <li><a href="01-authentication-fundamentals.html">Authentication Fundamentals</a></li>
+                <li><a href="02-aspnet-core-identity.html">ASP.NET Core Identity</a></li>
+                <li><a href="03-cookie-authentication.html">Cookie Authentication</a></li>
+                <li><a href="04-jwt-bearer-authentication.html">JWT Bearer Authentication</a></li>
+                <li><a href="05-oauth-openid-connect.html">OAuth 2.0 & OpenID Connect</a></li>
+                <li><a href="06-external-login-providers.html" class="active">External Login Providers</a></li>
+            </ul>
+            <div class="sidebar-section">Resources</div>
+            <ul class="sidebar-nav">
+                <li><a href="../index.html">Full Roadmap</a></li>
+            </ul>
+        </aside>
+
+        <main class="main-content">
+            <div class="content-container">
+                <nav class="breadcrumb">
+                    <a href="../index.html">Home</a>
+                    <span>→</span>
+                    <a href="01-authentication-fundamentals.html">Part XII: Authentication</a>
+                    <span>→</span>
+                    External Login Providers
+                </nav>
+
+                <div class="progress-indicator">
+                    <span>Section 6 of 6</span>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 100%"></div>
+                    </div>
+                </div>
+
+                <h1>External Login Providers</h1>
+
+                <div class="learning-objectives">
+                    <h3>🎯 What You'll Learn</h3>
+                    <ul>
+                        <li>What are external login providers</li>
+                        <li>Setting up Google authentication</li>
+                        <li>Setting up Microsoft authentication</li>
+                        <li>Setting up Facebook authentication</li>
+                        <li>Handling external login</li>
+                    </ul>
+                </div>
+
+                <h2>What are External Login Providers?</h2>
+
+                <p>
+                    <strong>External login providers</strong> allow users to sign in using their existing accounts
+                    from services like Google, Microsoft, Facebook, GitHub, etc.
+                </p>
+
+                <h3>Benefits</h3>
+                <ul>
+                    <li><strong>No password management</strong>: Users don't create new passwords</li>
+                    <li><strong>Faster registration</strong>: One-click sign-up</li>
+                    <li><strong>Trusted providers</strong>: Users trust Google/Microsoft security</li>
+                    <li><strong>Less liability</strong>: Provider handles password security</li>
+                </ul>
+
+                <div class="section-divider"></div>
+
+                <h2>Google Authentication</h2>
+
+                <h3>1. Install Package</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">Install NuGet Package</span>
+                    <span class="code-language">Bash</span>
+                </div>
+                <pre><code>dotnet add package Microsoft.AspNetCore.Authentication.Google</code></pre>
+
+                <h3>2. Get Google Credentials</h3>
+
+                <ol>
+                    <li>Go to <a href="https://console.cloud.google.com" target="_blank">Google Cloud Console</a></li>
+                    <li>Create a new project</li>
+                    <li>Enable Google+ API</li>
+                    <li>Create OAuth 2.0 credentials</li>
+                    <li>Add authorized redirect URI: <code>https://localhost:5001/signin-google</code></li>
+                </ol>
+
+                <h3>3. Configure Google Authentication</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">Program.cs</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-variable">builder</span>.<span class="code-variable">Services</span>.<span class="code-method">AddAuthentication</span>()
+    .<span class="code-method">AddGoogle</span>(<span class="code-variable">options</span> =>
+    {
+        <span class="code-variable">options</span>.<span class="code-variable">ClientId</span> = <span class="code-variable">builder</span>.<span class="code-variable">Configuration</span>[<span class="code-string">"Google:ClientId"</span>]!;
+        <span class="code-variable">options</span>.<span class="code-variable">ClientSecret</span> = <span class="code-variable">builder</span>.<span class="code-variable">Configuration</span>[<span class="code-string">"Google:ClientSecret"</span>]!;
+    });</code></pre>
+
+                <div class="section-divider"></div>
+
+                <h2>Microsoft Authentication</h2>
+
+                <h3>1. Install Package</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">Install NuGet Package</span>
+                    <span class="code-language">Bash</span>
+                </div>
+                <pre><code>dotnet add package Microsoft.AspNetCore.Authentication.MicrosoftAccount</code></pre>
+
+                <h3>2. Configure Microsoft Authentication</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">Program.cs</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-variable">builder</span>.<span class="code-variable">Services</span>.<span class="code-method">AddAuthentication</span>()
+    .<span class="code-method">AddMicrosoftAccount</span>(<span class="code-variable">options</span> =>
+    {
+        <span class="code-variable">options</span>.<span class="code-variable">ClientId</span> = <span class="code-variable">builder</span>.<span class="code-variable">Configuration</span>[<span class="code-string">"Microsoft:ClientId"</span>]!;
+        <span class="code-variable">options</span>.<span class="code-variable">ClientSecret</span> = <span class="code-variable">builder</span>.<span class="code-variable">Configuration</span>[<span class="code-string">"Microsoft:ClientSecret"</span>]!;
+    });</code></pre>
+
+                <div class="section-divider"></div>
+
+                <h2>Facebook Authentication</h2>
+
+                <h3>1. Install Package</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">Install NuGet Package</span>
+                    <span class="code-language">Bash</span>
+                </div>
+                <pre><code>dotnet add package Microsoft.AspNetCore.Authentication.Facebook</code></pre>
+
+                <h3>2. Configure Facebook Authentication</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">Program.cs</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-variable">builder</span>.<span class="code-variable">Services</span>.<span class="code-method">AddAuthentication</span>()
+    .<span class="code-method">AddFacebook</span>(<span class="code-variable">options</span> =>
+    {
+        <span class="code-variable">options</span>.<span class="code-variable">AppId</span> = <span class="code-variable">builder</span>.<span class="code-variable">Configuration</span>[<span class="code-string">"Facebook:AppId"</span>]!;
+        <span class="code-variable">options</span>.<span class="code-variable">AppSecret</span> = <span class="code-variable">builder</span>.<span class="code-variable">Configuration</span>[<span class="code-string">"Facebook:AppSecret"</span>]!;
+    });</code></pre>
+
+                <div class="section-divider"></div>
+
+                <h2>Handling External Login</h2>
+
+                <div class="code-header">
+                    <span class="code-filename">External Login Challenge</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code>[<span class="code-class">HttpPost</span>]
+<span class="code-keyword">public</span> <span class="code-class">IActionResult</span> <span class="code-method">ExternalLogin</span>(<span class="code-type">string</span> <span class="code-variable">provider</span>)
+{
+    <span class="code-keyword">var</span> <span class="code-variable">redirectUrl</span> = <span class="code-class">Url</span>.<span class="code-method">Action</span>(<span class="code-string">"ExternalLoginCallback"</span>);
+    <span class="code-keyword">var</span> <span class="code-variable">properties</span> = <span class="code-variable">_signInManager</span>.<span class="code-method">ConfigureExternalAuthenticationProperties</span>(<span class="code-variable">provider</span>, <span class="code-variable">redirectUrl</span>);
+    <span class="code-keyword">return</span> <span class="code-keyword">new</span> <span class="code-class">ChallengeResult</span>(<span class="code-variable">provider</span>, <span class="code-variable">properties</span>);
+}</code></pre>
+
+                <div class="code-header">
+                    <span class="code-filename">External Login Callback</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-keyword">public</span> <span class="code-keyword">async</span> <span class="code-class">Task</span>&lt;<span class="code-class">IActionResult</span>&gt; <span class="code-method">ExternalLoginCallback</span>()
+{
+    <span class="code-keyword">var</span> <span class="code-variable">info</span> = <span class="code-keyword">await</span> <span class="code-variable">_signInManager</span>.<span class="code-method">GetExternalLoginInfoAsync</span>();
+    <span class="code-keyword">if</span> (<span class="code-variable">info</span> == <span class="code-keyword">null</span>)
+        <span class="code-keyword">return</span> <span class="code-method">RedirectToAction</span>(<span class="code-string">"Login"</span>);
+
+    <span class="code-comment">// Sign in with external provider</span>
+    <span class="code-keyword">var</span> <span class="code-variable">result</span> = <span class="code-keyword">await</span> <span class="code-variable">_signInManager</span>.<span class="code-method">ExternalLoginSignInAsync</span>(
+        <span class="code-variable">info</span>.<span class="code-variable">LoginProvider</span>, 
+        <span class="code-variable">info</span>.<span class="code-variable">ProviderKey</span>, 
+        <span class="code-variable">isPersistent</span>: <span class="code-keyword">false</span>);
+
+    <span class="code-keyword">if</span> (<span class="code-variable">result</span>.<span class="code-variable">Succeeded</span>)
+        <span class="code-keyword">return</span> <span class="code-method">RedirectToAction</span>(<span class="code-string">"Index"</span>, <span class="code-string">"Home"</span>);
+
+    <span class="code-comment">// User doesn't exist, create account</span>
+    <span class="code-keyword">var</span> <span class="code-variable">email</span> = <span class="code-variable">info</span>.<span class="code-variable">Principal</span>.<span class="code-method">FindFirstValue</span>(<span class="code-class">ClaimTypes</span>.<span class="code-variable">Email</span>);
+    <span class="code-keyword">var</span> <span class="code-variable">user</span> = <span class="code-keyword">new</span> <span class="code-class">ApplicationUser</span> { <span class="code-variable">UserName</span> = <span class="code-variable">email</span>, <span class="code-variable">Email</span> = <span class="code-variable">email</span> };
+    
+    <span class="code-keyword">var</span> <span class="code-variable">createResult</span> = <span class="code-keyword">await</span> <span class="code-variable">_userManager</span>.<span class="code-method">CreateAsync</span>(<span class="code-variable">user</span>);
+    <span class="code-keyword">if</span> (<span class="code-variable">createResult</span>.<span class="code-variable">Succeeded</span>)
+    {
+        <span class="code-keyword">await</span> <span class="code-variable">_userManager</span>.<span class="code-method">AddLoginAsync</span>(<span class="code-variable">user</span>, <span class="code-variable">info</span>);
+        <span class="code-keyword">await</span> <span class="code-variable">_signInManager</span>.<span class="code-method">SignInAsync</span>(<span class="code-variable">user</span>, <span class="code-variable">isPersistent</span>: <span class="code-keyword">false</span>);
+        <span class="code-keyword">return</span> <span class="code-method">RedirectToAction</span>(<span class="code-string">"Index"</span>, <span class="code-string">"Home"</span>);
+    }
+
+    <span class="code-keyword">return</span> <span class="code-method">RedirectToAction</span>(<span class="code-string">"Login"</span>);
+}</code></pre>
+
+                <div class="section-divider"></div>
+
+                <h2>Login View</h2>
+
+                <div class="code-header">
+                    <span class="code-filename">External Login Buttons</span>
+                    <span class="code-language">HTML</span>
+                </div>
+                <pre><code>&lt;<span class="code-tag">form</span> <span class="code-attribute">asp-action</span>=<span class="code-string">"ExternalLogin"</span> <span class="code-attribute">method</span>=<span class="code-string">"post"</span>&gt;
+    &lt;<span class="code-tag">button</span> <span class="code-attribute">type</span>=<span class="code-string">"submit"</span> <span class="code-attribute">name</span>=<span class="code-string">"provider"</span> <span class="code-attribute">value</span>=<span class="code-string">"Google"</span> <span class="code-attribute">class</span>=<span class="code-string">"btn btn-danger"</span>&gt;
+        Login with Google
+    &lt;/<span class="code-tag">button</span>&gt;
+    
+    &lt;<span class="code-tag">button</span> <span class="code-attribute">type</span>=<span class="code-string">"submit"</span> <span class="code-attribute">name</span>=<span class="code-string">"provider"</span> <span class="code-attribute">value</span>=<span class="code-string">"Microsoft"</span> <span class="code-attribute">class</span>=<span class="code-string">"btn btn-primary"</span>&gt;
+        Login with Microsoft
+    &lt;/<span class="code-tag">button</span>&gt;
+    
+    &lt;<span class="code-tag">button</span> <span class="code-attribute">type</span>=<span class="code-string">"submit"</span> <span class="code-attribute">name</span>=<span class="code-string">"provider"</span> <span class="code-attribute">value</span>=<span class="code-string">"Facebook"</span> <span class="code-attribute">class</span>=<span class="code-string">"btn btn-info"</span>&gt;
+        Login with Facebook
+    &lt;/<span class="code-tag">button</span>&gt;
+&lt;/<span class="code-tag">form</span>&gt;</code></pre>
+
+                <h2>Key Takeaways</h2>
+
+                <ul>
+                    <li><strong>External providers</strong>: Google, Microsoft, Facebook, GitHub, etc.</li>
+                    <li><strong>AddGoogle()</strong>: Configure Google authentication</li>
+                    <li><strong>AddMicrosoftAccount()</strong>: Configure Microsoft authentication</li>
+                    <li><strong>AddFacebook()</strong>: Configure Facebook authentication</li>
+                    <li><strong>ExternalLoginSignInAsync()</strong>: Sign in with external provider</li>
+                    <li><strong>Benefits</strong>: No password management, faster registration</li>
+                </ul>
+
+                <div class="callout callout-concept">
+                    <div class="callout-title">🎉 Part XII Complete!</div>
+                    <p>
+                        Congratulations! You've completed <strong>Part XII: Authentication</strong>. You now understand:
+                    </p>
+                    <ul>
+                        <li>✅ Authentication fundamentals (claims, principals, schemes)</li>
+                        <li>✅ ASP.NET Core Identity (UserManager, SignInManager, roles)</li>
+                        <li>✅ Cookie authentication (browser-based auth)</li>
+                        <li>✅ JWT Bearer authentication (token-based for APIs)</li>
+                        <li>✅ OAuth 2.0 & OpenID Connect (authorization & authentication)</li>
+                        <li>✅ External login providers (Google, Microsoft, Facebook)</li>
+                    </ul>
+                    <p>
+                        You now have the skills to implement secure authentication in your ASP.NET Core applications! 🚀
+                    </p>
+                </div>
+
+                <nav class="page-nav">
+                    <a href="05-oauth-openid-connect.html" class="prev">OAuth 2.0 & OpenID Connect</a>
+                    <a href="../index.html" class="next">Back to Roadmap</a>
+                </nav>
+
+            
+        <footer class="page-footer">
+          Built with 💜 by <a href="https://akwasi.dev" target="_blank" rel="noopener noreferrer">Akwasi Adu-Kyeremeh</a> for developers who want to truly understand what they're building.
+        </footer>
+
+      </div>
+        </main>
+    </div>
+</body>
+
+</html>

@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Serilog Integration | ASP.NET Core Mastery</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;500&family=Source+Serif+4:ital,wght@0,400;0,600;1,400&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="../assets/style.css">
+</head>
+
+<body>
+    <div class="page-wrapper">
+        <aside class="sidebar">
+            <a href="../index.html" class="sidebar-logo">ASP.NET Core Mastery</a>
+            <div class="sidebar-section">Part XV: Logging</div>
+            <ul class="sidebar-nav">
+                <li><a href="01-ilogger-interface.html">ILogger Interface</a></li>
+                <li><a href="02-log-levels.html">Log Levels</a></li>
+                <li><a href="03-built-in-providers.html">Built-in Providers</a></li>
+                <li><a href="04-structured-logging.html">Structured Logging</a></li>
+                <li><a href="05-serilog-integration.html" class="active">Serilog Integration</a></li>
+                <li><a href="06-logging-best-practices.html">Logging Best Practices</a></li>
+            </ul>
+            <div class="sidebar-section">Resources</div>
+            <ul class="sidebar-nav">
+                <li><a href="../index.html">Full Roadmap</a></li>
+            </ul>
+        </aside>
+
+        <main class="main-content">
+            <div class="content-container">
+                <nav class="breadcrumb">
+                    <a href="../index.html">Home</a>
+                    <span>→</span>
+                    <a href="01-ilogger-interface.html">Part XV: Logging</a>
+                    <span>→</span>
+                    Serilog Integration
+                </nav>
+
+                <div class="progress-indicator">
+                    <span>Section 5 of 6</span>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 83.33%"></div>
+                    </div>
+                </div>
+
+                <h1>Serilog Integration</h1>
+
+                <div class="learning-objectives">
+                    <h3>🎯 What You'll Learn</h3>
+                    <ul>
+                        <li>What is Serilog</li>
+                        <li>Installing Serilog</li>
+                        <li>Configuring Serilog</li>
+                        <li>Serilog sinks</li>
+                        <li>Enrichers</li>
+                    </ul>
+                </div>
+
+                <h2>What is Serilog?</h2>
+
+                <p>
+                    <strong>Serilog</strong> is a popular third-party logging library with excellent structured logging
+                    support
+                    and many sinks (destinations) for writing logs.
+                </p>
+
+                <div class="section-divider"></div>
+
+                <h2>Installing Serilog</h2>
+
+                <div class="code-header">
+                    <span class="code-filename">Install Packages</span>
+                    <span class="code-language">Bash</span>
+                </div>
+                <pre><code>dotnet add package Serilog.AspNetCore
+dotnet add package Serilog.Sinks.Console
+dotnet add package Serilog.Sinks.File</code></pre>
+
+                <div class="section-divider"></div>
+
+                <h2>Basic Configuration</h2>
+
+                <div class="code-header">
+                    <span class="code-filename">Program.cs</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-keyword">using</span> <span class="code-variable">Serilog</span>;
+
+<span class="code-keyword">var</span> <span class="code-variable">builder</span> = <span class="code-class">WebApplication</span>.<span class="code-method">CreateBuilder</span>(<span class="code-variable">args</span>);
+
+<span class="code-comment">// Configure Serilog</span>
+<span class="code-variable">builder</span>.<span class="code-variable">Host</span>.<span class="code-method">UseSerilog</span>((<span class="code-variable">context</span>, <span class="code-variable">configuration</span>) =>
+{
+    <span class="code-variable">configuration</span>
+        .<span class="code-method">ReadFrom</span>.<span class="code-method">Configuration</span>(<span class="code-variable">context</span>.<span class="code-variable">Configuration</span>)
+        .<span class="code-method">WriteTo</span>.<span class="code-method">Console</span>()
+        .<span class="code-method">WriteTo</span>.<span class="code-method">File</span>(<span class="code-string">"logs/log-.txt"</span>, <span class="code-variable">rollingInterval</span>: <span class="code-class">RollingInterval</span>.<span class="code-variable">Day</span>);
+});
+
+<span class="code-keyword">var</span> <span class="code-variable">app</span> = <span class="code-variable">builder</span>.<span class="code-method">Build</span>();
+
+<span class="code-variable">app</span>.<span class="code-method">UseSerilogRequestLogging</span>(); <span class="code-comment">// Log HTTP requests</span>
+
+<span class="code-variable">app</span>.<span class="code-method">Run</span>();</code></pre>
+
+                <div class="section-divider"></div>
+
+                <h2>Configuration in appsettings.json</h2>
+
+                <div class="code-header">
+                    <span class="code-filename">appsettings.json</span>
+                    <span class="code-language">JSON</span>
+                </div>
+                <pre><code>{
+  <span class="code-string">"Serilog"</span>: {
+    <span class="code-string">"MinimumLevel"</span>: {
+      <span class="code-string">"Default"</span>: <span class="code-string">"Information"</span>,
+      <span class="code-string">"Override"</span>: {
+        <span class="code-string">"Microsoft"</span>: <span class="code-string">"Warning"</span>,
+        <span class="code-string">"System"</span>: <span class="code-string">"Warning"</span>
+      }
+    },
+    <span class="code-string">"WriteTo"</span>: [
+      { <span class="code-string">"Name"</span>: <span class="code-string">"Console"</span> },
+      {
+        <span class="code-string">"Name"</span>: <span class="code-string">"File"</span>,
+        <span class="code-string">"Args"</span>: {
+          <span class="code-string">"path"</span>: <span class="code-string">"logs/log-.txt"</span>,
+          <span class="code-string">"rollingInterval"</span>: <span class="code-string">"Day"</span>
+        }
+      }
+    ]
+  }
+}</code></pre>
+
+                <div class="section-divider"></div>
+
+                <h2>Popular Serilog Sinks</h2>
+
+                <h3>File Sink</h3>
+                <div class="code-header">
+                    <span class="code-filename">Write to File</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code>.<span class="code-method">WriteTo</span>.<span class="code-method">File</span>(<span class="code-string">"logs/log-.txt"</span>, <span class="code-variable">rollingInterval</span>: <span class="code-class">RollingInterval</span>.<span class="code-variable">Day</span>)</code></pre>
+
+                <h3>Seq Sink</h3>
+                <p>Seq is a log server for searching and analyzing structured logs.</p>
+                <div class="code-header">
+                    <span class="code-filename">Install and Configure</span>
+                    <span class="code-language">Bash</span>
+                </div>
+                <pre><code>dotnet add package Serilog.Sinks.Seq</code></pre>
+
+                <div class="code-header">
+                    <span class="code-filename">Write to Seq</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code>.<span class="code-method">WriteTo</span>.<span class="code-method">Seq</span>(<span class="code-string">"http://localhost:5341"</span>)</code></pre>
+
+                <h3>Application Insights Sink</h3>
+                <div class="code-header">
+                    <span class="code-filename">Install and Configure</span>
+                    <span class="code-language">Bash</span>
+                </div>
+                <pre><code>dotnet add package Serilog.Sinks.ApplicationInsights</code></pre>
+
+                <div class="section-divider"></div>
+
+                <h2>Enrichers</h2>
+
+                <p>Enrichers add additional properties to all log events.</p>
+
+                <div class="code-header">
+                    <span class="code-filename">Install Enrichers</span>
+                    <span class="code-language">Bash</span>
+                </div>
+                <pre><code>dotnet add package Serilog.Enrichers.Environment
+dotnet add package Serilog.Enrichers.Thread</code></pre>
+
+                <div class="code-header">
+                    <span class="code-filename">Configure Enrichers</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-variable">configuration</span>
+    .<span class="code-method">Enrich</span>.<span class="code-method">WithMachineName</span>()
+    .<span class="code-method">Enrich</span>.<span class="code-method">WithThreadId</span>()
+    .<span class="code-method">Enrich</span>.<span class="code-method">WithEnvironmentName</span>()</code></pre>
+
+                <h2>Key Takeaways</h2>
+
+                <ul>
+                    <li><strong>Serilog</strong>: Popular structured logging library</li>
+                    <li><strong>UseSerilog()</strong>: Configure Serilog in Program.cs</li>
+                    <li><strong>Sinks</strong>: Console, File, Seq, Application Insights, etc.</li>
+                    <li><strong>Configuration</strong>: appsettings.json or code</li>
+                    <li><strong>Enrichers</strong>: Add properties to all logs</li>
+                    <li><strong>UseSerilogRequestLogging()</strong>: Log HTTP requests</li>
+                </ul>
+
+                <nav class="page-nav">
+                    <a href="04-structured-logging.html" class="prev">Structured Logging</a>
+                    <a href="06-logging-best-practices.html" class="next">Logging Best Practices</a>
+                </nav>
+
+            
+        <footer class="page-footer">
+          Built with 💜 by <a href="https://akwasi.dev" target="_blank" rel="noopener noreferrer">Akwasi Adu-Kyeremeh</a> for developers who want to truly understand what they're building.
+        </footer>
+
+      </div>
+        </main>
+    </div>
+</body>
+
+</html>

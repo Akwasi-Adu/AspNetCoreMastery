@@ -1,0 +1,1072 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Operators and Expressions | ASP.NET Core Mastery</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;500&family=Source+Serif+4:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../assets/style.css">
+</head>
+<body>
+  <div class="page-wrapper">
+    
+    <!-- Sidebar Navigation -->
+    <aside class="sidebar">
+      <a href="../index.html" class="sidebar-logo">ASP.NET Core Mastery</a>
+      
+      <div class="sidebar-section">Part I: Foundations</div>
+      <ul class="sidebar-nav">
+        <li><a href="01-what-is-programming.html">What is Programming?</a></li>
+        <li><a href="02-what-is-csharp-dotnet.html">What is C# and .NET?</a></li>
+        <li><a href="03-variables-and-data-types.html">Variables and Data Types</a></li>
+        <li><a href="04-operators-and-expressions.html" class="active">Operators and Expressions</a></li>
+        <li><a href="05-control-flow.html">Control Flow</a></li>
+        <li><a href="06-methods-and-functions.html">Methods and Functions</a></li>
+        <li><a href="07-oop-classes-objects.html">OOP: Classes &amp; Objects</a></li>
+        <li><a href="08-collections-and-generics.html">Collections and Generics</a></li>
+        <li><a href="09-linq.html">LINQ</a></li>
+        <li><a href="10-async-await.html">Async/Await</a></li>
+      </ul>
+      
+      <div class="sidebar-section">Resources</div>
+      <ul class="sidebar-nav">
+        <li><a href="../index.html">Full Roadmap</a></li>
+      </ul>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+      <div class="content-container">
+        
+        <!-- Breadcrumb -->
+        <nav class="breadcrumb">
+          <a href="../index.html">Home</a>
+          <span>→</span>
+          <a href="01-what-is-programming.html">Part I: Foundations</a>
+          <span>→</span>
+          Operators and Expressions
+        </nav>
+
+        <!-- Progress Indicator -->
+        <div class="progress-indicator">
+          <span>Section 4 of 10</span>
+          <div class="progress-bar">
+            <div class="progress-fill" style="width: 40%"></div>
+          </div>
+        </div>
+
+        <!-- Page Title -->
+        <h1>Operators and Expressions</h1>
+
+        <!-- Learning Objectives -->
+        <div class="learning-objectives">
+          <h3>🎯 What You'll Learn</h3>
+          <ul>
+            <li>What operators and expressions are</li>
+            <li>Arithmetic operators for calculations (+, -, *, /, %)</li>
+            <li>Comparison operators for making decisions (==, !=, <, >, etc.)</li>
+            <li>Logical operators for combining conditions (&&, ||, !)</li>
+            <li>Assignment operators and compound assignment (+=, -=, etc.)</li>
+            <li>The powerful null-handling operators (?., ??, ??=)</li>
+            <li>The ternary conditional operator (?:)</li>
+            <li>Operator precedence and why parentheses matter</li>
+            <li>Common string operations</li>
+          </ul>
+        </div>
+
+        <!-- Content Begins -->
+        <h2>What Are Operators and Expressions?</h2>
+
+        <p>
+          In the previous section, you learned how to store data in variables. But storing data 
+          is only useful if you can <em>do something</em> with it—calculate totals, compare values, 
+          make decisions. That's where operators come in.
+        </p>
+
+        <div class="callout callout-concept">
+          <div class="callout-title">💡 Key Concepts</div>
+          <p>
+            An <strong>operator</strong> is a symbol that tells the compiler to perform a specific 
+            operation (like addition or comparison).<br><br>
+            An <strong>expression</strong> is a combination of values, variables, and operators 
+            that evaluates to a single result.
+          </p>
+        </div>
+
+        <div class="code-header">
+          <span class="code-filename">ExpressionsIntro.cs</span>
+          <span class="code-language">C#</span>
+        </div>
+        <pre><code><span class="code-comment">// These are all expressions:</span>
+<span class="code-number">5</span> + <span class="code-number">3</span>                      <span class="code-comment">// Evaluates to 8</span>
+<span class="code-variable">price</span> * <span class="code-variable">quantity</span>           <span class="code-comment">// Evaluates to a decimal</span>
+<span class="code-variable">age</span> >= <span class="code-number">18</span>                  <span class="code-comment">// Evaluates to true or false</span>
+<span class="code-variable">firstName</span> + <span class="code-string">" "</span> + <span class="code-variable">lastName</span> <span class="code-comment">// Evaluates to a string</span>
+<span class="code-variable">isActive</span> && <span class="code-variable">hasPermission</span>  <span class="code-comment">// Evaluates to true or false</span></code></pre>
+
+        <p>
+          Every expression produces a value. That value can be stored in a variable, passed to 
+          a method, used in a condition, or combined with other expressions.
+        </p>
+
+        <h2>Arithmetic Operators</h2>
+
+        <p>
+          Arithmetic operators perform mathematical calculations. These are the operators you'd 
+          expect from basic math class.
+        </p>
+
+        <h3>Basic Arithmetic</h3>
+
+        <table>
+          <thead>
+            <tr>
+              <th>Operator</th>
+              <th>Name</th>
+              <th>Example</th>
+              <th>Result</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>+</code></td>
+              <td>Addition</td>
+              <td><code>10 + 3</code></td>
+              <td><code>13</code></td>
+            </tr>
+            <tr>
+              <td><code>-</code></td>
+              <td>Subtraction</td>
+              <td><code>10 - 3</code></td>
+              <td><code>7</code></td>
+            </tr>
+            <tr>
+              <td><code>*</code></td>
+              <td>Multiplication</td>
+              <td><code>10 * 3</code></td>
+              <td><code>30</code></td>
+            </tr>
+            <tr>
+              <td><code>/</code></td>
+              <td>Division</td>
+              <td><code>10 / 3</code></td>
+              <td><code>3</code> (integer division!)</td>
+            </tr>
+            <tr>
+              <td><code>%</code></td>
+              <td>Modulus (remainder)</td>
+              <td><code>10 % 3</code></td>
+              <td><code>1</code></td>
+            </tr>
+          </tbody>
+        </table>
+
+        <div class="code-header">
+          <span class="code-filename">ArithmeticOperators.cs</span>
+          <span class="code-language">C#</span>
+        </div>
+        <pre><code><span class="code-type">int</span> <span class="code-variable">a</span> = <span class="code-number">10</span>;
+<span class="code-type">int</span> <span class="code-variable">b</span> = <span class="code-number">3</span>;
+
+<span class="code-type">int</span> <span class="code-variable">sum</span> = <span class="code-variable">a</span> + <span class="code-variable">b</span>;         <span class="code-comment">// 13</span>
+<span class="code-type">int</span> <span class="code-variable">difference</span> = <span class="code-variable">a</span> - <span class="code-variable">b</span>;  <span class="code-comment">// 7</span>
+<span class="code-type">int</span> <span class="code-variable">product</span> = <span class="code-variable">a</span> * <span class="code-variable">b</span>;     <span class="code-comment">// 30</span>
+<span class="code-type">int</span> <span class="code-variable">quotient</span> = <span class="code-variable">a</span> / <span class="code-variable">b</span>;    <span class="code-comment">// 3 (not 3.33!)</span>
+<span class="code-type">int</span> <span class="code-variable">remainder</span> = <span class="code-variable">a</span> % <span class="code-variable">b</span>;   <span class="code-comment">// 1</span>
+
+<span class="code-comment">// Unary operators (operate on a single value)</span>
+<span class="code-type">int</span> <span class="code-variable">positive</span> = +<span class="code-variable">a</span>;        <span class="code-comment">// 10 (rarely used)</span>
+<span class="code-type">int</span> <span class="code-variable">negative</span> = -<span class="code-variable">a</span>;        <span class="code-comment">// -10 (negation)</span></code></pre>
+
+        <div class="callout callout-warning">
+          <div class="callout-title">⚠️ Integer Division Trap</div>
+          <p>
+            When you divide two integers, C# performs <strong>integer division</strong>—the result 
+            is truncated (not rounded). <code>10 / 3</code> equals <code>3</code>, not <code>3.33</code>. 
+            If you need decimal results, at least one operand must be a floating-point type.
+          </p>
+        </div>
+
+        <div class="code-header">
+          <span class="code-filename">DivisionTypes.cs</span>
+          <span class="code-language">C#</span>
+        </div>
+        <pre><code><span class="code-comment">// Integer division - decimal part is LOST</span>
+<span class="code-type">int</span> <span class="code-variable">result1</span> = <span class="code-number">10</span> / <span class="code-number">3</span>;           <span class="code-comment">// 3 (truncated)</span>
+<span class="code-type">int</span> <span class="code-variable">result2</span> = <span class="code-number">7</span> / <span class="code-number">2</span>;            <span class="code-comment">// 3 (not 3.5)</span>
+
+<span class="code-comment">// Floating-point division - preserves decimals</span>
+<span class="code-type">double</span> <span class="code-variable">result3</span> = <span class="code-number">10.0</span> / <span class="code-number">3</span>;       <span class="code-comment">// 3.3333...</span>
+<span class="code-type">double</span> <span class="code-variable">result4</span> = <span class="code-number">10</span> / <span class="code-number">3.0</span>;       <span class="code-comment">// 3.3333...</span>
+<span class="code-type">double</span> <span class="code-variable">result5</span> = (<span class="code-type">double</span>)<span class="code-number">10</span> / <span class="code-number">3</span>; <span class="code-comment">// 3.3333... (cast to force floating-point)</span>
+
+<span class="code-comment">// For money calculations, use decimal</span>
+<span class="code-type">decimal</span> <span class="code-variable">total</span> = <span class="code-number">100.00m</span>;
+<span class="code-type">decimal</span> <span class="code-variable">perPerson</span> = <span class="code-variable">total</span> / <span class="code-number">3</span>;  <span class="code-comment">// 33.3333...</span></code></pre>
+
+        <h3>The Modulus Operator (%)</h3>
+
+        <p>
+          The modulus operator returns the <em>remainder</em> after division. It's incredibly 
+          useful for many programming tasks:
+        </p>
+
+        <div class="code-header">
+          <span class="code-filename">ModulusOperator.cs</span>
+          <span class="code-language">C#</span>
+        </div>
+        <pre><code><span class="code-comment">// Basic modulus - what's left over?</span>
+<span class="code-type">int</span> <span class="code-variable">remainder</span> = <span class="code-number">17</span> % <span class="code-number">5</span>;  <span class="code-comment">// 2 (17 = 5*3 + 2)</span>
+
+<span class="code-comment">// Check if a number is even or odd</span>
+<span class="code-type">int</span> <span class="code-variable">number</span> = <span class="code-number">42</span>;
+<span class="code-type">bool</span> <span class="code-variable">isEven</span> = <span class="code-variable">number</span> % <span class="code-number">2</span> == <span class="code-number">0</span>;  <span class="code-comment">// true (42 is even)</span>
+<span class="code-type">bool</span> <span class="code-variable">isOdd</span> = <span class="code-variable">number</span> % <span class="code-number">2</span> != <span class="code-number">0</span>;   <span class="code-comment">// false</span>
+
+<span class="code-comment">// Check if divisible by something</span>
+<span class="code-type">int</span> <span class="code-variable">year</span> = <span class="code-number">2024</span>;
+<span class="code-type">bool</span> <span class="code-variable">divisibleBy4</span> = <span class="code-variable">year</span> % <span class="code-number">4</span> == <span class="code-number">0</span>;    <span class="code-comment">// true (useful for leap years)</span>
+<span class="code-type">bool</span> <span class="code-variable">divisibleBy100</span> = <span class="code-variable">year</span> % <span class="code-number">100</span> == <span class="code-number">0</span>; <span class="code-comment">// false</span>
+
+<span class="code-comment">// Wrap around (cycling through values)</span>
+<span class="code-type">int</span> <span class="code-variable">hour</span> = <span class="code-number">25</span>;
+<span class="code-type">int</span> <span class="code-variable">hour24</span> = <span class="code-variable">hour</span> % <span class="code-number">24</span>;  <span class="code-comment">// 1 (wraps around after 24)</span>
+
+<span class="code-comment">// Get the last digit of a number</span>
+<span class="code-type">int</span> <span class="code-variable">lastDigit</span> = <span class="code-number">12345</span> % <span class="code-number">10</span>;  <span class="code-comment">// 5</span>
+
+<span class="code-comment">// Alternating rows in a table (for styling)</span>
+<span class="code-keyword">for</span> (<span class="code-type">int</span> <span class="code-variable">row</span> = <span class="code-number">0</span>; <span class="code-variable">row</span> < <span class="code-number">10</span>; <span class="code-variable">row</span>++)
+{
+    <span class="code-type">bool</span> <span class="code-variable">isAlternateRow</span> = <span class="code-variable">row</span> % <span class="code-number">2</span> == <span class="code-number">0</span>;  <span class="code-comment">// true for 0, 2, 4, 6, 8</span>
+}</code></pre>
+
+        <h3>Increment and Decrement</h3>
+
+        <p>
+          The <code>++</code> and <code>--</code> operators add or subtract 1 from a variable. 
+          They can be placed before (prefix) or after (postfix) the variable, with a subtle difference.
+        </p>
+
+        <div class="code-header">
+          <span class="code-filename">IncrementDecrement.cs</span>
+          <span class="code-language">C#</span>
+        </div>
+        <pre><code><span class="code-type">int</span> <span class="code-variable">count</span> = <span class="code-number">5</span>;
+
+<span class="code-variable">count</span>++;      <span class="code-comment">// count is now 6 (same as count = count + 1)</span>
+<span class="code-variable">count</span>--;      <span class="code-comment">// count is now 5 (same as count = count - 1)</span>
+
+<span class="code-comment">// Prefix vs Postfix - the difference matters when used in expressions</span>
+<span class="code-type">int</span> <span class="code-variable">a</span> = <span class="code-number">5</span>;
+<span class="code-type">int</span> <span class="code-variable">b</span> = <span class="code-variable">a</span>++;   <span class="code-comment">// b = 5, THEN a becomes 6 (postfix: use, then increment)</span>
+
+<span class="code-type">int</span> <span class="code-variable">c</span> = <span class="code-number">5</span>;
+<span class="code-type">int</span> <span class="code-variable">d</span> = ++<span class="code-variable">c</span>;   <span class="code-comment">// c becomes 6 FIRST, then d = 6 (prefix: increment, then use)</span>
+
+<span class="code-comment">// Most common usage: standalone statements (prefix vs postfix doesn't matter)</span>
+<span class="code-type">int</span> <span class="code-variable">counter</span> = <span class="code-number">0</span>;
+<span class="code-variable">counter</span>++;     <span class="code-comment">// Simple increment</span>
+
+<span class="code-comment">// Common in loops (we'll cover loops in Control Flow)</span>
+<span class="code-keyword">for</span> (<span class="code-type">int</span> <span class="code-variable">i</span> = <span class="code-number">0</span>; <span class="code-variable">i</span> < <span class="code-number">10</span>; <span class="code-variable">i</span>++)
+{
+    <span class="code-comment">// i increments each iteration</span>
+}</code></pre>
+
+        <div class="callout callout-tip">
+          <div class="callout-title">💡 Keep It Simple</div>
+          <p>
+            The prefix/postfix difference can be confusing. As a best practice, avoid using 
+            <code>++</code> or <code>--</code> inside larger expressions. Use them as standalone 
+            statements (<code>count++;</code>) where the difference doesn't matter.
+          </p>
+        </div>
+
+        <h2>Comparison Operators</h2>
+
+        <p>
+          Comparison operators compare two values and return a <code>bool</code> (true or false). 
+          They're essential for making decisions in your code.
+        </p>
+
+        <table>
+          <thead>
+            <tr>
+              <th>Operator</th>
+              <th>Name</th>
+              <th>Example</th>
+              <th>Result</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>==</code></td>
+              <td>Equal to</td>
+              <td><code>5 == 5</code></td>
+              <td><code>true</code></td>
+            </tr>
+            <tr>
+              <td><code>!=</code></td>
+              <td>Not equal to</td>
+              <td><code>5 != 3</code></td>
+              <td><code>true</code></td>
+            </tr>
+            <tr>
+              <td><code>&gt;</code></td>
+              <td>Greater than</td>
+              <td><code>5 &gt; 3</code></td>
+              <td><code>true</code></td>
+            </tr>
+            <tr>
+              <td><code>&lt;</code></td>
+              <td>Less than</td>
+              <td><code>5 &lt; 3</code></td>
+              <td><code>false</code></td>
+            </tr>
+            <tr>
+              <td><code>&gt;=</code></td>
+              <td>Greater than or equal</td>
+              <td><code>5 &gt;= 5</code></td>
+              <td><code>true</code></td>
+            </tr>
+            <tr>
+              <td><code>&lt;=</code></td>
+              <td>Less than or equal</td>
+              <td><code>5 &lt;= 3</code></td>
+              <td><code>false</code></td>
+            </tr>
+          </tbody>
+        </table>
+
+        <div class="code-header">
+          <span class="code-filename">ComparisonOperators.cs</span>
+          <span class="code-language">C#</span>
+        </div>
+        <pre><code><span class="code-type">int</span> <span class="code-variable">age</span> = <span class="code-number">25</span>;
+<span class="code-type">int</span> <span class="code-variable">minimumAge</span> = <span class="code-number">18</span>;
+<span class="code-type">int</span> <span class="code-variable">retirementAge</span> = <span class="code-number">65</span>;
+
+<span class="code-type">bool</span> <span class="code-variable">isAdult</span> = <span class="code-variable">age</span> >= <span class="code-variable">minimumAge</span>;       <span class="code-comment">// true</span>
+<span class="code-type">bool</span> <span class="code-variable">canRetire</span> = <span class="code-variable">age</span> >= <span class="code-variable">retirementAge</span>;   <span class="code-comment">// false</span>
+<span class="code-type">bool</span> <span class="code-variable">isExactly25</span> = <span class="code-variable">age</span> == <span class="code-number">25</span>;           <span class="code-comment">// true</span>
+<span class="code-type">bool</span> <span class="code-variable">isNot25</span> = <span class="code-variable">age</span> != <span class="code-number">25</span>;               <span class="code-comment">// false</span>
+
+<span class="code-comment">// Works with other types too</span>
+<span class="code-type">decimal</span> <span class="code-variable">price</span> = <span class="code-number">99.99m</span>;
+<span class="code-type">decimal</span> <span class="code-variable">budget</span> = <span class="code-number">100.00m</span>;
+<span class="code-type">bool</span> <span class="code-variable">canAfford</span> = <span class="code-variable">price</span> <= <span class="code-variable">budget</span>;       <span class="code-comment">// true</span>
+
+<span class="code-comment">// String comparison (case-sensitive by default)</span>
+<span class="code-type">string</span> <span class="code-variable">input</span> = <span class="code-string">"yes"</span>;
+<span class="code-type">bool</span> <span class="code-variable">isYes</span> = <span class="code-variable">input</span> == <span class="code-string">"yes"</span>;            <span class="code-comment">// true</span>
+<span class="code-type">bool</span> <span class="code-variable">isYES</span> = <span class="code-variable">input</span> == <span class="code-string">"YES"</span>;            <span class="code-comment">// false (case matters!)</span>
+
+<span class="code-comment">// Case-insensitive string comparison</span>
+<span class="code-type">bool</span> <span class="code-variable">isYesIgnoreCase</span> = <span class="code-variable">input</span>.<span class="code-method">Equals</span>(<span class="code-string">"YES"</span>, StringComparison.OrdinalIgnoreCase); <span class="code-comment">// true</span></code></pre>
+
+        <div class="callout callout-warning">
+          <div class="callout-title">⚠️ Common Mistake: = vs ==</div>
+          <p>
+            <code>=</code> is <strong>assignment</strong> (put a value into a variable).<br>
+            <code>==</code> is <strong>comparison</strong> (check if two values are equal).<br><br>
+            Writing <code>if (x = 5)</code> instead of <code>if (x == 5)</code> is a common bug. 
+            Fortunately, C# usually catches this with a compiler error.
+          </p>
+        </div>
+
+        <h2>Logical Operators</h2>
+
+        <p>
+          Logical operators combine multiple boolean expressions. They're how you express 
+          conditions like "is active AND has permission" or "is admin OR is owner."
+        </p>
+
+        <table>
+          <thead>
+            <tr>
+              <th>Operator</th>
+              <th>Name</th>
+              <th>Description</th>
+              <th>Example</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>&&</code></td>
+              <td>Logical AND</td>
+              <td>True if BOTH are true</td>
+              <td><code>true && false</code> → <code>false</code></td>
+            </tr>
+            <tr>
+              <td><code>||</code></td>
+              <td>Logical OR</td>
+              <td>True if EITHER is true</td>
+              <td><code>true || false</code> → <code>true</code></td>
+            </tr>
+            <tr>
+              <td><code>!</code></td>
+              <td>Logical NOT</td>
+              <td>Inverts the value</td>
+              <td><code>!true</code> → <code>false</code></td>
+            </tr>
+          </tbody>
+        </table>
+
+        <h3>Truth Tables</h3>
+
+        <p>
+          These tables show the result of each logical operator for all possible inputs:
+        </p>
+
+        <div style="display: flex; gap: 2rem; flex-wrap: wrap;">
+          <table style="flex: 1; min-width: 150px;">
+            <thead>
+              <tr><th colspan="3">AND (&&)</th></tr>
+              <tr><th>A</th><th>B</th><th>A && B</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>true</td><td>true</td><td><strong>true</strong></td></tr>
+              <tr><td>true</td><td>false</td><td>false</td></tr>
+              <tr><td>false</td><td>true</td><td>false</td></tr>
+              <tr><td>false</td><td>false</td><td>false</td></tr>
+            </tbody>
+          </table>
+
+          <table style="flex: 1; min-width: 150px;">
+            <thead>
+              <tr><th colspan="3">OR (||)</th></tr>
+              <tr><th>A</th><th>B</th><th>A || B</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>true</td><td>true</td><td><strong>true</strong></td></tr>
+              <tr><td>true</td><td>false</td><td><strong>true</strong></td></tr>
+              <tr><td>false</td><td>true</td><td><strong>true</strong></td></tr>
+              <tr><td>false</td><td>false</td><td>false</td></tr>
+            </tbody>
+          </table>
+
+          <table style="flex: 1; min-width: 100px;">
+            <thead>
+              <tr><th colspan="2">NOT (!)</th></tr>
+              <tr><th>A</th><th>!A</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>true</td><td>false</td></tr>
+              <tr><td>false</td><td>true</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="code-header">
+          <span class="code-filename">LogicalOperators.cs</span>
+          <span class="code-language">C#</span>
+        </div>
+        <pre><code><span class="code-comment">// AND - both conditions must be true</span>
+<span class="code-type">bool</span> <span class="code-variable">isActive</span> = <span class="code-keyword">true</span>;
+<span class="code-type">bool</span> <span class="code-variable">hasPermission</span> = <span class="code-keyword">true</span>;
+<span class="code-type">bool</span> <span class="code-variable">canAccess</span> = <span class="code-variable">isActive</span> && <span class="code-variable">hasPermission</span>;  <span class="code-comment">// true (both are true)</span>
+
+<span class="code-comment">// OR - at least one condition must be true</span>
+<span class="code-type">bool</span> <span class="code-variable">isAdmin</span> = <span class="code-keyword">false</span>;
+<span class="code-type">bool</span> <span class="code-variable">isOwner</span> = <span class="code-keyword">true</span>;
+<span class="code-type">bool</span> <span class="code-variable">canEdit</span> = <span class="code-variable">isAdmin</span> || <span class="code-variable">isOwner</span>;          <span class="code-comment">// true (owner is true)</span>
+
+<span class="code-comment">// NOT - inverts the value</span>
+<span class="code-type">bool</span> <span class="code-variable">isLoggedIn</span> = <span class="code-keyword">true</span>;
+<span class="code-type">bool</span> <span class="code-variable">isGuest</span> = !<span class="code-variable">isLoggedIn</span>;                  <span class="code-comment">// false</span>
+
+<span class="code-comment">// Real-world examples</span>
+<span class="code-type">int</span> <span class="code-variable">age</span> = <span class="code-number">25</span>;
+<span class="code-type">bool</span> <span class="code-variable">hasLicense</span> = <span class="code-keyword">true</span>;
+<span class="code-type">bool</span> <span class="code-variable">canDrive</span> = <span class="code-variable">age</span> >= <span class="code-number">18</span> && <span class="code-variable">hasLicense</span>;    <span class="code-comment">// Must be adult AND have license</span>
+
+<span class="code-type">decimal</span> <span class="code-variable">orderTotal</span> = <span class="code-number">150m</span>;
+<span class="code-type">bool</span> <span class="code-variable">isPremiumMember</span> = <span class="code-keyword">false</span>;
+<span class="code-type">bool</span> <span class="code-variable">hasFreeShipping</span> = <span class="code-variable">orderTotal</span> >= <span class="code-number">100m</span> || <span class="code-variable">isPremiumMember</span>;  <span class="code-comment">// true</span>
+
+<span class="code-comment">// Combining multiple conditions</span>
+<span class="code-type">int</span> <span class="code-variable">quantity</span> = <span class="code-number">50</span>;
+<span class="code-type">bool</span> <span class="code-variable">inStock</span> = <span class="code-keyword">true</span>;
+<span class="code-type">bool</span> <span class="code-variable">canFulfillOrder</span> = <span class="code-variable">inStock</span> && <span class="code-variable">quantity</span> > <span class="code-number">0</span> && <span class="code-variable">quantity</span> <= <span class="code-number">100</span>;
+
+<span class="code-comment">// Using parentheses for clarity (and correctness)</span>
+<span class="code-type">bool</span> <span class="code-variable">complexCondition</span> = (<span class="code-variable">isAdmin</span> || <span class="code-variable">isOwner</span>) && <span class="code-variable">isActive</span>;
+<span class="code-comment">// Different from: isAdmin || (isOwner && isActive)</span></code></pre>
+
+        <h3>Short-Circuit Evaluation</h3>
+
+        <p>
+          C#'s <code>&&</code> and <code>||</code> operators use <span class="term">short-circuit 
+          evaluation</span>—they stop as soon as the result is determined:
+        </p>
+
+        <div class="code-header">
+          <span class="code-filename">ShortCircuit.cs</span>
+          <span class="code-language">C#</span>
+        </div>
+        <pre><code><span class="code-comment">// AND short-circuits: if the first is false, the second is never evaluated</span>
+<span class="code-type">bool</span> <span class="code-variable">result1</span> = <span class="code-keyword">false</span> && <span class="code-method">SomeExpensiveFunction</span>();  <span class="code-comment">// Function never called!</span>
+
+<span class="code-comment">// OR short-circuits: if the first is true, the second is never evaluated</span>
+<span class="code-type">bool</span> <span class="code-variable">result2</span> = <span class="code-keyword">true</span> || <span class="code-method">SomeExpensiveFunction</span>();   <span class="code-comment">// Function never called!</span>
+
+<span class="code-comment">// This is useful for null checks!</span>
+<span class="code-type">string</span> <span class="code-variable">name</span> = <span class="code-keyword">null</span>;
+
+<span class="code-comment">// Without short-circuit: would crash with NullReferenceException</span>
+<span class="code-comment">// bool valid = name.Length > 0;  // CRASH!</span>
+
+<span class="code-comment">// With short-circuit: safe because Length is never accessed if name is null</span>
+<span class="code-type">bool</span> <span class="code-variable">valid</span> = <span class="code-variable">name</span> != <span class="code-keyword">null</span> && <span class="code-variable">name</span>.Length > <span class="code-number">0</span>;  <span class="code-comment">// false (no crash)</span></code></pre>
+
+        <div class="callout callout-tip">
+          <div class="callout-title">💡 Use Short-Circuiting for Safety</div>
+          <p>
+            Always put null checks <em>before</em> accessing properties: 
+            <code>obj != null && obj.Property</code>. The property access only happens if the 
+            null check passes.
+          </p>
+        </div>
+
+        <h2>Assignment Operators</h2>
+
+        <p>
+          Assignment operators store values in variables. Beyond the basic <code>=</code>, 
+          there are compound operators that combine assignment with arithmetic.
+        </p>
+
+        <table>
+          <thead>
+            <tr>
+              <th>Operator</th>
+              <th>Example</th>
+              <th>Equivalent To</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>=</code></td>
+              <td><code>x = 5</code></td>
+              <td>Assign 5 to x</td>
+            </tr>
+            <tr>
+              <td><code>+=</code></td>
+              <td><code>x += 3</code></td>
+              <td><code>x = x + 3</code></td>
+            </tr>
+            <tr>
+              <td><code>-=</code></td>
+              <td><code>x -= 3</code></td>
+              <td><code>x = x - 3</code></td>
+            </tr>
+            <tr>
+              <td><code>*=</code></td>
+              <td><code>x *= 3</code></td>
+              <td><code>x = x * 3</code></td>
+            </tr>
+            <tr>
+              <td><code>/=</code></td>
+              <td><code>x /= 3</code></td>
+              <td><code>x = x / 3</code></td>
+            </tr>
+            <tr>
+              <td><code>%=</code></td>
+              <td><code>x %= 3</code></td>
+              <td><code>x = x % 3</code></td>
+            </tr>
+          </tbody>
+        </table>
+
+        <div class="code-header">
+          <span class="code-filename">AssignmentOperators.cs</span>
+          <span class="code-language">C#</span>
+        </div>
+        <pre><code><span class="code-type">int</span> <span class="code-variable">score</span> = <span class="code-number">100</span>;
+
+<span class="code-variable">score</span> += <span class="code-number">10</span>;   <span class="code-comment">// score is now 110</span>
+<span class="code-variable">score</span> -= <span class="code-number">5</span>;    <span class="code-comment">// score is now 105</span>
+<span class="code-variable">score</span> *= <span class="code-number">2</span>;    <span class="code-comment">// score is now 210</span>
+<span class="code-variable">score</span> /= <span class="code-number">3</span>;    <span class="code-comment">// score is now 70</span>
+
+<span class="code-comment">// String concatenation with +=</span>
+<span class="code-type">string</span> <span class="code-variable">message</span> = <span class="code-string">"Hello"</span>;
+<span class="code-variable">message</span> += <span class="code-string">" World"</span>;  <span class="code-comment">// "Hello World"</span>
+
+<span class="code-comment">// Common pattern: accumulating a total</span>
+<span class="code-type">decimal</span> <span class="code-variable">total</span> = <span class="code-number">0m</span>;
+<span class="code-variable">total</span> += <span class="code-number">19.99m</span>;  <span class="code-comment">// Add first item</span>
+<span class="code-variable">total</span> += <span class="code-number">29.99m</span>;  <span class="code-comment">// Add second item</span>
+<span class="code-variable">total</span> += <span class="code-number">9.99m</span>;   <span class="code-comment">// Add third item</span>
+<span class="code-comment">// total is now 59.97</span></code></pre>
+
+        <h2>Null-Handling Operators</h2>
+
+        <p>
+          Null references are a common source of bugs. C# provides special operators to handle 
+          null values elegantly. These are <em>extremely</em> useful in real-world code.
+        </p>
+
+        <h3>Null-Conditional Operator (?. and ?[])</h3>
+
+        <p>
+          The <code>?.</code> operator only accesses a member if the object is not null. 
+          If the object is null, the entire expression returns null instead of crashing.
+        </p>
+
+        <div class="code-header">
+          <span class="code-filename">NullConditional.cs</span>
+          <span class="code-language">C#</span>
+        </div>
+        <pre><code><span class="code-type">string</span> <span class="code-variable">name</span> = <span class="code-keyword">null</span>;
+
+<span class="code-comment">// Without null-conditional: crashes with NullReferenceException!</span>
+<span class="code-comment">// int length = name.Length;  // CRASH!</span>
+
+<span class="code-comment">// With null-conditional: returns null instead of crashing</span>
+<span class="code-type">int?</span> <span class="code-variable">length</span> = <span class="code-variable">name</span>?.Length;  <span class="code-comment">// null (no crash)</span>
+
+<span class="code-comment">// Chaining multiple levels</span>
+<span class="code-type">string</span> <span class="code-variable">city</span> = <span class="code-variable">customer</span>?.<span class="code-variable">Address</span>?.<span class="code-variable">City</span>;  <span class="code-comment">// Safe even if customer or Address is null</span>
+
+<span class="code-comment">// With array indexer</span>
+<span class="code-type">int</span>[]? <span class="code-variable">numbers</span> = <span class="code-keyword">null</span>;
+<span class="code-type">int?</span> <span class="code-variable">firstNumber</span> = <span class="code-variable">numbers</span>?[<span class="code-number">0</span>];  <span class="code-comment">// null (no crash)</span>
+
+<span class="code-comment">// With method calls</span>
+<span class="code-type">string</span> <span class="code-variable">upper</span> = <span class="code-variable">name</span>?.<span class="code-method">ToUpper</span>();  <span class="code-comment">// null (no crash)</span></code></pre>
+
+        <h3>Null-Coalescing Operator (??)</h3>
+
+        <p>
+          The <code>??</code> operator provides a default value when something is null. 
+          Think of it as "use this value, or if it's null, use that value instead."
+        </p>
+
+        <div class="code-header">
+          <span class="code-filename">NullCoalescing.cs</span>
+          <span class="code-language">C#</span>
+        </div>
+        <pre><code><span class="code-type">string</span>? <span class="code-variable">input</span> = <span class="code-keyword">null</span>;
+<span class="code-type">string</span> <span class="code-variable">result</span> = <span class="code-variable">input</span> ?? <span class="code-string">"default"</span>;  <span class="code-comment">// "default" (because input is null)</span>
+
+<span class="code-type">string</span>? <span class="code-variable">input2</span> = <span class="code-string">"hello"</span>;
+<span class="code-type">string</span> <span class="code-variable">result2</span> = <span class="code-variable">input2</span> ?? <span class="code-string">"default"</span>;  <span class="code-comment">// "hello" (input2 is not null)</span>
+
+<span class="code-comment">// Common use: providing default values</span>
+<span class="code-type">string</span> <span class="code-variable">displayName</span> = <span class="code-variable">user</span>.<span class="code-variable">Nickname</span> ?? <span class="code-variable">user</span>.<span class="code-variable">FullName</span> ?? <span class="code-string">"Anonymous"</span>;
+
+<span class="code-comment">// With nullable value types</span>
+<span class="code-type">int?</span> <span class="code-variable">quantity</span> = <span class="code-keyword">null</span>;
+<span class="code-type">int</span> <span class="code-variable">actualQuantity</span> = <span class="code-variable">quantity</span> ?? <span class="code-number">0</span>;  <span class="code-comment">// 0</span>
+
+<span class="code-comment">// Combining with null-conditional</span>
+<span class="code-type">int</span> <span class="code-variable">nameLength</span> = <span class="code-variable">name</span>?.Length ?? <span class="code-number">0</span>;  <span class="code-comment">// 0 if name is null</span></code></pre>
+
+        <h3>Null-Coalescing Assignment (??=)</h3>
+
+        <p>
+          The <code>??=</code> operator assigns a value only if the variable is currently null.
+        </p>
+
+        <div class="code-header">
+          <span class="code-filename">NullCoalescingAssignment.cs</span>
+          <span class="code-language">C#</span>
+        </div>
+        <pre><code><span class="code-type">string</span>? <span class="code-variable">name</span> = <span class="code-keyword">null</span>;
+<span class="code-variable">name</span> ??= <span class="code-string">"Unknown"</span>;  <span class="code-comment">// name is now "Unknown"</span>
+
+<span class="code-type">string</span>? <span class="code-variable">name2</span> = <span class="code-string">"Akwasi"</span>;
+<span class="code-variable">name2</span> ??= <span class="code-string">"Unknown"</span>;  <span class="code-comment">// name2 is still "Akwasi" (not null, so no assignment)</span>
+
+<span class="code-comment">// Equivalent to:</span>
+<span class="code-keyword">if</span> (<span class="code-variable">name</span> == <span class="code-keyword">null</span>)
+{
+    <span class="code-variable">name</span> = <span class="code-string">"Unknown"</span>;
+}
+
+<span class="code-comment">// Useful for lazy initialization</span>
+<span class="code-keyword">private</span> List&lt;<span class="code-type">string</span>>? <span class="code-variable">_items</span>;
+<span class="code-keyword">public</span> List&lt;<span class="code-type">string</span>> <span class="code-variable">Items</span> => <span class="code-variable">_items</span> ??= <span class="code-keyword">new</span> List&lt;<span class="code-type">string</span>>();</code></pre>
+
+        <div class="callout callout-concept">
+          <div class="callout-title">💡 Null Operators Summary</div>
+          <p>
+            <code>?.</code> — Safe member access (returns null if object is null)<br>
+            <code>??</code> — Provide default value if null<br>
+            <code>??=</code> — Assign only if currently null<br><br>
+            Master these three operators—you'll use them constantly in real C# code.
+          </p>
+        </div>
+
+        <h2>The Ternary Conditional Operator (?:)</h2>
+
+        <p>
+          The ternary operator is a compact way to choose between two values based on a condition. 
+          It's like an inline if-else.
+        </p>
+
+        <div class="code-header">
+          <span class="code-filename">TernaryOperator.cs</span>
+          <span class="code-language">C#</span>
+        </div>
+        <pre><code><span class="code-comment">// Syntax: condition ? valueIfTrue : valueIfFalse</span>
+
+<span class="code-type">int</span> <span class="code-variable">age</span> = <span class="code-number">20</span>;
+<span class="code-type">string</span> <span class="code-variable">status</span> = <span class="code-variable">age</span> >= <span class="code-number">18</span> ? <span class="code-string">"Adult"</span> : <span class="code-string">"Minor"</span>;  <span class="code-comment">// "Adult"</span>
+
+<span class="code-comment">// Equivalent if-else:</span>
+<span class="code-type">string</span> <span class="code-variable">status2</span>;
+<span class="code-keyword">if</span> (<span class="code-variable">age</span> >= <span class="code-number">18</span>)
+    <span class="code-variable">status2</span> = <span class="code-string">"Adult"</span>;
+<span class="code-keyword">else</span>
+    <span class="code-variable">status2</span> = <span class="code-string">"Minor"</span>;
+
+<span class="code-comment">// Common use cases</span>
+<span class="code-type">int</span> <span class="code-variable">quantity</span> = <span class="code-number">5</span>;
+<span class="code-type">string</span> <span class="code-variable">itemText</span> = <span class="code-variable">quantity</span> == <span class="code-number">1</span> ? <span class="code-string">"item"</span> : <span class="code-string">"items"</span>;  <span class="code-comment">// "items"</span>
+Console.<span class="code-method">WriteLine</span>(<span class="code-string">$"You have </span>{<span class="code-variable">quantity</span>}<span class="code-string"> </span>{<span class="code-variable">itemText</span>}<span class="code-string">"</span>);  <span class="code-comment">// "You have 5 items"</span>
+
+<span class="code-comment">// Finding the larger of two numbers</span>
+<span class="code-type">int</span> <span class="code-variable">a</span> = <span class="code-number">10</span>, <span class="code-variable">b</span> = <span class="code-number">20</span>;
+<span class="code-type">int</span> <span class="code-variable">max</span> = <span class="code-variable">a</span> > <span class="code-variable">b</span> ? <span class="code-variable">a</span> : <span class="code-variable">b</span>;  <span class="code-comment">// 20</span>
+
+<span class="code-comment">// Nested ternary (use sparingly - can be hard to read)</span>
+<span class="code-type">int</span> <span class="code-variable">score</span> = <span class="code-number">85</span>;
+<span class="code-type">string</span> <span class="code-variable">grade</span> = <span class="code-variable">score</span> >= <span class="code-number">90</span> ? <span class="code-string">"A"</span> 
+             : <span class="code-variable">score</span> >= <span class="code-number">80</span> ? <span class="code-string">"B"</span>
+             : <span class="code-variable">score</span> >= <span class="code-number">70</span> ? <span class="code-string">"C"</span>
+             : <span class="code-variable">score</span> >= <span class="code-number">60</span> ? <span class="code-string">"D"</span>
+             : <span class="code-string">"F"</span>;  <span class="code-comment">// "B"</span>
+
+<span class="code-comment">// With null-coalescing for even more power</span>
+<span class="code-type">string</span>? <span class="code-variable">userName</span> = <span class="code-keyword">null</span>;
+<span class="code-type">string</span> <span class="code-variable">greeting</span> = <span class="code-string">$"Hello, </span>{<span class="code-variable">userName</span> ?? <span class="code-string">"Guest"</span>}<span class="code-string">!"</span>;  <span class="code-comment">// "Hello, Guest!"</span></code></pre>
+
+        <div class="callout callout-tip">
+          <div class="callout-title">💡 Ternary Best Practices</div>
+          <p>
+            Use ternary for simple, single-line choices. For complex logic or multiple statements, 
+            use regular if-else—it's more readable. Avoid deeply nested ternaries.
+          </p>
+        </div>
+
+        <h2>String Operations</h2>
+
+        <p>
+          Strings have special behavior with operators and many useful methods. Let's explore 
+          the most common operations.
+        </p>
+
+        <h3>String Concatenation</h3>
+
+        <div class="code-header">
+          <span class="code-filename">StringOperations.cs</span>
+          <span class="code-language">C#</span>
+        </div>
+        <pre><code><span class="code-comment">// Concatenation with +</span>
+<span class="code-type">string</span> <span class="code-variable">firstName</span> = <span class="code-string">"Akwasi"</span>;
+<span class="code-type">string</span> <span class="code-variable">lastName</span> = <span class="code-string">"Asante"</span>;
+<span class="code-type">string</span> <span class="code-variable">fullName</span> = <span class="code-variable">firstName</span> + <span class="code-string">" "</span> + <span class="code-variable">lastName</span>;  <span class="code-comment">// "Akwasi Asante"</span>
+
+<span class="code-comment">// String interpolation (preferred)</span>
+<span class="code-type">string</span> <span class="code-variable">fullName2</span> = <span class="code-string">$"</span>{<span class="code-variable">firstName</span>}<span class="code-string"> </span>{<span class="code-variable">lastName</span>}<span class="code-string">"</span>;  <span class="code-comment">// "Akwasi Asante"</span>
+
+<span class="code-comment">// Interpolation with formatting</span>
+<span class="code-type">decimal</span> <span class="code-variable">price</span> = <span class="code-number">1234.567m</span>;
+<span class="code-type">string</span> <span class="code-variable">formatted</span> = <span class="code-string">$"Price: </span>{<span class="code-variable">price</span>:C}<span class="code-string">"</span>;        <span class="code-comment">// "Price: $1,234.57" (currency)</span>
+<span class="code-type">string</span> <span class="code-variable">twoDecimals</span> = <span class="code-string">$"Price: </span>{<span class="code-variable">price</span>:F2}<span class="code-string">"</span>;     <span class="code-comment">// "Price: 1234.57" (2 decimals)</span>
+<span class="code-type">string</span> <span class="code-variable">padded</span> = <span class="code-string">$"ID: </span>{<span class="code-number">42</span>:D5}<span class="code-string">"</span>;                <span class="code-comment">// "ID: 00042" (padded to 5 digits)</span>
+
+DateTime <span class="code-variable">now</span> = DateTime.Now;
+<span class="code-type">string</span> <span class="code-variable">dateStr</span> = <span class="code-string">$"Today: </span>{<span class="code-variable">now</span>:yyyy-MM-dd}<span class="code-string">"</span>;   <span class="code-comment">// "Today: 2024-01-15"</span></code></pre>
+
+        <h3>String Comparison</h3>
+
+        <div class="code-header">
+          <span class="code-filename">StringComparison.cs</span>
+          <span class="code-language">C#</span>
+        </div>
+        <pre><code><span class="code-type">string</span> <span class="code-variable">a</span> = <span class="code-string">"hello"</span>;
+<span class="code-type">string</span> <span class="code-variable">b</span> = <span class="code-string">"HELLO"</span>;
+
+<span class="code-comment">// Case-sensitive comparison (default)</span>
+<span class="code-type">bool</span> <span class="code-variable">equal1</span> = <span class="code-variable">a</span> == <span class="code-variable">b</span>;                                        <span class="code-comment">// false</span>
+<span class="code-type">bool</span> <span class="code-variable">equal2</span> = <span class="code-variable">a</span>.<span class="code-method">Equals</span>(<span class="code-variable">b</span>);                                    <span class="code-comment">// false</span>
+
+<span class="code-comment">// Case-insensitive comparison</span>
+<span class="code-type">bool</span> <span class="code-variable">equal3</span> = <span class="code-variable">a</span>.<span class="code-method">Equals</span>(<span class="code-variable">b</span>, StringComparison.OrdinalIgnoreCase);  <span class="code-comment">// true</span>
+<span class="code-type">bool</span> <span class="code-variable">equal4</span> = <span class="code-type">string</span>.<span class="code-method">Equals</span>(<span class="code-variable">a</span>, <span class="code-variable">b</span>, StringComparison.OrdinalIgnoreCase);  <span class="code-comment">// true</span>
+
+<span class="code-comment">// Comparing with ToLower/ToUpper (works but less efficient)</span>
+<span class="code-type">bool</span> <span class="code-variable">equal5</span> = <span class="code-variable">a</span>.<span class="code-method">ToLower</span>() == <span class="code-variable">b</span>.<span class="code-method">ToLower</span>();                    <span class="code-comment">// true</span></code></pre>
+
+        <h3>Common String Methods</h3>
+
+        <div class="code-header">
+          <span class="code-filename">StringMethods.cs</span>
+          <span class="code-language">C#</span>
+        </div>
+        <pre><code><span class="code-type">string</span> <span class="code-variable">text</span> = <span class="code-string">"  Hello, World!  "</span>;
+
+<span class="code-comment">// Length</span>
+<span class="code-type">int</span> <span class="code-variable">length</span> = <span class="code-variable">text</span>.Length;                  <span class="code-comment">// 17</span>
+
+<span class="code-comment">// Trimming whitespace</span>
+<span class="code-type">string</span> <span class="code-variable">trimmed</span> = <span class="code-variable">text</span>.<span class="code-method">Trim</span>();               <span class="code-comment">// "Hello, World!"</span>
+<span class="code-type">string</span> <span class="code-variable">trimStart</span> = <span class="code-variable">text</span>.<span class="code-method">TrimStart</span>();        <span class="code-comment">// "Hello, World!  "</span>
+<span class="code-type">string</span> <span class="code-variable">trimEnd</span> = <span class="code-variable">text</span>.<span class="code-method">TrimEnd</span>();            <span class="code-comment">// "  Hello, World!"</span>
+
+<span class="code-comment">// Case conversion</span>
+<span class="code-type">string</span> <span class="code-variable">upper</span> = <span class="code-variable">text</span>.<span class="code-method">ToUpper</span>();              <span class="code-comment">// "  HELLO, WORLD!  "</span>
+<span class="code-type">string</span> <span class="code-variable">lower</span> = <span class="code-variable">text</span>.<span class="code-method">ToLower</span>();              <span class="code-comment">// "  hello, world!  "</span>
+
+<span class="code-comment">// Searching</span>
+<span class="code-type">bool</span> <span class="code-variable">contains</span> = <span class="code-variable">text</span>.<span class="code-method">Contains</span>(<span class="code-string">"World"</span>);     <span class="code-comment">// true</span>
+<span class="code-type">bool</span> <span class="code-variable">startsWith</span> = <span class="code-variable">text</span>.<span class="code-method">StartsWith</span>(<span class="code-string">"  H"</span>);  <span class="code-comment">// true</span>
+<span class="code-type">bool</span> <span class="code-variable">endsWith</span> = <span class="code-variable">text</span>.<span class="code-method">EndsWith</span>(<span class="code-string">"!"</span>);        <span class="code-comment">// false (trailing spaces!)</span>
+<span class="code-type">int</span> <span class="code-variable">index</span> = <span class="code-variable">text</span>.<span class="code-method">IndexOf</span>(<span class="code-string">"World"</span>);         <span class="code-comment">// 9</span>
+
+<span class="code-comment">// Substring</span>
+<span class="code-type">string</span> <span class="code-variable">sub1</span> = <span class="code-variable">text</span>.<span class="code-method">Substring</span>(<span class="code-number">2</span>);            <span class="code-comment">// "Hello, World!  " (from index 2)</span>
+<span class="code-type">string</span> <span class="code-variable">sub2</span> = <span class="code-variable">text</span>.<span class="code-method">Substring</span>(<span class="code-number">2</span>, <span class="code-number">5</span>);         <span class="code-comment">// "Hello" (5 chars from index 2)</span>
+
+<span class="code-comment">// Replace</span>
+<span class="code-type">string</span> <span class="code-variable">replaced</span> = <span class="code-variable">text</span>.<span class="code-method">Replace</span>(<span class="code-string">"World"</span>, <span class="code-string">"C#"</span>);  <span class="code-comment">// "  Hello, C#!  "</span>
+
+<span class="code-comment">// Split and Join</span>
+<span class="code-type">string</span> <span class="code-variable">csv</span> = <span class="code-string">"apple,banana,cherry"</span>;
+<span class="code-type">string</span>[] <span class="code-variable">fruits</span> = <span class="code-variable">csv</span>.<span class="code-method">Split</span>(<span class="code-string">','</span>);           <span class="code-comment">// ["apple", "banana", "cherry"]</span>
+<span class="code-type">string</span> <span class="code-variable">joined</span> = <span class="code-type">string</span>.<span class="code-method">Join</span>(<span class="code-string">" | "</span>, <span class="code-variable">fruits</span>); <span class="code-comment">// "apple | banana | cherry"</span>
+
+<span class="code-comment">// Check for empty or null</span>
+<span class="code-type">string</span> <span class="code-variable">empty</span> = <span class="code-string">""</span>;
+<span class="code-type">string</span>? <span class="code-variable">nullStr</span> = <span class="code-keyword">null</span>;
+<span class="code-type">bool</span> <span class="code-variable">isEmpty</span> = <span class="code-type">string</span>.<span class="code-method">IsNullOrEmpty</span>(<span class="code-variable">empty</span>);      <span class="code-comment">// true</span>
+<span class="code-type">bool</span> <span class="code-variable">isNull</span> = <span class="code-type">string</span>.<span class="code-method">IsNullOrEmpty</span>(<span class="code-variable">nullStr</span>);     <span class="code-comment">// true</span>
+<span class="code-type">bool</span> <span class="code-variable">isWhitespace</span> = <span class="code-type">string</span>.<span class="code-method">IsNullOrWhiteSpace</span>(<span class="code-string">"   "</span>);  <span class="code-comment">// true</span></code></pre>
+
+        <div class="callout callout-info">
+          <div class="callout-title">ℹ️ Strings Are Immutable</div>
+          <p>
+            In C#, strings cannot be changed after creation. Methods like <code>ToUpper()</code> 
+            or <code>Replace()</code> return a <em>new</em> string—they don't modify the original. 
+            This is why you need to assign the result: <code>text = text.ToUpper();</code>
+          </p>
+        </div>
+
+        <h2>Operator Precedence</h2>
+
+        <p>
+          When an expression has multiple operators, C# evaluates them in a specific order 
+          called <span class="term">precedence</span>. This is like math's "order of operations" 
+          (PEMDAS/BODMAS).
+        </p>
+
+        <table>
+          <thead>
+            <tr>
+              <th>Priority</th>
+              <th>Operators</th>
+              <th>Description</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>1 (highest)</td>
+              <td><code>() [] ?. !</code></td>
+              <td>Parentheses, member access, null-conditional, not</td>
+            </tr>
+            <tr>
+              <td>2</td>
+              <td><code>++ -- (unary) + -</code></td>
+              <td>Increment, decrement, unary plus/minus</td>
+            </tr>
+            <tr>
+              <td>3</td>
+              <td><code>* / %</code></td>
+              <td>Multiplication, division, modulus</td>
+            </tr>
+            <tr>
+              <td>4</td>
+              <td><code>+ -</code></td>
+              <td>Addition, subtraction</td>
+            </tr>
+            <tr>
+              <td>5</td>
+              <td><code>&lt; &gt; &lt;= &gt;=</code></td>
+              <td>Comparison</td>
+            </tr>
+            <tr>
+              <td>6</td>
+              <td><code>== !=</code></td>
+              <td>Equality</td>
+            </tr>
+            <tr>
+              <td>7</td>
+              <td><code>&&</code></td>
+              <td>Logical AND</td>
+            </tr>
+            <tr>
+              <td>8</td>
+              <td><code>||</code></td>
+              <td>Logical OR</td>
+            </tr>
+            <tr>
+              <td>9</td>
+              <td><code>??</code></td>
+              <td>Null-coalescing</td>
+            </tr>
+            <tr>
+              <td>10</td>
+              <td><code>?:</code></td>
+              <td>Ternary conditional</td>
+            </tr>
+            <tr>
+              <td>11 (lowest)</td>
+              <td><code>= += -= *= /=</code></td>
+              <td>Assignment</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <div class="code-header">
+          <span class="code-filename">Precedence.cs</span>
+          <span class="code-language">C#</span>
+        </div>
+        <pre><code><span class="code-comment">// Multiplication before addition</span>
+<span class="code-type">int</span> <span class="code-variable">result1</span> = <span class="code-number">2</span> + <span class="code-number">3</span> * <span class="code-number">4</span>;      <span class="code-comment">// 14, not 20 (3*4 first, then +2)</span>
+<span class="code-type">int</span> <span class="code-variable">result2</span> = (<span class="code-number">2</span> + <span class="code-number">3</span>) * <span class="code-number">4</span>;    <span class="code-comment">// 20 (parentheses force addition first)</span>
+
+<span class="code-comment">// Comparison before logical operators</span>
+<span class="code-type">bool</span> <span class="code-variable">result3</span> = <span class="code-number">5</span> > <span class="code-number">3</span> && <span class="code-number">2</span> < <span class="code-number">4</span>;  <span class="code-comment">// true (comparisons first, then &&)</span>
+
+<span class="code-comment">// AND before OR (common source of bugs!)</span>
+<span class="code-type">bool</span> <span class="code-variable">a</span> = <span class="code-keyword">true</span>, <span class="code-variable">b</span> = <span class="code-keyword">false</span>, <span class="code-variable">c</span> = <span class="code-keyword">true</span>;
+<span class="code-type">bool</span> <span class="code-variable">result4</span> = <span class="code-variable">a</span> || <span class="code-variable">b</span> && <span class="code-variable">c</span>;    <span class="code-comment">// true  (b && c first, then a ||)</span>
+<span class="code-type">bool</span> <span class="code-variable">result5</span> = (<span class="code-variable">a</span> || <span class="code-variable">b</span>) && <span class="code-variable">c</span>;  <span class="code-comment">// true  (parentheses change meaning)</span></code></pre>
+
+        <div class="callout callout-warning">
+          <div class="callout-title">⚠️ When in Doubt, Use Parentheses</div>
+          <p>
+            Don't rely on memorizing precedence. Use parentheses to make your intent clear. 
+            <code>(a && b) || c</code> is easier to read than <code>a && b || c</code>, even 
+            though they mean the same thing. Clear code beats clever code.
+          </p>
+        </div>
+
+        <div class="section-divider"></div>
+
+        <h2>Putting It All Together: InvenTrack Example</h2>
+
+        <p>
+          Let's apply what we've learned to a realistic scenario—calculating order totals 
+          in our InvenTrack system:
+        </p>
+
+        <div class="code-header">
+          <span class="code-filename">InvenTrackOrderCalculations.cs</span>
+          <span class="code-language">C#</span>
+        </div>
+        <pre><code><span class="code-comment">// Product data</span>
+<span class="code-type">string</span> <span class="code-variable">productName</span> = <span class="code-string">"Premium Widget"</span>;
+<span class="code-type">decimal</span> <span class="code-variable">unitPrice</span> = <span class="code-number">79.99m</span>;
+<span class="code-type">int</span> <span class="code-variable">quantity</span> = <span class="code-number">5</span>;
+<span class="code-type">decimal?</span> <span class="code-variable">discountPercent</span> = <span class="code-number">10m</span>;  <span class="code-comment">// 10% discount, could be null</span>
+
+<span class="code-comment">// Customer data</span>
+<span class="code-type">string</span>? <span class="code-variable">customerName</span> = <span class="code-string">"Kofi Mensah"</span>;
+<span class="code-type">bool</span> <span class="code-variable">isPremiumMember</span> = <span class="code-keyword">true</span>;
+<span class="code-type">bool</span> <span class="code-variable">isFirstOrder</span> = <span class="code-keyword">false</span>;
+
+<span class="code-comment">// Constants</span>
+<span class="code-keyword">const</span> <span class="code-type">decimal</span> <span class="code-variable">VatRate</span> = <span class="code-number">0.125m</span>;           <span class="code-comment">// 12.5%</span>
+<span class="code-keyword">const</span> <span class="code-type">decimal</span> <span class="code-variable">FreeShippingThreshold</span> = <span class="code-number">200m</span>;
+<span class="code-keyword">const</span> <span class="code-type">decimal</span> <span class="code-variable">ShippingCost</span> = <span class="code-number">15m</span>;
+
+<span class="code-comment">// Calculations</span>
+<span class="code-type">decimal</span> <span class="code-variable">subtotal</span> = <span class="code-variable">unitPrice</span> * <span class="code-variable">quantity</span>;  <span class="code-comment">// 399.95</span>
+
+<span class="code-comment">// Apply discount (use 0 if no discount)</span>
+<span class="code-type">decimal</span> <span class="code-variable">discountRate</span> = (<span class="code-variable">discountPercent</span> ?? <span class="code-number">0m</span>) / <span class="code-number">100m</span>;  <span class="code-comment">// 0.10</span>
+<span class="code-type">decimal</span> <span class="code-variable">discountAmount</span> = <span class="code-variable">subtotal</span> * <span class="code-variable">discountRate</span>;      <span class="code-comment">// 39.995</span>
+<span class="code-type">decimal</span> <span class="code-variable">afterDiscount</span> = <span class="code-variable">subtotal</span> - <span class="code-variable">discountAmount</span>;     <span class="code-comment">// 359.955</span>
+
+<span class="code-comment">// Calculate VAT</span>
+<span class="code-type">decimal</span> <span class="code-variable">vatAmount</span> = <span class="code-variable">afterDiscount</span> * <span class="code-variable">VatRate</span>;  <span class="code-comment">// 44.994375</span>
+<span class="code-type">decimal</span> <span class="code-variable">totalWithVat</span> = <span class="code-variable">afterDiscount</span> + <span class="code-variable">vatAmount</span>;  <span class="code-comment">// 404.949375</span>
+
+<span class="code-comment">// Determine shipping (free for premium members, high orders, or first order)</span>
+<span class="code-type">bool</span> <span class="code-variable">qualifiesForFreeShipping</span> = <span class="code-variable">isPremiumMember</span> 
+                               || <span class="code-variable">totalWithVat</span> >= <span class="code-variable">FreeShippingThreshold</span> 
+                               || <span class="code-variable">isFirstOrder</span>;
+<span class="code-type">decimal</span> <span class="code-variable">shipping</span> = <span class="code-variable">qualifiesForFreeShipping</span> ? <span class="code-number">0m</span> : <span class="code-variable">ShippingCost</span>;  <span class="code-comment">// 0</span>
+
+<span class="code-comment">// Final total</span>
+<span class="code-type">decimal</span> <span class="code-variable">grandTotal</span> = <span class="code-variable">totalWithVat</span> + <span class="code-variable">shipping</span>;
+
+<span class="code-comment">// Format for display</span>
+<span class="code-type">string</span> <span class="code-variable">displayName</span> = <span class="code-variable">customerName</span> ?? <span class="code-string">"Guest"</span>;
+<span class="code-type">string</span> <span class="code-variable">itemLabel</span> = <span class="code-variable">quantity</span> == <span class="code-number">1</span> ? <span class="code-string">"item"</span> : <span class="code-string">"items"</span>;
+<span class="code-type">string</span> <span class="code-variable">shippingText</span> = <span class="code-variable">shipping</span> == <span class="code-number">0m</span> ? <span class="code-string">"FREE"</span> : <span class="code-string">$"</span>{<span class="code-variable">shipping</span>:C}<span class="code-string">"</span>;
+
+<span class="code-comment">// Output</span>
+Console.<span class="code-method">WriteLine</span>(<span class="code-string">$"Order for: </span>{<span class="code-variable">displayName</span>}<span class="code-string">"</span>);
+Console.<span class="code-method">WriteLine</span>(<span class="code-string">$"</span>{<span class="code-variable">quantity</span>}<span class="code-string"> </span>{<span class="code-variable">itemLabel</span>}<span class="code-string"> of </span>{<span class="code-variable">productName</span>}<span class="code-string">"</span>);
+Console.<span class="code-method">WriteLine</span>(<span class="code-string">$"Subtotal:   </span>{<span class="code-variable">subtotal</span>:C}<span class="code-string">"</span>);
+Console.<span class="code-method">WriteLine</span>(<span class="code-string">$"Discount:  -</span>{<span class="code-variable">discountAmount</span>:C}<span class="code-string">"</span>);
+Console.<span class="code-method">WriteLine</span>(<span class="code-string">$"VAT (12.5%): </span>{<span class="code-variable">vatAmount</span>:C}<span class="code-string">"</span>);
+Console.<span class="code-method">WriteLine</span>(<span class="code-string">$"Shipping:   </span>{<span class="code-variable">shippingText</span>}<span class="code-string">"</span>);
+Console.<span class="code-method">WriteLine</span>(<span class="code-string">$"─────────────────────"</span>);
+Console.<span class="code-method">WriteLine</span>(<span class="code-string">$"Total:      </span>{<span class="code-variable">grandTotal</span>:C}<span class="code-string">"</span>);</code></pre>
+
+        <div class="section-divider"></div>
+
+        <h2>Key Takeaways</h2>
+
+        <ul>
+          <li><strong>Expressions</strong> combine values, variables, and operators to produce a result</li>
+          <li><strong>Arithmetic operators</strong>: <code>+ - * / %</code> — watch for integer division truncation!</li>
+          <li><strong>Comparison operators</strong>: <code>== != < > <= >=</code> — return bool</li>
+          <li><strong>Logical operators</strong>: <code>&& || !</code> — use short-circuit evaluation</li>
+          <li><strong>Compound assignment</strong>: <code>+= -= *= /=</code> — shorthand for common patterns</li>
+          <li><strong>Null operators</strong>: <code>?.</code> (safe access), <code>??</code> (default value), <code>??=</code> (assign if null)</li>
+          <li><strong>Ternary operator</strong>: <code>condition ? ifTrue : ifFalse</code> — inline conditionals</li>
+          <li><strong>Precedence</strong>: When in doubt, use parentheses for clarity</li>
+        </ul>
+
+        <div class="callout callout-tip">
+          <div class="callout-title">🚀 Ready for Control Flow!</div>
+          <p>
+            You can now perform calculations and comparisons. In the next section, we'll learn 
+            how to use these comparisons to control what your program does—making decisions 
+            with <code>if</code> statements and repeating actions with loops.
+          </p>
+        </div>
+
+        <h2>What's Next?</h2>
+
+        <p>
+          In the next section, <strong>Control Flow</strong>, we'll learn how to make your 
+          programs smart—branching based on conditions (<code>if</code>, <code>switch</code>) 
+          and repeating actions (<code>for</code>, <code>while</code>, <code>foreach</code>).
+        </p>
+
+        <!-- Page Navigation -->
+        <nav class="page-nav">
+          <a href="03-variables-and-data-types.html" class="prev">Variables and Data Types</a>
+          <a href="05-control-flow.html" class="next">Control Flow</a>
+        </nav>
+
+      
+        <footer class="page-footer">
+          Built with 💜 by <a href="https://akwasi.dev" target="_blank" rel="noopener noreferrer">Akwasi Adu-Kyeremeh</a> for developers who want to truly understand what they're building.
+        </footer>
+
+      </div>
+    </main>
+  </div>
+</body>
+</html>

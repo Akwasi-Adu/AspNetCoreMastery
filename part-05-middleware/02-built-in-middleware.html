@@ -1,0 +1,543 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Built-in Middleware | ASP.NET Core Mastery</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;500&family=Source+Serif+4:ital,wght@0,400;0,600;1,400&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="../assets/style.css">
+</head>
+
+<body>
+    <div class="page-wrapper">
+        <aside class="sidebar">
+            <a href="../index.html" class="sidebar-logo">ASP.NET Core Mastery</a>
+            <div class="sidebar-section">Part V: Middleware & Pipeline</div>
+            <ul class="sidebar-nav">
+                <li><a href="01-request-pipeline.html">The Request Pipeline</a></li>
+                <li><a href="02-built-in-middleware.html" class="active">Built-in Middleware</a></li>
+                <li><a href="03-custom-middleware.html">Creating Custom Middleware</a></li>
+                <li><a href="04-middleware-ordering.html">Middleware Ordering</a></li>
+                <li><a href="05-exception-handling.html">Exception Handling Middleware</a></li>
+            </ul>
+            <div class="sidebar-section">Resources</div>
+            <ul class="sidebar-nav">
+                <li><a href="../index.html">Full Roadmap</a></li>
+            </ul>
+        </aside>
+
+        <main class="main-content">
+            <div class="content-container">
+                <nav class="breadcrumb">
+                    <a href="../index.html">Home</a>
+                    <span>→</span>
+                    <a href="01-request-pipeline.html">Part V: Middleware & Pipeline</a>
+                    <span>→</span>
+                    Built-in Middleware
+                </nav>
+
+                <div class="progress-indicator">
+                    <span>Section 2 of 5</span>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 40%"></div>
+                    </div>
+                </div>
+
+                <h1>Built-in Middleware</h1>
+
+                <div class="learning-objectives">
+                    <h3>🎯 What You'll Learn</h3>
+                    <ul>
+                        <li>Common built-in middleware components</li>
+                        <li>Static Files middleware</li>
+                        <li>Routing middleware</li>
+                        <li>Authentication and Authorization</li>
+                        <li>CORS middleware</li>
+                        <li>Response Compression</li>
+                        <li>HTTPS Redirection</li>
+                        <li>Session middleware</li>
+                        <li>Configuring each middleware</li>
+                    </ul>
+                </div>
+
+                <h2>Overview of Built-in Middleware</h2>
+
+                <p>
+                    ASP.NET Core provides many middleware components out of the box for common tasks:
+                </p>
+
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Middleware</th>
+                            <th>Purpose</th>
+                            <th>Method</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Exception Handler</td>
+                            <td>Catch and handle exceptions</td>
+                            <td><code>UseExceptionHandler()</code></td>
+                        </tr>
+                        <tr>
+                            <td>HTTPS Redirection</td>
+                            <td>Redirect HTTP to HTTPS</td>
+                            <td><code>UseHttpsRedirection()</code></td>
+                        </tr>
+                        <tr>
+                            <td>Static Files</td>
+                            <td>Serve static files (CSS, JS, images)</td>
+                            <td><code>UseStaticFiles()</code></td>
+                        </tr>
+                        <tr>
+                            <td>Routing</td>
+                            <td>Match requests to endpoints</td>
+                            <td><code>UseRouting()</code></td>
+                        </tr>
+                        <tr>
+                            <td>CORS</td>
+                            <td>Enable cross-origin requests</td>
+                            <td><code>UseCors()</code></td>
+                        </tr>
+                        <tr>
+                            <td>Authentication</td>
+                            <td>Identify users</td>
+                            <td><code>UseAuthentication()</code></td>
+                        </tr>
+                        <tr>
+                            <td>Authorization</td>
+                            <td>Check user permissions</td>
+                            <td><code>UseAuthorization()</code></td>
+                        </tr>
+                        <tr>
+                            <td>Session</td>
+                            <td>Manage user sessions</td>
+                            <td><code>UseSession()</code></td>
+                        </tr>
+                        <tr>
+                            <td>Response Compression</td>
+                            <td>Compress responses</td>
+                            <td><code>UseResponseCompression()</code></td>
+                        </tr>
+                        <tr>
+                            <td>Response Caching</td>
+                            <td>Cache responses</td>
+                            <td><code>UseResponseCaching()</code></td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="section-divider"></div>
+
+                <h2>1. Static Files Middleware</h2>
+
+                <p>
+                    Serves static files (HTML, CSS, JavaScript, images) from the <code>wwwroot</code> folder.
+                </p>
+
+                <div class="code-header">
+                    <span class="code-filename">Basic Usage</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-variable">app</span>.<span class="code-method">UseStaticFiles</span>();
+
+<span class="code-comment">// Now files in wwwroot are accessible:</span>
+<span class="code-comment">// wwwroot/css/style.css → http://localhost:5000/css/style.css</span>
+<span class="code-comment">// wwwroot/images/logo.png → http://localhost:5000/images/logo.png</span></code></pre>
+
+                <h3>Custom Configuration</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">Serve from Different Folder</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-variable">app</span>.<span class="code-method">UseStaticFiles</span>(<span class="code-keyword">new</span> <span class="code-class">StaticFileOptions</span>
+{
+    <span class="code-variable">FileProvider</span> = <span class="code-keyword">new</span> <span class="code-class">PhysicalFileProvider</span>(
+        <span class="code-class">Path</span>.<span class="code-method">Combine</span>(<span class="code-variable">builder</span>.<span class="code-variable">Environment</span>.<span class="code-variable">ContentRootPath</span>, <span class="code-string">"MyStaticFiles"</span>)),
+    <span class="code-variable">RequestPath</span> = <span class="code-string">"/files"</span>
+});
+
+<span class="code-comment">// MyStaticFiles/document.pdf → http://localhost:5000/files/document.pdf</span></code></pre>
+
+                <h3>Enable Directory Browsing</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">Directory Browsing</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-variable">builder</span>.<span class="code-variable">Services</span>.<span class="code-method">AddDirectoryBrowser</span>();
+
+<span class="code-variable">app</span>.<span class="code-method">UseStaticFiles</span>();
+<span class="code-variable">app</span>.<span class="code-method">UseDirectoryBrowser</span>(<span class="code-keyword">new</span> <span class="code-class">DirectoryBrowserOptions</span>
+{
+    <span class="code-variable">FileProvider</span> = <span class="code-keyword">new</span> <span class="code-class">PhysicalFileProvider</span>(
+        <span class="code-class">Path</span>.<span class="code-method">Combine</span>(<span class="code-variable">builder</span>.<span class="code-variable">Environment</span>.<span class="code-variable">ContentRootPath</span>, <span class="code-string">"wwwroot"</span>)),
+    <span class="code-variable">RequestPath</span> = <span class="code-string">"/browse"</span>
+});</code></pre>
+
+                <div class="callout callout-warning">
+                    <div class="callout-title">⚠️ Security Warning</div>
+                    <p>
+                        Never enable directory browsing in production! It exposes your file structure.
+                    </p>
+                </div>
+
+                <div class="section-divider"></div>
+
+                <h2>2. Routing Middleware</h2>
+
+                <p>
+                    Matches incoming requests to endpoints (controllers, Razor Pages, minimal APIs).
+                </p>
+
+                <div class="code-header">
+                    <span class="code-filename">Routing Setup</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-variable">app</span>.<span class="code-method">UseRouting</span>();
+
+<span class="code-comment">// Define endpoints</span>
+<span class="code-variable">app</span>.<span class="code-method">MapControllers</span>();
+<span class="code-variable">app</span>.<span class="code-method">MapGet</span>(<span class="code-string">"/hello"</span>, () =&gt; <span class="code-string">"Hello World!"</span>);</code></pre>
+
+                <div class="callout callout-info">
+                    <div class="callout-title">ℹ️ Routing in ASP.NET Core 6+</div>
+                    <p>
+                        In ASP.NET Core 6+, <code>UseRouting()</code> is often implicit. You can call
+                        <code>MapControllers()</code> directly without explicitly calling <code>UseRouting()</code>.
+                    </p>
+                </div>
+
+                <div class="section-divider"></div>
+
+                <h2>3. CORS Middleware</h2>
+
+                <p>
+                    <strong>CORS</strong> (Cross-Origin Resource Sharing) allows requests from different domains.
+                </p>
+
+                <div class="code-header">
+                    <span class="code-filename">CORS Configuration</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-comment">// 1. Configure CORS policy</span>
+<span class="code-variable">builder</span>.<span class="code-variable">Services</span>.<span class="code-method">AddCors</span>(<span class="code-variable">options</span> =&gt;
+{
+    <span class="code-variable">options</span>.<span class="code-method">AddPolicy</span>(<span class="code-string">"AllowInvenTrackFrontend"</span>, <span class="code-variable">policy</span> =&gt;
+    {
+        <span class="code-variable">policy</span>.<span class="code-method">WithOrigins</span>(<span class="code-string">"https://inventrackapp.com"</span>)
+              .<span class="code-method">AllowAnyMethod</span>()
+              .<span class="code-method">AllowAnyHeader</span>();
+    });
+});
+
+<span class="code-comment">// 2. Use CORS middleware</span>
+<span class="code-variable">app</span>.<span class="code-method">UseCors</span>(<span class="code-string">"AllowInvenTrackFrontend"</span>);</code></pre>
+
+                <h3>Common CORS Policies</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">Allow All (Development Only!)</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-variable">builder</span>.<span class="code-variable">Services</span>.<span class="code-method">AddCors</span>(<span class="code-variable">options</span> =&gt;
+{
+    <span class="code-variable">options</span>.<span class="code-method">AddPolicy</span>(<span class="code-string">"AllowAll"</span>, <span class="code-variable">policy</span> =&gt;
+    {
+        <span class="code-variable">policy</span>.<span class="code-method">AllowAnyOrigin</span>()
+              .<span class="code-method">AllowAnyMethod</span>()
+              .<span class="code-method">AllowAnyHeader</span>();
+    });
+});</code></pre>
+
+                <div class="code-header">
+                    <span class="code-filename">Allow Specific Origins</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-variable">builder</span>.<span class="code-variable">Services</span>.<span class="code-method">AddCors</span>(<span class="code-variable">options</span> =&gt;
+{
+    <span class="code-variable">options</span>.<span class="code-method">AddPolicy</span>(<span class="code-string">"Production"</span>, <span class="code-variable">policy</span> =&gt;
+    {
+        <span class="code-variable">policy</span>.<span class="code-method">WithOrigins</span>(
+                  <span class="code-string">"https://inventrackapp.com"</span>,
+                  <span class="code-string">"https://admin.inventrackapp.com"</span>)
+              .<span class="code-method">AllowAnyMethod</span>()
+              .<span class="code-method">AllowAnyHeader</span>()
+              .<span class="code-method">AllowCredentials</span>(); <span class="code-comment">// Allow cookies</span>
+    });
+});</code></pre>
+
+                <div class="section-divider"></div>
+
+                <h2>4. Authentication & Authorization</h2>
+
+                <h3>Authentication Middleware</h3>
+
+                <p>
+                    Identifies who the user is based on credentials (JWT, cookies, etc.).
+                </p>
+
+                <div class="code-header">
+                    <span class="code-filename">JWT Authentication</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-variable">builder</span>.<span class="code-variable">Services</span>.<span class="code-method">AddAuthentication</span>(<span class="code-class">JwtBearerDefaults</span>.<span class="code-variable">AuthenticationScheme</span>)
+    .<span class="code-method">AddJwtBearer</span>(<span class="code-variable">options</span> =&gt;
+    {
+        <span class="code-variable">options</span>.<span class="code-variable">TokenValidationParameters</span> = <span class="code-keyword">new</span> <span class="code-class">TokenValidationParameters</span>
+        {
+            <span class="code-variable">ValidateIssuer</span> = <span class="code-keyword">true</span>,
+            <span class="code-variable">ValidateAudience</span> = <span class="code-keyword">true</span>,
+            <span class="code-variable">ValidateLifetime</span> = <span class="code-keyword">true</span>,
+            <span class="code-variable">ValidIssuer</span> = <span class="code-variable">builder</span>.<span class="code-variable">Configuration</span>[<span class="code-string">"Jwt:Issuer"</span>],
+            <span class="code-variable">ValidAudience</span> = <span class="code-variable">builder</span>.<span class="code-variable">Configuration</span>[<span class="code-string">"Jwt:Audience"</span>],
+            <span class="code-variable">IssuerSigningKey</span> = <span class="code-keyword">new</span> <span class="code-class">SymmetricSecurityKey</span>(
+                <span class="code-class">Encoding</span>.<span class="code-variable">UTF8</span>.<span class="code-method">GetBytes</span>(<span class="code-variable">builder</span>.<span class="code-variable">Configuration</span>[<span class="code-string">"Jwt:Key"</span>]))
+        };
+    });
+
+<span class="code-variable">app</span>.<span class="code-method">UseAuthentication</span>();</code></pre>
+
+                <h3>Authorization Middleware</h3>
+
+                <p>
+                    Checks if the authenticated user has permission to access a resource.
+                </p>
+
+                <div class="code-header">
+                    <span class="code-filename">Authorization</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-variable">builder</span>.<span class="code-variable">Services</span>.<span class="code-method">AddAuthorization</span>(<span class="code-variable">options</span> =&gt;
+{
+    <span class="code-variable">options</span>.<span class="code-method">AddPolicy</span>(<span class="code-string">"AdminOnly"</span>, <span class="code-variable">policy</span> =&gt;
+        <span class="code-variable">policy</span>.<span class="code-method">RequireRole</span>(<span class="code-string">"Admin"</span>));
+    
+    <span class="code-variable">options</span>.<span class="code-method">AddPolicy</span>(<span class="code-string">"InventoryManager"</span>, <span class="code-variable">policy</span> =&gt;
+        <span class="code-variable">policy</span>.<span class="code-method">RequireClaim</span>(<span class="code-string">"Permission"</span>, <span class="code-string">"ManageInventory"</span>));
+});
+
+<span class="code-variable">app</span>.<span class="code-method">UseAuthorization</span>();</code></pre>
+
+                <div class="callout callout-warning">
+                    <div class="callout-title">⚠️ Order Matters!</div>
+                    <p>
+                        <code>UseAuthentication()</code> must come <strong>before</strong>
+                        <code>UseAuthorization()</code>. You can't check permissions before identifying the user!
+                    </p>
+                </div>
+
+                <div class="section-divider"></div>
+
+                <h2>5. HTTPS Redirection</h2>
+
+                <p>
+                    Automatically redirects HTTP requests to HTTPS.
+                </p>
+
+                <div class="code-header">
+                    <span class="code-filename">HTTPS Redirection</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-variable">app</span>.<span class="code-method">UseHttpsRedirection</span>();
+
+<span class="code-comment">// http://localhost:5000 → https://localhost:5001</span></code></pre>
+
+                <h3>Custom Configuration</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">Custom HTTPS Port</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-variable">builder</span>.<span class="code-variable">Services</span>.<span class="code-method">AddHttpsRedirection</span>(<span class="code-variable">options</span> =&gt;
+{
+    <span class="code-variable">options</span>.<span class="code-variable">RedirectStatusCode</span> = <span class="code-class">StatusCodes</span>.<span class="code-variable">Status307TemporaryRedirect</span>;
+    <span class="code-variable">options</span>.<span class="code-variable">HttpsPort</span> = <span class="code-number">443</span>;
+});</code></pre>
+
+                <div class="section-divider"></div>
+
+                <h2>6. Response Compression</h2>
+
+                <p>
+                    Compresses responses to reduce bandwidth usage.
+                </p>
+
+                <div class="code-header">
+                    <span class="code-filename">Response Compression</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-variable">builder</span>.<span class="code-variable">Services</span>.<span class="code-method">AddResponseCompression</span>(<span class="code-variable">options</span> =&gt;
+{
+    <span class="code-variable">options</span>.<span class="code-variable">EnableForHttps</span> = <span class="code-keyword">true</span>;
+    <span class="code-variable">options</span>.<span class="code-variable">Providers</span>.<span class="code-method">Add</span>&lt;<span class="code-class">GzipCompressionProvider</span>&gt;();
+    <span class="code-variable">options</span>.<span class="code-variable">Providers</span>.<span class="code-method">Add</span>&lt;<span class="code-class">BrotliCompressionProvider</span>&gt;();
+});
+
+<span class="code-variable">app</span>.<span class="code-method">UseResponseCompression</span>();</code></pre>
+
+                <div class="section-divider"></div>
+
+                <h2>7. Session Middleware</h2>
+
+                <p>
+                    Manages user session data across requests.
+                </p>
+
+                <div class="code-header">
+                    <span class="code-filename">Session Configuration</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-variable">builder</span>.<span class="code-variable">Services</span>.<span class="code-method">AddDistributedMemoryCache</span>();
+<span class="code-variable">builder</span>.<span class="code-variable">Services</span>.<span class="code-method">AddSession</span>(<span class="code-variable">options</span> =&gt;
+{
+    <span class="code-variable">options</span>.<span class="code-variable">IdleTimeout</span> = <span class="code-class">TimeSpan</span>.<span class="code-method">FromMinutes</span>(<span class="code-number">30</span>);
+    <span class="code-variable">options</span>.<span class="code-variable">Cookie</span>.<span class="code-variable">HttpOnly</span> = <span class="code-keyword">true</span>;
+    <span class="code-variable">options</span>.<span class="code-variable">Cookie</span>.<span class="code-variable">IsEssential</span> = <span class="code-keyword">true</span>;
+});
+
+<span class="code-variable">app</span>.<span class="code-method">UseSession</span>();</code></pre>
+
+                <h3>Using Session</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">Session Usage</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-variable">app</span>.<span class="code-method">MapGet</span>(<span class="code-string">"/set-session"</span>, (<span class="code-class">HttpContext</span> <span class="code-variable">context</span>) =&gt;
+{
+    <span class="code-variable">context</span>.<span class="code-variable">Session</span>.<span class="code-method">SetString</span>(<span class="code-string">"Username"</span>, <span class="code-string">"John"</span>);
+    <span class="code-keyword">return</span> <span class="code-string">"Session set!"</span>;
+});
+
+<span class="code-variable">app</span>.<span class="code-method">MapGet</span>(<span class="code-string">"/get-session"</span>, (<span class="code-class">HttpContext</span> <span class="code-variable">context</span>) =&gt;
+{
+    <span class="code-keyword">var</span> <span class="code-variable">username</span> = <span class="code-variable">context</span>.<span class="code-variable">Session</span>.<span class="code-method">GetString</span>(<span class="code-string">"Username"</span>);
+    <span class="code-keyword">return</span> <span class="code-string">$"Username: </span>{<span class="code-variable">username</span>}<span class="code-string">"</span>;
+});</code></pre>
+
+                <div class="section-divider"></div>
+
+                <h2>8. Response Caching</h2>
+
+                <div class="code-header">
+                    <span class="code-filename">Response Caching</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-variable">builder</span>.<span class="code-variable">Services</span>.<span class="code-method">AddResponseCaching</span>();
+
+<span class="code-variable">app</span>.<span class="code-method">UseResponseCaching</span>();
+
+<span class="code-comment">// Use with [ResponseCache] attribute on controllers</span>
+[<span class="code-class">ResponseCache</span>(<span class="code-variable">Duration</span> = <span class="code-number">60</span>)]
+<span class="code-keyword">public</span> <span class="code-class">IActionResult</span> <span class="code-method">GetProducts</span>()
+{
+    <span class="code-keyword">return</span> <span class="code-method">Ok</span>(<span class="code-variable">_products</span>);
+}</code></pre>
+
+                <div class="section-divider"></div>
+
+                <h2>Complete InvenTrack Example</h2>
+
+                <div class="code-header">
+                    <span class="code-filename">Program.cs (Full Pipeline)</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-keyword">var</span> <span class="code-variable">builder</span> = <span class="code-class">WebApplication</span>.<span class="code-method">CreateBuilder</span>(<span class="code-variable">args</span>);
+
+<span class="code-comment">// Services</span>
+<span class="code-variable">builder</span>.<span class="code-variable">Services</span>.<span class="code-method">AddControllers</span>();
+<span class="code-variable">builder</span>.<span class="code-variable">Services</span>.<span class="code-method">AddResponseCompression</span>();
+<span class="code-variable">builder</span>.<span class="code-variable">Services</span>.<span class="code-method">AddResponseCaching</span>();
+
+<span class="code-comment">// CORS</span>
+<span class="code-variable">builder</span>.<span class="code-variable">Services</span>.<span class="code-method">AddCors</span>(<span class="code-variable">options</span> =&gt;
+{
+    <span class="code-variable">options</span>.<span class="code-method">AddPolicy</span>(<span class="code-string">"AllowFrontend"</span>, <span class="code-variable">policy</span> =&gt;
+        <span class="code-variable">policy</span>.<span class="code-method">WithOrigins</span>(<span class="code-string">"https://inventrackapp.com"</span>)
+              .<span class="code-method">AllowAnyMethod</span>()
+              .<span class="code-method">AllowAnyHeader</span>());
+});
+
+<span class="code-comment">// Authentication</span>
+<span class="code-variable">builder</span>.<span class="code-variable">Services</span>.<span class="code-method">AddAuthentication</span>(<span class="code-class">JwtBearerDefaults</span>.<span class="code-variable">AuthenticationScheme</span>)
+    .<span class="code-method">AddJwtBearer</span>();
+
+<span class="code-variable">builder</span>.<span class="code-variable">Services</span>.<span class="code-method">AddAuthorization</span>();
+
+<span class="code-keyword">var</span> <span class="code-variable">app</span> = <span class="code-variable">builder</span>.<span class="code-method">Build</span>();
+
+<span class="code-comment">// Middleware Pipeline</span>
+<span class="code-keyword">if</span> (<span class="code-variable">app</span>.<span class="code-variable">Environment</span>.<span class="code-method">IsDevelopment</span>())
+{
+    <span class="code-variable">app</span>.<span class="code-method">UseDeveloperExceptionPage</span>();
+}
+<span class="code-keyword">else</span>
+{
+    <span class="code-variable">app</span>.<span class="code-method">UseExceptionHandler</span>(<span class="code-string">"/error"</span>);
+    <span class="code-variable">app</span>.<span class="code-method">UseHsts</span>();
+}
+
+<span class="code-variable">app</span>.<span class="code-method">UseHttpsRedirection</span>();
+<span class="code-variable">app</span>.<span class="code-method">UseStaticFiles</span>();
+<span class="code-variable">app</span>.<span class="code-method">UseResponseCompression</span>();
+<span class="code-variable">app</span>.<span class="code-method">UseResponseCaching</span>();
+
+<span class="code-variable">app</span>.<span class="code-method">UseRouting</span>();
+
+<span class="code-variable">app</span>.<span class="code-method">UseCors</span>(<span class="code-string">"AllowFrontend"</span>);
+
+<span class="code-variable">app</span>.<span class="code-method">UseAuthentication</span>();
+<span class="code-variable">app</span>.<span class="code-method">UseAuthorization</span>();
+
+<span class="code-variable">app</span>.<span class="code-method">MapControllers</span>();
+
+<span class="code-variable">app</span>.<span class="code-method">Run</span>();</code></pre>
+
+                <h2>Key Takeaways</h2>
+
+                <ul>
+                    <li><strong>Static Files</strong>: Serve files from <code>wwwroot</code></li>
+                    <li><strong>Routing</strong>: Match requests to endpoints</li>
+                    <li><strong>CORS</strong>: Enable cross-origin requests with policies</li>
+                    <li><strong>Authentication</strong>: Identify users (JWT, cookies, etc.)</li>
+                    <li><strong>Authorization</strong>: Check permissions (must come after authentication)</li>
+                    <li><strong>HTTPS Redirection</strong>: Force HTTPS in production</li>
+                    <li><strong>Response Compression</strong>: Reduce bandwidth with Gzip/Brotli</li>
+                    <li><strong>Session</strong>: Store per-user data across requests</li>
+                    <li><strong>Response Caching</strong>: Cache responses for performance</li>
+                    <li>Middleware order is critical (covered in Section 4)</li>
+                </ul>
+
+                <div class="callout callout-concept">
+                    <div class="callout-title">🎯 Next Steps</div>
+                    <p>
+                        You now know the most common built-in middleware! In the next section, we'll learn how to
+                        <strong>Create Custom Middleware</strong>—building your own middleware components for
+                        logging, request timing, API key validation, and more.
+                    </p>
+                </div>
+
+                <nav class="page-nav">
+                    <a href="01-request-pipeline.html" class="prev">The Request Pipeline</a>
+                    <a href="03-custom-middleware.html" class="next">Creating Custom Middleware</a>
+                </nav>
+
+            
+        <footer class="page-footer">
+          Built with 💜 by <a href="https://akwasi.dev" target="_blank" rel="noopener noreferrer">Akwasi Adu-Kyeremeh</a> for developers who want to truly understand what they're building.
+        </footer>
+
+      </div>
+        </main>
+    </div>
+</body>
+
+</html>

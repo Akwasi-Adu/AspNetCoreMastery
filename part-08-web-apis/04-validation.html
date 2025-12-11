@@ -1,0 +1,493 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Validation | ASP.NET Core Mastery</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;500&family=Source+Serif+4:ital,wght@0,400;0,600;1,400&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="../assets/style.css">
+</head>
+
+<body>
+    <div class="page-wrapper">
+        <aside class="sidebar">
+            <a href="../index.html" class="sidebar-logo">ASP.NET Core Mastery</a>
+            <div class="sidebar-section">Part VIII: Building Web APIs</div>
+            <ul class="sidebar-nav">
+                <li><a href="01-restful-principles.html">RESTful Principles</a></li>
+                <li><a href="02-api-controllers.html">API Controllers</a></li>
+                <li><a href="03-model-binding.html">Model Binding</a></li>
+                <li><a href="04-validation.html" class="active">Validation</a></li>
+                <li><a href="05-minimal-apis.html">Minimal APIs</a></li>
+                <li><a href="06-dtos-automapper.html">DTOs and AutoMapper</a></li>
+                <li><a href="07-api-versioning.html">API Versioning</a></li>
+            </ul>
+            <div class="sidebar-section">Resources</div>
+            <ul class="sidebar-nav">
+                <li><a href="../index.html">Full Roadmap</a></li>
+            </ul>
+        </aside>
+
+        <main class="main-content">
+            <div class="content-container">
+                <nav class="breadcrumb">
+                    <a href="../index.html">Home</a>
+                    <span>→</span>
+                    <a href="01-restful-principles.html">Part VIII: Building Web APIs</a>
+                    <span>→</span>
+                    Validation
+                </nav>
+
+                <div class="progress-indicator">
+                    <span>Section 4 of 7</span>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 57.14%"></div>
+                    </div>
+                </div>
+
+                <h1>Validation</h1>
+
+                <div class="learning-objectives">
+                    <h3>🎯 What You'll Learn</h3>
+                    <ul>
+                        <li>Why validation matters</li>
+                        <li>Data Annotations attributes</li>
+                        <li>Automatic validation with [ApiController]</li>
+                        <li>Custom validation attributes</li>
+                        <li>FluentValidation library</li>
+                        <li>Returning validation errors</li>
+                    </ul>
+                </div>
+
+                <h2>Why Validation?</h2>
+
+                <p>
+                    <strong>Validation</strong> ensures data integrity by checking that input meets business rules
+                    before processing.
+                </p>
+
+                <ul>
+                    <li><strong>Security</strong>: Prevent malicious input</li>
+                    <li><strong>Data integrity</strong>: Ensure valid data in database</li>
+                    <li><strong>User experience</strong>: Provide clear error messages</li>
+                    <li><strong>Business rules</strong>: Enforce domain constraints</li>
+                </ul>
+
+                <div class="section-divider"></div>
+
+                <h2>Data Annotations</h2>
+
+                <p>
+                    <strong>Data Annotations</strong> are attributes that define validation rules on model properties.
+                </p>
+
+                <h3>Common Validation Attributes</h3>
+
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Attribute</th>
+                            <th>Description</th>
+                            <th>Example</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><code>[Required]</code></td>
+                            <td>Property must have a value</td>
+                            <td><code>[Required]</code></td>
+                        </tr>
+                        <tr>
+                            <td><code>[StringLength]</code></td>
+                            <td>String length constraints</td>
+                            <td><code>[StringLength(100)]</code></td>
+                        </tr>
+                        <tr>
+                            <td><code>[MinLength]</code></td>
+                            <td>Minimum length</td>
+                            <td><code>[MinLength(3)]</code></td>
+                        </tr>
+                        <tr>
+                            <td><code>[MaxLength]</code></td>
+                            <td>Maximum length</td>
+                            <td><code>[MaxLength(50)]</code></td>
+                        </tr>
+                        <tr>
+                            <td><code>[Range]</code></td>
+                            <td>Numeric range</td>
+                            <td><code>[Range(1, 100)]</code></td>
+                        </tr>
+                        <tr>
+                            <td><code>[EmailAddress]</code></td>
+                            <td>Valid email format</td>
+                            <td><code>[EmailAddress]</code></td>
+                        </tr>
+                        <tr>
+                            <td><code>[Phone]</code></td>
+                            <td>Valid phone number</td>
+                            <td><code>[Phone]</code></td>
+                        </tr>
+                        <tr>
+                            <td><code>[Url]</code></td>
+                            <td>Valid URL</td>
+                            <td><code>[Url]</code></td>
+                        </tr>
+                        <tr>
+                            <td><code>[RegularExpression]</code></td>
+                            <td>Regex pattern</td>
+                            <td><code>[RegularExpression(@"^\d{5}$")]</code></td>
+                        </tr>
+                        <tr>
+                            <td><code>[Compare]</code></td>
+                            <td>Compare with another property</td>
+                            <td><code>[Compare("Password")]</code></td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="section-divider"></div>
+
+                <h2>Basic Validation Example</h2>
+
+                <div class="code-header">
+                    <span class="code-filename">DTOs/CreateProductDto.cs</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">CreateProductDto</span>
+{
+    [<span class="code-class">Required</span>(<span class="code-variable">ErrorMessage</span> = <span class="code-string">"Product name is required"</span>)]
+    [<span class="code-class">StringLength</span>(<span class="code-number">100</span>, <span class="code-variable">MinimumLength</span> = <span class="code-number">3</span>, 
+        <span class="code-variable">ErrorMessage</span> = <span class="code-string">"Name must be between 3 and 100 characters"</span>)]
+    <span class="code-keyword">public</span> <span class="code-type">string</span> <span class="code-variable">Name</span> { <span class="code-keyword">get</span>; <span class="code-keyword">set</span>; } = <span class="code-keyword">string</span>.<span class="code-variable">Empty</span>;
+
+    [<span class="code-class">Required</span>]
+    [<span class="code-class">Range</span>(<span class="code-number">0.01</span>, <span class="code-number">1000000</span>, <span class="code-variable">ErrorMessage</span> = <span class="code-string">"Price must be between $0.01 and $1,000,000"</span>)]
+    <span class="code-keyword">public</span> <span class="code-type">decimal</span> <span class="code-variable">Price</span> { <span class="code-keyword">get</span>; <span class="code-keyword">set</span>; }
+
+    [<span class="code-class">StringLength</span>(<span class="code-number">500</span>, <span class="code-variable">ErrorMessage</span> = <span class="code-string">"Description cannot exceed 500 characters"</span>)]
+    <span class="code-keyword">public</span> <span class="code-type">string</span>? <span class="code-variable">Description</span> { <span class="code-keyword">get</span>; <span class="code-keyword">set</span>; }
+
+    [<span class="code-class">Required</span>]
+    [<span class="code-class">Range</span>(<span class="code-number">0</span>, <span class="code-type">int</span>.<span class="code-variable">MaxValue</span>, <span class="code-variable">ErrorMessage</span> = <span class="code-string">"Quantity must be non-negative"</span>)]
+    <span class="code-keyword">public</span> <span class="code-type">int</span> <span class="code-variable">Quantity</span> { <span class="code-keyword">get</span>; <span class="code-keyword">set</span>; }
+
+    [<span class="code-class">EmailAddress</span>(<span class="code-variable">ErrorMessage</span> = <span class="code-string">"Invalid email address"</span>)]
+    <span class="code-keyword">public</span> <span class="code-type">string</span>? <span class="code-variable">SupplierEmail</span> { <span class="code-keyword">get</span>; <span class="code-keyword">set</span>; }
+}</code></pre>
+
+                <div class="section-divider"></div>
+
+                <h2>Automatic Validation with [ApiController]</h2>
+
+                <p>
+                    The <code>[ApiController]</code> attribute automatically validates models and returns
+                    400 Bad Request with validation errors.
+                </p>
+
+                <div class="code-header">
+                    <span class="code-filename">Automatic Validation</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code>[<span class="code-class">ApiController</span>]
+[<span class="code-class">Route</span>(<span class="code-string">"api/[controller]"</span>)]
+<span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">ProductsController</span> : <span class="code-class">ControllerBase</span>
+{
+    [<span class="code-class">HttpPost</span>]
+    <span class="code-keyword">public</span> <span class="code-class">ActionResult</span> <span class="code-method">CreateProduct</span>(<span class="code-class">CreateProductDto</span> <span class="code-variable">dto</span>)
+    {
+        <span class="code-comment">// No need to check ModelState.IsValid!</span>
+        <span class="code-comment">// [ApiController] does it automatically</span>
+        
+        <span class="code-comment">// If validation fails, returns 400 automatically</span>
+        <span class="code-keyword">return</span> <span class="code-method">Ok</span>(<span class="code-string">"Product created"</span>);
+    }
+}</code></pre>
+
+                <h3>Validation Error Response</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">400 Bad Request Response</span>
+                    <span class="code-language">JSON</span>
+                </div>
+                <pre><code>{
+  "type": "https://tools.ietf.org/html/rfc7231#section-6.5.1",
+  "title": "One or more validation errors occurred.",
+  "status": 400,
+  "errors": {
+    "Name": [
+      "Product name is required"
+    ],
+    "Price": [
+      "Price must be between $0.01 and $1,000,000"
+    ]
+  }
+}</code></pre>
+
+                <div class="section-divider"></div>
+
+                <h2>Manual Validation (Without [ApiController])</h2>
+
+                <div class="code-header">
+                    <span class="code-filename">Manual ModelState Check</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code>[<span class="code-class">HttpPost</span>]
+<span class="code-keyword">public</span> <span class="code-class">ActionResult</span> <span class="code-method">CreateProduct</span>(<span class="code-class">CreateProductDto</span> <span class="code-variable">dto</span>)
+{
+    <span class="code-keyword">if</span> (!<span class="code-class">ModelState</span>.<span class="code-variable">IsValid</span>)
+    {
+        <span class="code-keyword">return</span> <span class="code-method">BadRequest</span>(<span class="code-class">ModelState</span>);
+    }
+
+    <span class="code-comment">// Process valid data</span>
+    <span class="code-keyword">return</span> <span class="code-method">Ok</span>(<span class="code-string">"Product created"</span>);
+}</code></pre>
+
+                <div class="section-divider"></div>
+
+                <h2>Custom Validation Attributes</h2>
+
+                <div class="code-header">
+                    <span class="code-filename">Custom Validation Attribute</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">FutureDateAttribute</span> : <span class="code-class">ValidationAttribute</span>
+{
+    <span class="code-keyword">protected</span> <span class="code-keyword">override</span> <span class="code-class">ValidationResult</span>? <span class="code-method">IsValid</span>(
+        <span class="code-type">object</span>? <span class="code-variable">value</span>,
+        <span class="code-class">ValidationContext</span> <span class="code-variable">validationContext</span>)
+    {
+        <span class="code-keyword">if</span> (<span class="code-variable">value</span> <span class="code-keyword">is</span> <span class="code-class">DateTime</span> <span class="code-variable">date</span>)
+        {
+            <span class="code-keyword">if</span> (<span class="code-variable">date</span> <= <span class="code-class">DateTime</span>.<span class="code-variable">Now</span>)
+            {
+                <span class="code-keyword">return</span> <span class="code-keyword">new</span> <span class="code-class">ValidationResult</span>(<span class="code-string">"Date must be in the future"</span>);
+            }
+        }
+
+        <span class="code-keyword">return</span> <span class="code-class">ValidationResult</span>.<span class="code-variable">Success</span>;
+    }
+}
+
+<span class="code-comment">// Usage</span>
+<span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">CreateOrderDto</span>
+{
+    [<span class="code-class">FutureDate</span>]
+    <span class="code-keyword">public</span> <span class="code-class">DateTime</span> <span class="code-variable">DeliveryDate</span> { <span class="code-keyword">get</span>; <span class="code-keyword">set</span>; }
+}</code></pre>
+
+                <h3>Class-Level Validation</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">IValidatableObject</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">CreateProductDto</span> : <span class="code-class">IValidatableObject</span>
+{
+    <span class="code-keyword">public</span> <span class="code-type">string</span> <span class="code-variable">Name</span> { <span class="code-keyword">get</span>; <span class="code-keyword">set</span>; } = <span class="code-keyword">string</span>.<span class="code-variable">Empty</span>;
+    <span class="code-keyword">public</span> <span class="code-type">decimal</span> <span class="code-variable">Price</span> { <span class="code-keyword">get</span>; <span class="code-keyword">set</span>; }
+    <span class="code-keyword">public</span> <span class="code-type">decimal</span> <span class="code-variable">DiscountPrice</span> { <span class="code-keyword">get</span>; <span class="code-keyword">set</span>; }
+
+    <span class="code-keyword">public</span> <span class="code-type">IEnumerable</span>&lt;<span class="code-class">ValidationResult</span>&gt; <span class="code-method">Validate</span>(<span class="code-class">ValidationContext</span> <span class="code-variable">validationContext</span>)
+    {
+        <span class="code-keyword">if</span> (<span class="code-variable">DiscountPrice</span> >= <span class="code-variable">Price</span>)
+        {
+            <span class="code-keyword">yield</span> <span class="code-keyword">return</span> <span class="code-keyword">new</span> <span class="code-class">ValidationResult</span>(
+                <span class="code-string">"Discount price must be less than regular price"</span>,
+                <span class="code-keyword">new</span>[] { <span class="code-keyword">nameof</span>(<span class="code-variable">DiscountPrice</span>) });
+        }
+
+        <span class="code-keyword">if</span> (<span class="code-variable">Name</span>.<span class="code-method">Contains</span>(<span class="code-string">"test"</span>, <span class="code-class">StringComparison</span>.<span class="code-variable">OrdinalIgnoreCase</span>))
+        {
+            <span class="code-keyword">yield</span> <span class="code-keyword">return</span> <span class="code-keyword">new</span> <span class="code-class">ValidationResult</span>(
+                <span class="code-string">"Product name cannot contain 'test'"</span>,
+                <span class="code-keyword">new</span>[] { <span class="code-keyword">nameof</span>(<span class="code-variable">Name</span>) });
+        }
+    }
+}</code></pre>
+
+                <div class="section-divider"></div>
+
+                <h2>FluentValidation</h2>
+
+                <p>
+                    <strong>FluentValidation</strong> is a popular library for building strongly-typed validation rules.
+                </p>
+
+                <h3>Installation</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">Package Installation</span>
+                    <span class="code-language">Bash</span>
+                </div>
+                <pre><code>dotnet add package FluentValidation.AspNetCore</code></pre>
+
+                <h3>Creating a Validator</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">Validators/CreateProductDtoValidator.cs</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">CreateProductDtoValidator</span> : <span class="code-class">AbstractValidator</span>&lt;<span class="code-class">CreateProductDto</span>&gt;
+{
+    <span class="code-keyword">public</span> <span class="code-method">CreateProductDtoValidator</span>()
+    {
+        <span class="code-method">RuleFor</span>(<span class="code-variable">x</span> =&gt; <span class="code-variable">x</span>.<span class="code-variable">Name</span>)
+            .<span class="code-method">NotEmpty</span>().<span class="code-method">WithMessage</span>(<span class="code-string">"Product name is required"</span>)
+            .<span class="code-method">Length</span>(<span class="code-number">3</span>, <span class="code-number">100</span>).<span class="code-method">WithMessage</span>(<span class="code-string">"Name must be between 3 and 100 characters"</span>)
+            .<span class="code-method">Must</span>(<span class="code-variable">name</span> =&gt; !<span class="code-variable">name</span>.<span class="code-method">Contains</span>(<span class="code-string">"test"</span>, <span class="code-class">StringComparison</span>.<span class="code-variable">OrdinalIgnoreCase</span>))
+            .<span class="code-method">WithMessage</span>(<span class="code-string">"Product name cannot contain 'test'"</span>);
+
+        <span class="code-method">RuleFor</span>(<span class="code-variable">x</span> =&gt; <span class="code-variable">x</span>.<span class="code-variable">Price</span>)
+            .<span class="code-method">GreaterThan</span>(<span class="code-number">0</span>).<span class="code-method">WithMessage</span>(<span class="code-string">"Price must be greater than 0"</span>)
+            .<span class="code-method">LessThanOrEqualTo</span>(<span class="code-number">1000000</span>).<span class="code-method">WithMessage</span>(<span class="code-string">"Price cannot exceed $1,000,000"</span>);
+
+        <span class="code-method">RuleFor</span>(<span class="code-variable">x</span> =&gt; <span class="code-variable">x</span>.<span class="code-variable">Description</span>)
+            .<span class="code-method">MaximumLength</span>(<span class="code-number">500</span>).<span class="code-method">WithMessage</span>(<span class="code-string">"Description cannot exceed 500 characters"</span>)
+            .<span class="code-method">When</span>(<span class="code-variable">x</span> =&gt; <span class="code-variable">x</span>.<span class="code-variable">Description</span> != <span class="code-keyword">null</span>);
+
+        <span class="code-method">RuleFor</span>(<span class="code-variable">x</span> =&gt; <span class="code-variable">x</span>.<span class="code-variable">Quantity</span>)
+            .<span class="code-method">GreaterThanOrEqualTo</span>(<span class="code-number">0</span>).<span class="code-method">WithMessage</span>(<span class="code-string">"Quantity must be non-negative"</span>);
+
+        <span class="code-method">RuleFor</span>(<span class="code-variable">x</span> =&gt; <span class="code-variable">x</span>.<span class="code-variable">SupplierEmail</span>)
+            .<span class="code-method">EmailAddress</span>().<span class="code-method">WithMessage</span>(<span class="code-string">"Invalid email address"</span>)
+            .<span class="code-method">When</span>(<span class="code-variable">x</span> =&gt; !<span class="code-type">string</span>.<span class="code-method">IsNullOrEmpty</span>(<span class="code-variable">x</span>.<span class="code-variable">SupplierEmail</span>));
+    }
+}</code></pre>
+
+                <h3>Register FluentValidation</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">Program.cs</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-keyword">using</span> <span class="code-class">FluentValidation</span>;
+<span class="code-keyword">using</span> <span class="code-class">FluentValidation</span>.<span class="code-class">AspNetCore</span>;
+
+<span class="code-variable">builder</span>.<span class="code-variable">Services</span>.<span class="code-method">AddControllers</span>();
+
+<span class="code-comment">// Register FluentValidation</span>
+<span class="code-variable">builder</span>.<span class="code-variable">Services</span>.<span class="code-method">AddValidatorsFromAssemblyContaining</span>&lt;<span class="code-class">CreateProductDtoValidator</span>&gt;();</code></pre>
+
+                <div class="section-divider"></div>
+
+                <h2>Complete InvenTrack Example</h2>
+
+                <div class="code-header">
+                    <span class="code-filename">DTOs/CreateProductDto.cs</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">CreateProductDto</span>
+{
+    [<span class="code-class">Required</span>(<span class="code-variable">ErrorMessage</span> = <span class="code-string">"Product name is required"</span>)]
+    [<span class="code-class">StringLength</span>(<span class="code-number">100</span>, <span class="code-variable">MinimumLength</span> = <span class="code-number">3</span>)]
+    <span class="code-keyword">public</span> <span class="code-type">string</span> <span class="code-variable">Name</span> { <span class="code-keyword">get</span>; <span class="code-keyword">set</span>; } = <span class="code-keyword">string</span>.<span class="code-variable">Empty</span>;
+
+    [<span class="code-class">Required</span>]
+    [<span class="code-class">Range</span>(<span class="code-number">0.01</span>, <span class="code-number">1000000</span>)]
+    <span class="code-keyword">public</span> <span class="code-type">decimal</span> <span class="code-variable">Price</span> { <span class="code-keyword">get</span>; <span class="code-keyword">set</span>; }
+
+    [<span class="code-class">StringLength</span>(<span class="code-number">500</span>)]
+    <span class="code-keyword">public</span> <span class="code-type">string</span>? <span class="code-variable">Description</span> { <span class="code-keyword">get</span>; <span class="code-keyword">set</span>; }
+
+    [<span class="code-class">Required</span>]
+    [<span class="code-class">Range</span>(<span class="code-number">0</span>, <span class="code-type">int</span>.<span class="code-variable">MaxValue</span>)]
+    <span class="code-keyword">public</span> <span class="code-type">int</span> <span class="code-variable">Quantity</span> { <span class="code-keyword">get</span>; <span class="code-keyword">set</span>; }
+
+    [<span class="code-class">Required</span>]
+    [<span class="code-class">StringLength</span>(<span class="code-number">50</span>)]
+    <span class="code-keyword">public</span> <span class="code-type">string</span> <span class="code-variable">Category</span> { <span class="code-keyword">get</span>; <span class="code-keyword">set</span>; } = <span class="code-keyword">string</span>.<span class="code-variable">Empty</span>;
+
+    [<span class="code-class">Url</span>]
+    <span class="code-keyword">public</span> <span class="code-type">string</span>? <span class="code-variable">ImageUrl</span> { <span class="code-keyword">get</span>; <span class="code-keyword">set</span>; }
+}</code></pre>
+
+                <div class="code-header">
+                    <span class="code-filename">Controllers/ProductsController.cs</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code>[<span class="code-class">ApiController</span>]
+[<span class="code-class">Route</span>(<span class="code-string">"api/[controller]"</span>)]
+<span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">ProductsController</span> : <span class="code-class">ControllerBase</span>
+{
+    [<span class="code-class">HttpPost</span>]
+    <span class="code-keyword">public</span> <span class="code-class">ActionResult</span>&lt;<span class="code-class">Product</span>&gt; <span class="code-method">CreateProduct</span>(<span class="code-class">CreateProductDto</span> <span class="code-variable">dto</span>)
+    {
+        <span class="code-comment">// Validation happens automatically with [ApiController]</span>
+        <span class="code-comment">// If invalid, returns 400 Bad Request with errors</span>
+
+        <span class="code-keyword">var</span> <span class="code-variable">product</span> = <span class="code-keyword">new</span> <span class="code-class">Product</span>
+        {
+            <span class="code-variable">Id</span> = <span class="code-number">123</span>,
+            <span class="code-variable">Name</span> = <span class="code-variable">dto</span>.<span class="code-variable">Name</span>,
+            <span class="code-variable">Price</span> = <span class="code-variable">dto</span>.<span class="code-variable">Price</span>,
+            <span class="code-variable">Description</span> = <span class="code-variable">dto</span>.<span class="code-variable">Description</span>,
+            <span class="code-variable">Quantity</span> = <span class="code-variable">dto</span>.<span class="code-variable">Quantity</span>
+        };
+
+        <span class="code-keyword">return</span> <span class="code-method">CreatedAtAction</span>(<span class="code-keyword">nameof</span>(<span class="code-method">GetProduct</span>), <span class="code-keyword">new</span> { <span class="code-variable">id</span> = <span class="code-variable">product</span>.<span class="code-variable">Id</span> }, <span class="code-variable">product</span>);
+    }
+
+    [<span class="code-class">HttpGet</span>(<span class="code-string">"{id}"</span>)]
+    <span class="code-keyword">public</span> <span class="code-class">ActionResult</span>&lt;<span class="code-class">Product</span>&gt; <span class="code-method">GetProduct</span>(<span class="code-type">int</span> <span class="code-variable">id</span>)
+    {
+        <span class="code-keyword">return</span> <span class="code-method">Ok</span>(<span class="code-keyword">new</span> <span class="code-class">Product</span> { <span class="code-variable">Id</span> = <span class="code-variable">id</span> });
+    }
+}</code></pre>
+
+                <h2>Best Practices</h2>
+
+                <ul>
+                    <li><strong>Validate early</strong>: Validate at API boundary</li>
+                    <li><strong>Use DTOs</strong>: Don't validate domain models directly</li>
+                    <li><strong>Clear messages</strong>: Provide helpful error messages</li>
+                    <li><strong>FluentValidation</strong>: Consider for complex validation</li>
+                    <li><strong>Custom attributes</strong>: For reusable validation logic</li>
+                    <li><strong>IValidatableObject</strong>: For cross-property validation</li>
+                    <li><strong>Client-side validation</strong>: Validate on client too (UX)</li>
+                    <li><strong>Security</strong>: Never trust client input</li>
+                </ul>
+
+                <h2>Key Takeaways</h2>
+
+                <ul>
+                    <li><strong>Data Annotations</strong>: Attribute-based validation</li>
+                    <li><strong>[ApiController]</strong>: Automatic validation</li>
+                    <li><strong>ModelState</strong>: Contains validation errors</li>
+                    <li><strong>Custom attributes</strong>: Extend ValidationAttribute</li>
+                    <li><strong>IValidatableObject</strong>: Class-level validation</li>
+                    <li><strong>FluentValidation</strong>: Strongly-typed validation rules</li>
+                    <li><strong>400 Bad Request</strong>: Standard validation error response</li>
+                    <li><strong>Error messages</strong>: Customize for better UX</li>
+                </ul>
+
+                <div class="callout callout-concept">
+                    <div class="callout-title">🎯 Next Steps</div>
+                    <p>
+                        You now understand validation! In the next section, we'll explore
+                        <strong>Minimal APIs</strong>—a lightweight alternative to controllers for
+                        building simple, fast APIs with less ceremony.
+                    </p>
+                </div>
+
+                <nav class="page-nav">
+                    <a href="03-model-binding.html" class="prev">Model Binding</a>
+                    <a href="05-minimal-apis.html" class="next">Minimal APIs</a>
+                </nav>
+
+            
+        <footer class="page-footer">
+          Built with 💜 by <a href="https://akwasi.dev" target="_blank" rel="noopener noreferrer">Akwasi Adu-Kyeremeh</a> for developers who want to truly understand what they're building.
+        </footer>
+
+      </div>
+        </main>
+    </div>
+</body>
+
+</html>

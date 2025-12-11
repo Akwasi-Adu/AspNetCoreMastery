@@ -1,0 +1,625 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Your First Web Application | ASP.NET Core Mastery</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;500&family=Source+Serif+4:ital,wght@0,400;0,600;1,400&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="../assets/style.css">
+</head>
+
+<body>
+    <div class="page-wrapper">
+        <aside class="sidebar">
+            <a href="../index.html" class="sidebar-logo">ASP.NET Core Mastery</a>
+            <div class="sidebar-section">Part III: ASP.NET Core Basics</div>
+            <ul class="sidebar-nav">
+                <li><a href="01-what-is-aspnetcore.html">What is ASP.NET Core?</a></li>
+                <li><a href="02-first-web-app.html" class="active">Your First Web Application</a></li>
+                <li><a href="03-program-cs-deep-dive.html">Program.cs Deep Dive</a></li>
+                <li><a href="04-configuration.html">Configuration & appsettings.json</a></li>
+                <li><a href="05-options-pattern.html">The Options Pattern</a></li>
+                <li><a href="06-environments.html">Environments</a></li>
+            </ul>
+            <div class="sidebar-section">Resources</div>
+            <ul class="sidebar-nav">
+                <li><a href="../index.html">Full Roadmap</a></li>
+            </ul>
+        </aside>
+
+        <main class="main-content">
+            <div class="content-container">
+                <nav class="breadcrumb">
+                    <a href="../index.html">Home</a>
+                    <span>→</span>
+                    <a href="01-what-is-aspnetcore.html">Part III: ASP.NET Core Basics</a>
+                    <span>→</span>
+                    Your First Web Application
+                </nav>
+
+                <div class="progress-indicator">
+                    <span>Section 2 of 6</span>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 33.33%"></div>
+                    </div>
+                </div>
+
+                <h1>Your First Web Application</h1>
+
+                <div class="learning-objectives">
+                    <h3>🎯 What You'll Learn</h3>
+                    <ul>
+                        <li>Creating an ASP.NET Core Web API project</li>
+                        <li>Understanding the generated project structure</li>
+                        <li>Running your first web application</li>
+                        <li>Testing API endpoints with Swagger</li>
+                        <li>Creating your first controller</li>
+                        <li>Understanding routing and HTTP methods</li>
+                        <li>Building a simple InvenTrack product API</li>
+                        <li>Testing with browser and curl</li>
+                    </ul>
+                </div>
+
+                <h2>Creating Your First Web API</h2>
+
+                <p>
+                    Let's create a simple Web API for InvenTrack. We'll start with a minimal API that manages
+                    products.
+                </p>
+
+                <h3>Step 1: Create the Project</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">Terminal</span>
+                    <span class="code-language">Shell</span>
+                </div>
+                <pre><code><span class="code-comment"># Navigate to your projects folder</span>
+cd C:\Users\YourName\Projects
+
+<span class="code-comment"># Create a new Web API project</span>
+dotnet new webapi -n InvenTrack.Api
+
+<span class="code-comment"># Navigate into the project</span>
+cd InvenTrack.Api</code></pre>
+
+                <div class="callout callout-info">
+                    <div class="callout-title">ℹ️ What Just Happened?</div>
+                    <p>
+                        The <code>webapi</code> template created a complete ASP.NET Core Web API project with:<br>
+                        • Project file (.csproj)<br>
+                        • Program.cs (application entry point)<br>
+                        • appsettings.json (configuration)<br>
+                        • A sample WeatherForecast controller<br>
+                        • Swagger/OpenAPI support
+                    </p>
+                </div>
+
+                <h3>Step 2: Explore the Project Structure</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">Project Structure</span>
+                    <span class="code-language">Text</span>
+                </div>
+                <pre><code>InvenTrack.Api/
+├── Controllers/
+│   └── WeatherForecastController.cs  <span class="code-comment"># Sample controller</span>
+├── Properties/
+│   └── launchSettings.json            <span class="code-comment"># Launch configuration</span>
+├── appsettings.json                   <span class="code-comment"># App configuration</span>
+├── appsettings.Development.json       <span class="code-comment"># Dev-specific config</span>
+├── InvenTrack.Api.csproj              <span class="code-comment"># Project file</span>
+├── Program.cs                         <span class="code-comment"># Application entry point</span>
+└── WeatherForecast.cs                 <span class="code-comment"># Sample model</span></code></pre>
+
+                <h3>Step 3: Run the Application</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">Terminal</span>
+                    <span class="code-language">Shell</span>
+                </div>
+                <pre><code>dotnet run</code></pre>
+
+                <p>
+                    You'll see output like:
+                </p>
+
+                <div class="code-header">
+                    <span class="code-filename">Output</span>
+                    <span class="code-language">Text</span>
+                </div>
+                <pre><code>Building...
+info: Microsoft.Hosting.Lifetime[14]
+      Now listening on: http://localhost:5000
+info: Microsoft.Hosting.Lifetime[14]
+      Now listening on: https://localhost:5001
+info: Microsoft.Hosting.Lifetime[0]
+      Application started. Press Ctrl+C to shut down.</code></pre>
+
+                <div class="callout callout-tip">
+                    <div class="callout-title">🎉 Success!</div>
+                    <p>
+                        Your web API is now running! It's listening on:<br>
+                        • <strong>HTTP</strong>: http://localhost:5000<br>
+                        • <strong>HTTPS</strong>: https://localhost:5001<br>
+                        Open your browser and navigate to <strong>https://localhost:5001/swagger</strong>
+                    </p>
+                </div>
+
+                <div class="section-divider"></div>
+
+                <h2>Exploring Swagger UI</h2>
+
+                <p>
+                    Swagger (OpenAPI) provides an interactive API documentation interface. When you navigate
+                    to <code>https://localhost:5001/swagger</code>, you'll see:
+                </p>
+
+                <ul>
+                    <li>All available API endpoints</li>
+                    <li>HTTP methods (GET, POST, PUT, DELETE)</li>
+                    <li>Request/response models</li>
+                    <li>Interactive "Try it out" buttons</li>
+                </ul>
+
+                <h3>Testing the Sample Endpoint</h3>
+
+                <ol>
+                    <li>Click on <strong>GET /WeatherForecast</strong></li>
+                    <li>Click <strong>"Try it out"</strong></li>
+                    <li>Click <strong>"Execute"</strong></li>
+                    <li>See the JSON response</li>
+                </ol>
+
+                <div class="code-header">
+                    <span class="code-filename">Sample Response</span>
+                    <span class="code-language">JSON</span>
+                </div>
+                <pre><code>[
+  {
+    <span class="code-string">"date"</span>: <span class="code-string">"2024-12-10"</span>,
+    <span class="code-string">"temperatureC"</span>: <span class="code-number">25</span>,
+    <span class="code-string">"temperatureF"</span>: <span class="code-number">76</span>,
+    <span class="code-string">"summary"</span>: <span class="code-string">"Warm"</span>
+  },
+  {
+    <span class="code-string">"date"</span>: <span class="code-string">"2024-12-11"</span>,
+    <span class="code-string">"temperatureC"</span>: <span class="code-number">18</span>,
+    <span class="code-string">"temperatureF"</span>: <span class="code-number">64</span>,
+    <span class="code-string">"summary"</span>: <span class="code-string">"Cool"</span>
+  }
+]</code></pre>
+
+                <div class="section-divider"></div>
+
+                <h2>Understanding the Sample Code</h2>
+
+                <h3>WeatherForecast.cs - The Model</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">WeatherForecast.cs</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-keyword">namespace</span> <span class="code-class">InvenTrack</span>.<span class="code-class">Api</span>;
+
+<span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">WeatherForecast</span>
+{
+    <span class="code-keyword">public</span> <span class="code-class">DateOnly</span> <span class="code-variable">Date</span> { <span class="code-keyword">get</span>; <span class="code-keyword">set</span>; }
+
+    <span class="code-keyword">public</span> <span class="code-type">int</span> <span class="code-variable">TemperatureC</span> { <span class="code-keyword">get</span>; <span class="code-keyword">set</span>; }
+
+    <span class="code-keyword">public</span> <span class="code-type">int</span> <span class="code-variable">TemperatureF</span> =&gt; <span class="code-number">32</span> + (<span class="code-type">int</span>)(<span class="code-variable">TemperatureC</span> / <span class="code-number">0.5556</span>);
+
+    <span class="code-keyword">public</span> <span class="code-type">string</span>? <span class="code-variable">Summary</span> { <span class="code-keyword">get</span>; <span class="code-keyword">set</span>; }
+}</code></pre>
+
+                <p>
+                    This is a simple data model (DTO - Data Transfer Object) representing weather data.
+                </p>
+
+                <h3>WeatherForecastController.cs - The Controller</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">Controllers/WeatherForecastController.cs</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-keyword">using</span> <span class="code-class">Microsoft</span>.<span class="code-class">AspNetCore</span>.<span class="code-class">Mvc</span>;
+
+<span class="code-keyword">namespace</span> <span class="code-class">InvenTrack</span>.<span class="code-class">Api</span>.<span class="code-class">Controllers</span>;
+
+[<span class="code-class">ApiController</span>]
+[<span class="code-method">Route</span>(<span class="code-string">"[controller]"</span>)]
+<span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">WeatherForecastController</span> : <span class="code-class">ControllerBase</span>
+{
+    <span class="code-keyword">private</span> <span class="code-keyword">static</span> <span class="code-keyword">readonly</span> <span class="code-type">string</span>[] <span class="code-variable">Summaries</span> = <span class="code-keyword">new</span>[]
+    {
+        <span class="code-string">"Freezing"</span>, <span class="code-string">"Bracing"</span>, <span class="code-string">"Chilly"</span>, <span class="code-string">"Cool"</span>, <span class="code-string">"Mild"</span>, 
+        <span class="code-string">"Warm"</span>, <span class="code-string">"Balmy"</span>, <span class="code-string">"Hot"</span>, <span class="code-string">"Sweltering"</span>, <span class="code-string">"Scorching"</span>
+    };
+
+    [<span class="code-class">HttpGet</span>(<span class="code-class">Name</span> = <span class="code-string">"GetWeatherForecast"</span>)]
+    <span class="code-keyword">public</span> <span class="code-class">IEnumerable</span>&lt;<span class="code-class">WeatherForecast</span>&gt; <span class="code-method">Get</span>()
+    {
+        <span class="code-keyword">return</span> <span class="code-class">Enumerable</span>.<span class="code-method">Range</span>(<span class="code-number">1</span>, <span class="code-number">5</span>).<span class="code-method">Select</span>(<span class="code-variable">index</span> =&gt; <span class="code-keyword">new</span> <span class="code-class">WeatherForecast</span>
+        {
+            <span class="code-variable">Date</span> = <span class="code-class">DateOnly</span>.<span class="code-method">FromDateTime</span>(<span class="code-class">DateTime</span>.<span class="code-variable">Now</span>.<span class="code-method">AddDays</span>(<span class="code-variable">index</span>)),
+            <span class="code-variable">TemperatureC</span> = <span class="code-class">Random</span>.<span class="code-variable">Shared</span>.<span class="code-method">Next</span>(-<span class="code-number">20</span>, <span class="code-number">55</span>),
+            <span class="code-variable">Summary</span> = <span class="code-variable">Summaries</span>[<span class="code-class">Random</span>.<span class="code-variable">Shared</span>.<span class="code-method">Next</span>(<span class="code-variable">Summaries</span>.<span class="code-variable">Length</span>)]
+        })
+        .<span class="code-method">ToArray</span>();
+    }
+}</code></pre>
+
+                <h3>Key Attributes Explained</h3>
+
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Attribute</th>
+                            <th>Purpose</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><code>[ApiController]</code></td>
+                            <td>Enables API-specific behaviors (auto model validation, etc.)</td>
+                        </tr>
+                        <tr>
+                            <td><code>[Route("[controller]")]</code></td>
+                            <td>Sets base route to controller name (e.g., /WeatherForecast)</td>
+                        </tr>
+                        <tr>
+                            <td><code>[HttpGet]</code></td>
+                            <td>Maps method to HTTP GET requests</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="section-divider"></div>
+
+                <h2>Creating Your First InvenTrack Endpoint</h2>
+
+                <p>
+                    Let's create a simple Products API for InvenTrack. We'll build it step by step.
+                </p>
+
+                <h3>Step 1: Create the Product Model</h3>
+
+                <p>
+                    Create a new file <code>Product.cs</code> in the project root:
+                </p>
+
+                <div class="code-header">
+                    <span class="code-filename">Product.cs</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-keyword">namespace</span> <span class="code-class">InvenTrack</span>.<span class="code-class">Api</span>;
+
+<span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">Product</span>
+{
+    <span class="code-keyword">public</span> <span class="code-type">int</span> <span class="code-variable">Id</span> { <span class="code-keyword">get</span>; <span class="code-keyword">set</span>; }
+    <span class="code-keyword">public</span> <span class="code-type">string</span> <span class="code-variable">Name</span> { <span class="code-keyword">get</span>; <span class="code-keyword">set</span>; } = <span class="code-type">string</span>.<span class="code-variable">Empty</span>;
+    <span class="code-keyword">public</span> <span class="code-type">string</span> <span class="code-variable">Sku</span> { <span class="code-keyword">get</span>; <span class="code-keyword">set</span>; } = <span class="code-type">string</span>.<span class="code-variable">Empty</span>;
+    <span class="code-keyword">public</span> <span class="code-type">decimal</span> <span class="code-variable">Price</span> { <span class="code-keyword">get</span>; <span class="code-keyword">set</span>; }
+    <span class="code-keyword">public</span> <span class="code-type">int</span> <span class="code-variable">QuantityInStock</span> { <span class="code-keyword">get</span>; <span class="code-keyword">set</span>; }
+    <span class="code-keyword">public</span> <span class="code-type">string</span>? <span class="code-variable">Category</span> { <span class="code-keyword">get</span>; <span class="code-keyword">set</span>; }
+}</code></pre>
+
+                <h3>Step 2: Create the Products Controller</h3>
+
+                <p>
+                    Create a new file <code>ProductsController.cs</code> in the <code>Controllers</code> folder:
+                </p>
+
+                <div class="code-header">
+                    <span class="code-filename">Controllers/ProductsController.cs</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-keyword">using</span> <span class="code-class">Microsoft</span>.<span class="code-class">AspNetCore</span>.<span class="code-class">Mvc</span>;
+
+<span class="code-keyword">namespace</span> <span class="code-class">InvenTrack</span>.<span class="code-class">Api</span>.<span class="code-class">Controllers</span>;
+
+[<span class="code-class">ApiController</span>]
+[<span class="code-method">Route</span>(<span class="code-string">"api/[controller]"</span>)]
+<span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">ProductsController</span> : <span class="code-class">ControllerBase</span>
+{
+    <span class="code-comment">// In-memory product list (temporary - we'll use a database later)</span>
+    <span class="code-keyword">private</span> <span class="code-keyword">static</span> <span class="code-keyword">readonly</span> <span class="code-class">List</span>&lt;<span class="code-class">Product</span>&gt; <span class="code-variable">Products</span> = <span class="code-keyword">new</span>()
+    {
+        <span class="code-keyword">new</span> <span class="code-class">Product</span> 
+        { 
+            <span class="code-variable">Id</span> = <span class="code-number">1</span>, 
+            <span class="code-variable">Name</span> = <span class="code-string">"Laptop - Dell XPS 15"</span>, 
+            <span class="code-variable">Sku</span> = <span class="code-string">"LAP-DELL-XPS15"</span>,
+            <span class="code-variable">Price</span> = <span class="code-number">1299.99m</span>,
+            <span class="code-variable">QuantityInStock</span> = <span class="code-number">15</span>,
+            <span class="code-variable">Category</span> = <span class="code-string">"Electronics"</span>
+        },
+        <span class="code-keyword">new</span> <span class="code-class">Product</span> 
+        { 
+            <span class="code-variable">Id</span> = <span class="code-number">2</span>, 
+            <span class="code-variable">Name</span> = <span class="code-string">"Wireless Mouse"</span>, 
+            <span class="code-variable">Sku</span> = <span class="code-string">"ACC-MOUSE-001"</span>,
+            <span class="code-variable">Price</span> = <span class="code-number">29.99m</span>,
+            <span class="code-variable">QuantityInStock</span> = <span class="code-number">150</span>,
+            <span class="code-variable">Category</span> = <span class="code-string">"Accessories"</span>
+        },
+        <span class="code-keyword">new</span> <span class="code-class">Product</span> 
+        { 
+            <span class="code-variable">Id</span> = <span class="code-number">3</span>, 
+            <span class="code-variable">Name</span> = <span class="code-string">"USB-C Cable"</span>, 
+            <span class="code-variable">Sku</span> = <span class="code-string">"CAB-USBC-2M"</span>,
+            <span class="code-variable">Price</span> = <span class="code-number">12.99m</span>,
+            <span class="code-variable">QuantityInStock</span> = <span class="code-number">300</span>,
+            <span class="code-variable">Category</span> = <span class="code-string">"Cables"</span>
+        }
+    };
+
+    <span class="code-comment">// GET: api/products</span>
+    [<span class="code-class">HttpGet</span>]
+    <span class="code-keyword">public</span> <span class="code-class">ActionResult</span>&lt;<span class="code-class">IEnumerable</span>&lt;<span class="code-class">Product</span>&gt;&gt; <span class="code-method">GetProducts</span>()
+    {
+        <span class="code-keyword">return</span> <span class="code-method">Ok</span>(<span class="code-variable">Products</span>);
+    }
+
+    <span class="code-comment">// GET: api/products/1</span>
+    [<span class="code-class">HttpGet</span>(<span class="code-string">"{id}"</span>)]
+    <span class="code-keyword">public</span> <span class="code-class">ActionResult</span>&lt;<span class="code-class">Product</span>&gt; <span class="code-method">GetProduct</span>(<span class="code-type">int</span> <span class="code-variable">id</span>)
+    {
+        <span class="code-keyword">var</span> <span class="code-variable">product</span> = <span class="code-variable">Products</span>.<span class="code-method">FirstOrDefault</span>(<span class="code-variable">p</span> =&gt; <span class="code-variable">p</span>.<span class="code-variable">Id</span> == <span class="code-variable">id</span>);
+        
+        <span class="code-keyword">if</span> (<span class="code-variable">product</span> == <span class="code-keyword">null</span>)
+        {
+            <span class="code-keyword">return</span> <span class="code-method">NotFound</span>(<span class="code-keyword">new</span> { <span class="code-variable">message</span> = <span class="code-string">$"Product with ID </span>{<span class="code-variable">id</span>}<span class="code-string"> not found"</span> });
+        }
+
+        <span class="code-keyword">return</span> <span class="code-method">Ok</span>(<span class="code-variable">product</span>);
+    }
+
+    <span class="code-comment">// POST: api/products</span>
+    [<span class="code-class">HttpPost</span>]
+    <span class="code-keyword">public</span> <span class="code-class">ActionResult</span>&lt;<span class="code-class">Product</span>&gt; <span class="code-method">CreateProduct</span>(<span class="code-class">Product</span> <span class="code-variable">product</span>)
+    {
+        <span class="code-comment">// Generate new ID</span>
+        <span class="code-variable">product</span>.<span class="code-variable">Id</span> = <span class="code-variable">Products</span>.<span class="code-method">Max</span>(<span class="code-variable">p</span> =&gt; <span class="code-variable">p</span>.<span class="code-variable">Id</span>) + <span class="code-number">1</span>;
+        
+        <span class="code-variable">Products</span>.<span class="code-method">Add</span>(<span class="code-variable">product</span>);
+
+        <span class="code-keyword">return</span> <span class="code-method">CreatedAtAction</span>(
+            <span class="code-keyword">nameof</span>(<span class="code-method">GetProduct</span>), 
+            <span class="code-keyword">new</span> { <span class="code-variable">id</span> = <span class="code-variable">product</span>.<span class="code-variable">Id</span> }, 
+            <span class="code-variable">product</span>
+        );
+    }
+
+    <span class="code-comment">// PUT: api/products/1</span>
+    [<span class="code-class">HttpPut</span>(<span class="code-string">"{id}"</span>)]
+    <span class="code-keyword">public</span> <span class="code-class">IActionResult</span> <span class="code-method">UpdateProduct</span>(<span class="code-type">int</span> <span class="code-variable">id</span>, <span class="code-class">Product</span> <span class="code-variable">product</span>)
+    {
+        <span class="code-keyword">var</span> <span class="code-variable">existingProduct</span> = <span class="code-variable">Products</span>.<span class="code-method">FirstOrDefault</span>(<span class="code-variable">p</span> =&gt; <span class="code-variable">p</span>.<span class="code-variable">Id</span> == <span class="code-variable">id</span>);
+        
+        <span class="code-keyword">if</span> (<span class="code-variable">existingProduct</span> == <span class="code-keyword">null</span>)
+        {
+            <span class="code-keyword">return</span> <span class="code-method">NotFound</span>();
+        }
+
+        <span class="code-variable">existingProduct</span>.<span class="code-variable">Name</span> = <span class="code-variable">product</span>.<span class="code-variable">Name</span>;
+        <span class="code-variable">existingProduct</span>.<span class="code-variable">Sku</span> = <span class="code-variable">product</span>.<span class="code-variable">Sku</span>;
+        <span class="code-variable">existingProduct</span>.<span class="code-variable">Price</span> = <span class="code-variable">product</span>.<span class="code-variable">Price</span>;
+        <span class="code-variable">existingProduct</span>.<span class="code-variable">QuantityInStock</span> = <span class="code-variable">product</span>.<span class="code-variable">QuantityInStock</span>;
+        <span class="code-variable">existingProduct</span>.<span class="code-variable">Category</span> = <span class="code-variable">product</span>.<span class="code-variable">Category</span>;
+
+        <span class="code-keyword">return</span> <span class="code-method">NoContent</span>();
+    }
+
+    <span class="code-comment">// DELETE: api/products/1</span>
+    [<span class="code-class">HttpDelete</span>(<span class="code-string">"{id}"</span>)]
+    <span class="code-keyword">public</span> <span class="code-class">IActionResult</span> <span class="code-method">DeleteProduct</span>(<span class="code-type">int</span> <span class="code-variable">id</span>)
+    {
+        <span class="code-keyword">var</span> <span class="code-variable">product</span> = <span class="code-variable">Products</span>.<span class="code-method">FirstOrDefault</span>(<span class="code-variable">p</span> =&gt; <span class="code-variable">p</span>.<span class="code-variable">Id</span> == <span class="code-variable">id</span>);
+        
+        <span class="code-keyword">if</span> (<span class="code-variable">product</span> == <span class="code-keyword">null</span>)
+        {
+            <span class="code-keyword">return</span> <span class="code-method">NotFound</span>();
+        }
+
+        <span class="code-variable">Products</span>.<span class="code-method">Remove</span>(<span class="code-variable">product</span>);
+
+        <span class="code-keyword">return</span> <span class="code-method">NoContent</span>();
+    }
+}</code></pre>
+
+                <div class="callout callout-concept">
+                    <div class="callout-title">💡 What We Just Built</div>
+                    <p>
+                        This is a complete <strong>CRUD API</strong> (Create, Read, Update, Delete) for products:<br>
+                        • <strong>GET /api/products</strong> - List all products<br>
+                        • <strong>GET /api/products/{id}</strong> - Get single product<br>
+                        • <strong>POST /api/products</strong> - Create new product<br>
+                        • <strong>PUT /api/products/{id}</strong> - Update product<br>
+                        • <strong>DELETE /api/products/{id}</strong> - Delete product
+                    </p>
+                </div>
+
+                <div class="section-divider"></div>
+
+                <h2>Testing Your API</h2>
+
+                <h3>Method 1: Using Swagger</h3>
+
+                <ol>
+                    <li>Run the app: <code>dotnet run</code></li>
+                    <li>Navigate to <code>https://localhost:5001/swagger</code></li>
+                    <li>You'll see your <strong>Products</strong> endpoints listed</li>
+                    <li>Try each endpoint:
+                        <ul>
+                            <li>GET /api/products - See all products</li>
+                            <li>GET /api/products/1 - Get product with ID 1</li>
+                            <li>POST /api/products - Create a new product</li>
+                        </ul>
+                    </li>
+                </ol>
+
+                <h3>Method 2: Using curl</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">Terminal</span>
+                    <span class="code-language">Shell</span>
+                </div>
+                <pre><code><span class="code-comment"># Get all products</span>
+curl https://localhost:5001/api/products
+
+<span class="code-comment"># Get single product</span>
+curl https://localhost:5001/api/products/1
+
+<span class="code-comment"># Create new product</span>
+curl -X POST https://localhost:5001/api/products \
+  -H "Content-Type: application/json" \
+  -d '{
+    "name": "Mechanical Keyboard",
+    "sku": "KEY-MECH-001",
+    "price": 89.99,
+    "quantityInStock": 50,
+    "category": "Accessories"
+  }'</code></pre>
+
+                <h3>Method 3: Using Browser</h3>
+
+                <p>
+                    For GET requests, simply navigate to:
+                </p>
+
+                <ul>
+                    <li><code>https://localhost:5001/api/products</code></li>
+                    <li><code>https://localhost:5001/api/products/1</code></li>
+                </ul>
+
+                <div class="section-divider"></div>
+
+                <h2>Understanding HTTP Status Codes</h2>
+
+                <p>
+                    Your API returns different status codes based on the result:
+                </p>
+
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Status Code</th>
+                            <th>Method</th>
+                            <th>Meaning</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>200 OK</strong></td>
+                            <td><code>Ok()</code></td>
+                            <td>Request succeeded, returning data</td>
+                        </tr>
+                        <tr>
+                            <td><strong>201 Created</strong></td>
+                            <td><code>CreatedAtAction()</code></td>
+                            <td>Resource created successfully</td>
+                        </tr>
+                        <tr>
+                            <td><strong>204 No Content</strong></td>
+                            <td><code>NoContent()</code></td>
+                            <td>Request succeeded, no data to return</td>
+                        </tr>
+                        <tr>
+                            <td><strong>404 Not Found</strong></td>
+                            <td><code>NotFound()</code></td>
+                            <td>Resource doesn't exist</td>
+                        </tr>
+                        <tr>
+                            <td><strong>400 Bad Request</strong></td>
+                            <td><code>BadRequest()</code></td>
+                            <td>Invalid request data</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="section-divider"></div>
+
+                <h2>Understanding Routing</h2>
+
+                <h3>Route Templates</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">Routing Examples</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-comment">// Controller-level route</span>
+[<span class="code-method">Route</span>(<span class="code-string">"api/[controller]"</span>)]
+<span class="code-comment">// Becomes: /api/products</span>
+
+<span class="code-comment">// Action-level route with parameter</span>
+[<span class="code-class">HttpGet</span>(<span class="code-string">"{id}"</span>)]
+<span class="code-comment">// Becomes: /api/products/{id}</span>
+
+<span class="code-comment">// Custom route</span>
+[<span class="code-class">HttpGet</span>(<span class="code-string">"search/{term}"</span>)]
+<span class="code-comment">// Becomes: /api/products/search/{term}</span></code></pre>
+
+                <h3>Route Constraints</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">Route Constraints</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-comment">// ID must be an integer</span>
+[<span class="code-class">HttpGet</span>(<span class="code-string">"{id:int}"</span>)]
+
+<span class="code-comment">// ID must be a GUID</span>
+[<span class="code-class">HttpGet</span>(<span class="code-string">"{id:guid}"</span>)]
+
+<span class="code-comment">// Multiple constraints</span>
+[<span class="code-class">HttpGet</span>(<span class="code-string">"{id:int:min(1)}"</span>)]</code></pre>
+
+                <h2>Key Takeaways</h2>
+
+                <ul>
+                    <li>Create Web APIs with <code>dotnet new webapi</code></li>
+                    <li><strong>Controllers</strong> handle HTTP requests and return responses</li>
+                    <li><code>[ApiController]</code> enables API-specific behaviors</li>
+                    <li><code>[Route]</code> defines URL patterns</li>
+                    <li><strong>HTTP method attributes</strong>: <code>[HttpGet]</code>, <code>[HttpPost]</code>,
+                        <code>[HttpPut]</code>, <code>[HttpDelete]</code></li>
+                    <li><strong>ActionResult&lt;T&gt;</strong> allows returning both data and status codes</li>
+                    <li><code>Ok()</code>, <code>NotFound()</code>, <code>CreatedAtAction()</code> return appropriate
+                        status codes</li>
+                    <li><strong>Swagger</strong> provides interactive API documentation</li>
+                    <li>Route parameters like <code>{id}</code> are automatically bound to method parameters</li>
+                    <li>ASP.NET Core automatically serializes objects to JSON</li>
+                </ul>
+
+                <div class="callout callout-concept">
+                    <div class="callout-title">🎯 Next Steps</div>
+                    <p>
+                        You've built your first working Web API! In the next section, we'll do a
+                        <strong>deep dive into Program.cs</strong>—understanding how ASP.NET Core applications
+                        start up, the middleware pipeline, dependency injection configuration, and how everything
+                        comes together.
+                    </p>
+                </div>
+
+                <nav class="page-nav">
+                    <a href="01-what-is-aspnetcore.html" class="prev">What is ASP.NET Core?</a>
+                    <a href="03-program-cs-deep-dive.html" class="next">Program.cs Deep Dive</a>
+                </nav>
+
+            
+        <footer class="page-footer">
+          Built with 💜 by <a href="https://akwasi.dev" target="_blank" rel="noopener noreferrer">Akwasi Adu-Kyeremeh</a> for developers who want to truly understand what they're building.
+        </footer>
+
+      </div>
+        </main>
+    </div>
+</body>
+
+</html>

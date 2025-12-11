@@ -1,0 +1,534 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cookies and Sessions | ASP.NET Core Mastery</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;500&family=Source+Serif+4:ital,wght@0,400;0,600;1,400&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="../assets/style.css">
+</head>
+
+<body>
+    <div class="page-wrapper">
+        <aside class="sidebar">
+            <a href="../index.html" class="sidebar-logo">ASP.NET Core Mastery</a>
+            <div class="sidebar-section">Part VI: HTTP & Web Fundamentals</div>
+            <ul class="sidebar-nav">
+                <li><a href="01-http-basics.html">HTTP Protocol Basics</a></li>
+                <li><a href="02-request-response.html">Request/Response Cycle</a></li>
+                <li><a href="03-http-methods.html">HTTP Methods</a></li>
+                <li><a href="04-status-codes.html">Status Codes</a></li>
+                <li><a href="05-headers-content-types.html">Headers and Content Types</a></li>
+                <li><a href="06-cookies-sessions.html" class="active">Cookies and Sessions</a></li>
+            </ul>
+            <div class="sidebar-section">Resources</div>
+            <ul class="sidebar-nav">
+                <li><a href="../index.html">Full Roadmap</a></li>
+            </ul>
+        </aside>
+
+        <main class="main-content">
+            <div class="content-container">
+                <nav class="breadcrumb">
+                    <a href="../index.html">Home</a>
+                    <span>→</span>
+                    <a href="01-http-basics.html">Part VI: HTTP & Web Fundamentals</a>
+                    <span>→</span>
+                    Cookies and Sessions
+                </nav>
+
+                <div class="progress-indicator">
+                    <span>Section 6 of 6</span>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 100%"></div>
+                    </div>
+                </div>
+
+                <h1>Cookies and Sessions</h1>
+
+                <div class="learning-objectives">
+                    <h3>🎯 What You'll Learn</h3>
+                    <ul>
+                        <li>What cookies are and how they work</li>
+                        <li>Cookie attributes (HttpOnly, Secure, SameSite)</li>
+                        <li>How to set and read cookies in ASP.NET Core</li>
+                        <li>What sessions are</li>
+                        <li>Session configuration and usage</li>
+                        <li>Cookies vs Sessions vs Tokens</li>
+                        <li>Security best practices</li>
+                    </ul>
+                </div>
+
+                <h2>What are Cookies?</h2>
+
+                <p>
+                    <strong>Cookies</strong> are small pieces of data stored in the browser and sent with every
+                    request to the same domain.
+                </p>
+
+                <div class="code-header">
+                    <span class="code-filename">Cookie Flow</span>
+                    <span class="code-language">Text</span>
+                </div>
+                <pre><code>1. Server sends cookie in response:
+   Set-Cookie: sessionId=abc123; HttpOnly; Secure
+
+2. Browser stores cookie
+
+3. Browser sends cookie with every request:
+   Cookie: sessionId=abc123</code></pre>
+
+                <h3>Common Uses</h3>
+
+                <ul>
+                    <li>Session management (user login state)</li>
+                    <li>Personalization (user preferences, theme)</li>
+                    <li>Tracking (analytics, advertising)</li>
+                </ul>
+
+                <div class="section-divider"></div>
+
+                <h2>Cookie Attributes</h2>
+
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Attribute</th>
+                            <th>Purpose</th>
+                            <th>Recommended</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>HttpOnly</strong></td>
+                            <td>Prevents JavaScript access (XSS protection)</td>
+                            <td>✅ Always</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Secure</strong></td>
+                            <td>Only sent over HTTPS</td>
+                            <td>✅ Production</td>
+                        </tr>
+                        <tr>
+                            <td><strong>SameSite</strong></td>
+                            <td>CSRF protection (Strict/Lax/None)</td>
+                            <td>✅ Always</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Expires</strong></td>
+                            <td>Expiration date</td>
+                            <td>Optional</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Max-Age</strong></td>
+                            <td>Lifetime in seconds</td>
+                            <td>Optional</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Domain</strong></td>
+                            <td>Which domains can access</td>
+                            <td>Optional</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Path</strong></td>
+                            <td>Which paths can access</td>
+                            <td>Optional</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="callout callout-warning">
+                    <div class="callout-title">⚠️ Security Best Practices</div>
+                    <p>
+                        Always use <code>HttpOnly</code> and <code>Secure</code> for sensitive cookies!
+                    </p>
+                    <ul>
+                        <li><strong>HttpOnly</strong>: Prevents XSS attacks</li>
+                        <li><strong>Secure</strong>: Prevents man-in-the-middle attacks</li>
+                        <li><strong>SameSite</strong>: Prevents CSRF attacks</li>
+                    </ul>
+                </div>
+
+                <div class="section-divider"></div>
+
+                <h2>Setting Cookies in ASP.NET Core</h2>
+
+                <div class="code-header">
+                    <span class="code-filename">Basic Cookie</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code>[<span class="code-class">HttpGet</span>(<span class="code-string">"set-cookie"</span>)]
+<span class="code-keyword">public</span> <span class="code-class">IActionResult</span> <span class="code-method">SetCookie</span>()
+{
+    <span class="code-comment">// Simple cookie</span>
+    <span class="code-class">Response</span>.<span class="code-variable">Cookies</span>.<span class="code-method">Append</span>(<span class="code-string">"username"</span>, <span class="code-string">"john_doe"</span>);
+    
+    <span class="code-keyword">return</span> <span class="code-method">Ok</span>(<span class="code-string">"Cookie set"</span>);
+}</code></pre>
+
+                <h3>Cookie with Options</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">Secure Cookie</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code>[<span class="code-class">HttpPost</span>(<span class="code-string">"login"</span>)]
+<span class="code-keyword">public</span> <span class="code-class">IActionResult</span> <span class="code-method">Login</span>([<span class="code-class">FromBody</span>] <span class="code-class">LoginDto</span> <span class="code-variable">dto</span>)
+{
+    <span class="code-comment">// Authenticate user...</span>
+    <span class="code-keyword">var</span> <span class="code-variable">sessionId</span> = <span class="code-class">Guid</span>.<span class="code-method">NewGuid</span>().<span class="code-method">ToString</span>();
+    
+    <span class="code-comment">// Set secure cookie</span>
+    <span class="code-keyword">var</span> <span class="code-variable">cookieOptions</span> = <span class="code-keyword">new</span> <span class="code-class">CookieOptions</span>
+    {
+        <span class="code-variable">HttpOnly</span> = <span class="code-keyword">true</span>,        <span class="code-comment">// Prevent JavaScript access</span>
+        <span class="code-variable">Secure</span> = <span class="code-keyword">true</span>,          <span class="code-comment">// HTTPS only</span>
+        <span class="code-variable">SameSite</span> = <span class="code-class">SameSiteMode</span>.<span class="code-variable">Strict</span>, <span class="code-comment">// CSRF protection</span>
+        <span class="code-variable">Expires</span> = <span class="code-class">DateTimeOffset</span>.<span class="code-variable">UtcNow</span>.<span class="code-method">AddDays</span>(<span class="code-number">7</span>) <span class="code-comment">// 7 days</span>
+    };
+    
+    <span class="code-class">Response</span>.<span class="code-variable">Cookies</span>.<span class="code-method">Append</span>(<span class="code-string">"sessionId"</span>, <span class="code-variable">sessionId</span>, <span class="code-variable">cookieOptions</span>);
+    
+    <span class="code-keyword">return</span> <span class="code-method">Ok</span>(<span class="code-keyword">new</span> { <span class="code-variable">message</span> = <span class="code-string">"Logged in"</span> });
+}</code></pre>
+
+                <h3>Reading Cookies</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">Read Cookie</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code>[<span class="code-class">HttpGet</span>(<span class="code-string">"profile"</span>)]
+<span class="code-keyword">public</span> <span class="code-class">IActionResult</span> <span class="code-method">GetProfile</span>()
+{
+    <span class="code-comment">// Read cookie</span>
+    <span class="code-keyword">if</span> (!<span class="code-class">Request</span>.<span class="code-variable">Cookies</span>.<span class="code-method">TryGetValue</span>(<span class="code-string">"sessionId"</span>, <span class="code-keyword">out</span> <span class="code-keyword">var</span> <span class="code-variable">sessionId</span>))
+    {
+        <span class="code-keyword">return</span> <span class="code-method">Unauthorized</span>(<span class="code-string">"Not logged in"</span>);
+    }
+    
+    <span class="code-comment">// Validate session...</span>
+    <span class="code-keyword">return</span> <span class="code-method">Ok</span>(<span class="code-keyword">new</span> { <span class="code-variable">username</span> = <span class="code-string">"john_doe"</span> });
+}</code></pre>
+
+                <h3>Deleting Cookies</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">Delete Cookie</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code>[<span class="code-class">HttpPost</span>(<span class="code-string">"logout"</span>)]
+<span class="code-keyword">public</span> <span class="code-class">IActionResult</span> <span class="code-method">Logout</span>()
+{
+    <span class="code-comment">// Delete cookie</span>
+    <span class="code-class">Response</span>.<span class="code-variable">Cookies</span>.<span class="code-method">Delete</span>(<span class="code-string">"sessionId"</span>);
+    
+    <span class="code-keyword">return</span> <span class="code-method">Ok</span>(<span class="code-keyword">new</span> { <span class="code-variable">message</span> = <span class="code-string">"Logged out"</span> });
+}</code></pre>
+
+                <div class="section-divider"></div>
+
+                <h2>Sessions</h2>
+
+                <p>
+                    <strong>Sessions</strong> store data on the server, identified by a session ID stored in a cookie.
+                </p>
+
+                <div class="code-header">
+                    <span class="code-filename">Session Flow</span>
+                    <span class="code-language">Text</span>
+                </div>
+                <pre><code>1. User visits site
+2. Server creates session, stores data
+3. Server sends session ID as cookie
+4. Browser sends session ID with requests
+5. Server retrieves session data using ID</code></pre>
+
+                <h3>Configure Sessions</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">Program.cs</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-variable">builder</span>.<span class="code-variable">Services</span>.<span class="code-method">AddDistributedMemoryCache</span>(); <span class="code-comment">// In-memory storage</span>
+<span class="code-variable">builder</span>.<span class="code-variable">Services</span>.<span class="code-method">AddSession</span>(<span class="code-variable">options</span> =&gt;
+{
+    <span class="code-variable">options</span>.<span class="code-variable">IdleTimeout</span> = <span class="code-class">TimeSpan</span>.<span class="code-method">FromMinutes</span>(<span class="code-number">30</span>); <span class="code-comment">// Session timeout</span>
+    <span class="code-variable">options</span>.<span class="code-variable">Cookie</span>.<span class="code-variable">HttpOnly</span> = <span class="code-keyword">true</span>;
+    <span class="code-variable">options</span>.<span class="code-variable">Cookie</span>.<span class="code-variable">IsEssential</span> = <span class="code-keyword">true</span>; <span class="code-comment">// GDPR compliance</span>
+});
+
+<span class="code-keyword">var</span> <span class="code-variable">app</span> = <span class="code-variable">builder</span>.<span class="code-method">Build</span>();
+
+<span class="code-variable">app</span>.<span class="code-method">UseSession</span>(); <span class="code-comment">// Enable sessions</span></code></pre>
+
+                <h3>Using Sessions</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">Session Storage</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code>[<span class="code-class">HttpPost</span>(<span class="code-string">"login"</span>)]
+<span class="code-keyword">public</span> <span class="code-class">IActionResult</span> <span class="code-method">Login</span>([<span class="code-class">FromBody</span>] <span class="code-class">LoginDto</span> <span class="code-variable">dto</span>)
+{
+    <span class="code-comment">// Store in session</span>
+    <span class="code-class">HttpContext</span>.<span class="code-variable">Session</span>.<span class="code-method">SetString</span>(<span class="code-string">"username"</span>, <span class="code-variable">dto</span>.<span class="code-variable">Username</span>);
+    <span class="code-class">HttpContext</span>.<span class="code-variable">Session</span>.<span class="code-method">SetInt32</span>(<span class="code-string">"userId"</span>, <span class="code-number">123</span>);
+    
+    <span class="code-keyword">return</span> <span class="code-method">Ok</span>(<span class="code-string">"Logged in"</span>);
+}
+
+[<span class="code-class">HttpGet</span>(<span class="code-string">"profile"</span>)]
+<span class="code-keyword">public</span> <span class="code-class">IActionResult</span> <span class="code-method">GetProfile</span>()
+{
+    <span class="code-comment">// Read from session</span>
+    <span class="code-keyword">var</span> <span class="code-variable">username</span> = <span class="code-class">HttpContext</span>.<span class="code-variable">Session</span>.<span class="code-method">GetString</span>(<span class="code-string">"username"</span>);
+    <span class="code-keyword">var</span> <span class="code-variable">userId</span> = <span class="code-class">HttpContext</span>.<span class="code-variable">Session</span>.<span class="code-method">GetInt32</span>(<span class="code-string">"userId"</span>);
+    
+    <span class="code-keyword">if</span> (<span class="code-variable">username</span> == <span class="code-keyword">null</span>)
+        <span class="code-keyword">return</span> <span class="code-method">Unauthorized</span>(<span class="code-string">"Not logged in"</span>);
+    
+    <span class="code-keyword">return</span> <span class="code-method">Ok</span>(<span class="code-keyword">new</span> { <span class="code-variable">username</span>, <span class="code-variable">userId</span> });
+}</code></pre>
+
+                <h3>Storing Complex Objects</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">Session with JSON</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-keyword">using</span> <span class="code-variable">System</span>.<span class="code-variable">Text</span>.<span class="code-variable">Json</span>;
+
+<span class="code-comment">// Store object</span>
+<span class="code-keyword">var</span> <span class="code-variable">user</span> = <span class="code-keyword">new</span> { <span class="code-variable">Id</span> = <span class="code-number">123</span>, <span class="code-variable">Name</span> = <span class="code-string">"John"</span>, <span class="code-variable">Role</span> = <span class="code-string">"Admin"</span> };
+<span class="code-keyword">var</span> <span class="code-variable">json</span> = <span class="code-class">JsonSerializer</span>.<span class="code-method">Serialize</span>(<span class="code-variable">user</span>);
+<span class="code-class">HttpContext</span>.<span class="code-variable">Session</span>.<span class="code-method">SetString</span>(<span class="code-string">"user"</span>, <span class="code-variable">json</span>);
+
+<span class="code-comment">// Retrieve object</span>
+<span class="code-keyword">var</span> <span class="code-variable">userJson</span> = <span class="code-class">HttpContext</span>.<span class="code-variable">Session</span>.<span class="code-method">GetString</span>(<span class="code-string">"user"</span>);
+<span class="code-keyword">if</span> (<span class="code-variable">userJson</span> != <span class="code-keyword">null</span>)
+{
+    <span class="code-keyword">var</span> <span class="code-variable">user</span> = <span class="code-class">JsonSerializer</span>.<span class="code-method">Deserialize</span>&lt;<span class="code-class">UserDto</span>&gt;(<span class="code-variable">userJson</span>);
+}</code></pre>
+
+                <div class="section-divider"></div>
+
+                <h2>Cookies vs Sessions vs Tokens</h2>
+
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Feature</th>
+                            <th>Cookies</th>
+                            <th>Sessions</th>
+                            <th>JWT Tokens</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Storage</strong></td>
+                            <td>Client (browser)</td>
+                            <td>Server</td>
+                            <td>Client (localStorage/cookie)</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Size Limit</strong></td>
+                            <td>~4KB</td>
+                            <td>No limit</td>
+                            <td>~8KB (if in cookie)</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Security</strong></td>
+                            <td>Medium (HttpOnly, Secure)</td>
+                            <td>High (server-side)</td>
+                            <td>Medium (signed, not encrypted)</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Scalability</strong></td>
+                            <td>High</td>
+                            <td>Low (server memory)</td>
+                            <td>High (stateless)</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Use Case</strong></td>
+                            <td>Preferences, tracking</td>
+                            <td>User login (traditional apps)</td>
+                            <td>APIs, SPAs, mobile apps</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="callout callout-info">
+                    <div class="callout-title">ℹ️ Which to Use?</div>
+                    <p>
+                        <strong>Cookies</strong>: User preferences, tracking<br>
+                        <strong>Sessions</strong>: Traditional web apps with server-side rendering<br>
+                        <strong>JWT Tokens</strong>: Modern APIs, SPAs, mobile apps (stateless, scalable)
+                    </p>
+                </div>
+
+                <div class="section-divider"></div>
+
+                <h2>Complete InvenTrack Example</h2>
+
+                <div class="code-header">
+                    <span class="code-filename">Controllers/AuthController.cs</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code>[<span class="code-class">ApiController</span>]
+[<span class="code-class">Route</span>(<span class="code-string">"api/[controller]"</span>)]
+<span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">AuthController</span> : <span class="code-class">ControllerBase</span>
+{
+    <span class="code-keyword">private</span> <span class="code-keyword">readonly</span> <span class="code-class">IAuthService</span> <span class="code-variable">_authService</span>;
+
+    <span class="code-keyword">public</span> <span class="code-method">AuthController</span>(<span class="code-class">IAuthService</span> <span class="code-variable">authService</span>)
+    {
+        <span class="code-variable">_authService</span> = <span class="code-variable">authService</span>;
+    }
+
+    <span class="code-comment">// Login with session</span>
+    [<span class="code-class">HttpPost</span>(<span class="code-string">"login"</span>)]
+    <span class="code-keyword">public</span> <span class="code-keyword">async</span> <span class="code-class">Task</span>&lt;<span class="code-class">IActionResult</span>&gt; <span class="code-method">Login</span>([<span class="code-class">FromBody</span>] <span class="code-class">LoginDto</span> <span class="code-variable">dto</span>)
+    {
+        <span class="code-keyword">var</span> <span class="code-variable">user</span> = <span class="code-keyword">await</span> <span class="code-variable">_authService</span>.<span class="code-method">AuthenticateAsync</span>(<span class="code-variable">dto</span>.<span class="code-variable">Username</span>, <span class="code-variable">dto</span>.<span class="code-variable">Password</span>);
+        
+        <span class="code-keyword">if</span> (<span class="code-variable">user</span> == <span class="code-keyword">null</span>)
+            <span class="code-keyword">return</span> <span class="code-method">Unauthorized</span>(<span class="code-string">"Invalid credentials"</span>);
+        
+        <span class="code-comment">// Store in session</span>
+        <span class="code-class">HttpContext</span>.<span class="code-variable">Session</span>.<span class="code-method">SetString</span>(<span class="code-string">"username"</span>, <span class="code-variable">user</span>.<span class="code-variable">Username</span>);
+        <span class="code-class">HttpContext</span>.<span class="code-variable">Session</span>.<span class="code-method">SetInt32</span>(<span class="code-string">"userId"</span>, <span class="code-variable">user</span>.<span class="code-variable">Id</span>);
+        <span class="code-class">HttpContext</span>.<span class="code-variable">Session</span>.<span class="code-method">SetString</span>(<span class="code-string">"role"</span>, <span class="code-variable">user</span>.<span class="code-variable">Role</span>);
+        
+        <span class="code-comment">// Set remember-me cookie (optional)</span>
+        <span class="code-keyword">if</span> (<span class="code-variable">dto</span>.<span class="code-variable">RememberMe</span>)
+        {
+            <span class="code-keyword">var</span> <span class="code-variable">cookieOptions</span> = <span class="code-keyword">new</span> <span class="code-class">CookieOptions</span>
+            {
+                <span class="code-variable">HttpOnly</span> = <span class="code-keyword">true</span>,
+                <span class="code-variable">Secure</span> = <span class="code-keyword">true</span>,
+                <span class="code-variable">SameSite</span> = <span class="code-class">SameSiteMode</span>.<span class="code-variable">Strict</span>,
+                <span class="code-variable">Expires</span> = <span class="code-class">DateTimeOffset</span>.<span class="code-variable">UtcNow</span>.<span class="code-method">AddDays</span>(<span class="code-number">30</span>)
+            };
+            
+            <span class="code-class">Response</span>.<span class="code-variable">Cookies</span>.<span class="code-method">Append</span>(<span class="code-string">"rememberMe"</span>, <span class="code-variable">user</span>.<span class="code-variable">Id</span>.<span class="code-method">ToString</span>(), <span class="code-variable">cookieOptions</span>);
+        }
+        
+        <span class="code-keyword">return</span> <span class="code-method">Ok</span>(<span class="code-keyword">new</span> { <span class="code-variable">message</span> = <span class="code-string">"Logged in successfully"</span>, <span class="code-variable">user</span> });
+    }
+
+    <span class="code-comment">// Get current user</span>
+    [<span class="code-class">HttpGet</span>(<span class="code-string">"me"</span>)]
+    <span class="code-keyword">public</span> <span class="code-class">IActionResult</span> <span class="code-method">GetCurrentUser</span>()
+    {
+        <span class="code-keyword">var</span> <span class="code-variable">username</span> = <span class="code-class">HttpContext</span>.<span class="code-variable">Session</span>.<span class="code-method">GetString</span>(<span class="code-string">"username"</span>);
+        <span class="code-keyword">var</span> <span class="code-variable">userId</span> = <span class="code-class">HttpContext</span>.<span class="code-variable">Session</span>.<span class="code-method">GetInt32</span>(<span class="code-string">"userId"</span>);
+        <span class="code-keyword">var</span> <span class="code-variable">role</span> = <span class="code-class">HttpContext</span>.<span class="code-variable">Session</span>.<span class="code-method">GetString</span>(<span class="code-string">"role"</span>);
+        
+        <span class="code-keyword">if</span> (<span class="code-variable">username</span> == <span class="code-keyword">null</span>)
+            <span class="code-keyword">return</span> <span class="code-method">Unauthorized</span>(<span class="code-string">"Not logged in"</span>);
+        
+        <span class="code-keyword">return</span> <span class="code-method">Ok</span>(<span class="code-keyword">new</span> { <span class="code-variable">userId</span>, <span class="code-variable">username</span>, <span class="code-variable">role</span> });
+    }
+
+    <span class="code-comment">// Logout</span>
+    [<span class="code-class">HttpPost</span>(<span class="code-string">"logout"</span>)]
+    <span class="code-keyword">public</span> <span class="code-class">IActionResult</span> <span class="code-method">Logout</span>()
+    {
+        <span class="code-comment">// Clear session</span>
+        <span class="code-class">HttpContext</span>.<span class="code-variable">Session</span>.<span class="code-method">Clear</span>();
+        
+        <span class="code-comment">// Delete remember-me cookie</span>
+        <span class="code-class">Response</span>.<span class="code-variable">Cookies</span>.<span class="code-method">Delete</span>(<span class="code-string">"rememberMe"</span>);
+        
+        <span class="code-keyword">return</span> <span class="code-method">Ok</span>(<span class="code-keyword">new</span> { <span class="code-variable">message</span> = <span class="code-string">"Logged out successfully"</span> });
+    }
+
+    <span class="code-comment">// Set user preference (cookie)</span>
+    [<span class="code-class">HttpPost</span>(<span class="code-string">"preferences"</span>)]
+    <span class="code-keyword">public</span> <span class="code-class">IActionResult</span> <span class="code-method">SetPreferences</span>([<span class="code-class">FromBody</span>] <span class="code-class">PreferencesDto</span> <span class="code-variable">dto</span>)
+    {
+        <span class="code-keyword">var</span> <span class="code-variable">cookieOptions</span> = <span class="code-keyword">new</span> <span class="code-class">CookieOptions</span>
+        {
+            <span class="code-variable">Expires</span> = <span class="code-class">DateTimeOffset</span>.<span class="code-variable">UtcNow</span>.<span class="code-method">AddYears</span>(<span class="code-number">1</span>),
+            <span class="code-variable">SameSite</span> = <span class="code-class">SameSiteMode</span>.<span class="code-variable">Lax</span>
+        };
+        
+        <span class="code-class">Response</span>.<span class="code-variable">Cookies</span>.<span class="code-method">Append</span>(<span class="code-string">"theme"</span>, <span class="code-variable">dto</span>.<span class="code-variable">Theme</span>, <span class="code-variable">cookieOptions</span>);
+        <span class="code-class">Response</span>.<span class="code-variable">Cookies</span>.<span class="code-method">Append</span>(<span class="code-string">"language"</span>, <span class="code-variable">dto</span>.<span class="code-variable">Language</span>, <span class="code-variable">cookieOptions</span>);
+        
+        <span class="code-keyword">return</span> <span class="code-method">Ok</span>(<span class="code-string">"Preferences saved"</span>);
+    }
+}</code></pre>
+
+                <h2>Security Best Practices</h2>
+
+                <ul>
+                    <li><strong>Always use HttpOnly</strong> for sensitive cookies (prevents XSS)</li>
+                    <li><strong>Always use Secure</strong> in production (HTTPS only)</li>
+                    <li><strong>Use SameSite</strong> to prevent CSRF attacks</li>
+                    <li><strong>Set expiration</strong> for cookies (don't keep forever)</li>
+                    <li><strong>Never store sensitive data</strong> in cookies (passwords, credit cards)</li>
+                    <li><strong>Use sessions for sensitive data</strong> (server-side storage)</li>
+                    <li><strong>Regenerate session IDs</strong> after login</li>
+                    <li><strong>Clear sessions on logout</strong></li>
+                    <li><strong>Use distributed cache</strong> for sessions in production (Redis, SQL Server)</li>
+                    <li><strong>Consider JWT tokens</strong> for APIs (stateless, scalable)</li>
+                </ul>
+
+                <h2>Key Takeaways</h2>
+
+                <ul>
+                    <li><strong>Cookies</strong>: Client-side storage, sent with every request</li>
+                    <li><strong>Sessions</strong>: Server-side storage, identified by session ID cookie</li>
+                    <li><strong>HttpOnly</strong>: Prevents JavaScript access (XSS protection)</li>
+                    <li><strong>Secure</strong>: HTTPS only (prevents MITM attacks)</li>
+                    <li><strong>SameSite</strong>: CSRF protection (Strict/Lax/None)</li>
+                    <li>Use <code>Response.Cookies.Append()</code> to set cookies</li>
+                    <li>Use <code>Request.Cookies.TryGetValue()</code> to read cookies</li>
+                    <li>Use <code>HttpContext.Session</code> for session storage</li>
+                    <li><strong>Cookies vs Sessions vs Tokens</strong>: Choose based on use case</li>
+                    <li>Always follow security best practices</li>
+                </ul>
+
+                <div class="callout callout-concept">
+                    <div class="callout-title">🎉 Part VI Complete!</div>
+                    <p>
+                        Congratulations! You've completed <strong>Part VI: HTTP & Web Fundamentals</strong>.
+                        You now understand:
+                    </p>
+                    <ul>
+                        <li>✅ HTTP protocol basics and client-server architecture</li>
+                        <li>✅ Complete request/response lifecycle</li>
+                        <li>✅ HTTP methods (GET, POST, PUT, DELETE, PATCH)</li>
+                        <li>✅ HTTP status codes (2xx, 4xx, 5xx)</li>
+                        <li>✅ Headers and content types</li>
+                        <li>✅ Cookies and sessions</li>
+                    </ul>
+                    <p>
+                        You now have a solid foundation in HTTP and web fundamentals! This knowledge is
+                        essential for building robust web applications and APIs. Keep up the great work! 🚀
+                    </p>
+                </div>
+
+                <nav class="page-nav">
+                    <a href="05-headers-content-types.html" class="prev">Headers and Content Types</a>
+                    <a href="../index.html" class="next">Back to Roadmap</a>
+                </nav>
+
+            
+        <footer class="page-footer">
+          Built with 💜 by <a href="https://akwasi.dev" target="_blank" rel="noopener noreferrer">Akwasi Adu-Kyeremeh</a> for developers who want to truly understand what they're building.
+        </footer>
+
+      </div>
+        </main>
+    </div>
+</body>
+
+</html>

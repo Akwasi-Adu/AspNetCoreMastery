@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tag Helpers | ASP.NET Core Mastery</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;500&family=Source+Serif+4:ital,wght@0,400;0,600;1,400&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="../assets/style.css">
+</head>
+
+<body>
+    <div class="page-wrapper">
+        <aside class="sidebar">
+            <a href="../index.html" class="sidebar-logo">ASP.NET Core Mastery</a>
+            <div class="sidebar-section">Part X: MVC & Views</div>
+            <ul class="sidebar-nav">
+                <li><a href="01-mvc-architecture.html">MVC Architecture</a></li>
+                <li><a href="02-controllers-for-views.html">Controllers for Views</a></li>
+                <li><a href="03-razor-syntax.html">Razor Syntax</a></li>
+                <li><a href="04-layouts-partials.html">Layouts and Partials</a></li>
+                <li><a href="05-view-components.html">View Components</a></li>
+                <li><a href="06-tag-helpers.html" class="active">Tag Helpers</a></li>
+            </ul>
+            <div class="sidebar-section">Resources</div>
+            <ul class="sidebar-nav">
+                <li><a href="../index.html">Full Roadmap</a></li>
+            </ul>
+        </aside>
+
+        <main class="main-content">
+            <div class="content-container">
+                <nav class="breadcrumb">
+                    <a href="../index.html">Home</a>
+                    <span>→</span>
+                    <a href="01-mvc-architecture.html">Part X: MVC & Views</a>
+                    <span>→</span>
+                    Tag Helpers
+                </nav>
+
+                <div class="progress-indicator">
+                    <span>Section 6 of 6</span>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 100%"></div>
+                    </div>
+                </div>
+
+                <h1>Tag Helpers</h1>
+
+                <div class="learning-objectives">
+                    <h3>🎯 What You'll Learn</h3>
+                    <ul>
+                        <li>What are tag helpers</li>
+                        <li>Built-in tag helpers</li>
+                        <li>Form tag helpers</li>
+                        <li>Anchor tag helper</li>
+                        <li>Environment tag helper</li>
+                        <li>Creating custom tag helpers</li>
+                    </ul>
+                </div>
+
+                <h2>What are Tag Helpers?</h2>
+
+                <p>
+                    <strong>Tag helpers</strong> enable server-side code to participate in creating and rendering
+                    HTML elements. They provide an HTML-friendly syntax compared to HTML Helpers.
+                </p>
+
+                <h3>Tag Helpers vs HTML Helpers</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">HTML Helper (Old)</span>
+                    <span class="code-language">HTML</span>
+                </div>
+                <pre><code><span class="code-tag">@Html</span>.<span class="code-method">ActionLink</span>(<span class="code-string">"Products"</span>, <span class="code-string">"Index"</span>, <span class="code-string">"Products"</span>, <span class="code-keyword">null</span>, <span class="code-keyword">new</span> { <span class="code-variable">@class</span> = <span class="code-string">"btn btn-primary"</span> })</code></pre>
+
+                <div class="code-header">
+                    <span class="code-filename">Tag Helper (New)</span>
+                    <span class="code-language">HTML</span>
+                </div>
+                <pre><code>&lt;<span class="code-tag">a</span> <span class="code-attribute">asp-controller</span>=<span class="code-string">"Products"</span> <span class="code-attribute">asp-action</span>=<span class="code-string">"Index"</span> <span class="code-attribute">class</span>=<span class="code-string">"btn btn-primary"</span>&gt;Products&lt;/<span class="code-tag">a</span>&gt;</code></pre>
+
+                <div class="section-divider"></div>
+
+                <h2>Enabling Tag Helpers</h2>
+
+                <div class="code-header">
+                    <span class="code-filename">Views/_ViewImports.cshtml</span>
+                    <span class="code-language">HTML</span>
+                </div>
+                <pre><code><span class="code-tag">@addTagHelper</span> *, <span class="code-class">Microsoft</span>.<span class="code-class">AspNetCore</span>.<span class="code-class">Mvc</span>.<span class="code-class">TagHelpers</span></code></pre>
+
+                <div class="section-divider"></div>
+
+                <h2>Anchor Tag Helper</h2>
+
+                <div class="code-header">
+                    <span class="code-filename">Generate Links</span>
+                    <span class="code-language">HTML</span>
+                </div>
+                <pre><code><span class="code-comment">&lt;!-- Link to action --&gt;</span>
+&lt;<span class="code-tag">a</span> <span class="code-attribute">asp-controller</span>=<span class="code-string">"Products"</span> <span class="code-attribute">asp-action</span>=<span class="code-string">"Index"</span>&gt;Products&lt;/<span class="code-tag">a</span>&gt;
+
+<span class="code-comment">&lt;!-- Link with route parameter --&gt;</span>
+&lt;<span class="code-tag">a</span> <span class="code-attribute">asp-controller</span>=<span class="code-string">"Products"</span> <span class="code-attribute">asp-action</span>=<span class="code-string">"Details"</span> <span class="code-attribute">asp-route-id</span>=<span class="code-string">"5"</span>&gt;Details&lt;/<span class="code-tag">a</span>&gt;
+
+<span class="code-comment">&lt;!-- Link with multiple route values --&gt;</span>
+&lt;<span class="code-tag">a</span> <span class="code-attribute">asp-controller</span>=<span class="code-string">"Products"</span> 
+   <span class="code-attribute">asp-action</span>=<span class="code-string">"Search"</span> 
+   <span class="code-attribute">asp-route-category</span>=<span class="code-string">"Electronics"</span> 
+   <span class="code-attribute">asp-route-page</span>=<span class="code-string">"1"</span>&gt;Search&lt;/<span class="code-tag">a</span>&gt;</code></pre>
+
+                <div class="section-divider"></div>
+
+                <h2>Form Tag Helpers</h2>
+
+                <h3>Form Tag Helper</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">Generate Form</span>
+                    <span class="code-language">HTML</span>
+                </div>
+                <pre><code>&lt;<span class="code-tag">form</span> <span class="code-attribute">asp-controller</span>=<span class="code-string">"Products"</span> <span class="code-attribute">asp-action</span>=<span class="code-string">"Create"</span> <span class="code-attribute">method</span>=<span class="code-string">"post"</span>&gt;
+    <span class="code-comment">&lt;!-- Form fields --&gt;</span>
+    &lt;<span class="code-tag">button</span> <span class="code-attribute">type</span>=<span class="code-string">"submit"</span>&gt;Create&lt;/<span class="code-tag">button</span>&gt;
+&lt;/<span class="code-tag">form</span>&gt;</code></pre>
+
+                <h3>Input Tag Helper</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">Generate Input Fields</span>
+                    <span class="code-language">HTML</span>
+                </div>
+                <pre><code><span class="code-tag">@model</span> <span class="code-class">Product</span>
+
+&lt;<span class="code-tag">form</span> <span class="code-attribute">asp-action</span>=<span class="code-string">"Create"</span>&gt;
+    <span class="code-comment">&lt;!-- Text input --&gt;</span>
+    &lt;<span class="code-tag">input</span> <span class="code-attribute">asp-for</span>=<span class="code-string">"Name"</span> <span class="code-attribute">class</span>=<span class="code-string">"form-control"</span> /&gt;
+
+    <span class="code-comment">&lt;!-- Number input --&gt;</span>
+    &lt;<span class="code-tag">input</span> <span class="code-attribute">asp-for</span>=<span class="code-string">"Price"</span> <span class="code-attribute">class</span>=<span class="code-string">"form-control"</span> /&gt;
+
+    <span class="code-comment">&lt;!-- Checkbox --&gt;</span>
+    &lt;<span class="code-tag">input</span> <span class="code-attribute">asp-for</span>=<span class="code-string">"IsActive"</span> <span class="code-attribute">type</span>=<span class="code-string">"checkbox"</span> /&gt;
+&lt;/<span class="code-tag">form</span>&gt;</code></pre>
+
+                <h3>Label Tag Helper</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">Generate Labels</span>
+                    <span class="code-language">HTML</span>
+                </div>
+                <pre><code>&lt;<span class="code-tag">label</span> <span class="code-attribute">asp-for</span>=<span class="code-string">"Name"</span>&gt;&lt;/<span class="code-tag">label</span>&gt;
+<span class="code-comment">&lt;!-- Generates: &lt;label for="Name"&gt;Name&lt;/label&gt; --&gt;</span>
+
+&lt;<span class="code-tag">label</span> <span class="code-attribute">asp-for</span>=<span class="code-string">"Price"</span> <span class="code-attribute">class</span>=<span class="code-string">"form-label"</span>&gt;&lt;/<span class="code-tag">label</span>&gt;</code></pre>
+
+                <h3>Validation Tag Helpers</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">Display Validation Messages</span>
+                    <span class="code-language">HTML</span>
+                </div>
+                <pre><code><span class="code-comment">&lt;!-- Validation message for specific field --&gt;</span>
+&lt;<span class="code-tag">span</span> <span class="code-attribute">asp-validation-for</span>=<span class="code-string">"Name"</span> <span class="code-attribute">class</span>=<span class="code-string">"text-danger"</span>&gt;&lt;/<span class="code-tag">span</span>&gt;
+
+<span class="code-comment">&lt;!-- Validation summary for all errors --&gt;</span>
+&lt;<span class="code-tag">div</span> <span class="code-attribute">asp-validation-summary</span>=<span class="code-string">"All"</span> <span class="code-attribute">class</span>=<span class="code-string">"text-danger"</span>&gt;&lt;/<span class="code-tag">div</span>&gt;</code></pre>
+
+                <h3>Select Tag Helper</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">Generate Dropdowns</span>
+                    <span class="code-language">HTML</span>
+                </div>
+                <pre><code><span class="code-comment">&lt;!-- Simple select --&gt;</span>
+&lt;<span class="code-tag">select</span> <span class="code-attribute">asp-for</span>=<span class="code-string">"CategoryId"</span> <span class="code-attribute">asp-items</span>=<span class="code-string">"ViewBag.Categories"</span> <span class="code-attribute">class</span>=<span class="code-string">"form-control"</span>&gt;
+    &lt;<span class="code-tag">option</span> <span class="code-attribute">value</span>=<span class="code-string">""</span>&gt;-- Select Category --&lt;/<span class="code-tag">option</span>&gt;
+&lt;/<span class="code-tag">select</span>&gt;</code></pre>
+
+                <div class="code-header">
+                    <span class="code-filename">Controller</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-keyword">public</span> <span class="code-class">IActionResult</span> <span class="code-method">Create</span>()
+{
+    <span class="code-variable">ViewBag</span>.<span class="code-variable">Categories</span> = <span class="code-keyword">new</span> <span class="code-class">SelectList</span>(<span class="code-variable">_context</span>.<span class="code-variable">Categories</span>, <span class="code-string">"Id"</span>, <span class="code-string">"Name"</span>);
+    <span class="code-keyword">return</span> <span class="code-method">View</span>();
+}</code></pre>
+
+                <h3>Textarea Tag Helper</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">Generate Textarea</span>
+                    <span class="code-language">HTML</span>
+                </div>
+                <pre><code>&lt;<span class="code-tag">textarea</span> <span class="code-attribute">asp-for</span>=<span class="code-string">"Description"</span> <span class="code-attribute">class</span>=<span class="code-string">"form-control"</span> <span class="code-attribute">rows</span>=<span class="code-string">"5"</span>&gt;&lt;/<span class="code-tag">textarea</span>&gt;</code></pre>
+
+                <div class="section-divider"></div>
+
+                <h2>Environment Tag Helper</h2>
+
+                <div class="code-header">
+                    <span class="code-filename">Conditional Rendering Based on Environment</span>
+                    <span class="code-language">HTML</span>
+                </div>
+                <pre><code><span class="code-comment">&lt;!-- Development only --&gt;</span>
+&lt;<span class="code-tag">environment</span> <span class="code-attribute">include</span>=<span class="code-string">"Development"</span>&gt;
+    &lt;<span class="code-tag">link</span> <span class="code-attribute">rel</span>=<span class="code-string">"stylesheet"</span> <span class="code-attribute">href</span>=<span class="code-string">"~/css/site.css"</span>&gt;
+&lt;/<span class="code-tag">environment</span>&gt;
+
+<span class="code-comment">&lt;!-- Production only --&gt;</span>
+&lt;<span class="code-tag">environment</span> <span class="code-attribute">exclude</span>=<span class="code-string">"Development"</span>&gt;
+    &lt;<span class="code-tag">link</span> <span class="code-attribute">rel</span>=<span class="code-string">"stylesheet"</span> <span class="code-attribute">href</span>=<span class="code-string">"~/css/site.min.css"</span>&gt;
+&lt;/<span class="code-tag">environment</span>&gt;</code></pre>
+
+                <div class="section-divider"></div>
+
+                <h2>Image Tag Helper</h2>
+
+                <div class="code-header">
+                    <span class="code-filename">Cache Busting</span>
+                    <span class="code-language">HTML</span>
+                </div>
+                <pre><code>&lt;<span class="code-tag">img</span> <span class="code-attribute">src</span>=<span class="code-string">"~/images/logo.png"</span> <span class="code-attribute">asp-append-version</span>=<span class="code-string">"true"</span> /&gt;
+<span class="code-comment">&lt;!-- Generates: &lt;img src="/images/logo.png?v=abc123" /&gt; --&gt;</span></code></pre>
+
+                <div class="section-divider"></div>
+
+                <h2>Cache Tag Helper</h2>
+
+                <div class="code-header">
+                    <span class="code-filename">Cache Content</span>
+                    <span class="code-language">HTML</span>
+                </div>
+                <pre><code>&lt;<span class="code-tag">cache</span> <span class="code-attribute">expires-after</span>=<span class="code-string">"@TimeSpan.FromMinutes(10)"</span>&gt;
+    &lt;<span class="code-tag">h2</span>&gt;Expensive Operation Result&lt;/<span class="code-tag">h2</span>&gt;
+    <span class="code-tag">@await</span> <span class="code-method">Component</span>.<span class="code-method">InvokeAsync</span>(<span class="code-string">"ExpensiveComponent"</span>)
+&lt;/<span class="code-tag">cache</span>&gt;</code></pre>
+
+                <div class="section-divider"></div>
+
+                <h2>Creating Custom Tag Helpers</h2>
+
+                <div class="code-header">
+                    <span class="code-filename">TagHelpers/EmailTagHelper.cs</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code>[<span class="code-class">HtmlTargetElement</span>(<span class="code-string">"email"</span>)]
+<span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">EmailTagHelper</span> : <span class="code-class">TagHelper</span>
+{
+    <span class="code-keyword">public</span> <span class="code-type">string</span> <span class="code-variable">Address</span> { <span class="code-keyword">get</span>; <span class="code-keyword">set</span>; } = <span class="code-keyword">string</span>.<span class="code-variable">Empty</span>;
+
+    <span class="code-keyword">public</span> <span class="code-keyword">override</span> <span class="code-type">void</span> <span class="code-method">Process</span>(<span class="code-class">TagHelperContext</span> <span class="code-variable">context</span>, <span class="code-class">TagHelperOutput</span> <span class="code-variable">output</span>)
+    {
+        <span class="code-variable">output</span>.<span class="code-variable">TagName</span> = <span class="code-string">"a"</span>;
+        <span class="code-variable">output</span>.<span class="code-variable">Attributes</span>.<span class="code-method">SetAttribute</span>(<span class="code-string">"href"</span>, <span class="code-string">$"mailto:</span>{<span class="code-variable">Address</span>}<span class="code-string">"</span>);
+        <span class="code-variable">output</span>.<span class="code-variable">Content</span>.<span class="code-method">SetContent</span>(<span class="code-variable">Address</span>);
+    }
+}</code></pre>
+
+                <div class="code-header">
+                    <span class="code-filename">Register Custom Tag Helper</span>
+                    <span class="code-language">HTML</span>
+                </div>
+                <pre><code><span class="code-comment">&lt;!-- Views/_ViewImports.cshtml --&gt;</span>
+<span class="code-tag">@addTagHelper</span> *, <span class="code-class">InvenTrack</span></code></pre>
+
+                <div class="code-header">
+                    <span class="code-filename">Use Custom Tag Helper</span>
+                    <span class="code-language">HTML</span>
+                </div>
+                <pre><code>&lt;<span class="code-tag">email</span> <span class="code-attribute">address</span>=<span class="code-string">"support@inventtrack.com"</span>&gt;&lt;/<span class="code-tag">email</span>&gt;
+<span class="code-comment">&lt;!-- Generates: &lt;a href="mailto:support@inventtrack.com"&gt;support@inventtrack.com&lt;/a&gt; --&gt;</span></code></pre>
+
+                <h2>Complete InvenTrack Example</h2>
+
+                <div class="code-header">
+                    <span class="code-filename">Views/Products/Create.cshtml</span>
+                    <span class="code-language">HTML</span>
+                </div>
+                <pre><code><span class="code-tag">@model</span> <span class="code-class">Product</span>
+
+<span class="code-tag">@</span>{
+    <span class="code-variable">ViewData</span>[<span class="code-string">"Title"</span>] = <span class="code-string">"Create Product"</span>;
+}
+
+&lt;<span class="code-tag">h1</span>&gt;Create Product&lt;/<span class="code-tag">h1</span>&gt;
+
+&lt;<span class="code-tag">form</span> <span class="code-attribute">asp-action</span>=<span class="code-string">"Create"</span> <span class="code-attribute">method</span>=<span class="code-string">"post"</span>&gt;
+    &lt;<span class="code-tag">div</span> <span class="code-attribute">asp-validation-summary</span>=<span class="code-string">"ModelOnly"</span> <span class="code-attribute">class</span>=<span class="code-string">"text-danger"</span>&gt;&lt;/<span class="code-tag">div</span>&gt;
+
+    &lt;<span class="code-tag">div</span> <span class="code-attribute">class</span>=<span class="code-string">"mb-3"</span>&gt;
+        &lt;<span class="code-tag">label</span> <span class="code-attribute">asp-for</span>=<span class="code-string">"Name"</span> <span class="code-attribute">class</span>=<span class="code-string">"form-label"</span>&gt;&lt;/<span class="code-tag">label</span>&gt;
+        &lt;<span class="code-tag">input</span> <span class="code-attribute">asp-for</span>=<span class="code-string">"Name"</span> <span class="code-attribute">class</span>=<span class="code-string">"form-control"</span> /&gt;
+        &lt;<span class="code-tag">span</span> <span class="code-attribute">asp-validation-for</span>=<span class="code-string">"Name"</span> <span class="code-attribute">class</span>=<span class="code-string">"text-danger"</span>&gt;&lt;/<span class="code-tag">span</span>&gt;
+    &lt;/<span class="code-tag">div</span>&gt;
+
+    &lt;<span class="code-tag">div</span> <span class="code-attribute">class</span>=<span class="code-string">"mb-3"</span>&gt;
+        &lt;<span class="code-tag">label</span> <span class="code-attribute">asp-for</span>=<span class="code-string">"Category"</span> <span class="code-attribute">class</span>=<span class="code-string">"form-label"</span>&gt;&lt;/<span class="code-tag">label</span>&gt;
+        &lt;<span class="code-tag">input</span> <span class="code-attribute">asp-for</span>=<span class="code-string">"Category"</span> <span class="code-attribute">class</span>=<span class="code-string">"form-control"</span> /&gt;
+        &lt;<span class="code-tag">span</span> <span class="code-attribute">asp-validation-for</span>=<span class="code-string">"Category"</span> <span class="code-attribute">class</span>=<span class="code-string">"text-danger"</span>&gt;&lt;/<span class="code-tag">span</span>&gt;
+    &lt;/<span class="code-tag">div</span>&gt;
+
+    &lt;<span class="code-tag">div</span> <span class="code-attribute">class</span>=<span class="code-string">"mb-3"</span>&gt;
+        &lt;<span class="code-tag">label</span> <span class="code-attribute">asp-for</span>=<span class="code-string">"Price"</span> <span class="code-attribute">class</span>=<span class="code-string">"form-label"</span>&gt;&lt;/<span class="code-tag">label</span>&gt;
+        &lt;<span class="code-tag">input</span> <span class="code-attribute">asp-for</span>=<span class="code-string">"Price"</span> <span class="code-attribute">class</span>=<span class="code-string">"form-control"</span> /&gt;
+        &lt;<span class="code-tag">span</span> <span class="code-attribute">asp-validation-for</span>=<span class="code-string">"Price"</span> <span class="code-attribute">class</span>=<span class="code-string">"text-danger"</span>&gt;&lt;/<span class="code-tag">span</span>&gt;
+    &lt;/<span class="code-tag">div</span>&gt;
+
+    &lt;<span class="code-tag">div</span> <span class="code-attribute">class</span>=<span class="code-string">"mb-3"</span>&gt;
+        &lt;<span class="code-tag">label</span> <span class="code-attribute">asp-for</span>=<span class="code-string">"Quantity"</span> <span class="code-attribute">class</span>=<span class="code-string">"form-label"</span>&gt;&lt;/<span class="code-tag">label</span>&gt;
+        &lt;<span class="code-tag">input</span> <span class="code-attribute">asp-for</span>=<span class="code-string">"Quantity"</span> <span class="code-attribute">class</span>=<span class="code-string">"form-control"</span> /&gt;
+        &lt;<span class="code-tag">span</span> <span class="code-attribute">asp-validation-for</span>=<span class="code-string">"Quantity"</span> <span class="code-attribute">class</span>=<span class="code-string">"text-danger"</span>&gt;&lt;/<span class="code-tag">span</span>&gt;
+    &lt;/<span class="code-tag">div</span>&gt;
+
+    &lt;<span class="code-tag">div</span> <span class="code-attribute">class</span>=<span class="code-string">"mb-3"</span>&gt;
+        &lt;<span class="code-tag">label</span> <span class="code-attribute">asp-for</span>=<span class="code-string">"Description"</span> <span class="code-attribute">class</span>=<span class="code-string">"form-label"</span>&gt;&lt;/<span class="code-tag">label</span>&gt;
+        &lt;<span class="code-tag">textarea</span> <span class="code-attribute">asp-for</span>=<span class="code-string">"Description"</span> <span class="code-attribute">class</span>=<span class="code-string">"form-control"</span> <span class="code-attribute">rows</span>=<span class="code-string">"3"</span>&gt;&lt;/<span class="code-tag">textarea</span>&gt;
+        &lt;<span class="code-tag">span</span> <span class="code-attribute">asp-validation-for</span>=<span class="code-string">"Description"</span> <span class="code-attribute">class</span>=<span class="code-string">"text-danger"</span>&gt;&lt;/<span class="code-tag">span</span>&gt;
+    &lt;/<span class="code-tag">div</span>&gt;
+
+    &lt;<span class="code-tag">div</span> <span class="code-attribute">class</span>=<span class="code-string">"mb-3"</span>&gt;
+        &lt;<span class="code-tag">button</span> <span class="code-attribute">type</span>=<span class="code-string">"submit"</span> <span class="code-attribute">class</span>=<span class="code-string">"btn btn-primary"</span>&gt;Create&lt;/<span class="code-tag">button</span>&gt;
+        &lt;<span class="code-tag">a</span> <span class="code-attribute">asp-action</span>=<span class="code-string">"Index"</span> <span class="code-attribute">class</span>=<span class="code-string">"btn btn-secondary"</span>&gt;Cancel&lt;/<span class="code-tag">a</span>&gt;
+    &lt;/<span class="code-tag">div</span>&gt;
+&lt;/<span class="code-tag">form</span>&gt;
+
+<span class="code-tag">@section</span> <span class="code-variable">Scripts</span> {
+    <span class="code-tag">@await</span> <span class="code-class">Html</span>.<span class="code-method">PartialAsync</span>(<span class="code-string">"_ValidationScriptsPartial"</span>)
+}</code></pre>
+
+                <h2>Common Tag Helpers Reference</h2>
+
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Tag Helper</th>
+                            <th>Purpose</th>
+                            <th>Example</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><code>asp-controller</code></td>
+                            <td>Specify controller</td>
+                            <td><code>&lt;a asp-controller="Products"&gt;</code></td>
+                        </tr>
+                        <tr>
+                            <td><code>asp-action</code></td>
+                            <td>Specify action</td>
+                            <td><code>&lt;a asp-action="Index"&gt;</code></td>
+                        </tr>
+                        <tr>
+                            <td><code>asp-route-{param}</code></td>
+                            <td>Route parameter</td>
+                            <td><code>&lt;a asp-route-id="5"&gt;</code></td>
+                        </tr>
+                        <tr>
+                            <td><code>asp-for</code></td>
+                            <td>Bind to model property</td>
+                            <td><code>&lt;input asp-for="Name"&gt;</code></td>
+                        </tr>
+                        <tr>
+                            <td><code>asp-validation-for</code></td>
+                            <td>Validation message</td>
+                            <td><code>&lt;span asp-validation-for="Name"&gt;</code></td>
+                        </tr>
+                        <tr>
+                            <td><code>asp-items</code></td>
+                            <td>Select list items</td>
+                            <td><code>&lt;select asp-items="ViewBag.Items"&gt;</code></td>
+                        </tr>
+                        <tr>
+                            <td><code>asp-append-version</code></td>
+                            <td>Cache busting</td>
+                            <td><code>&lt;img asp-append-version="true"&gt;</code></td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h2>Best Practices</h2>
+
+                <ul>
+                    <li><strong>Prefer tag helpers</strong>: Use over HTML helpers for cleaner syntax</li>
+                    <li><strong>asp-for binding</strong>: Use for automatic validation and model binding</li>
+                    <li><strong>Cache busting</strong>: Use asp-append-version for static files</li>
+                    <li><strong>Environment tag</strong>: Serve different assets per environment</li>
+                    <li><strong>Custom tag helpers</strong>: Create for reusable HTML patterns</li>
+                    <li><strong>Validation</strong>: Always include validation tag helpers</li>
+                </ul>
+
+                <h2>Key Takeaways</h2>
+
+                <ul>
+                    <li><strong>Tag helpers</strong>: Server-side code in HTML-friendly syntax</li>
+                    <li><strong>asp-* attributes</strong>: Special attributes for tag helpers</li>
+                    <li><strong>asp-for</strong>: Binds to model properties</li>
+                    <li><strong>asp-action/asp-controller</strong>: Generate URLs</li>
+                    <li><strong>asp-validation-for</strong>: Display validation messages</li>
+                    <li><strong>Environment tag</strong>: Conditional rendering by environment</li>
+                    <li><strong>Custom tag helpers</strong>: Extend with TagHelper base class</li>
+                    <li><strong>@addTagHelper</strong>: Enable tag helpers in views</li>
+                </ul>
+
+                <div class="callout callout-concept">
+                    <div class="callout-title">🎉 Part X Complete!</div>
+                    <p>
+                        Congratulations! You've completed <strong>Part X: MVC & Views</strong>. You now understand:
+                    </p>
+                    <ul>
+                        <li>✅ MVC architecture and folder structure</li>
+                        <li>✅ Controllers, action methods, and action results</li>
+                        <li>✅ Razor syntax for dynamic HTML</li>
+                        <li>✅ Layouts, partials, and view organization</li>
+                        <li>✅ View components for reusable widgets</li>
+                        <li>✅ Tag helpers for HTML-friendly server code</li>
+                    </ul>
+                    <p>
+                        You now have the skills to build server-rendered web applications with ASP.NET Core MVC!
+                        Keep up the excellent work! 🚀
+                    </p>
+                </div>
+
+                <nav class="page-nav">
+                    <a href="05-view-components.html" class="prev">View Components</a>
+                    <a href="../index.html" class="next">Back to Roadmap</a>
+                </nav>
+
+            
+        <footer class="page-footer">
+          Built with 💜 by <a href="https://akwasi.dev" target="_blank" rel="noopener noreferrer">Akwasi Adu-Kyeremeh</a> for developers who want to truly understand what they're building.
+        </footer>
+
+      </div>
+        </main>
+    </div>
+</body>
+
+</html>

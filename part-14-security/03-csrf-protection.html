@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cross-Site Request Forgery (CSRF) | ASP.NET Core Mastery</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;500&family=Source+Serif+4:ital,wght@0,400;0,600;1,400&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="../assets/style.css">
+</head>
+
+<body>
+    <div class="page-wrapper">
+        <aside class="sidebar">
+            <a href="../index.html" class="sidebar-logo">ASP.NET Core Mastery</a>
+            <div class="sidebar-section">Part XIV: Security</div>
+            <ul class="sidebar-nav">
+                <li><a href="01-owasp-top-10.html">OWASP Top 10</a></li>
+                <li><a href="02-xss-protection.html">Cross-Site Scripting (XSS)</a></li>
+                <li><a href="03-csrf-protection.html" class="active">Cross-Site Request Forgery (CSRF)</a></li>
+                <li><a href="04-sql-injection.html">SQL Injection</a></li>
+                <li><a href="05-data-protection-api.html">Data Protection API</a></li>
+                <li><a href="06-https-security-headers.html">HTTPS and Security Headers</a></li>
+            </ul>
+            <div class="sidebar-section">Resources</div>
+            <ul class="sidebar-nav">
+                <li><a href="../index.html">Full Roadmap</a></li>
+            </ul>
+        </aside>
+
+        <main class="main-content">
+            <div class="content-container">
+                <nav class="breadcrumb">
+                    <a href="../index.html">Home</a>
+                    <span>→</span>
+                    <a href="01-owasp-top-10.html">Part XIV: Security</a>
+                    <span>→</span>
+                    Cross-Site Request Forgery (CSRF)
+                </nav>
+
+                <div class="progress-indicator">
+                    <span>Section 3 of 6</span>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 50%"></div>
+                    </div>
+                </div>
+
+                <h1>Cross-Site Request Forgery (CSRF)</h1>
+
+                <div class="learning-objectives">
+                    <h3>🎯 What You'll Learn</h3>
+                    <ul>
+                        <li>What is CSRF</li>
+                        <li>How CSRF attacks work</li>
+                        <li>Anti-forgery tokens</li>
+                        <li>Automatic protection</li>
+                        <li>Manual validation</li>
+                    </ul>
+                </div>
+
+                <h2>What is CSRF?</h2>
+
+                <p>
+                    <strong>Cross-Site Request Forgery (CSRF)</strong> tricks authenticated users into performing
+                    unwanted actions.
+                    The attacker exploits the user's authenticated session.
+                </p>
+
+                <div class="section-divider"></div>
+
+                <h2>How CSRF Works</h2>
+
+                <ol>
+                    <li>User logs into <code>bank.com</code></li>
+                    <li>User visits malicious site <code>evil.com</code></li>
+                    <li><code>evil.com</code> contains hidden form that submits to <code>bank.com/transfer</code></li>
+                    <li>Browser automatically sends cookies (user is authenticated)</li>
+                    <li>Money transferred without user's knowledge!</li>
+                </ol>
+
+                <div class="code-header">
+                    <span class="code-filename">Example Attack</span>
+                    <span class="code-language">HTML</span>
+                </div>
+                <pre><code><span class="code-comment">&lt;!-- On evil.com --&gt;</span>
+&lt;<span class="code-tag">form</span> <span class="code-attribute">action</span>=<span class="code-string">"https://bank.com/transfer"</span> <span class="code-attribute">method</span>=<span class="code-string">"post"</span>&gt;
+    &lt;<span class="code-tag">input</span> <span class="code-attribute">type</span>=<span class="code-string">"hidden"</span> <span class="code-attribute">name</span>=<span class="code-string">"to"</span> <span class="code-attribute">value</span>=<span class="code-string">"attacker"</span> /&gt;
+    &lt;<span class="code-tag">input</span> <span class="code-attribute">type</span>=<span class="code-string">"hidden"</span> <span class="code-attribute">name</span>=<span class="code-string">"amount"</span> <span class="code-attribute">value</span>=<span class="code-string">"10000"</span> /&gt;
+&lt;/<span class="code-tag">form</span>&gt;
+&lt;<span class="code-tag">script</span>&gt;document.forms[0].submit();&lt;/<span class="code-tag">script</span>&gt;</code></pre>
+
+                <div class="section-divider"></div>
+
+                <h2>Anti-Forgery Tokens</h2>
+
+                <p>ASP.NET Core automatically generates and validates anti-forgery tokens.</p>
+
+                <h3>Automatic Protection (Razor Pages)</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">Razor Pages (Automatic)</span>
+                    <span class="code-language">HTML</span>
+                </div>
+                <pre><code>&lt;<span class="code-tag">form</span> <span class="code-attribute">method</span>=<span class="code-string">"post"</span>&gt;
+    <span class="code-comment">&lt;!-- Token automatically added --&gt;</span>
+    &lt;<span class="code-tag">input</span> <span class="code-attribute">type</span>=<span class="code-string">"text"</span> <span class="code-attribute">name</span>=<span class="code-string">"Name"</span> /&gt;
+    &lt;<span class="code-tag">button</span> <span class="code-attribute">type</span>=<span class="code-string">"submit"</span>&gt;Submit&lt;/<span class="code-tag">button</span>&gt;
+&lt;/<span class="code-tag">form</span>&gt;</code></pre>
+
+                <h3>MVC Controllers</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">Add Token to Form</span>
+                    <span class="code-language">HTML</span>
+                </div>
+                <pre><code>&lt;<span class="code-tag">form</span> <span class="code-attribute">asp-action</span>=<span class="code-string">"Create"</span> <span class="code-attribute">method</span>=<span class="code-string">"post"</span>&gt;
+    <span class="code-tag">@Html.AntiForgeryToken</span>()
+    &lt;<span class="code-tag">button</span> <span class="code-attribute">type</span>=<span class="code-string">"submit"</span>&gt;Submit&lt;/<span class="code-tag">button</span>&gt;
+&lt;/<span class="code-tag">form</span>&gt;</code></pre>
+
+                <div class="code-header">
+                    <span class="code-filename">Validate Token</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code>[<span class="code-class">HttpPost</span>]
+[<span class="code-class">ValidateAntiForgeryToken</span>]
+<span class="code-keyword">public</span> <span class="code-class">IActionResult</span> <span class="code-method">Create</span>(<span class="code-class">Product</span> <span class="code-variable">product</span>)
+{
+    <span class="code-keyword">return</span> <span class="code-method">View</span>();
+}</code></pre>
+
+                <div class="section-divider"></div>
+
+                <h2>Global Anti-Forgery Filter</h2>
+
+                <p>Apply anti-forgery validation to all POST requests.</p>
+
+                <div class="code-header">
+                    <span class="code-filename">Program.cs</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-variable">builder</span>.<span class="code-variable">Services</span>.<span class="code-method">AddControllersWithViews</span>(<span class="code-variable">options</span> =>
+{
+    <span class="code-variable">options</span>.<span class="code-variable">Filters</span>.<span class="code-method">Add</span>(<span class="code-keyword">new</span> <span class="code-class">AutoValidateAntiforgeryTokenAttribute</span>());
+});</code></pre>
+
+                <div class="section-divider"></div>
+
+                <h2>AJAX Requests</h2>
+
+                <div class="code-header">
+                    <span class="code-filename">Get Token in JavaScript</span>
+                    <span class="code-language">JavaScript</span>
+                </div>
+                <pre><code><span class="code-keyword">const</span> <span class="code-variable">token</span> = <span class="code-variable">document</span>.<span class="code-method">querySelector</span>(<span class="code-string">'input[name="__RequestVerificationToken"]'</span>).<span class="code-variable">value</span>;
+
+<span class="code-method">fetch</span>(<span class="code-string">'/api/products'</span>, {
+    <span class="code-variable">method</span>: <span class="code-string">'POST'</span>,
+    <span class="code-variable">headers</span>: {
+        <span class="code-string">'RequestVerificationToken'</span>: <span class="code-variable">token</span>
+    }
+});</code></pre>
+
+                <h2>Best Practices</h2>
+
+                <ul>
+                    <li><strong>Always use anti-forgery tokens</strong>: For state-changing operations</li>
+                    <li><strong>Use POST for mutations</strong>: Never use GET for data changes</li>
+                    <li><strong>SameSite cookies</strong>: Set SameSite=Strict or Lax</li>
+                    <li><strong>Validate tokens</strong>: Use [ValidateAntiForgeryToken]</li>
+                </ul>
+
+                <h2>Key Takeaways</h2>
+
+                <ul>
+                    <li><strong>CSRF</strong>: Tricks users into unwanted actions</li>
+                    <li><strong>Anti-forgery tokens</strong>: Prevent CSRF attacks</li>
+                    <li><strong>Razor Pages</strong>: Automatic protection</li>
+                    <li><strong>MVC</strong>: Use @Html.AntiForgeryToken() and [ValidateAntiForgeryToken]</li>
+                    <li><strong>Global filter</strong>: AutoValidateAntiforgeryTokenAttribute</li>
+                </ul>
+
+                <nav class="page-nav">
+                    <a href="02-xss-protection.html" class="prev">Cross-Site Scripting (XSS)</a>
+                    <a href="04-sql-injection.html" class="next">SQL Injection</a>
+                </nav>
+
+            
+        <footer class="page-footer">
+          Built with 💜 by <a href="https://akwasi.dev" target="_blank" rel="noopener noreferrer">Akwasi Adu-Kyeremeh</a> for developers who want to truly understand what they're building.
+        </footer>
+
+      </div>
+        </main>
+    </div>
+</body>
+
+</html>

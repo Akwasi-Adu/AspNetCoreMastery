@@ -1,0 +1,525 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>API Versioning | ASP.NET Core Mastery</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;500&family=Source+Serif+4:ital,wght@0,400;0,600;1,400&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="../assets/style.css">
+</head>
+
+<body>
+    <div class="page-wrapper">
+        <aside class="sidebar">
+            <a href="../index.html" class="sidebar-logo">ASP.NET Core Mastery</a>
+            <div class="sidebar-section">Part VIII: Building Web APIs</div>
+            <ul class="sidebar-nav">
+                <li><a href="01-restful-principles.html">RESTful Principles</a></li>
+                <li><a href="02-api-controllers.html">API Controllers</a></li>
+                <li><a href="03-model-binding.html">Model Binding</a></li>
+                <li><a href="04-validation.html">Validation</a></li>
+                <li><a href="05-minimal-apis.html">Minimal APIs</a></li>
+                <li><a href="06-dtos-automapper.html">DTOs and AutoMapper</a></li>
+                <li><a href="07-api-versioning.html" class="active">API Versioning</a></li>
+            </ul>
+            <div class="sidebar-section">Resources</div>
+            <ul class="sidebar-nav">
+                <li><a href="../index.html">Full Roadmap</a></li>
+            </ul>
+        </aside>
+
+        <main class="main-content">
+            <div class="content-container">
+                <nav class="breadcrumb">
+                    <a href="../index.html">Home</a>
+                    <span>→</span>
+                    <a href="01-restful-principles.html">Part VIII: Building Web APIs</a>
+                    <span>→</span>
+                    API Versioning
+                </nav>
+
+                <div class="progress-indicator">
+                    <span>Section 7 of 7</span>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 100%"></div>
+                    </div>
+                </div>
+
+                <h1>API Versioning</h1>
+
+                <div class="learning-objectives">
+                    <h3>🎯 What You'll Learn</h3>
+                    <ul>
+                        <li>Why version APIs</li>
+                        <li>Versioning strategies (URL, header, query string)</li>
+                        <li>Asp.Versioning.Http package</li>
+                        <li>Version attributes</li>
+                        <li>Deprecating versions</li>
+                        <li>Best practices</li>
+                    </ul>
+                </div>
+
+                <h2>Why Version APIs?</h2>
+
+                <p>
+                    <strong>API versioning</strong> allows you to evolve your API while maintaining backward
+                    compatibility for existing clients.
+                </p>
+
+                <h3>When to Version</h3>
+
+                <ul>
+                    <li><strong>Breaking changes</strong>: Removing/renaming properties</li>
+                    <li><strong>Behavior changes</strong>: Different logic or validation</li>
+                    <li><strong>New features</strong>: Major functionality additions</li>
+                    <li><strong>Contract changes</strong>: Different request/response structure</li>
+                </ul>
+
+                <div class="callout callout-info">
+                    <div class="callout-title">ℹ️ Non-Breaking Changes</div>
+                    <p>
+                        Adding optional properties, new endpoints, or fixing bugs typically don't require
+                        a new version.
+                    </p>
+                </div>
+
+                <div class="section-divider"></div>
+
+                <h2>Versioning Strategies</h2>
+
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Strategy</th>
+                            <th>Example</th>
+                            <th>Pros</th>
+                            <th>Cons</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>URL Path</strong></td>
+                            <td><code>/api/v1/products</code></td>
+                            <td>Visible, simple</td>
+                            <td>Clutters URLs</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Query String</strong></td>
+                            <td><code>/api/products?v=1</code></td>
+                            <td>Clean URLs</td>
+                            <td>Easy to forget</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Header</strong></td>
+                            <td><code>api-version: 1.0</code></td>
+                            <td>Clean URLs</td>
+                            <td>Not visible</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Media Type</strong></td>
+                            <td><code>application/vnd.api.v1+json</code></td>
+                            <td>RESTful</td>
+                            <td>Complex</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="section-divider"></div>
+
+                <h2>Setup API Versioning</h2>
+
+                <h3>Installation</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">Package Installation</span>
+                    <span class="code-language">Bash</span>
+                </div>
+                <pre><code>dotnet add package Asp.Versioning.Http
+dotnet add package Asp.Versioning.Mvc.ApiExplorer</code></pre>
+
+                <h3>Configuration</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">Program.cs</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-keyword">var</span> <span class="code-variable">builder</span> = <span class="code-class">WebApplication</span>.<span class="code-method">CreateBuilder</span>(<span class="code-variable">args</span>);
+
+<span class="code-variable">builder</span>.<span class="code-variable">Services</span>.<span class="code-method">AddControllers</span>();
+
+<span class="code-comment">// Add API versioning</span>
+<span class="code-variable">builder</span>.<span class="code-variable">Services</span>.<span class="code-method">AddApiVersioning</span>(<span class="code-variable">options</span> =&gt;
+{
+    <span class="code-comment">// Default version if not specified</span>
+    <span class="code-variable">options</span>.<span class="code-variable">DefaultApiVersion</span> = <span class="code-keyword">new</span> <span class="code-class">ApiVersion</span>(<span class="code-number">1</span>, <span class="code-number">0</span>);
+    
+    <span class="code-comment">// Use default version when client doesn't specify</span>
+    <span class="code-variable">options</span>.<span class="code-variable">AssumeDefaultVersionWhenUnspecified</span> = <span class="code-keyword">true</span>;
+    
+    <span class="code-comment">// Report supported versions in response headers</span>
+    <span class="code-variable">options</span>.<span class="code-variable">ReportApiVersions</span> = <span class="code-keyword">true</span>;
+    
+    <span class="code-comment">// Read version from URL path</span>
+    <span class="code-variable">options</span>.<span class="code-variable">ApiVersionReader</span> = <span class="code-keyword">new</span> <span class="code-class">UrlSegmentApiVersionReader</span>();
+}).<span class="code-method">AddApiExplorer</span>(<span class="code-variable">options</span> =&gt;
+{
+    <span class="code-comment">// Format version as 'v'major[.minor]</span>
+    <span class="code-variable">options</span>.<span class="code-variable">GroupNameFormat</span> = <span class="code-string">"'v'VVV"</span>;
+    
+    <span class="code-comment">// Substitute version in route template</span>
+    <span class="code-variable">options</span>.<span class="code-variable">SubstituteApiVersionInUrl</span> = <span class="code-keyword">true</span>;
+});
+
+<span class="code-keyword">var</span> <span class="code-variable">app</span> = <span class="code-variable">builder</span>.<span class="code-method">Build</span>();
+
+<span class="code-variable">app</span>.<span class="code-method">MapControllers</span>();
+<span class="code-variable">app</span>.<span class="code-method">Run</span>();</code></pre>
+
+                <div class="section-divider"></div>
+
+                <h2>URL Path Versioning</h2>
+
+                <div class="code-header">
+                    <span class="code-filename">Controllers/V1/ProductsController.cs</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code>[<span class="code-class">ApiController</span>]
+[<span class="code-class">Route</span>(<span class="code-string">"api/v{version:apiVersion}/[controller]"</span>)]
+[<span class="code-class">ApiVersion</span>(<span class="code-string">"1.0"</span>)]
+<span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">ProductsController</span> : <span class="code-class">ControllerBase</span>
+{
+    <span class="code-comment">// GET /api/v1/products</span>
+    [<span class="code-class">HttpGet</span>]
+    <span class="code-keyword">public</span> <span class="code-class">ActionResult</span> <span class="code-method">GetProducts</span>()
+    {
+        <span class="code-keyword">return</span> <span class="code-method">Ok</span>(<span class="code-keyword">new</span>[] { <span class="code-string">"Product 1"</span>, <span class="code-string">"Product 2"</span> });
+    }
+}</code></pre>
+
+                <div class="code-header">
+                    <span class="code-filename">Controllers/V2/ProductsController.cs</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code>[<span class="code-class">ApiController</span>]
+[<span class="code-class">Route</span>(<span class="code-string">"api/v{version:apiVersion}/[controller]"</span>)]
+[<span class="code-class">ApiVersion</span>(<span class="code-string">"2.0"</span>)]
+<span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">ProductsController</span> : <span class="code-class">ControllerBase</span>
+{
+    <span class="code-comment">// GET /api/v2/products</span>
+    [<span class="code-class">HttpGet</span>]
+    <span class="code-keyword">public</span> <span class="code-class">ActionResult</span> <span class="code-method">GetProducts</span>()
+    {
+        <span class="code-keyword">return</span> <span class="code-method">Ok</span>(<span class="code-keyword">new</span>
+        {
+            <span class="code-variable">products</span> = <span class="code-keyword">new</span>[] { <span class="code-string">"Product 1"</span>, <span class="code-string">"Product 2"</span> },
+            <span class="code-variable">totalCount</span> = <span class="code-number">2</span>,
+            <span class="code-variable">version</span> = <span class="code-string">"2.0"</span>
+        });
+    }
+}</code></pre>
+
+                <div class="section-divider"></div>
+
+                <h2>Query String Versioning</h2>
+
+                <div class="code-header">
+                    <span class="code-filename">Program.cs</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-variable">builder</span>.<span class="code-variable">Services</span>.<span class="code-method">AddApiVersioning</span>(<span class="code-variable">options</span> =&gt;
+{
+    <span class="code-comment">// Read version from query string: ?api-version=1.0</span>
+    <span class="code-variable">options</span>.<span class="code-variable">ApiVersionReader</span> = <span class="code-keyword">new</span> <span class="code-class">QueryStringApiVersionReader</span>(<span class="code-string">"api-version"</span>);
+});</code></pre>
+
+                <div class="code-header">
+                    <span class="code-filename">Controller</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code>[<span class="code-class">ApiController</span>]
+[<span class="code-class">Route</span>(<span class="code-string">"api/[controller]"</span>)]
+[<span class="code-class">ApiVersion</span>(<span class="code-string">"1.0"</span>)]
+[<span class="code-class">ApiVersion</span>(<span class="code-string">"2.0"</span>)]
+<span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">ProductsController</span> : <span class="code-class">ControllerBase</span>
+{
+    <span class="code-comment">// GET /api/products?api-version=1.0</span>
+    [<span class="code-class">HttpGet</span>]
+    [<span class="code-class">MapToApiVersion</span>(<span class="code-string">"1.0"</span>)]
+    <span class="code-keyword">public</span> <span class="code-class">ActionResult</span> <span class="code-method">GetProductsV1</span>()
+    {
+        <span class="code-keyword">return</span> <span class="code-method">Ok</span>(<span class="code-string">"Version 1.0"</span>);
+    }
+
+    <span class="code-comment">// GET /api/products?api-version=2.0</span>
+    [<span class="code-class">HttpGet</span>]
+    [<span class="code-class">MapToApiVersion</span>(<span class="code-string">"2.0"</span>)]
+    <span class="code-keyword">public</span> <span class="code-class">ActionResult</span> <span class="code-method">GetProductsV2</span>()
+    {
+        <span class="code-keyword">return</span> <span class="code-method">Ok</span>(<span class="code-string">"Version 2.0"</span>);
+    }
+}</code></pre>
+
+                <div class="section-divider"></div>
+
+                <h2>Header Versioning</h2>
+
+                <div class="code-header">
+                    <span class="code-filename">Program.cs</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-variable">builder</span>.<span class="code-variable">Services</span>.<span class="code-method">AddApiVersioning</span>(<span class="code-variable">options</span> =&gt;
+{
+    <span class="code-comment">// Read version from header: api-version: 1.0</span>
+    <span class="code-variable">options</span>.<span class="code-variable">ApiVersionReader</span> = <span class="code-keyword">new</span> <span class="code-class">HeaderApiVersionReader</span>(<span class="code-string">"api-version"</span>);
+});</code></pre>
+
+                <div class="code-header">
+                    <span class="code-filename">Request Example</span>
+                    <span class="code-language">HTTP</span>
+                </div>
+                <pre><code>GET /api/products HTTP/1.1
+Host: api.inventrackapp.com
+api-version: 2.0</code></pre>
+
+                <div class="section-divider"></div>
+
+                <h2>Multiple Versioning Methods</h2>
+
+                <div class="code-header">
+                    <span class="code-filename">Combine URL, Query, and Header</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-variable">builder</span>.<span class="code-variable">Services</span>.<span class="code-method">AddApiVersioning</span>(<span class="code-variable">options</span> =&gt;
+{
+    <span class="code-comment">// Accept version from URL, query string, or header</span>
+    <span class="code-variable">options</span>.<span class="code-variable">ApiVersionReader</span> = <span class="code-class">ApiVersionReader</span>.<span class="code-method">Combine</span>(
+        <span class="code-keyword">new</span> <span class="code-class">UrlSegmentApiVersionReader</span>(),
+        <span class="code-keyword">new</span> <span class="code-class">QueryStringApiVersionReader</span>(<span class="code-string">"api-version"</span>),
+        <span class="code-keyword">new</span> <span class="code-class">HeaderApiVersionReader</span>(<span class="code-string">"api-version"</span>)
+    );
+});</code></pre>
+
+                <div class="section-divider"></div>
+
+                <h2>Deprecating Versions</h2>
+
+                <div class="code-header">
+                    <span class="code-filename">Mark Version as Deprecated</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code>[<span class="code-class">ApiController</span>]
+[<span class="code-class">Route</span>(<span class="code-string">"api/v{version:apiVersion}/[controller]"</span>)]
+[<span class="code-class">ApiVersion</span>(<span class="code-string">"1.0"</span>, <span class="code-variable">Deprecated</span> = <span class="code-keyword">true</span>)]
+[<span class="code-class">ApiVersion</span>(<span class="code-string">"2.0"</span>)]
+<span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">ProductsController</span> : <span class="code-class">ControllerBase</span>
+{
+    <span class="code-comment">// v1.0 is deprecated but still works</span>
+}</code></pre>
+
+                <h3>Response Headers</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">Deprecation Headers</span>
+                    <span class="code-language">HTTP</span>
+                </div>
+                <pre><code>HTTP/1.1 200 OK
+api-supported-versions: 1.0, 2.0
+api-deprecated-versions: 1.0</code></pre>
+
+                <div class="section-divider"></div>
+
+                <h2>Complete InvenTrack Example</h2>
+
+                <div class="code-header">
+                    <span class="code-filename">Program.cs</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-keyword">var</span> <span class="code-variable">builder</span> = <span class="code-class">WebApplication</span>.<span class="code-method">CreateBuilder</span>(<span class="code-variable">args</span>);
+
+<span class="code-variable">builder</span>.<span class="code-variable">Services</span>.<span class="code-method">AddControllers</span>();
+
+<span class="code-variable">builder</span>.<span class="code-variable">Services</span>.<span class="code-method">AddApiVersioning</span>(<span class="code-variable">options</span> =&gt;
+{
+    <span class="code-variable">options</span>.<span class="code-variable">DefaultApiVersion</span> = <span class="code-keyword">new</span> <span class="code-class">ApiVersion</span>(<span class="code-number">1</span>, <span class="code-number">0</span>);
+    <span class="code-variable">options</span>.<span class="code-variable">AssumeDefaultVersionWhenUnspecified</span> = <span class="code-keyword">true</span>;
+    <span class="code-variable">options</span>.<span class="code-variable">ReportApiVersions</span> = <span class="code-keyword">true</span>;
+    <span class="code-variable">options</span>.<span class="code-variable">ApiVersionReader</span> = <span class="code-keyword">new</span> <span class="code-class">UrlSegmentApiVersionReader</span>();
+}).<span class="code-method">AddApiExplorer</span>(<span class="code-variable">options</span> =&gt;
+{
+    <span class="code-variable">options</span>.<span class="code-variable">GroupNameFormat</span> = <span class="code-string">"'v'VVV"</span>;
+    <span class="code-variable">options</span>.<span class="code-variable">SubstituteApiVersionInUrl</span> = <span class="code-keyword">true</span>;
+});
+
+<span class="code-keyword">var</span> <span class="code-variable">app</span> = <span class="code-variable">builder</span>.<span class="code-method">Build</span>();
+
+<span class="code-variable">app</span>.<span class="code-method">MapControllers</span>();
+<span class="code-variable">app</span>.<span class="code-method">Run</span>();</code></pre>
+
+                <div class="code-header">
+                    <span class="code-filename">Controllers/V1/ProductsController.cs</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-keyword">namespace</span> <span class="code-class">InvenTrack</span>.<span class="code-class">Api</span>.<span class="code-class">Controllers</span>.<span class="code-class">V1</span>;
+
+[<span class="code-class">ApiController</span>]
+[<span class="code-class">Route</span>(<span class="code-string">"api/v{version:apiVersion}/[controller]"</span>)]
+[<span class="code-class">ApiVersion</span>(<span class="code-string">"1.0"</span>, <span class="code-variable">Deprecated</span> = <span class="code-keyword">true</span>)]
+<span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">ProductsController</span> : <span class="code-class">ControllerBase</span>
+{
+    <span class="code-comment">// GET /api/v1/products</span>
+    [<span class="code-class">HttpGet</span>]
+    <span class="code-keyword">public</span> <span class="code-class">ActionResult</span> <span class="code-method">GetProducts</span>()
+    {
+        <span class="code-keyword">return</span> <span class="code-method">Ok</span>(<span class="code-keyword">new</span>[]
+        {
+            <span class="code-keyword">new</span> { <span class="code-variable">id</span> = <span class="code-number">1</span>, <span class="code-variable">name</span> = <span class="code-string">"Laptop"</span>, <span class="code-variable">price</span> = <span class="code-number">999.99</span> },
+            <span class="code-keyword">new</span> { <span class="code-variable">id</span> = <span class="code-number">2</span>, <span class="code-variable">name</span> = <span class="code-string">"Mouse"</span>, <span class="code-variable">price</span> = <span class="code-number">29.99</span> }
+        });
+    }
+
+    <span class="code-comment">// GET /api/v1/products/1</span>
+    [<span class="code-class">HttpGet</span>(<span class="code-string">"{id}"</span>)]
+    <span class="code-keyword">public</span> <span class="code-class">ActionResult</span> <span class="code-method">GetProduct</span>(<span class="code-type">int</span> <span class="code-variable">id</span>)
+    {
+        <span class="code-keyword">return</span> <span class="code-method">Ok</span>(<span class="code-keyword">new</span> { <span class="code-variable">id</span>, <span class="code-variable">name</span> = <span class="code-string">"Laptop"</span>, <span class="code-variable">price</span> = <span class="code-number">999.99</span> });
+    }
+}</code></pre>
+
+                <div class="code-header">
+                    <span class="code-filename">Controllers/V2/ProductsController.cs</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-keyword">namespace</span> <span class="code-class">InvenTrack</span>.<span class="code-class">Api</span>.<span class="code-class">Controllers</span>.<span class="code-class">V2</span>;
+
+[<span class="code-class">ApiController</span>]
+[<span class="code-class">Route</span>(<span class="code-string">"api/v{version:apiVersion}/[controller]"</span>)]
+[<span class="code-class">ApiVersion</span>(<span class="code-string">"2.0"</span>)]
+<span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">ProductsController</span> : <span class="code-class">ControllerBase</span>
+{
+    <span class="code-keyword">private</span> <span class="code-keyword">readonly</span> <span class="code-class">IProductService</span> <span class="code-variable">_productService</span>;
+
+    <span class="code-keyword">public</span> <span class="code-method">ProductsController</span>(<span class="code-class">IProductService</span> <span class="code-variable">productService</span>)
+    {
+        <span class="code-variable">_productService</span> = <span class="code-variable">productService</span>;
+    }
+
+    <span class="code-comment">// GET /api/v2/products?page=1&pageSize=20</span>
+    [<span class="code-class">HttpGet</span>]
+    <span class="code-keyword">public</span> <span class="code-keyword">async</span> <span class="code-class">Task</span>&lt;<span class="code-class">ActionResult</span>&gt; <span class="code-method">GetProducts</span>(
+        [<span class="code-class">FromQuery</span>] <span class="code-type">int</span> <span class="code-variable">page</span> = <span class="code-number">1</span>,
+        [<span class="code-class">FromQuery</span>] <span class="code-type">int</span> <span class="code-variable">pageSize</span> = <span class="code-number">20</span>)
+    {
+        <span class="code-keyword">var</span> <span class="code-variable">products</span> = <span class="code-keyword">await</span> <span class="code-variable">_productService</span>.<span class="code-method">GetPagedAsync</span>(<span class="code-variable">page</span>, <span class="code-variable">pageSize</span>);
+        
+        <span class="code-keyword">return</span> <span class="code-method">Ok</span>(<span class="code-keyword">new</span>
+        {
+            <span class="code-variable">data</span> = <span class="code-variable">products</span>.<span class="code-variable">Items</span>,
+            <span class="code-variable">pagination</span> = <span class="code-keyword">new</span>
+            {
+                <span class="code-variable">page</span>,
+                <span class="code-variable">pageSize</span>,
+                <span class="code-variable">totalCount</span> = <span class="code-variable">products</span>.<span class="code-variable">TotalCount</span>,
+                <span class="code-variable">totalPages</span> = <span class="code-variable">products</span>.<span class="code-variable">TotalPages</span>
+            },
+            <span class="code-variable">version</span> = <span class="code-string">"2.0"</span>
+        });
+    }
+
+    <span class="code-comment">// GET /api/v2/products/1</span>
+    [<span class="code-class">HttpGet</span>(<span class="code-string">"{id}"</span>)]
+    <span class="code-keyword">public</span> <span class="code-keyword">async</span> <span class="code-class">Task</span>&lt;<span class="code-class">ActionResult</span>&gt; <span class="code-method">GetProduct</span>(<span class="code-type">int</span> <span class="code-variable">id</span>)
+    {
+        <span class="code-keyword">var</span> <span class="code-variable">product</span> = <span class="code-keyword">await</span> <span class="code-variable">_productService</span>.<span class="code-method">GetByIdAsync</span>(<span class="code-variable">id</span>);
+        
+        <span class="code-keyword">if</span> (<span class="code-variable">product</span> == <span class="code-keyword">null</span>)
+            <span class="code-keyword">return</span> <span class="code-method">NotFound</span>();
+        
+        <span class="code-keyword">return</span> <span class="code-method">Ok</span>(<span class="code-keyword">new</span>
+        {
+            <span class="code-variable">product</span>,
+            <span class="code-variable">links</span> = <span class="code-keyword">new</span>
+            {
+                <span class="code-variable">self</span> = <span class="code-string">$"/api/v2/products/</span>{<span class="code-variable">id</span>}<span class="code-string">"</span>,
+                <span class="code-variable">category</span> = <span class="code-string">$"/api/v2/categories/</span>{<span class="code-variable">product</span>.<span class="code-variable">CategoryId</span>}<span class="code-string">"</span>
+            }
+        });
+    }
+}</code></pre>
+
+                <h2>Best Practices</h2>
+
+                <ul>
+                    <li><strong>Semantic versioning</strong>: Use major.minor (1.0, 2.0)</li>
+                    <li><strong>URL path preferred</strong>: Most visible and discoverable</li>
+                    <li><strong>Default version</strong>: Always set a default</li>
+                    <li><strong>Report versions</strong>: Include in response headers</li>
+                    <li><strong>Deprecate gracefully</strong>: Mark old versions as deprecated</li>
+                    <li><strong>Document changes</strong>: Maintain changelog</li>
+                    <li><strong>Support 2-3 versions</strong>: Don't support too many</li>
+                    <li><strong>Sunset policy</strong>: Communicate deprecation timeline</li>
+                </ul>
+
+                <h2>Version Lifecycle</h2>
+
+                <ol>
+                    <li><strong>Active</strong>: Current version, fully supported</li>
+                    <li><strong>Deprecated</strong>: Still works, but discouraged</li>
+                    <li><strong>Sunset</strong>: Announced end-of-life date</li>
+                    <li><strong>Retired</strong>: No longer available</li>
+                </ol>
+
+                <h2>Key Takeaways</h2>
+
+                <ul>
+                    <li><strong>API versioning</strong>: Evolve APIs without breaking clients</li>
+                    <li><strong>Strategies</strong>: URL path, query string, header, media type</li>
+                    <li><strong>Asp.Versioning.Http</strong>: Official versioning package</li>
+                    <li><strong>[ApiVersion]</strong>: Mark controller versions</li>
+                    <li><strong>Deprecation</strong>: Mark old versions as deprecated</li>
+                    <li><strong>URL path</strong>: Most common and visible</li>
+                    <li><strong>Default version</strong>: Always configure</li>
+                    <li><strong>Report versions</strong>: In response headers</li>
+                </ul>
+
+                <div class="callout callout-concept">
+                    <div class="callout-title">🎉 Part VIII Complete!</div>
+                    <p>
+                        Congratulations! You've completed <strong>Part VIII: Building Web APIs</strong>. You now
+                        understand:
+                    </p>
+                    <ul>
+                        <li>✅ RESTful principles and best practices</li>
+                        <li>✅ API controllers with [ApiController] attribute</li>
+                        <li>✅ Model binding from various sources</li>
+                        <li>✅ Validation with Data Annotations and FluentValidation</li>
+                        <li>✅ Minimal APIs for lightweight endpoints</li>
+                        <li>✅ DTOs and AutoMapper for separation of concerns</li>
+                        <li>✅ API versioning strategies</li>
+                    </ul>
+                    <p>
+                        You now have the skills to build professional, production-ready Web APIs in ASP.NET Core!
+                        Keep up the excellent work! 🚀
+                    </p>
+                </div>
+
+                <nav class="page-nav">
+                    <a href="06-dtos-automapper.html" class="prev">DTOs and AutoMapper</a>
+                    <a href="../index.html" class="next">Back to Roadmap</a>
+                </nav>
+
+            
+        <footer class="page-footer">
+          Built with 💜 by <a href="https://akwasi.dev" target="_blank" rel="noopener noreferrer">Akwasi Adu-Kyeremeh</a> for developers who want to truly understand what they're building.
+        </footer>
+
+      </div>
+        </main>
+    </div>
+</body>
+
+</html>

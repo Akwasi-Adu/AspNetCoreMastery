@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Code-First Migrations | ASP.NET Core Mastery</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;500&family=Source+Serif+4:ital,wght@0,400;0,600;1,400&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="../assets/style.css">
+</head>
+
+<body>
+    <div class="page-wrapper">
+        <aside class="sidebar">
+            <a href="../index.html" class="sidebar-logo">ASP.NET Core Mastery</a>
+            <div class="sidebar-section">Part IX: Entity Framework Core</div>
+            <ul class="sidebar-nav">
+                <li><a href="01-what-is-orm.html">What is an ORM?</a></li>
+                <li><a href="02-dbcontext-entities.html">DbContext and Entities</a></li>
+                <li><a href="03-code-first-migrations.html" class="active">Code-First Migrations</a></li>
+                <li><a href="04-querying-linq.html">Querying Data with LINQ</a></li>
+                <li><a href="05-relationships.html">Relationships</a></li>
+                <li><a href="06-loading-strategies.html">Loading Strategies</a></li>
+                <li><a href="07-advanced-ef-core.html">Advanced EF Core</a></li>
+            </ul>
+            <div class="sidebar-section">Resources</div>
+            <ul class="sidebar-nav">
+                <li><a href="../index.html">Full Roadmap</a></li>
+            </ul>
+        </aside>
+
+        <main class="main-content">
+            <div class="content-container">
+                <nav class="breadcrumb">
+                    <a href="../index.html">Home</a>
+                    <span>→</span>
+                    <a href="01-what-is-orm.html">Part IX: Entity Framework Core</a>
+                    <span>→</span>
+                    Code-First Migrations
+                </nav>
+
+                <div class="progress-indicator">
+                    <span>Section 3 of 7</span>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 42.86%"></div>
+                    </div>
+                </div>
+
+                <h1>Code-First Migrations</h1>
+
+                <div class="learning-objectives">
+                    <h3>🎯 What You'll Learn</h3>
+                    <ul>
+                        <li>What are migrations</li>
+                        <li>Creating migrations</li>
+                        <li>Applying migrations</li>
+                        <li>Updating the database</li>
+                        <li>Rolling back migrations</li>
+                        <li>Migration best practices</li>
+                    </ul>
+                </div>
+
+                <h2>What are Migrations?</h2>
+
+                <p>
+                    <strong>Migrations</strong> are a way to incrementally update your database schema to match
+                    your entity model while preserving existing data.
+                </p>
+
+                <h3>Why Use Migrations?</h3>
+
+                <ul>
+                    <li><strong>Version control</strong>: Track database schema changes</li>
+                    <li><strong>Team collaboration</strong>: Share schema changes via source control</li>
+                    <li><strong>Deployment</strong>: Apply changes to production databases</li>
+                    <li><strong>Rollback</strong>: Revert to previous schema versions</li>
+                    <li><strong>Data preservation</strong>: Update schema without losing data</li>
+                </ul>
+
+                <div class="section-divider"></div>
+
+                <h2>Installing EF Core Tools</h2>
+
+                <div class="code-header">
+                    <span class="code-filename">Install Tools</span>
+                    <span class="code-language">Bash</span>
+                </div>
+                <pre><code><span class="code-comment"># Install EF Core Tools globally</span>
+dotnet tool install --global dotnet-ef
+
+<span class="code-comment"># Or update if already installed</span>
+dotnet tool update --global dotnet-ef
+
+<span class="code-comment"># Add Design package to project</span>
+dotnet add package Microsoft.EntityFrameworkCore.Design</code></pre>
+
+                <div class="section-divider"></div>
+
+                <h2>Creating Your First Migration</h2>
+
+                <div class="code-header">
+                    <span class="code-filename">Create Initial Migration</span>
+                    <span class="code-language">Bash</span>
+                </div>
+                <pre><code>dotnet ef migrations add InitialCreate</code></pre>
+
+                <p>This creates a migration file in the <code>Migrations</code> folder:</p>
+
+                <div class="code-header">
+                    <span class="code-filename">Migrations/20240101000000_InitialCreate.cs</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-keyword">public</span> <span class="code-keyword">partial</span> <span class="code-keyword">class</span> <span class="code-class">InitialCreate</span> : <span class="code-class">Migration</span>
+{
+    <span class="code-keyword">protected</span> <span class="code-keyword">override</span> <span class="code-type">void</span> <span class="code-method">Up</span>(<span class="code-class">MigrationBuilder</span> <span class="code-variable">migrationBuilder</span>)
+    {
+        <span class="code-variable">migrationBuilder</span>.<span class="code-method">CreateTable</span>(
+            <span class="code-variable">name</span>: <span class="code-string">"Products"</span>,
+            <span class="code-variable">columns</span>: <span class="code-variable">table</span> => <span class="code-keyword">new</span>
+            {
+                <span class="code-variable">Id</span> = <span class="code-variable">table</span>.<span class="code-method">Column</span>&lt;<span class="code-type">int</span>&gt;(<span class="code-variable">nullable</span>: <span class="code-keyword">false</span>)
+                    .<span class="code-method">Annotation</span>(<span class="code-string">"SqlServer:Identity"</span>, <span class="code-string">"1, 1"</span>),
+                <span class="code-variable">Name</span> = <span class="code-variable">table</span>.<span class="code-method">Column</span>&lt;<span class="code-type">string</span>&gt;(<span class="code-variable">maxLength</span>: <span class="code-number">100</span>, <span class="code-variable">nullable</span>: <span class="code-keyword">false</span>),
+                <span class="code-variable">Price</span> = <span class="code-variable">table</span>.<span class="code-method">Column</span>&lt;<span class="code-type">decimal</span>&gt;(<span class="code-variable">type</span>: <span class="code-string">"decimal(18,2)"</span>, <span class="code-variable">nullable</span>: <span class="code-keyword">false</span>),
+                <span class="code-variable">Quantity</span> = <span class="code-variable">table</span>.<span class="code-method">Column</span>&lt;<span class="code-type">int</span>&gt;(<span class="code-variable">nullable</span>: <span class="code-keyword">false</span>)
+            },
+            <span class="code-variable">constraints</span>: <span class="code-variable">table</span> =>
+            {
+                <span class="code-variable">table</span>.<span class="code-method">PrimaryKey</span>(<span class="code-string">"PK_Products"</span>, <span class="code-variable">x</span> => <span class="code-variable">x</span>.<span class="code-variable">Id</span>);
+            });
+    }
+
+    <span class="code-keyword">protected</span> <span class="code-keyword">override</span> <span class="code-type">void</span> <span class="code-method">Down</span>(<span class="code-class">MigrationBuilder</span> <span class="code-variable">migrationBuilder</span>)
+    {
+        <span class="code-variable">migrationBuilder</span>.<span class="code-method">DropTable</span>(<span class="code-variable">name</span>: <span class="code-string">"Products"</span>);
+    }
+}</code></pre>
+
+                <div class="callout callout-info">
+                    <div class="callout-title">ℹ️ Migration Methods</div>
+                    <p>
+                        <strong>Up()</strong>: Applies the migration (creates tables, columns, etc.)<br>
+                        <strong>Down()</strong>: Reverts the migration (drops tables, columns, etc.)
+                    </p>
+                </div>
+
+                <div class="section-divider"></div>
+
+                <h2>Applying Migrations</h2>
+
+                <h3>Update Database</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">Apply All Pending Migrations</span>
+                    <span class="code-language">Bash</span>
+                </div>
+                <pre><code>dotnet ef database update</code></pre>
+
+                <p>This executes all pending migrations and creates/updates the database.</p>
+
+                <h3>Apply at Runtime</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">Program.cs</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-keyword">var</span> <span class="code-variable">app</span> = <span class="code-variable">builder</span>.<span class="code-method">Build</span>();
+
+<span class="code-comment">// Apply migrations on startup</span>
+<span class="code-keyword">using</span> (<span class="code-keyword">var</span> <span class="code-variable">scope</span> = <span class="code-variable">app</span>.<span class="code-variable">Services</span>.<span class="code-method">CreateScope</span>())
+{
+    <span class="code-keyword">var</span> <span class="code-variable">context</span> = <span class="code-variable">scope</span>.<span class="code-variable">ServiceProvider</span>.<span class="code-method">GetRequiredService</span>&lt;<span class="code-class">InvenTrackDbContext</span>&gt;();
+    <span class="code-variable">context</span>.<span class="code-variable">Database</span>.<span class="code-method">Migrate</span>();
+}
+
+<span class="code-variable">app</span>.<span class="code-method">Run</span>();</code></pre>
+
+                <div class="callout callout-warning">
+                    <div class="callout-title">⚠️ Production Warning</div>
+                    <p>
+                        Be careful applying migrations automatically in production. Consider using deployment
+                        scripts or manual application for better control.
+                    </p>
+                </div>
+
+                <div class="section-divider"></div>
+
+                <h2>Adding More Migrations</h2>
+
+                <h3>Modify Entity</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">Add Description Property</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">Product</span>
+{
+    <span class="code-keyword">public</span> <span class="code-type">int</span> <span class="code-variable">Id</span> { <span class="code-keyword">get</span>; <span class="code-keyword">set</span>; }
+    <span class="code-keyword">public</span> <span class="code-type">string</span> <span class="code-variable">Name</span> { <span class="code-keyword">get</span>; <span class="code-keyword">set</span>; } = <span class="code-keyword">string</span>.<span class="code-variable">Empty</span>;
+    <span class="code-keyword">public</span> <span class="code-type">decimal</span> <span class="code-variable">Price</span> { <span class="code-keyword">get</span>; <span class="code-keyword">set</span>; }
+    <span class="code-keyword">public</span> <span class="code-type">string</span>? <span class="code-variable">Description</span> { <span class="code-keyword">get</span>; <span class="code-keyword">set</span>; } <span class="code-comment">// NEW</span>
+    <span class="code-keyword">public</span> <span class="code-type">int</span> <span class="code-variable">Quantity</span> { <span class="code-keyword">get</span>; <span class="code-keyword">set</span>; }
+}</code></pre>
+
+                <h3>Create Migration</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">Add Migration</span>
+                    <span class="code-language">Bash</span>
+                </div>
+                <pre><code>dotnet ef migrations add AddProductDescription</code></pre>
+
+                <div class="code-header">
+                    <span class="code-filename">Generated Migration</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-keyword">public</span> <span class="code-keyword">partial</span> <span class="code-keyword">class</span> <span class="code-class">AddProductDescription</span> : <span class="code-class">Migration</span>
+{
+    <span class="code-keyword">protected</span> <span class="code-keyword">override</span> <span class="code-type">void</span> <span class="code-method">Up</span>(<span class="code-class">MigrationBuilder</span> <span class="code-variable">migrationBuilder</span>)
+    {
+        <span class="code-variable">migrationBuilder</span>.<span class="code-method">AddColumn</span>&lt;<span class="code-type">string</span>&gt;(
+            <span class="code-variable">name</span>: <span class="code-string">"Description"</span>,
+            <span class="code-variable">table</span>: <span class="code-string">"Products"</span>,
+            <span class="code-variable">maxLength</span>: <span class="code-number">500</span>,
+            <span class="code-variable">nullable</span>: <span class="code-keyword">true</span>);
+    }
+
+    <span class="code-keyword">protected</span> <span class="code-keyword">override</span> <span class="code-type">void</span> <span class="code-method">Down</span>(<span class="code-class">MigrationBuilder</span> <span class="code-variable">migrationBuilder</span>)
+    {
+        <span class="code-variable">migrationBuilder</span>.<span class="code-method">DropColumn</span>(
+            <span class="code-variable">name</span>: <span class="code-string">"Description"</span>,
+            <span class="code-variable">table</span>: <span class="code-string">"Products"</span>);
+    }
+}</code></pre>
+
+                <h3>Apply Migration</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">Update Database</span>
+                    <span class="code-language">Bash</span>
+                </div>
+                <pre><code>dotnet ef database update</code></pre>
+
+                <div class="section-divider"></div>
+
+                <h2>Common Migration Commands</h2>
+
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Command</th>
+                            <th>Description</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><code>dotnet ef migrations add [Name]</code></td>
+                            <td>Create a new migration</td>
+                        </tr>
+                        <tr>
+                            <td><code>dotnet ef database update</code></td>
+                            <td>Apply all pending migrations</td>
+                        </tr>
+                        <tr>
+                            <td><code>dotnet ef migrations list</code></td>
+                            <td>List all migrations</td>
+                        </tr>
+                        <tr>
+                            <td><code>dotnet ef migrations remove</code></td>
+                            <td>Remove last migration (if not applied)</td>
+                        </tr>
+                        <tr>
+                            <td><code>dotnet ef database update [Migration]</code></td>
+                            <td>Update to specific migration</td>
+                        </tr>
+                        <tr>
+                            <td><code>dotnet ef database update 0</code></td>
+                            <td>Revert all migrations</td>
+                        </tr>
+                        <tr>
+                            <td><code>dotnet ef migrations script</code></td>
+                            <td>Generate SQL script</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="section-divider"></div>
+
+                <h2>Rolling Back Migrations</h2>
+
+                <h3>Revert to Previous Migration</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">Rollback</span>
+                    <span class="code-language">Bash</span>
+                </div>
+                <pre><code><span class="code-comment"># Revert to specific migration</span>
+dotnet ef database update InitialCreate
+
+<span class="code-comment"># Revert all migrations</span>
+dotnet ef database update 0</code></pre>
+
+                <h3>Remove Last Migration</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">Remove Migration (Not Applied)</span>
+                    <span class="code-language">Bash</span>
+                </div>
+                <pre><code>dotnet ef migrations remove</code></pre>
+
+                <div class="section-divider"></div>
+
+                <h2>Generating SQL Scripts</h2>
+
+                <div class="code-header">
+                    <span class="code-filename">Generate SQL</span>
+                    <span class="code-language">Bash</span>
+                </div>
+                <pre><code><span class="code-comment"># Generate script for all migrations</span>
+dotnet ef migrations script
+
+<span class="code-comment"># Generate script from specific migration</span>
+dotnet ef migrations script InitialCreate AddProductDescription
+
+<span class="code-comment"># Generate idempotent script (safe to run multiple times)</span>
+dotnet ef migrations script --idempotent
+
+<span class="code-comment"># Output to file</span>
+dotnet ef migrations script -o migration.sql</code></pre>
+
+                <div class="section-divider"></div>
+
+                <h2>Seeding Data</h2>
+
+                <div class="code-header">
+                    <span class="code-filename">Seed Data in OnModelCreating</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-keyword">protected</span> <span class="code-keyword">override</span> <span class="code-type">void</span> <span class="code-method">OnModelCreating</span>(<span class="code-class">ModelBuilder</span> <span class="code-variable">modelBuilder</span>)
+{
+    <span class="code-variable">modelBuilder</span>.<span class="code-method">Entity</span>&lt;<span class="code-class">Category</span>&gt;().<span class="code-method">HasData</span>(
+        <span class="code-keyword">new</span> <span class="code-class">Category</span> { <span class="code-variable">Id</span> = <span class="code-number">1</span>, <span class="code-variable">Name</span> = <span class="code-string">"Electronics"</span> },
+        <span class="code-keyword">new</span> <span class="code-class">Category</span> { <span class="code-variable">Id</span> = <span class="code-number">2</span>, <span class="code-variable">Name</span> = <span class="code-string">"Furniture"</span> },
+        <span class="code-keyword">new</span> <span class="code-class">Category</span> { <span class="code-variable">Id</span> = <span class="code-number">3</span>, <span class="code-variable">Name</span> = <span class="code-string">"Office Supplies"</span> }
+    );
+
+    <span class="code-variable">modelBuilder</span>.<span class="code-method">Entity</span>&lt;<span class="code-class">Product</span>&gt;().<span class="code-method">HasData</span>(
+        <span class="code-keyword">new</span> <span class="code-class">Product</span> 
+        { 
+            <span class="code-variable">Id</span> = <span class="code-number">1</span>, 
+            <span class="code-variable">Name</span> = <span class="code-string">"Laptop"</span>, 
+            <span class="code-variable">Price</span> = <span class="code-number">999.99m</span>, 
+            <span class="code-variable">Quantity</span> = <span class="code-number">10</span>,
+            <span class="code-variable">CategoryId</span> = <span class="code-number">1</span>
+        },
+        <span class="code-keyword">new</span> <span class="code-class">Product</span> 
+        { 
+            <span class="code-variable">Id</span> = <span class="code-number">2</span>, 
+            <span class="code-variable">Name</span> = <span class="code-string">"Mouse"</span>, 
+            <span class="code-variable">Price</span> = <span class="code-number">29.99m</span>, 
+            <span class="code-variable">Quantity</span> = <span class="code-number">50</span>,
+            <span class="code-variable">CategoryId</span> = <span class="code-number">1</span>
+        }
+    );
+}</code></pre>
+
+                <p>After adding seed data, create a migration:</p>
+
+                <div class="code-header">
+                    <span class="code-filename">Create Seed Migration</span>
+                    <span class="code-language">Bash</span>
+                </div>
+                <pre><code>dotnet ef migrations add SeedData
+dotnet ef database update</code></pre>
+
+                <h2>Complete InvenTrack Example</h2>
+
+                <div class="code-header">
+                    <span class="code-filename">Workflow</span>
+                    <span class="code-language">Bash</span>
+                </div>
+                <pre><code><span class="code-comment"># 1. Install tools</span>
+dotnet tool install --global dotnet-ef
+dotnet add package Microsoft.EntityFrameworkCore.Design
+
+<span class="code-comment"># 2. Create initial migration</span>
+dotnet ef migrations add InitialCreate
+
+<span class="code-comment"># 3. Apply to database</span>
+dotnet ef database update
+
+<span class="code-comment"># 4. Make changes to entities...</span>
+
+<span class="code-comment"># 5. Create new migration</span>
+dotnet ef migrations add AddProductDescription
+
+<span class="code-comment"># 6. Apply changes</span>
+dotnet ef database update
+
+<span class="code-comment"># 7. View migration history</span>
+dotnet ef migrations list</code></pre>
+
+                <h2>Best Practices</h2>
+
+                <ul>
+                    <li><strong>Descriptive names</strong>: Use clear migration names (AddProductDescription)</li>
+                    <li><strong>Small migrations</strong>: Create focused, single-purpose migrations</li>
+                    <li><strong>Review generated code</strong>: Always check migration files</li>
+                    <li><strong>Source control</strong>: Commit migrations to version control</li>
+                    <li><strong>Test migrations</strong>: Test on development database first</li>
+                    <li><strong>Idempotent scripts</strong>: Use for production deployments</li>
+                    <li><strong>Backup first</strong>: Always backup production before migrating</li>
+                    <li><strong>Custom SQL</strong>: Add custom SQL in migrations when needed</li>
+                </ul>
+
+                <h2>Key Takeaways</h2>
+
+                <ul>
+                    <li><strong>Migrations</strong>: Version control for database schema</li>
+                    <li><strong>dotnet ef</strong>: Command-line tool for migrations</li>
+                    <li><strong>Up/Down</strong>: Apply and revert migrations</li>
+                    <li><strong>Add migration</strong>: Create new migration from model changes</li>
+                    <li><strong>Update database</strong>: Apply pending migrations</li>
+                    <li><strong>Rollback</strong>: Revert to previous migration</li>
+                    <li><strong>SQL scripts</strong>: Generate for manual deployment</li>
+                    <li><strong>Seed data</strong>: Use HasData() for initial data</li>
+                </ul>
+
+                <div class="callout callout-concept">
+                    <div class="callout-title">🎯 Next Steps</div>
+                    <p>
+                        You now understand Code-First Migrations! In the next section, we'll explore
+                        <strong>Querying Data with LINQ</strong>—how to retrieve and filter data from
+                        your database using C# LINQ syntax.
+                    </p>
+                </div>
+
+                <nav class="page-nav">
+                    <a href="02-dbcontext-entities.html" class="prev">DbContext and Entities</a>
+                    <a href="04-querying-linq.html" class="next">Querying Data with LINQ</a>
+                </nav>
+
+            
+        <footer class="page-footer">
+          Built with 💜 by <a href="https://akwasi.dev" target="_blank" rel="noopener noreferrer">Akwasi Adu-Kyeremeh</a> for developers who want to truly understand what they're building.
+        </footer>
+
+      </div>
+        </main>
+    </div>
+</body>
+
+</html>

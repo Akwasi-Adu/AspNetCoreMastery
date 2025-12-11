@@ -1,0 +1,556 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Constructor Injection | ASP.NET Core Mastery</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;500&family=Source+Serif+4:ital,wght@0,400;0,600;1,400&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="../assets/style.css">
+</head>
+
+<body>
+    <div class="page-wrapper">
+        <aside class="sidebar">
+            <a href="../index.html" class="sidebar-logo">ASP.NET Core Mastery</a>
+            <div class="sidebar-section">Part IV: Dependency Injection</div>
+            <ul class="sidebar-nav">
+                <li><a href="01-what-is-di.html">What is Dependency Injection?</a></li>
+                <li><a href="02-built-in-container.html">The Built-in DI Container</a></li>
+                <li><a href="03-service-lifetimes.html">Service Lifetimes</a></li>
+                <li><a href="04-registering-services.html">Registering Services</a></li>
+                <li><a href="05-constructor-injection.html" class="active">Constructor Injection</a></li>
+                <li><a href="06-common-patterns.html">Common DI Patterns</a></li>
+            </ul>
+            <div class="sidebar-section">Resources</div>
+            <ul class="sidebar-nav">
+                <li><a href="../index.html">Full Roadmap</a></li>
+            </ul>
+        </aside>
+
+        <main class="main-content">
+            <div class="content-container">
+                <nav class="breadcrumb">
+                    <a href="../index.html">Home</a>
+                    <span>→</span>
+                    <a href="01-what-is-di.html">Part IV: Dependency Injection</a>
+                    <span>→</span>
+                    Constructor Injection
+                </nav>
+
+                <div class="progress-indicator">
+                    <span>Section 5 of 6</span>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 83.33%"></div>
+                    </div>
+                </div>
+
+                <h1>Constructor Injection</h1>
+
+                <div class="learning-objectives">
+                    <h3>🎯 What You'll Learn</h3>
+                    <ul>
+                        <li>Why constructor injection is preferred</li>
+                        <li>Best practices for constructor injection</li>
+                        <li>Handling multiple dependencies</li>
+                        <li>Optional dependencies</li>
+                        <li>Avoiding constructor over-injection</li>
+                        <li>Null checking and validation</li>
+                        <li>Primary constructors (C# 12)</li>
+                        <li>Common patterns for InvenTrack</li>
+                    </ul>
+                </div>
+
+                <h2>Why Constructor Injection?</h2>
+
+                <p>
+                    <strong>Constructor injection</strong> is the recommended way to inject dependencies because:
+                </p>
+
+                <ul>
+                    <li><strong>Explicit dependencies</strong>: Clear what a class needs</li>
+                    <li><strong>Immutability</strong>: Dependencies can't change after construction</li>
+                    <li><strong>Testability</strong>: Easy to provide mocks in tests</li>
+                    <li><strong>Fail-fast</strong>: Missing dependencies cause immediate errors</li>
+                    <li><strong>No nulls</strong>: Dependencies are guaranteed to exist</li>
+                </ul>
+
+                <div class="section-divider"></div>
+
+                <h2>Basic Constructor Injection</h2>
+
+                <div class="code-header">
+                    <span class="code-filename">Simple Example</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">ProductService</span> : <span class="code-class">IProductService</span>
+{
+    <span class="code-keyword">private</span> <span class="code-keyword">readonly</span> <span class="code-class">IProductRepository</span> <span class="code-variable">_repository</span>;
+    <span class="code-keyword">private</span> <span class="code-keyword">readonly</span> <span class="code-class">ILogger</span>&lt;<span class="code-class">ProductService</span>&gt; <span class="code-variable">_logger</span>;
+
+    <span class="code-keyword">public</span> <span class="code-method">ProductService</span>(
+        <span class="code-class">IProductRepository</span> <span class="code-variable">repository</span>,
+        <span class="code-class">ILogger</span>&lt;<span class="code-class">ProductService</span>&gt; <span class="code-variable">logger</span>)
+    {
+        <span class="code-variable">_repository</span> = <span class="code-variable">repository</span>;
+        <span class="code-variable">_logger</span> = <span class="code-variable">logger</span>;
+    }
+
+    <span class="code-keyword">public</span> <span class="code-keyword">async</span> <span class="code-class">Task</span>&lt;<span class="code-class">Product</span>?&gt; <span class="code-method">GetByIdAsync</span>(<span class="code-type">int</span> <span class="code-variable">id</span>)
+    {
+        <span class="code-variable">_logger</span>.<span class="code-method">LogInformation</span>(<span class="code-string">"Getting product with ID </span>{<span class="code-variable">Id</span>}<span class="code-string">"</span>, <span class="code-variable">id</span>);
+        <span class="code-keyword">return</span> <span class="code-keyword">await</span> <span class="code-variable">_repository</span>.<span class="code-method">GetByIdAsync</span>(<span class="code-variable">id</span>);
+    }
+}</code></pre>
+
+                <div class="callout callout-tip">
+                    <div class="callout-title">💡 Readonly Fields</div>
+                    <p>
+                        Always use <code>readonly</code> for injected dependencies. This ensures they can't be
+                        accidentally reassigned after construction.
+                    </p>
+                </div>
+
+                <div class="section-divider"></div>
+
+                <h2>Multiple Dependencies</h2>
+
+                <p>
+                    It's common to inject multiple dependencies:
+                </p>
+
+                <div class="code-header">
+                    <span class="code-filename">Multiple Dependencies</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">OrderService</span> : <span class="code-class">IOrderService</span>
+{
+    <span class="code-keyword">private</span> <span class="code-keyword">readonly</span> <span class="code-class">IOrderRepository</span> <span class="code-variable">_orderRepository</span>;
+    <span class="code-keyword">private</span> <span class="code-keyword">readonly</span> <span class="code-class">IProductRepository</span> <span class="code-variable">_productRepository</span>;
+    <span class="code-keyword">private</span> <span class="code-keyword">readonly</span> <span class="code-class">ICustomerRepository</span> <span class="code-variable">_customerRepository</span>;
+    <span class="code-keyword">private</span> <span class="code-keyword">readonly</span> <span class="code-class">IEmailService</span> <span class="code-variable">_emailService</span>;
+    <span class="code-keyword">private</span> <span class="code-keyword">readonly</span> <span class="code-class">ILogger</span>&lt;<span class="code-class">OrderService</span>&gt; <span class="code-variable">_logger</span>;
+
+    <span class="code-keyword">public</span> <span class="code-method">OrderService</span>(
+        <span class="code-class">IOrderRepository</span> <span class="code-variable">orderRepository</span>,
+        <span class="code-class">IProductRepository</span> <span class="code-variable">productRepository</span>,
+        <span class="code-class">ICustomerRepository</span> <span class="code-variable">customerRepository</span>,
+        <span class="code-class">IEmailService</span> <span class="code-variable">emailService</span>,
+        <span class="code-class">ILogger</span>&lt;<span class="code-class">OrderService</span>&gt; <span class="code-variable">logger</span>)
+    {
+        <span class="code-variable">_orderRepository</span> = <span class="code-variable">orderRepository</span>;
+        <span class="code-variable">_productRepository</span> = <span class="code-variable">productRepository</span>;
+        <span class="code-variable">_customerRepository</span> = <span class="code-variable">customerRepository</span>;
+        <span class="code-variable">_emailService</span> = <span class="code-variable">emailService</span>;
+        <span class="code-variable">_logger</span> = <span class="code-variable">logger</span>;
+    }
+}</code></pre>
+
+                <div class="callout callout-warning">
+                    <div class="callout-title">⚠️ Too Many Dependencies?</div>
+                    <p>
+                        If you have more than 5-6 dependencies, your class might be doing too much. Consider
+                        splitting it into smaller, focused services (Single Responsibility Principle).
+                    </p>
+                </div>
+
+                <div class="section-divider"></div>
+
+                <h2>Optional Dependencies</h2>
+
+                <p>
+                    Sometimes a dependency is optional. You can handle this in two ways:
+                </p>
+
+                <h3>Method 1: Nullable Parameter (Not Recommended)</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">❌ Nullable Injection</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">ProductService</span>
+{
+    <span class="code-keyword">private</span> <span class="code-keyword">readonly</span> <span class="code-class">ICacheService</span>? <span class="code-variable">_cache</span>;
+
+    <span class="code-keyword">public</span> <span class="code-method">ProductService</span>(<span class="code-class">ICacheService</span>? <span class="code-variable">cache</span> = <span class="code-keyword">null</span>)
+    {
+        <span class="code-variable">_cache</span> = <span class="code-variable">cache</span>;
+    }
+
+    <span class="code-keyword">public</span> <span class="code-keyword">async</span> <span class="code-class">Task</span>&lt;<span class="code-class">Product</span>?&gt; <span class="code-method">GetByIdAsync</span>(<span class="code-type">int</span> <span class="code-variable">id</span>)
+    {
+        <span class="code-keyword">if</span> (<span class="code-variable">_cache</span> != <span class="code-keyword">null</span>)
+        {
+            <span class="code-keyword">var</span> <span class="code-variable">cached</span> = <span class="code-keyword">await</span> <span class="code-variable">_cache</span>.<span class="code-method">GetAsync</span>&lt;<span class="code-class">Product</span>&gt;(<span class="code-string">$"product:</span>{<span class="code-variable">id</span>}<span class="code-string">"</span>);
+            <span class="code-keyword">if</span> (<span class="code-variable">cached</span> != <span class="code-keyword">null</span>) <span class="code-keyword">return</span> <span class="code-variable">cached</span>;
+        }
+        
+        <span class="code-comment">// Get from database...</span>
+    }
+}</code></pre>
+
+                <p><strong>Problem</strong>: Null checks everywhere, harder to test.</p>
+
+                <h3>Method 2: Null Object Pattern (Recommended)</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">✅ Null Object Pattern</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-comment">// Null implementation that does nothing</span>
+<span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">NullCacheService</span> : <span class="code-class">ICacheService</span>
+{
+    <span class="code-keyword">public</span> <span class="code-class">Task</span>&lt;<span class="code-class">T</span>?&gt; <span class="code-method">GetAsync</span>&lt;<span class="code-class">T</span>&gt;(<span class="code-type">string</span> <span class="code-variable">key</span>) =&gt; <span class="code-class">Task</span>.<span class="code-method">FromResult</span>&lt;<span class="code-class">T</span>?&gt;(<span class="code-keyword">default</span>);
+    <span class="code-keyword">public</span> <span class="code-class">Task</span> <span class="code-method">SetAsync</span>&lt;<span class="code-class">T</span>&gt;(<span class="code-type">string</span> <span class="code-variable">key</span>, <span class="code-class">T</span> <span class="code-variable">value</span>) =&gt; <span class="code-class">Task</span>.<span class="code-variable">CompletedTask</span>;
+}
+
+<span class="code-comment">// Register the null implementation when caching is disabled</span>
+<span class="code-keyword">if</span> (<span class="code-variable">builder</span>.<span class="code-variable">Configuration</span>.<span class="code-method">GetValue</span>&lt;<span class="code-type">bool</span>&gt;(<span class="code-string">"EnableCaching"</span>))
+{
+    <span class="code-variable">builder</span>.<span class="code-variable">Services</span>.<span class="code-method">AddSingleton</span>&lt;<span class="code-class">ICacheService</span>, <span class="code-class">RedisCacheService</span>&gt;();
+}
+<span class="code-keyword">else</span>
+{
+    <span class="code-variable">builder</span>.<span class="code-variable">Services</span>.<span class="code-method">AddSingleton</span>&lt;<span class="code-class">ICacheService</span>, <span class="code-class">NullCacheService</span>&gt;();
+}
+
+<span class="code-comment">// Now ProductService always has a cache, no null checks needed!</span>
+<span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">ProductService</span>
+{
+    <span class="code-keyword">private</span> <span class="code-keyword">readonly</span> <span class="code-class">ICacheService</span> <span class="code-variable">_cache</span>; <span class="code-comment">// No nullable!</span>
+
+    <span class="code-keyword">public</span> <span class="code-method">ProductService</span>(<span class="code-class">ICacheService</span> <span class="code-variable">cache</span>)
+    {
+        <span class="code-variable">_cache</span> = <span class="code-variable">cache</span>;
+    }
+}</code></pre>
+
+                <div class="section-divider"></div>
+
+                <h2>Null Checking and Validation</h2>
+
+                <h3>Traditional Null Checks</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">Manual Validation</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">ProductService</span>
+{
+    <span class="code-keyword">private</span> <span class="code-keyword">readonly</span> <span class="code-class">IProductRepository</span> <span class="code-variable">_repository</span>;
+
+    <span class="code-keyword">public</span> <span class="code-method">ProductService</span>(<span class="code-class">IProductRepository</span> <span class="code-variable">repository</span>)
+    {
+        <span class="code-variable">_repository</span> = <span class="code-variable">repository</span> ?? <span class="code-keyword">throw</span> <span class="code-keyword">new</span> <span class="code-class">ArgumentNullException</span>(<span class="code-keyword">nameof</span>(<span class="code-variable">repository</span>));
+    }
+}</code></pre>
+
+                <h3>C# 11: Required Members (Not for DI)</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">❌ Don't Use Required for DI</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-comment">// This doesn't work with DI container!</span>
+<span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">ProductService</span>
+{
+    <span class="code-keyword">public</span> <span class="code-keyword">required</span> <span class="code-class">IProductRepository</span> <span class="code-variable">Repository</span> { <span class="code-keyword">get</span>; <span class="code-keyword">set</span>; }
+}</code></pre>
+
+                <h3>Modern Approach: Trust the Container</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">✅ Simple and Clean</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">ProductService</span>
+{
+    <span class="code-keyword">private</span> <span class="code-keyword">readonly</span> <span class="code-class">IProductRepository</span> <span class="code-variable">_repository</span>;
+
+    <span class="code-keyword">public</span> <span class="code-method">ProductService</span>(<span class="code-class">IProductRepository</span> <span class="code-variable">repository</span>)
+    {
+        <span class="code-variable">_repository</span> = <span class="code-variable">repository</span>; <span class="code-comment">// No null check needed!</span>
+    }
+}</code></pre>
+
+                <div class="callout callout-info">
+                    <div class="callout-title">ℹ️ Why No Null Checks?</div>
+                    <p>
+                        The DI container guarantees that all dependencies are resolved. If a dependency is missing,
+                        the app fails at startup (fail-fast), not at runtime. Null checks are redundant.
+                    </p>
+                </div>
+
+                <div class="section-divider"></div>
+
+                <h2>Primary Constructors (C# 12)</h2>
+
+                <p>
+                    C# 12 introduced <strong>primary constructors</strong> for classes, which can simplify DI:
+                </p>
+
+                <h3>Traditional Constructor</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">Before C# 12</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">ProductService</span> : <span class="code-class">IProductService</span>
+{
+    <span class="code-keyword">private</span> <span class="code-keyword">readonly</span> <span class="code-class">IProductRepository</span> <span class="code-variable">_repository</span>;
+    <span class="code-keyword">private</span> <span class="code-keyword">readonly</span> <span class="code-class">ILogger</span>&lt;<span class="code-class">ProductService</span>&gt; <span class="code-variable">_logger</span>;
+
+    <span class="code-keyword">public</span> <span class="code-method">ProductService</span>(
+        <span class="code-class">IProductRepository</span> <span class="code-variable">repository</span>,
+        <span class="code-class">ILogger</span>&lt;<span class="code-class">ProductService</span>&gt; <span class="code-variable">logger</span>)
+    {
+        <span class="code-variable">_repository</span> = <span class="code-variable">repository</span>;
+        <span class="code-variable">_logger</span> = <span class="code-variable">logger</span>;
+    }
+
+    <span class="code-keyword">public</span> <span class="code-keyword">async</span> <span class="code-class">Task</span>&lt;<span class="code-class">Product</span>?&gt; <span class="code-method">GetByIdAsync</span>(<span class="code-type">int</span> <span class="code-variable">id</span>)
+    {
+        <span class="code-variable">_logger</span>.<span class="code-method">LogInformation</span>(<span class="code-string">"Getting product </span>{<span class="code-variable">Id</span>}<span class="code-string">"</span>, <span class="code-variable">id</span>);
+        <span class="code-keyword">return</span> <span class="code-keyword">await</span> <span class="code-variable">_repository</span>.<span class="code-method">GetByIdAsync</span>(<span class="code-variable">id</span>);
+    }
+}</code></pre>
+
+                <h3>Primary Constructor</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">C# 12 Primary Constructor</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">ProductService</span>(
+    <span class="code-class">IProductRepository</span> <span class="code-variable">repository</span>,
+    <span class="code-class">ILogger</span>&lt;<span class="code-class">ProductService</span>&gt; <span class="code-variable">logger</span>) : <span class="code-class">IProductService</span>
+{
+    <span class="code-keyword">public</span> <span class="code-keyword">async</span> <span class="code-class">Task</span>&lt;<span class="code-class">Product</span>?&gt; <span class="code-method">GetByIdAsync</span>(<span class="code-type">int</span> <span class="code-variable">id</span>)
+    {
+        <span class="code-variable">logger</span>.<span class="code-method">LogInformation</span>(<span class="code-string">"Getting product </span>{<span class="code-variable">Id</span>}<span class="code-string">"</span>, <span class="code-variable">id</span>);
+        <span class="code-keyword">return</span> <span class="code-keyword">await</span> <span class="code-variable">repository</span>.<span class="code-method">GetByIdAsync</span>(<span class="code-variable">id</span>);
+    }
+}</code></pre>
+
+                <p>
+                    <strong>Benefits</strong>: Less boilerplate, no field declarations or assignments needed!
+                </p>
+
+                <div class="callout callout-warning">
+                    <div class="callout-title">⚠️ Primary Constructor Gotcha</div>
+                    <p>
+                        Primary constructor parameters are <strong>not readonly</strong> and can be captured by
+                        lambdas/closures, which may cause unexpected behavior. Use with caution in complex scenarios.
+                    </p>
+                </div>
+
+                <div class="section-divider"></div>
+
+                <h2>Avoiding Constructor Over-Injection</h2>
+
+                <p>
+                    If your constructor has too many parameters, consider these solutions:
+                </p>
+
+                <h3>1. Split the Class</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">Before: Too Many Responsibilities</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">OrderService</span>
+{
+    <span class="code-comment">// 8 dependencies - too many!</span>
+    <span class="code-keyword">public</span> <span class="code-method">OrderService</span>(
+        <span class="code-class">IOrderRepository</span> <span class="code-variable">orderRepo</span>,
+        <span class="code-class">IProductRepository</span> <span class="code-variable">productRepo</span>,
+        <span class="code-class">ICustomerRepository</span> <span class="code-variable">customerRepo</span>,
+        <span class="code-class">IInventoryService</span> <span class="code-variable">inventoryService</span>,
+        <span class="code-class">IEmailService</span> <span class="code-variable">emailService</span>,
+        <span class="code-class">IPaymentService</span> <span class="code-variable">paymentService</span>,
+        <span class="code-class">IShippingService</span> <span class="code-variable">shippingService</span>,
+        <span class="code-class">ILogger</span>&lt;<span class="code-class">OrderService</span>&gt; <span class="code-variable">logger</span>) { }
+}</code></pre>
+
+                <div class="code-header">
+                    <span class="code-filename">After: Split into Focused Services</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">OrderCreationService</span>
+{
+    <span class="code-keyword">public</span> <span class="code-method">OrderCreationService</span>(
+        <span class="code-class">IOrderRepository</span> <span class="code-variable">orderRepo</span>,
+        <span class="code-class">IInventoryService</span> <span class="code-variable">inventoryService</span>,
+        <span class="code-class">ILogger</span>&lt;<span class="code-class">OrderCreationService</span>&gt; <span class="code-variable">logger</span>) { }
+}
+
+<span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">OrderFulfillmentService</span>
+{
+    <span class="code-keyword">public</span> <span class="code-method">OrderFulfillmentService</span>(
+        <span class="code-class">IOrderRepository</span> <span class="code-variable">orderRepo</span>,
+        <span class="code-class">IPaymentService</span> <span class="code-variable">paymentService</span>,
+        <span class="code-class">IShippingService</span> <span class="code-variable">shippingService</span>,
+        <span class="code-class">IEmailService</span> <span class="code-variable">emailService</span>,
+        <span class="code-class">ILogger</span>&lt;<span class="code-class">OrderFulfillmentService</span>&gt; <span class="code-variable">logger</span>) { }
+}</code></pre>
+
+                <h3>2. Use Facade Pattern</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">Facade to Group Related Services</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-keyword">public</span> <span class="code-keyword">interface</span> <span class="code-class">INotificationFacade</span>
+{
+    <span class="code-class">Task</span> <span class="code-method">SendOrderConfirmationAsync</span>(<span class="code-class">Order</span> <span class="code-variable">order</span>);
+}
+
+<span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">NotificationFacade</span> : <span class="code-class">INotificationFacade</span>
+{
+    <span class="code-keyword">private</span> <span class="code-keyword">readonly</span> <span class="code-class">IEmailService</span> <span class="code-variable">_emailService</span>;
+    <span class="code-keyword">private</span> <span class="code-keyword">readonly</span> <span class="code-class">ISmsService</span> <span class="code-variable">_smsService</span>;
+    <span class="code-keyword">private</span> <span class="code-keyword">readonly</span> <span class="code-class">IPushNotificationService</span> <span class="code-variable">_pushService</span>;
+
+    <span class="code-keyword">public</span> <span class="code-method">NotificationFacade</span>(
+        <span class="code-class">IEmailService</span> <span class="code-variable">emailService</span>,
+        <span class="code-class">ISmsService</span> <span class="code-variable">smsService</span>,
+        <span class="code-class">IPushNotificationService</span> <span class="code-variable">pushService</span>)
+    {
+        <span class="code-variable">_emailService</span> = <span class="code-variable">emailService</span>;
+        <span class="code-variable">_smsService</span> = <span class="code-variable">smsService</span>;
+        <span class="code-variable">_pushService</span> = <span class="code-variable">pushService</span>;
+    }
+
+    <span class="code-keyword">public</span> <span class="code-keyword">async</span> <span class="code-class">Task</span> <span class="code-method">SendOrderConfirmationAsync</span>(<span class="code-class">Order</span> <span class="code-variable">order</span>)
+    {
+        <span class="code-keyword">await</span> <span class="code-variable">_emailService</span>.<span class="code-method">SendAsync</span>(<span class="code-variable">order</span>.<span class="code-variable">CustomerEmail</span>, <span class="code-string">"Order confirmed"</span>);
+        <span class="code-keyword">await</span> <span class="code-variable">_smsService</span>.<span class="code-method">SendAsync</span>(<span class="code-variable">order</span>.<span class="code-variable">CustomerPhone</span>, <span class="code-string">"Order confirmed"</span>);
+    }
+}
+
+<span class="code-comment">// Now OrderService only needs INotificationFacade</span>
+<span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">OrderService</span>
+{
+    <span class="code-keyword">public</span> <span class="code-method">OrderService</span>(
+        <span class="code-class">IOrderRepository</span> <span class="code-variable">orderRepo</span>,
+        <span class="code-class">INotificationFacade</span> <span class="code-variable">notifications</span>) { }
+}</code></pre>
+
+                <div class="section-divider"></div>
+
+                <h2>Complete InvenTrack Examples</h2>
+
+                <h3>Controller with DI</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">ProductsController.cs</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code>[<span class="code-class">ApiController</span>]
+[<span class="code-class">Route</span>(<span class="code-string">"api/[controller]"</span>)]
+<span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">ProductsController</span> : <span class="code-class">ControllerBase</span>
+{
+    <span class="code-keyword">private</span> <span class="code-keyword">readonly</span> <span class="code-class">IProductService</span> <span class="code-variable">_productService</span>;
+    <span class="code-keyword">private</span> <span class="code-keyword">readonly</span> <span class="code-class">ILogger</span>&lt;<span class="code-class">ProductsController</span>&gt; <span class="code-variable">_logger</span>;
+
+    <span class="code-keyword">public</span> <span class="code-method">ProductsController</span>(
+        <span class="code-class">IProductService</span> <span class="code-variable">productService</span>,
+        <span class="code-class">ILogger</span>&lt;<span class="code-class">ProductsController</span>&gt; <span class="code-variable">logger</span>)
+    {
+        <span class="code-variable">_productService</span> = <span class="code-variable">productService</span>;
+        <span class="code-variable">_logger</span> = <span class="code-variable">logger</span>;
+    }
+
+    [<span class="code-class">HttpGet</span>(<span class="code-string">"{id}"</span>)]
+    <span class="code-keyword">public</span> <span class="code-keyword">async</span> <span class="code-class">Task</span>&lt;<span class="code-class">ActionResult</span>&lt;<span class="code-class">Product</span>&gt;&gt; <span class="code-method">GetById</span>(<span class="code-type">int</span> <span class="code-variable">id</span>)
+    {
+        <span class="code-variable">_logger</span>.<span class="code-method">LogInformation</span>(<span class="code-string">"Getting product </span>{<span class="code-variable">Id</span>}<span class="code-string">"</span>, <span class="code-variable">id</span>);
+        
+        <span class="code-keyword">var</span> <span class="code-variable">product</span> = <span class="code-keyword">await</span> <span class="code-variable">_productService</span>.<span class="code-method">GetByIdAsync</span>(<span class="code-variable">id</span>);
+        
+        <span class="code-keyword">if</span> (<span class="code-variable">product</span> == <span class="code-keyword">null</span>)
+            <span class="code-keyword">return</span> <span class="code-method">NotFound</span>();
+        
+        <span class="code-keyword">return</span> <span class="code-method">Ok</span>(<span class="code-variable">product</span>);
+    }
+}</code></pre>
+
+                <h3>Service with Multiple Dependencies</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">InventoryService.cs</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">InventoryService</span> : <span class="code-class">IInventoryService</span>
+{
+    <span class="code-keyword">private</span> <span class="code-keyword">readonly</span> <span class="code-class">IProductRepository</span> <span class="code-variable">_productRepository</span>;
+    <span class="code-keyword">private</span> <span class="code-keyword">readonly</span> <span class="code-class">IEmailService</span> <span class="code-variable">_emailService</span>;
+    <span class="code-keyword">private</span> <span class="code-keyword">readonly</span> <span class="code-class">ILogger</span>&lt;<span class="code-class">InventoryService</span>&gt; <span class="code-variable">_logger</span>;
+
+    <span class="code-keyword">public</span> <span class="code-method">InventoryService</span>(
+        <span class="code-class">IProductRepository</span> <span class="code-variable">productRepository</span>,
+        <span class="code-class">IEmailService</span> <span class="code-variable">emailService</span>,
+        <span class="code-class">ILogger</span>&lt;<span class="code-class">InventoryService</span>&gt; <span class="code-variable">logger</span>)
+    {
+        <span class="code-variable">_productRepository</span> = <span class="code-variable">productRepository</span>;
+        <span class="code-variable">_emailService</span> = <span class="code-variable">emailService</span>;
+        <span class="code-variable">_logger</span> = <span class="code-variable">logger</span>;
+    }
+
+    <span class="code-keyword">public</span> <span class="code-keyword">async</span> <span class="code-class">Task</span> <span class="code-method">CheckLowStockAsync</span>()
+    {
+        <span class="code-keyword">var</span> <span class="code-variable">lowStockProducts</span> = <span class="code-keyword">await</span> <span class="code-variable">_productRepository</span>
+            .<span class="code-method">GetLowStockProductsAsync</span>(<span class="code-variable">threshold</span>: <span class="code-number">10</span>);
+
+        <span class="code-keyword">foreach</span> (<span class="code-keyword">var</span> <span class="code-variable">product</span> <span class="code-keyword">in</span> <span class="code-variable">lowStockProducts</span>)
+        {
+            <span class="code-variable">_logger</span>.<span class="code-method">LogWarning</span>(<span class="code-string">"Low stock: </span>{<span class="code-variable">Product</span>}<span class="code-string">"</span>, <span class="code-variable">product</span>.<span class="code-variable">Name</span>);
+            <span class="code-keyword">await</span> <span class="code-variable">_emailService</span>.<span class="code-method">SendLowStockAlertAsync</span>(<span class="code-variable">product</span>);
+        }
+    }
+}</code></pre>
+
+                <h2>Key Takeaways</h2>
+
+                <ul>
+                    <li><strong>Constructor injection</strong> is the preferred DI method</li>
+                    <li>Use <code>readonly</code> fields for injected dependencies</li>
+                    <li>Dependencies are explicit and immutable</li>
+                    <li>No null checks needed—trust the container</li>
+                    <li>For optional dependencies, use the <strong>Null Object Pattern</strong></li>
+                    <li><strong>Primary constructors</strong> (C# 12) reduce boilerplate</li>
+                    <li>More than 5-6 dependencies? Consider splitting the class</li>
+                    <li>Use <strong>Facade pattern</strong> to group related services</li>
+                    <li>Fail-fast: Missing dependencies cause startup errors</li>
+                    <li>Keep constructors simple—just assign dependencies</li>
+                </ul>
+
+                <div class="callout callout-concept">
+                    <div class="callout-title">🎯 Next Steps</div>
+                    <p>
+                        You now understand constructor injection best practices! In the final section, we'll
+                        explore <strong>Common DI Patterns</strong>—factory pattern, strategy pattern, chain of
+                        responsibility, and other advanced techniques for building InvenTrack.
+                    </p>
+                </div>
+
+                <nav class="page-nav">
+                    <a href="04-registering-services.html" class="prev">Registering Services</a>
+                    <a href="06-common-patterns.html" class="next">Common DI Patterns</a>
+                </nav>
+
+            
+        <footer class="page-footer">
+          Built with 💜 by <a href="https://akwasi.dev" target="_blank" rel="noopener noreferrer">Akwasi Adu-Kyeremeh</a> for developers who want to truly understand what they're building.
+        </footer>
+
+      </div>
+        </main>
+    </div>
+</body>
+
+</html>

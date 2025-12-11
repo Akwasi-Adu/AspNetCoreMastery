@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Claims-Based Authorization | ASP.NET Core Mastery</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;500&family=Source+Serif+4:ital,wght@0,400;0,600;1,400&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="../assets/style.css">
+</head>
+
+<body>
+    <div class="page-wrapper">
+        <aside class="sidebar">
+            <a href="../index.html" class="sidebar-logo">ASP.NET Core Mastery</a>
+            <div class="sidebar-section">Part XIII: Authorization</div>
+            <ul class="sidebar-nav">
+                <li><a href="01-authorization-fundamentals.html">Authorization Fundamentals</a></li>
+                <li><a href="02-role-based-authorization.html">Role-Based Authorization</a></li>
+                <li><a href="03-claims-based-authorization.html" class="active">Claims-Based Authorization</a></li>
+                <li><a href="04-policy-based-authorization.html">Policy-Based Authorization</a></li>
+                <li><a href="05-resource-based-authorization.html">Resource-Based Authorization</a></li>
+                <li><a href="06-custom-authorization-handlers.html">Custom Authorization Handlers</a></li>
+            </ul>
+            <div class="sidebar-section">Resources</div>
+            <ul class="sidebar-nav">
+                <li><a href="../index.html">Full Roadmap</a></li>
+            </ul>
+        </aside>
+
+        <main class="main-content">
+            <div class="content-container">
+                <nav class="breadcrumb">
+                    <a href="../index.html">Home</a>
+                    <span>→</span>
+                    <a href="01-authorization-fundamentals.html">Part XIII: Authorization</a>
+                    <span>→</span>
+                    Claims-Based Authorization
+                </nav>
+
+                <div class="progress-indicator">
+                    <span>Section 3 of 6</span>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 50%"></div>
+                    </div>
+                </div>
+
+                <h1>Claims-Based Authorization</h1>
+
+                <div class="learning-objectives">
+                    <h3>🎯 What You'll Learn</h3>
+                    <ul>
+                        <li>What are claims</li>
+                        <li>Adding claims to users</li>
+                        <li>RequireClaim policy</li>
+                        <li>Checking claims in code</li>
+                        <li>Claims vs roles</li>
+                    </ul>
+                </div>
+
+                <h2>What are Claims?</h2>
+
+                <p>
+                    <strong>Claims</strong> are key-value pairs that describe the user (name, email, department, etc.).
+                    They provide more granular authorization than roles.
+                </p>
+
+                <div class="section-divider"></div>
+
+                <h2>Adding Claims to Users</h2>
+
+                <div class="code-header">
+                    <span class="code-filename">Add Claims</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-keyword">var</span> <span class="code-variable">claims</span> = <span class="code-keyword">new</span> <span class="code-class">List</span>&lt;<span class="code-class">Claim</span>&gt;
+{
+    <span class="code-keyword">new</span> <span class="code-class">Claim</span>(<span class="code-string">"Department"</span>, <span class="code-string">"IT"</span>),
+    <span class="code-keyword">new</span> <span class="code-class">Claim</span>(<span class="code-string">"EmployeeNumber"</span>, <span class="code-string">"12345"</span>),
+    <span class="code-keyword">new</span> <span class="code-class">Claim</span>(<span class="code-string">"CanEditProducts"</span>, <span class="code-string">"true"</span>)
+};
+
+<span class="code-keyword">await</span> <span class="code-variable">_userManager</span>.<span class="code-method">AddClaimsAsync</span>(<span class="code-variable">user</span>, <span class="code-variable">claims</span>);</code></pre>
+
+                <div class="section-divider"></div>
+
+                <h2>RequireClaim Policy</h2>
+
+                <div class="code-header">
+                    <span class="code-filename">Program.cs</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-variable">builder</span>.<span class="code-variable">Services</span>.<span class="code-method">AddAuthorization</span>(<span class="code-variable">options</span> =>
+{
+    <span class="code-variable">options</span>.<span class="code-method">AddPolicy</span>(<span class="code-string">"ITDepartment"</span>, <span class="code-variable">policy</span> =>
+        <span class="code-variable">policy</span>.<span class="code-method">RequireClaim</span>(<span class="code-string">"Department"</span>, <span class="code-string">"IT"</span>));
+
+    <span class="code-variable">options</span>.<span class="code-method">AddPolicy</span>(<span class="code-string">"CanEditProducts"</span>, <span class="code-variable">policy</span> =>
+        <span class="code-variable">policy</span>.<span class="code-method">RequireClaim</span>(<span class="code-string">"CanEditProducts"</span>, <span class="code-string">"true"</span>));
+});</code></pre>
+
+                <div class="section-divider"></div>
+
+                <h2>Using Claim Policies</h2>
+
+                <div class="code-header">
+                    <span class="code-filename">[Authorize(Policy)]</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code>[<span class="code-class">Authorize</span>(<span class="code-variable">Policy</span> = <span class="code-string">"ITDepartment"</span>)]
+<span class="code-keyword">public</span> <span class="code-class">IActionResult</span> <span class="code-method">ITDashboard</span>()
+{
+    <span class="code-keyword">return</span> <span class="code-method">View</span>();
+}
+
+[<span class="code-class">Authorize</span>(<span class="code-variable">Policy</span> = <span class="code-string">"CanEditProducts"</span>)]
+<span class="code-keyword">public</span> <span class="code-class">IActionResult</span> <span class="code-method">EditProduct</span>()
+{
+    <span class="code-keyword">return</span> <span class="code-method">View</span>();
+}</code></pre>
+
+                <div class="section-divider"></div>
+
+                <h2>Checking Claims in Code</h2>
+
+                <div class="code-header">
+                    <span class="code-filename">Check Claim</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-keyword">if</span> (<span class="code-variable">User</span>.<span class="code-method">HasClaim</span>(<span class="code-string">"Department"</span>, <span class="code-string">"IT"</span>))
+{
+    <span class="code-comment">// IT department logic</span>
+}
+
+<span class="code-comment">// Get claim value</span>
+<span class="code-keyword">var</span> <span class="code-variable">department</span> = <span class="code-variable">User</span>.<span class="code-method">FindFirst</span>(<span class="code-string">"Department"</span>)?.<span class="code-variable">Value</span>;</code></pre>
+
+                <h2>Claims vs Roles</h2>
+
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Aspect</th>
+                            <th>Roles</th>
+                            <th>Claims</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Granularity</strong></td>
+                            <td>Coarse (Admin, User)</td>
+                            <td>Fine-grained (Department, CanEdit)</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Flexibility</strong></td>
+                            <td>Limited</td>
+                            <td>Highly flexible</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Use Case</strong></td>
+                            <td>General permissions</td>
+                            <td>Specific attributes/permissions</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Example</strong></td>
+                            <td>Admin, Manager</td>
+                            <td>Department=IT, CanEditProducts=true</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h2>Key Takeaways</h2>
+
+                <ul>
+                    <li><strong>Claims</strong>: Key-value pairs describing user</li>
+                    <li><strong>AddClaimsAsync()</strong>: Add claims to user</li>
+                    <li><strong>RequireClaim()</strong>: Create claim-based policy</li>
+                    <li><strong>[Authorize(Policy)]</strong>: Apply claim policy</li>
+                    <li><strong>User.HasClaim()</strong>: Check claim in code</li>
+                    <li><strong>More granular</strong>: Than role-based authorization</li>
+                </ul>
+
+                <nav class="page-nav">
+                    <a href="02-role-based-authorization.html" class="prev">Role-Based Authorization</a>
+                    <a href="04-policy-based-authorization.html" class="next">Policy-Based Authorization</a>
+                </nav>
+
+            
+        <footer class="page-footer">
+          Built with 💜 by <a href="https://akwasi.dev" target="_blank" rel="noopener noreferrer">Akwasi Adu-Kyeremeh</a> for developers who want to truly understand what they're building.
+        </footer>
+
+      </div>
+        </main>
+    </div>
+</body>
+
+</html>

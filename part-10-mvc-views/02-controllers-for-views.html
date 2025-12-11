@@ -1,0 +1,527 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Controllers for Views | ASP.NET Core Mastery</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;500&family=Source+Serif+4:ital,wght@0,400;0,600;1,400&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="../assets/style.css">
+</head>
+
+<body>
+    <div class="page-wrapper">
+        <aside class="sidebar">
+            <a href="../index.html" class="sidebar-logo">ASP.NET Core Mastery</a>
+            <div class="sidebar-section">Part X: MVC & Views</div>
+            <ul class="sidebar-nav">
+                <li><a href="01-mvc-architecture.html">MVC Architecture</a></li>
+                <li><a href="02-controllers-for-views.html" class="active">Controllers for Views</a></li>
+                <li><a href="03-razor-syntax.html">Razor Syntax</a></li>
+                <li><a href="04-layouts-partials.html">Layouts and Partials</a></li>
+                <li><a href="05-view-components.html">View Components</a></li>
+                <li><a href="06-tag-helpers.html">Tag Helpers</a></li>
+            </ul>
+            <div class="sidebar-section">Resources</div>
+            <ul class="sidebar-nav">
+                <li><a href="../index.html">Full Roadmap</a></li>
+            </ul>
+        </aside>
+
+        <main class="main-content">
+            <div class="content-container">
+                <nav class="breadcrumb">
+                    <a href="../index.html">Home</a>
+                    <span>→</span>
+                    <a href="01-mvc-architecture.html">Part X: MVC & Views</a>
+                    <span>→</span>
+                    Controllers for Views
+                </nav>
+
+                <div class="progress-indicator">
+                    <span>Section 2 of 6</span>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 33.33%"></div>
+                    </div>
+                </div>
+
+                <h1>Controllers for Views</h1>
+
+                <div class="learning-objectives">
+                    <h3>🎯 What You'll Learn</h3>
+                    <ul>
+                        <li>Action methods</li>
+                        <li>Action results</li>
+                        <li>Passing data to views</li>
+                        <li>ViewData and ViewBag</li>
+                        <li>TempData</li>
+                        <li>Model binding</li>
+                    </ul>
+                </div>
+
+                <h2>Controller Basics</h2>
+
+                <p>
+                    MVC controllers inherit from <code>Controller</code> class and return views.
+                </p>
+
+                <div class="code-header">
+                    <span class="code-filename">Basic Controller</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">ProductsController</span> : <span class="code-class">Controller</span>
+{
+    <span class="code-comment">// Action method</span>
+    <span class="code-keyword">public</span> <span class="code-class">IActionResult</span> <span class="code-method">Index</span>()
+    {
+        <span class="code-keyword">return</span> <span class="code-method">View</span>();
+    }
+}</code></pre>
+
+                <div class="section-divider"></div>
+
+                <h2>Action Results</h2>
+
+                <p>
+                    Action methods return <code>IActionResult</code> or specific result types.
+                </p>
+
+                <h3>ViewResult</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">Return a View</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-keyword">public</span> <span class="code-class">IActionResult</span> <span class="code-method">Index</span>()
+{
+    <span class="code-keyword">return</span> <span class="code-method">View</span>(); <span class="code-comment">// Returns Views/Products/Index.cshtml</span>
+}
+
+<span class="code-keyword">public</span> <span class="code-class">IActionResult</span> <span class="code-method">List</span>()
+{
+    <span class="code-keyword">return</span> <span class="code-method">View</span>(<span class="code-string">"Index"</span>); <span class="code-comment">// Returns specific view</span>
+}</code></pre>
+
+                <h3>RedirectResult</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">Redirect to Another Action</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-keyword">public</span> <span class="code-class">IActionResult</span> <span class="code-method">Create</span>()
+{
+    <span class="code-comment">// Redirect to Index action</span>
+    <span class="code-keyword">return</span> <span class="code-method">RedirectToAction</span>(<span class="code-string">"Index"</span>);
+}
+
+<span class="code-keyword">public</span> <span class="code-class">IActionResult</span> <span class="code-method">Save</span>()
+{
+    <span class="code-comment">// Redirect to different controller</span>
+    <span class="code-keyword">return</span> <span class="code-method">RedirectToAction</span>(<span class="code-string">"Index"</span>, <span class="code-string">"Home"</span>);
+}
+
+<span class="code-keyword">public</span> <span class="code-class">IActionResult</span> <span class="code-method">External</span>()
+{
+    <span class="code-comment">// Redirect to URL</span>
+    <span class="code-keyword">return</span> <span class="code-method">Redirect</span>(<span class="code-string">"https://example.com"</span>);
+}</code></pre>
+
+                <h3>Other Action Results</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">Common Action Results</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-comment">// Not Found (404)</span>
+<span class="code-keyword">public</span> <span class="code-class">IActionResult</span> <span class="code-method">Details</span>(<span class="code-type">int</span> <span class="code-variable">id</span>)
+{
+    <span class="code-keyword">var</span> <span class="code-variable">product</span> = <span class="code-variable">_context</span>.<span class="code-variable">Products</span>.<span class="code-method">Find</span>(<span class="code-variable">id</span>);
+    <span class="code-keyword">if</span> (<span class="code-variable">product</span> == <span class="code-keyword">null</span>)
+        <span class="code-keyword">return</span> <span class="code-method">NotFound</span>();
+    
+    <span class="code-keyword">return</span> <span class="code-method">View</span>(<span class="code-variable">product</span>);
+}
+
+<span class="code-comment">// Unauthorized (401)</span>
+<span class="code-keyword">public</span> <span class="code-class">IActionResult</span> <span class="code-method">Admin</span>()
+{
+    <span class="code-keyword">return</span> <span class="code-method">Unauthorized</span>();
+}
+
+<span class="code-comment">// Forbidden (403)</span>
+<span class="code-keyword">public</span> <span class="code-class">IActionResult</span> <span class="code-method">Secret</span>()
+{
+    <span class="code-keyword">return</span> <span class="code-method">Forbid</span>();
+}
+
+<span class="code-comment">// Content (plain text)</span>
+<span class="code-keyword">public</span> <span class="code-class">IActionResult</span> <span class="code-method">Text</span>()
+{
+    <span class="code-keyword">return</span> <span class="code-method">Content</span>(<span class="code-string">"Hello, World!"</span>);
+}
+
+<span class="code-comment">// JSON</span>
+<span class="code-keyword">public</span> <span class="code-class">IActionResult</span> <span class="code-method">Data</span>()
+{
+    <span class="code-keyword">return</span> <span class="code-method">Json</span>(<span class="code-keyword">new</span> { <span class="code-variable">message</span> = <span class="code-string">"Hello"</span> });
+}</code></pre>
+
+                <div class="section-divider"></div>
+
+                <h2>Passing Data to Views</h2>
+
+                <h3>Strongly-Typed Models (Recommended)</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">Pass Model to View</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-keyword">public</span> <span class="code-keyword">async</span> <span class="code-class">Task</span>&lt;<span class="code-class">IActionResult</span>&gt; <span class="code-method">Index</span>()
+{
+    <span class="code-keyword">var</span> <span class="code-variable">products</span> = <span class="code-keyword">await</span> <span class="code-variable">_context</span>.<span class="code-variable">Products</span>.<span class="code-method">ToListAsync</span>();
+    <span class="code-keyword">return</span> <span class="code-method">View</span>(<span class="code-variable">products</span>); <span class="code-comment">// Pass model</span>
+}</code></pre>
+
+                <div class="code-header">
+                    <span class="code-filename">Views/Products/Index.cshtml</span>
+                    <span class="code-language">HTML</span>
+                </div>
+                <pre><code><span class="code-tag">@model</span> <span class="code-class">List</span>&lt;<span class="code-class">Product</span>&gt;
+
+&lt;<span class="code-tag">h1</span>&gt;Products&lt;/<span class="code-tag">h1</span>&gt;
+
+<span class="code-tag">@foreach</span> (<span class="code-keyword">var</span> <span class="code-variable">product</span> <span class="code-keyword">in</span> <span class="code-variable">Model</span>)
+{
+    &lt;<span class="code-tag">p</span>&gt;<span class="code-tag">@product</span>.<span class="code-variable">Name</span>&lt;/<span class="code-tag">p</span>&gt;
+}</code></pre>
+
+                <h3>ViewData</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">Dictionary-Based Data</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-keyword">public</span> <span class="code-class">IActionResult</span> <span class="code-method">Index</span>()
+{
+    <span class="code-variable">ViewData</span>[<span class="code-string">"Title"</span>] = <span class="code-string">"Products"</span>;
+    <span class="code-variable">ViewData</span>[<span class="code-string">"Count"</span>] = <span class="code-number">10</span>;
+    <span class="code-keyword">return</span> <span class="code-method">View</span>();
+}</code></pre>
+
+                <div class="code-header">
+                    <span class="code-filename">Access in View</span>
+                    <span class="code-language">HTML</span>
+                </div>
+                <pre><code>&lt;<span class="code-tag">h1</span>&gt;<span class="code-tag">@ViewData</span>[<span class="code-string">"Title"</span>]&lt;/<span class="code-tag">h1</span>&gt;
+&lt;<span class="code-tag">p</span>&gt;Total: <span class="code-tag">@ViewData</span>[<span class="code-string">"Count"</span>]&lt;/<span class="code-tag">p</span>&gt;</code></pre>
+
+                <h3>ViewBag</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">Dynamic Properties</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-keyword">public</span> <span class="code-class">IActionResult</span> <span class="code-method">Index</span>()
+{
+    <span class="code-variable">ViewBag</span>.<span class="code-variable">Title</span> = <span class="code-string">"Products"</span>;
+    <span class="code-variable">ViewBag</span>.<span class="code-variable">Count</span> = <span class="code-number">10</span>;
+    <span class="code-keyword">return</span> <span class="code-method">View</span>();
+}</code></pre>
+
+                <div class="code-header">
+                    <span class="code-filename">Access in View</span>
+                    <span class="code-language">HTML</span>
+                </div>
+                <pre><code>&lt;<span class="code-tag">h1</span>&gt;<span class="code-tag">@ViewBag</span>.<span class="code-variable">Title</span>&lt;/<span class="code-tag">h1</span>&gt;
+&lt;<span class="code-tag">p</span>&gt;Total: <span class="code-tag">@ViewBag</span>.<span class="code-variable">Count</span>&lt;/<span class="code-tag">p</span>&gt;</code></pre>
+
+                <div class="callout callout-warning">
+                    <div class="callout-title">⚠️ ViewData vs ViewBag</div>
+                    <p>
+                        <strong>ViewData</strong>: Dictionary, requires casting<br>
+                        <strong>ViewBag</strong>: Dynamic, no casting needed<br>
+                        <strong>Recommendation</strong>: Use strongly-typed models instead!
+                    </p>
+                </div>
+
+                <h3>TempData</h3>
+
+                <p>
+                    <strong>TempData</strong> persists data across redirects (one request only).
+                </p>
+
+                <div class="code-header">
+                    <span class="code-filename">Store Message for Next Request</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-keyword">public</span> <span class="code-class">IActionResult</span> <span class="code-method">Create</span>(<span class="code-class">Product</span> <span class="code-variable">product</span>)
+{
+    <span class="code-variable">_context</span>.<span class="code-variable">Products</span>.<span class="code-method">Add</span>(<span class="code-variable">product</span>);
+    <span class="code-variable">_context</span>.<span class="code-method">SaveChanges</span>();
+
+    <span class="code-variable">TempData</span>[<span class="code-string">"Message"</span>] = <span class="code-string">"Product created successfully!"</span>;
+    <span class="code-keyword">return</span> <span class="code-method">RedirectToAction</span>(<span class="code-string">"Index"</span>);
+}
+
+<span class="code-keyword">public</span> <span class="code-class">IActionResult</span> <span class="code-method">Index</span>()
+{
+    <span class="code-comment">// TempData available after redirect</span>
+    <span class="code-keyword">return</span> <span class="code-method">View</span>();
+}</code></pre>
+
+                <div class="code-header">
+                    <span class="code-filename">Display in View</span>
+                    <span class="code-language">HTML</span>
+                </div>
+                <pre><code><span class="code-tag">@if</span> (<span class="code-variable">TempData</span>[<span class="code-string">"Message"</span>] != <span class="code-keyword">null</span>)
+{
+    &lt;<span class="code-tag">div</span> <span class="code-attribute">class</span>=<span class="code-string">"alert alert-success"</span>&gt;
+        <span class="code-tag">@TempData</span>[<span class="code-string">"Message"</span>]
+    &lt;/<span class="code-tag">div</span>&gt;
+}</code></pre>
+
+                <div class="section-divider"></div>
+
+                <h2>Model Binding</h2>
+
+                <p>
+                    <strong>Model binding</strong> automatically maps request data to action parameters.
+                </p>
+
+                <h3>Route Parameters</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">Bind from URL</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-comment">// URL: /Products/Details/5</span>
+<span class="code-keyword">public</span> <span class="code-class">IActionResult</span> <span class="code-method">Details</span>(<span class="code-type">int</span> <span class="code-variable">id</span>)
+{
+    <span class="code-keyword">var</span> <span class="code-variable">product</span> = <span class="code-variable">_context</span>.<span class="code-variable">Products</span>.<span class="code-method">Find</span>(<span class="code-variable">id</span>); <span class="code-comment">// id = 5</span>
+    <span class="code-keyword">return</span> <span class="code-method">View</span>(<span class="code-variable">product</span>);
+}</code></pre>
+
+                <h3>Query String</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">Bind from Query</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-comment">// URL: /Products?page=2&pageSize=20</span>
+<span class="code-keyword">public</span> <span class="code-class">IActionResult</span> <span class="code-method">Index</span>(<span class="code-type">int</span> <span class="code-variable">page</span> = <span class="code-number">1</span>, <span class="code-type">int</span> <span class="code-variable">pageSize</span> = <span class="code-number">10</span>)
+{
+    <span class="code-keyword">var</span> <span class="code-variable">products</span> = <span class="code-variable">_context</span>.<span class="code-variable">Products</span>
+        .<span class="code-method">Skip</span>((<span class="code-variable">page</span> - <span class="code-number">1</span>) * <span class="code-variable">pageSize</span>)
+        .<span class="code-method">Take</span>(<span class="code-variable">pageSize</span>)
+        .<span class="code-method">ToList</span>();
+    
+    <span class="code-keyword">return</span> <span class="code-method">View</span>(<span class="code-variable">products</span>);
+}</code></pre>
+
+                <h3>Form Data</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">Bind from Form</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-comment">// GET: Show form</span>
+<span class="code-keyword">public</span> <span class="code-class">IActionResult</span> <span class="code-method">Create</span>()
+{
+    <span class="code-keyword">return</span> <span class="code-method">View</span>();
+}
+
+<span class="code-comment">// POST: Handle form submission</span>
+[<span class="code-class">HttpPost</span>]
+<span class="code-keyword">public</span> <span class="code-class">IActionResult</span> <span class="code-method">Create</span>(<span class="code-class">Product</span> <span class="code-variable">product</span>)
+{
+    <span class="code-keyword">if</span> (<span class="code-variable">ModelState</span>.<span class="code-variable">IsValid</span>)
+    {
+        <span class="code-variable">_context</span>.<span class="code-variable">Products</span>.<span class="code-method">Add</span>(<span class="code-variable">product</span>);
+        <span class="code-variable">_context</span>.<span class="code-method">SaveChanges</span>();
+        <span class="code-keyword">return</span> <span class="code-method">RedirectToAction</span>(<span class="code-string">"Index"</span>);
+    }
+    
+    <span class="code-keyword">return</span> <span class="code-method">View</span>(<span class="code-variable">product</span>);
+}</code></pre>
+
+                <h3>Binding Attributes</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">Explicit Binding Sources</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-keyword">public</span> <span class="code-class">IActionResult</span> <span class="code-method">Search</span>(
+    [<span class="code-class">FromQuery</span>] <span class="code-type">string</span> <span class="code-variable">query</span>,
+    [<span class="code-class">FromRoute</span>] <span class="code-type">int</span> <span class="code-variable">id</span>,
+    [<span class="code-class">FromForm</span>] <span class="code-class">Product</span> <span class="code-variable">product</span>,
+    [<span class="code-class">FromHeader</span>] <span class="code-type">string</span> <span class="code-variable">userAgent</span>)
+{
+    <span class="code-keyword">return</span> <span class="code-method">View</span>();
+}</code></pre>
+
+                <h2>Complete InvenTrack Example</h2>
+
+                <div class="code-header">
+                    <span class="code-filename">Controllers/ProductsController.cs</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">ProductsController</span> : <span class="code-class">Controller</span>
+{
+    <span class="code-keyword">private</span> <span class="code-keyword">readonly</span> <span class="code-class">InvenTrackDbContext</span> <span class="code-variable">_context</span>;
+
+    <span class="code-keyword">public</span> <span class="code-method">ProductsController</span>(<span class="code-class">InvenTrackDbContext</span> <span class="code-variable">context</span>)
+    {
+        <span class="code-variable">_context</span> = <span class="code-variable">context</span>;
+    }
+
+    <span class="code-comment">// GET: /Products</span>
+    <span class="code-keyword">public</span> <span class="code-keyword">async</span> <span class="code-class">Task</span>&lt;<span class="code-class">IActionResult</span>&gt; <span class="code-method">Index</span>(<span class="code-type">string</span>? <span class="code-variable">search</span>)
+    {
+        <span class="code-keyword">var</span> <span class="code-variable">query</span> = <span class="code-variable">_context</span>.<span class="code-variable">Products</span>.<span class="code-method">AsQueryable</span>();
+
+        <span class="code-keyword">if</span> (!<span class="code-type">string</span>.<span class="code-method">IsNullOrEmpty</span>(<span class="code-variable">search</span>))
+        {
+            <span class="code-variable">query</span> = <span class="code-variable">query</span>.<span class="code-method">Where</span>(<span class="code-variable">p</span> => <span class="code-variable">p</span>.<span class="code-variable">Name</span>.<span class="code-method">Contains</span>(<span class="code-variable">search</span>));
+            <span class="code-variable">ViewBag</span>.<span class="code-variable">SearchTerm</span> = <span class="code-variable">search</span>;
+        }
+
+        <span class="code-keyword">var</span> <span class="code-variable">products</span> = <span class="code-keyword">await</span> <span class="code-variable">query</span>.<span class="code-method">ToListAsync</span>();
+        <span class="code-keyword">return</span> <span class="code-method">View</span>(<span class="code-variable">products</span>);
+    }
+
+    <span class="code-comment">// GET: /Products/Details/5</span>
+    <span class="code-keyword">public</span> <span class="code-keyword">async</span> <span class="code-class">Task</span>&lt;<span class="code-class">IActionResult</span>&gt; <span class="code-method">Details</span>(<span class="code-type">int</span> <span class="code-variable">id</span>)
+    {
+        <span class="code-keyword">var</span> <span class="code-variable">product</span> = <span class="code-keyword">await</span> <span class="code-variable">_context</span>.<span class="code-variable">Products</span>.<span class="code-method">FindAsync</span>(<span class="code-variable">id</span>);
+        
+        <span class="code-keyword">if</span> (<span class="code-variable">product</span> == <span class="code-keyword">null</span>)
+            <span class="code-keyword">return</span> <span class="code-method">NotFound</span>();
+
+        <span class="code-keyword">return</span> <span class="code-method">View</span>(<span class="code-variable">product</span>);
+    }
+
+    <span class="code-comment">// GET: /Products/Create</span>
+    <span class="code-keyword">public</span> <span class="code-class">IActionResult</span> <span class="code-method">Create</span>()
+    {
+        <span class="code-keyword">return</span> <span class="code-method">View</span>();
+    }
+
+    <span class="code-comment">// POST: /Products/Create</span>
+    [<span class="code-class">HttpPost</span>]
+    [<span class="code-class">ValidateAntiForgeryToken</span>]
+    <span class="code-keyword">public</span> <span class="code-keyword">async</span> <span class="code-class">Task</span>&lt;<span class="code-class">IActionResult</span>&gt; <span class="code-method">Create</span>(<span class="code-class">Product</span> <span class="code-variable">product</span>)
+    {
+        <span class="code-keyword">if</span> (<span class="code-variable">ModelState</span>.<span class="code-variable">IsValid</span>)
+        {
+            <span class="code-variable">_context</span>.<span class="code-variable">Products</span>.<span class="code-method">Add</span>(<span class="code-variable">product</span>);
+            <span class="code-keyword">await</span> <span class="code-variable">_context</span>.<span class="code-method">SaveChangesAsync</span>();
+
+            <span class="code-variable">TempData</span>[<span class="code-string">"Success"</span>] = <span class="code-string">$"Product '</span>{<span class="code-variable">product</span>.<span class="code-variable">Name</span>}<span class="code-string">' created successfully!"</span>;
+            <span class="code-keyword">return</span> <span class="code-method">RedirectToAction</span>(<span class="code-string">"Index"</span>);
+        }
+
+        <span class="code-keyword">return</span> <span class="code-method">View</span>(<span class="code-variable">product</span>);
+    }
+
+    <span class="code-comment">// GET: /Products/Edit/5</span>
+    <span class="code-keyword">public</span> <span class="code-keyword">async</span> <span class="code-class">Task</span>&lt;<span class="code-class">IActionResult</span>&gt; <span class="code-method">Edit</span>(<span class="code-type">int</span> <span class="code-variable">id</span>)
+    {
+        <span class="code-keyword">var</span> <span class="code-variable">product</span> = <span class="code-keyword">await</span> <span class="code-variable">_context</span>.<span class="code-variable">Products</span>.<span class="code-method">FindAsync</span>(<span class="code-variable">id</span>);
+        
+        <span class="code-keyword">if</span> (<span class="code-variable">product</span> == <span class="code-keyword">null</span>)
+            <span class="code-keyword">return</span> <span class="code-method">NotFound</span>();
+
+        <span class="code-keyword">return</span> <span class="code-method">View</span>(<span class="code-variable">product</span>);
+    }
+
+    <span class="code-comment">// POST: /Products/Edit/5</span>
+    [<span class="code-class">HttpPost</span>]
+    [<span class="code-class">ValidateAntiForgeryToken</span>]
+    <span class="code-keyword">public</span> <span class="code-keyword">async</span> <span class="code-class">Task</span>&lt;<span class="code-class">IActionResult</span>&gt; <span class="code-method">Edit</span>(<span class="code-type">int</span> <span class="code-variable">id</span>, <span class="code-class">Product</span> <span class="code-variable">product</span>)
+    {
+        <span class="code-keyword">if</span> (<span class="code-variable">id</span> != <span class="code-variable">product</span>.<span class="code-variable">Id</span>)
+            <span class="code-keyword">return</span> <span class="code-method">NotFound</span>();
+
+        <span class="code-keyword">if</span> (<span class="code-variable">ModelState</span>.<span class="code-variable">IsValid</span>)
+        {
+            <span class="code-variable">_context</span>.<span class="code-method">Update</span>(<span class="code-variable">product</span>);
+            <span class="code-keyword">await</span> <span class="code-variable">_context</span>.<span class="code-method">SaveChangesAsync</span>();
+
+            <span class="code-variable">TempData</span>[<span class="code-string">"Success"</span>] = <span class="code-string">"Product updated successfully!"</span>;
+            <span class="code-keyword">return</span> <span class="code-method">RedirectToAction</span>(<span class="code-string">"Index"</span>);
+        }
+
+        <span class="code-keyword">return</span> <span class="code-method">View</span>(<span class="code-variable">product</span>);
+    }
+
+    <span class="code-comment">// POST: /Products/Delete/5</span>
+    [<span class="code-class">HttpPost</span>]
+    [<span class="code-class">ValidateAntiForgeryToken</span>]
+    <span class="code-keyword">public</span> <span class="code-keyword">async</span> <span class="code-class">Task</span>&lt;<span class="code-class">IActionResult</span>&gt; <span class="code-method">Delete</span>(<span class="code-type">int</span> <span class="code-variable">id</span>)
+    {
+        <span class="code-keyword">var</span> <span class="code-variable">product</span> = <span class="code-keyword">await</span> <span class="code-variable">_context</span>.<span class="code-variable">Products</span>.<span class="code-method">FindAsync</span>(<span class="code-variable">id</span>);
+        
+        <span class="code-keyword">if</span> (<span class="code-variable">product</span> != <span class="code-keyword">null</span>)
+        {
+            <span class="code-variable">_context</span>.<span class="code-variable">Products</span>.<span class="code-method">Remove</span>(<span class="code-variable">product</span>);
+            <span class="code-keyword">await</span> <span class="code-variable">_context</span>.<span class="code-method">SaveChangesAsync</span>();
+            <span class="code-variable">TempData</span>[<span class="code-string">"Success"</span>] = <span class="code-string">"Product deleted successfully!"</span>;
+        }
+
+        <span class="code-keyword">return</span> <span class="code-method">RedirectToAction</span>(<span class="code-string">"Index"</span>);
+    }
+}</code></pre>
+
+                <h2>Best Practices</h2>
+
+                <ul>
+                    <li><strong>Strongly-typed models</strong>: Prefer over ViewData/ViewBag</li>
+                    <li><strong>Async actions</strong>: Use async/await for I/O operations</li>
+                    <li><strong>PRG pattern</strong>: Post-Redirect-Get to prevent duplicate submissions</li>
+                    <li><strong>TempData</strong>: Use for success/error messages after redirects</li>
+                    <li><strong>Model validation</strong>: Check ModelState.IsValid</li>
+                    <li><strong>Anti-forgery tokens</strong>: Use [ValidateAntiForgeryToken]</li>
+                    <li><strong>Return specific results</strong>: NotFound(), Redirect(), etc.</li>
+                </ul>
+
+                <h2>Key Takeaways</h2>
+
+                <ul>
+                    <li><strong>Controller</strong>: Base class for MVC controllers</li>
+                    <li><strong>IActionResult</strong>: Return type for action methods</li>
+                    <li><strong>View()</strong>: Returns a view with optional model</li>
+                    <li><strong>RedirectToAction()</strong>: Redirect to another action</li>
+                    <li><strong>Model binding</strong>: Automatic parameter mapping</li>
+                    <li><strong>ViewData/ViewBag</strong>: Pass additional data to views</li>
+                    <li><strong>TempData</strong>: Persist data across redirects</li>
+                    <li><strong>ModelState</strong>: Validation state</li>
+                </ul>
+
+                <div class="callout callout-concept">
+                    <div class="callout-title">🎯 Next Steps</div>
+                    <p>
+                        You now understand controllers for views! In the next section, we'll explore
+                        <strong>Razor Syntax</strong>—how to write dynamic HTML with C# code.
+                    </p>
+                </div>
+
+                <nav class="page-nav">
+                    <a href="01-mvc-architecture.html" class="prev">MVC Architecture</a>
+                    <a href="03-razor-syntax.html" class="next">Razor Syntax</a>
+                </nav>
+
+            
+        <footer class="page-footer">
+          Built with 💜 by <a href="https://akwasi.dev" target="_blank" rel="noopener noreferrer">Akwasi Adu-Kyeremeh</a> for developers who want to truly understand what they're building.
+        </footer>
+
+      </div>
+        </main>
+    </div>
+</body>
+
+</html>

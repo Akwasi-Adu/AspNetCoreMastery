@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>What is Dependency Injection? | ASP.NET Core Mastery</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;500&family=Source+Serif+4:ital,wght@0,400;0,600;1,400&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="../assets/style.css">
+</head>
+
+<body>
+    <div class="page-wrapper">
+        <aside class="sidebar">
+            <a href="../index.html" class="sidebar-logo">ASP.NET Core Mastery</a>
+            <div class="sidebar-section">Part IV: Dependency Injection</div>
+            <ul class="sidebar-nav">
+                <li><a href="01-what-is-di.html" class="active">What is Dependency Injection?</a></li>
+                <li><a href="02-built-in-container.html">The Built-in DI Container</a></li>
+                <li><a href="03-service-lifetimes.html">Service Lifetimes</a></li>
+                <li><a href="04-registering-services.html">Registering Services</a></li>
+                <li><a href="05-constructor-injection.html">Constructor Injection</a></li>
+                <li><a href="06-common-patterns.html">Common DI Patterns</a></li>
+            </ul>
+            <div class="sidebar-section">Resources</div>
+            <ul class="sidebar-nav">
+                <li><a href="../index.html">Full Roadmap</a></li>
+            </ul>
+        </aside>
+
+        <main class="main-content">
+            <div class="content-container">
+                <nav class="breadcrumb">
+                    <a href="../index.html">Home</a>
+                    <span>→</span>
+                    <a href="01-what-is-di.html">Part IV: Dependency Injection</a>
+                    <span>→</span>
+                    What is Dependency Injection?
+                </nav>
+
+                <div class="progress-indicator">
+                    <span>Section 1 of 6</span>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 16.67%"></div>
+                    </div>
+                </div>
+
+                <h1>What is Dependency Injection?</h1>
+
+                <div class="learning-objectives">
+                    <h3>🎯 What You'll Learn</h3>
+                    <ul>
+                        <li>What Dependency Injection (DI) is and why it matters</li>
+                        <li>The problem DI solves</li>
+                        <li>Understanding dependencies and coupling</li>
+                        <li>The Dependency Inversion Principle (SOLID)</li>
+                        <li>Benefits of using DI</li>
+                        <li>DI vs Service Locator pattern</li>
+                        <li>How DI fits into InvenTrack</li>
+                    </ul>
+                </div>
+
+                <h2>The Problem: Tight Coupling</h2>
+
+                <p>
+                    Let's start with a problem. Imagine you're building InvenTrack and need to send email
+                    notifications when inventory is low:
+                </p>
+
+                <div class="code-header">
+                    <span class="code-filename">❌ Tightly Coupled Code</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">InventoryService</span>
+{
+    <span class="code-keyword">public</span> <span class="code-keyword">void</span> <span class="code-method">CheckStock</span>(<span class="code-class">Product</span> <span class="code-variable">product</span>)
+    {
+        <span class="code-keyword">if</span> (<span class="code-variable">product</span>.<span class="code-variable">QuantityInStock</span> &lt; <span class="code-number">10</span>)
+        {
+            <span class="code-comment">// Creating dependency directly - TIGHT COUPLING!</span>
+            <span class="code-keyword">var</span> <span class="code-variable">emailService</span> = <span class="code-keyword">new</span> <span class="code-class">EmailService</span>();
+            <span class="code-variable">emailService</span>.<span class="code-method">SendLowStockAlert</span>(<span class="code-variable">product</span>.<span class="code-variable">Name</span>);
+        }
+    }
+}</code></pre>
+
+                <h3>Problems with This Approach</h3>
+
+                <ul>
+                    <li><strong>Hard to Test</strong>: Can't test without sending real emails</li>
+                    <li><strong>Hard to Change</strong>: Want to use a different email provider? Modify every class</li>
+                    <li><strong>Hard to Reuse</strong>: <code>InventoryService</code> is tied to
+                        <code>EmailService</code></li>
+                    <li><strong>Violates SOLID</strong>: Depends on concrete implementation, not abstraction</li>
+                </ul>
+
+                <div class="section-divider"></div>
+
+                <h2>The Solution: Dependency Injection</h2>
+
+                <p>
+                    <strong>Dependency Injection</strong> is a design pattern where objects receive their
+                    dependencies from external sources rather than creating them.
+                </p>
+
+                <div class="code-header">
+                    <span class="code-filename">✅ Loosely Coupled Code</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-comment">// 1. Define an interface (abstraction)</span>
+<span class="code-keyword">public</span> <span class="code-keyword">interface</span> <span class="code-class">IEmailService</span>
+{
+    <span class="code-keyword">void</span> <span class="code-method">SendLowStockAlert</span>(<span class="code-type">string</span> <span class="code-variable">productName</span>);
+}
+
+<span class="code-comment">// 2. Implement the interface</span>
+<span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">EmailService</span> : <span class="code-class">IEmailService</span>
+{
+    <span class="code-keyword">public</span> <span class="code-keyword">void</span> <span class="code-method">SendLowStockAlert</span>(<span class="code-type">string</span> <span class="code-variable">productName</span>)
+    {
+        <span class="code-comment">// Send actual email</span>
+        <span class="code-class">Console</span>.<span class="code-method">WriteLine</span>(<span class="code-string">$"Sending low stock alert for </span>{<span class="code-variable">productName</span>}<span class="code-string">"</span>);
+    }
+}
+
+<span class="code-comment">// 3. Inject the dependency via constructor</span>
+<span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">InventoryService</span>
+{
+    <span class="code-keyword">private</span> <span class="code-keyword">readonly</span> <span class="code-class">IEmailService</span> <span class="code-variable">_emailService</span>;
+
+    <span class="code-comment">// Dependency is INJECTED, not created</span>
+    <span class="code-keyword">public</span> <span class="code-method">InventoryService</span>(<span class="code-class">IEmailService</span> <span class="code-variable">emailService</span>)
+    {
+        <span class="code-variable">_emailService</span> = <span class="code-variable">emailService</span>;
+    }
+
+    <span class="code-keyword">public</span> <span class="code-keyword">void</span> <span class="code-method">CheckStock</span>(<span class="code-class">Product</span> <span class="code-variable">product</span>)
+    {
+        <span class="code-keyword">if</span> (<span class="code-variable">product</span>.<span class="code-variable">QuantityInStock</span> &lt; <span class="code-number">10</span>)
+        {
+            <span class="code-variable">_emailService</span>.<span class="code-method">SendLowStockAlert</span>(<span class="code-variable">product</span>.<span class="code-variable">Name</span>);
+        }
+    }
+}</code></pre>
+
+                <div class="callout callout-concept">
+                    <div class="callout-title">💡 Key Concept</div>
+                    <p>
+                        <code>InventoryService</code> now depends on the <strong>abstraction</strong>
+                        (<code>IEmailService</code>), not the concrete implementation (<code>EmailService</code>).
+                        This is the <strong>Dependency Inversion Principle</strong> from SOLID.
+                    </p>
+                </div>
+
+                <h3>Benefits of This Approach</h3>
+
+                <ul>
+                    <li><strong>Easy to Test</strong>: Inject a mock <code>IEmailService</code> in tests</li>
+                    <li><strong>Easy to Change</strong>: Swap implementations without changing
+                        <code>InventoryService</code></li>
+                    <li><strong>Reusable</strong>: <code>InventoryService</code> works with any
+                        <code>IEmailService</code></li>
+                    <li><strong>Follows SOLID</strong>: Depends on abstractions, not concretions</li>
+                </ul>
+
+                <div class="section-divider"></div>
+
+                <h2>What is a Dependency?</h2>
+
+                <p>
+                    A <strong>dependency</strong> is any object that another object needs to function.
+                </p>
+
+                <div class="code-header">
+                    <span class="code-filename">Example Dependencies</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">ProductService</span>
+{
+    <span class="code-comment">// These are ALL dependencies:</span>
+    <span class="code-keyword">private</span> <span class="code-keyword">readonly</span> <span class="code-class">IProductRepository</span> <span class="code-variable">_repository</span>;      <span class="code-comment">// Database access</span>
+    <span class="code-keyword">private</span> <span class="code-keyword">readonly</span> <span class="code-class">ILogger</span>&lt;<span class="code-class">ProductService</span>&gt; <span class="code-variable">_logger</span>;  <span class="code-comment">// Logging</span>
+    <span class="code-keyword">private</span> <span class="code-keyword">readonly</span> <span class="code-class">IEmailService</span> <span class="code-variable">_emailService</span>;          <span class="code-comment">// Email</span>
+    <span class="code-keyword">private</span> <span class="code-keyword">readonly</span> <span class="code-class">ICacheService</span> <span class="code-variable">_cacheService</span>;          <span class="code-comment">// Caching</span>
+
+    <span class="code-keyword">public</span> <span class="code-method">ProductService</span>(
+        <span class="code-class">IProductRepository</span> <span class="code-variable">repository</span>,
+        <span class="code-class">ILogger</span>&lt;<span class="code-class">ProductService</span>&gt; <span class="code-variable">logger</span>,
+        <span class="code-class">IEmailService</span> <span class="code-variable">emailService</span>,
+        <span class="code-class">ICacheService</span> <span class="code-variable">cacheService</span>)
+    {
+        <span class="code-variable">_repository</span> = <span class="code-variable">repository</span>;
+        <span class="code-variable">_logger</span> = <span class="code-variable">logger</span>;
+        <span class="code-variable">_emailService</span> = <span class="code-variable">emailService</span>;
+        <span class="code-variable">_cacheService</span> = <span class="code-variable">cacheService</span>;
+    }
+}</code></pre>
+
+                <div class="section-divider"></div>
+
+                <h2>The Dependency Inversion Principle</h2>
+
+                <p>
+                    The <strong>D</strong> in SOLID stands for <strong>Dependency Inversion Principle</strong>:
+                </p>
+
+                <div class="callout callout-concept">
+                    <div class="callout-title">📖 Dependency Inversion Principle</div>
+                    <p>
+                        <strong>High-level modules should not depend on low-level modules. Both should depend on
+                            abstractions.</strong>
+                    </p>
+                    <p>
+                        <strong>Abstractions should not depend on details. Details should depend on
+                            abstractions.</strong>
+                    </p>
+                </div>
+
+                <h3>Before DIP (Bad)</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">Violates DIP</span>
+                    <span class="code-language">Text</span>
+                </div>
+                <pre><code>InventoryService → EmailService (concrete class)
+    ↓
+Tightly coupled to implementation</code></pre>
+
+                <h3>After DIP (Good)</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">Follows DIP</span>
+                    <span class="code-language">Text</span>
+                </div>
+                <pre><code>InventoryService → IEmailService (interface)
+                         ↑
+                    EmailService (implements interface)
+    ↓
+Both depend on abstraction</code></pre>
+
+                <div class="section-divider"></div>
+
+                <h2>Types of Dependency Injection</h2>
+
+                <h3>1. Constructor Injection (Recommended)</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">Constructor Injection</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">ProductService</span>
+{
+    <span class="code-keyword">private</span> <span class="code-keyword">readonly</span> <span class="code-class">IProductRepository</span> <span class="code-variable">_repository</span>;
+
+    <span class="code-keyword">public</span> <span class="code-method">ProductService</span>(<span class="code-class">IProductRepository</span> <span class="code-variable">repository</span>)
+    {
+        <span class="code-variable">_repository</span> = <span class="code-variable">repository</span>;
+    }
+}</code></pre>
+
+                <p><strong>✅ Preferred</strong>: Dependencies are clear, immutable, and required</p>
+
+                <h3>2. Property Injection (Rare)</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">Property Injection</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">ProductService</span>
+{
+    <span class="code-keyword">public</span> <span class="code-class">IProductRepository</span> <span class="code-variable">Repository</span> { <span class="code-keyword">get</span>; <span class="code-keyword">set</span>; }
+}</code></pre>
+
+                <p><strong>⚠️ Avoid</strong>: Dependencies are optional and mutable</p>
+
+                <h3>3. Method Injection (Specific Cases)</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">Method Injection</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">ProductService</span>
+{
+    <span class="code-keyword">public</span> <span class="code-keyword">void</span> <span class="code-method">ProcessProduct</span>(<span class="code-class">Product</span> <span class="code-variable">product</span>, <span class="code-class">ILogger</span> <span class="code-variable">logger</span>)
+    {
+        <span class="code-variable">logger</span>.<span class="code-method">LogInformation</span>(<span class="code-string">$"Processing </span>{<span class="code-variable">product</span>.<span class="code-variable">Name</span>}<span class="code-string">"</span>);
+    }
+}</code></pre>
+
+                <p><strong>⚠️ Rare</strong>: Only when dependency varies per method call</p>
+
+                <div class="callout callout-tip">
+                    <div class="callout-title">💡 Best Practice</div>
+                    <p>
+                        Use <strong>Constructor Injection</strong> 99% of the time. It makes dependencies
+                        explicit and ensures objects are always in a valid state.
+                    </p>
+                </div>
+
+                <div class="section-divider"></div>
+
+                <h2>Benefits of Dependency Injection</h2>
+
+                <h3>1. Testability</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">Unit Test Example</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code>[<span class="code-class">Fact</span>]
+<span class="code-keyword">public</span> <span class="code-keyword">void</span> <span class="code-method">CheckStock_WhenLow_SendsEmail</span>()
+{
+    <span class="code-comment">// Arrange - use a MOCK email service</span>
+    <span class="code-keyword">var</span> <span class="code-variable">mockEmailService</span> = <span class="code-keyword">new</span> <span class="code-class">Mock</span>&lt;<span class="code-class">IEmailService</span>&gt;();
+    <span class="code-keyword">var</span> <span class="code-variable">service</span> = <span class="code-keyword">new</span> <span class="code-class">InventoryService</span>(<span class="code-variable">mockEmailService</span>.<span class="code-variable">Object</span>);
+    
+    <span class="code-keyword">var</span> <span class="code-variable">product</span> = <span class="code-keyword">new</span> <span class="code-class">Product</span> { <span class="code-variable">Name</span> = <span class="code-string">"Laptop"</span>, <span class="code-variable">QuantityInStock</span> = <span class="code-number">5</span> };
+
+    <span class="code-comment">// Act</span>
+    <span class="code-variable">service</span>.<span class="code-method">CheckStock</span>(<span class="code-variable">product</span>);
+
+    <span class="code-comment">// Assert - verify email was sent</span>
+    <span class="code-variable">mockEmailService</span>.<span class="code-method">Verify</span>(<span class="code-variable">x</span> =&gt; <span class="code-variable">x</span>.<span class="code-method">SendLowStockAlert</span>(<span class="code-string">"Laptop"</span>), <span class="code-class">Times</span>.<span class="code-method">Once</span>);
+}</code></pre>
+
+                <h3>2. Flexibility</h3>
+
+                <p>
+                    Easily swap implementations:
+                </p>
+
+                <div class="code-header">
+                    <span class="code-filename">Multiple Implementations</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-comment">// Development: Log emails to console</span>
+<span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">ConsoleEmailService</span> : <span class="code-class">IEmailService</span>
+{
+    <span class="code-keyword">public</span> <span class="code-keyword">void</span> <span class="code-method">SendLowStockAlert</span>(<span class="code-type">string</span> <span class="code-variable">productName</span>)
+    {
+        <span class="code-class">Console</span>.<span class="code-method">WriteLine</span>(<span class="code-string">$"[DEV] Low stock: </span>{<span class="code-variable">productName</span>}<span class="code-string">"</span>);
+    }
+}
+
+<span class="code-comment">// Production: Send real emails via SendGrid</span>
+<span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">SendGridEmailService</span> : <span class="code-class">IEmailService</span>
+{
+    <span class="code-keyword">public</span> <span class="code-keyword">void</span> <span class="code-method">SendLowStockAlert</span>(<span class="code-type">string</span> <span class="code-variable">productName</span>)
+    {
+        <span class="code-comment">// Send via SendGrid API</span>
+    }
+}</code></pre>
+
+                <h3>3. Maintainability</h3>
+
+                <p>
+                    Changes to <code>EmailService</code> don't affect <code>InventoryService</code> as long
+                    as the interface stays the same.
+                </p>
+
+                <h3>4. Separation of Concerns</h3>
+
+                <p>
+                    Each class has a single responsibility. <code>InventoryService</code> manages inventory,
+                    <code>EmailService</code> sends emails.
+                </p>
+
+                <div class="section-divider"></div>
+
+                <h2>DI Container (IoC Container)</h2>
+
+                <p>
+                    A <strong>DI Container</strong> (also called an <strong>IoC Container</strong> - Inversion
+                    of Control) is a framework that manages object creation and dependency resolution.
+                </p>
+
+                <div class="code-header">
+                    <span class="code-filename">Manual DI (Without Container)</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-comment">// You have to manually create everything</span>
+<span class="code-keyword">var</span> <span class="code-variable">emailService</span> = <span class="code-keyword">new</span> <span class="code-class">EmailService</span>();
+<span class="code-keyword">var</span> <span class="code-variable">inventoryService</span> = <span class="code-keyword">new</span> <span class="code-class">InventoryService</span>(<span class="code-variable">emailService</span>);
+<span class="code-keyword">var</span> <span class="code-variable">controller</span> = <span class="code-keyword">new</span> <span class="code-class">ProductsController</span>(<span class="code-variable">inventoryService</span>);</code></pre>
+
+                <div class="code-header">
+                    <span class="code-filename">With DI Container (ASP.NET Core)</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-comment">// Register services once in Program.cs</span>
+<span class="code-variable">builder</span>.<span class="code-variable">Services</span>.<span class="code-method">AddScoped</span>&lt;<span class="code-class">IEmailService</span>, <span class="code-class">EmailService</span>&gt;();
+<span class="code-variable">builder</span>.<span class="code-variable">Services</span>.<span class="code-method">AddScoped</span>&lt;<span class="code-class">IInventoryService</span>, <span class="code-class">InventoryService</span>&gt;();
+
+<span class="code-comment">// Container automatically creates and injects dependencies!</span>
+<span class="code-comment">// ProductsController gets InventoryService, which gets EmailService</span></code></pre>
+
+                <div class="callout callout-concept">
+                    <div class="callout-title">💡 How It Works</div>
+                    <p>
+                        When ASP.NET Core needs a <code>ProductsController</code>, the DI container:<br>
+                        1. Sees it needs <code>IInventoryService</code><br>
+                        2. Creates <code>InventoryService</code><br>
+                        3. Sees <code>InventoryService</code> needs <code>IEmailService</code><br>
+                        4. Creates <code>EmailService</code><br>
+                        5. Injects <code>EmailService</code> into <code>InventoryService</code><br>
+                        6. Injects <code>InventoryService</code> into <code>ProductsController</code>
+                    </p>
+                </div>
+
+                <h2>Key Takeaways</h2>
+
+                <ul>
+                    <li><strong>Dependency Injection</strong> is a design pattern for loose coupling</li>
+                    <li>Objects receive dependencies instead of creating them</li>
+                    <li>Depend on <strong>abstractions</strong> (interfaces), not concrete classes</li>
+                    <li><strong>Dependency Inversion Principle</strong>: Both high and low-level modules depend on
+                        abstractions</li>
+                    <li><strong>Constructor Injection</strong> is the preferred method</li>
+                    <li>Benefits: Testability, flexibility, maintainability, separation of concerns</li>
+                    <li>A <strong>DI Container</strong> manages object creation and dependency resolution</li>
+                    <li>ASP.NET Core has a built-in DI container</li>
+                    <li>Register services in <code>Program.cs</code>, inject via constructor</li>
+                </ul>
+
+                <div class="callout callout-concept">
+                    <div class="callout-title">🎯 Next Steps</div>
+                    <p>
+                        You now understand what Dependency Injection is and why it's essential! In the next
+                        section, we'll explore <strong>The Built-in DI Container</strong> in ASP.NET Core—how
+                        to register services, resolve dependencies, and use the container effectively.
+                    </p>
+                </div>
+
+                <nav class="page-nav">
+                    <a href="../index.html" class="prev">Back to Roadmap</a>
+                    <a href="02-built-in-container.html" class="next">The Built-in DI Container</a>
+                </nav>
+
+            
+        <footer class="page-footer">
+          Built with 💜 by <a href="https://akwasi.dev" target="_blank" rel="noopener noreferrer">Akwasi Adu-Kyeremeh</a> for developers who want to truly understand what they're building.
+        </footer>
+
+      </div>
+        </main>
+    </div>
+</body>
+
+</html>

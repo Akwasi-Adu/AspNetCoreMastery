@@ -1,0 +1,523 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Request/Response Cycle | ASP.NET Core Mastery</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;500&family=Source+Serif+4:ital,wght@0,400;0,600;1,400&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="../assets/style.css">
+</head>
+
+<body>
+    <div class="page-wrapper">
+        <aside class="sidebar">
+            <a href="../index.html" class="sidebar-logo">ASP.NET Core Mastery</a>
+            <div class="sidebar-section">Part VI: HTTP & Web Fundamentals</div>
+            <ul class="sidebar-nav">
+                <li><a href="01-http-basics.html">HTTP Protocol Basics</a></li>
+                <li><a href="02-request-response.html" class="active">Request/Response Cycle</a></li>
+                <li><a href="03-http-methods.html">HTTP Methods</a></li>
+                <li><a href="04-status-codes.html">Status Codes</a></li>
+                <li><a href="05-headers-content-types.html">Headers and Content Types</a></li>
+                <li><a href="06-cookies-sessions.html">Cookies and Sessions</a></li>
+            </ul>
+            <div class="sidebar-section">Resources</div>
+            <ul class="sidebar-nav">
+                <li><a href="../index.html">Full Roadmap</a></li>
+            </ul>
+        </aside>
+
+        <main class="main-content">
+            <div class="content-container">
+                <nav class="breadcrumb">
+                    <a href="../index.html">Home</a>
+                    <span>→</span>
+                    <a href="01-http-basics.html">Part VI: HTTP & Web Fundamentals</a>
+                    <span>→</span>
+                    Request/Response Cycle
+                </nav>
+
+                <div class="progress-indicator">
+                    <span>Section 2 of 6</span>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 33.33%"></div>
+                    </div>
+                </div>
+
+                <h1>Request/Response Cycle</h1>
+
+                <div class="learning-objectives">
+                    <h3>🎯 What You'll Learn</h3>
+                    <ul>
+                        <li>Complete request/response lifecycle in ASP.NET Core</li>
+                        <li>How requests flow through the pipeline</li>
+                        <li>Routing and endpoint selection</li>
+                        <li>Model binding</li>
+                        <li>Action execution</li>
+                        <li>Response generation</li>
+                        <li>Practical InvenTrack examples</li>
+                    </ul>
+                </div>
+
+                <h2>The Complete Lifecycle</h2>
+
+                <div class="code-header">
+                    <span class="code-filename">Request/Response Flow</span>
+                    <span class="code-language">Text</span>
+                </div>
+                <pre><code>1. HTTP Request arrives
+   ↓
+2. Middleware Pipeline
+   ├─ Exception Handler
+   ├─ HTTPS Redirection
+   ├─ Static Files (may short-circuit)
+   ├─ Routing
+   ├─ CORS
+   ├─ Authentication
+   └─ Authorization
+   ↓
+3. Endpoint Routing
+   ├─ Match URL to endpoint
+   └─ Select controller/action
+   ↓
+4. Model Binding
+   ├─ Extract data from request
+   ├─ Convert to C# objects
+   └─ Validate data
+   ↓
+5. Action Execution
+   ├─ Execute controller method
+   ├─ Business logic
+   └─ Generate result
+   ↓
+6. Result Execution
+   ├─ Convert result to HTTP response
+   ├─ Serialize data (JSON, XML)
+   └─ Set status code & headers
+   ↓
+7. Response flows back through middleware
+   ↓
+8. HTTP Response sent to client</code></pre>
+
+                <div class="section-divider"></div>
+
+                <h2>Step-by-Step Example</h2>
+
+                <p>
+                    Let's trace a request through InvenTrack:
+                </p>
+
+                <div class="code-header">
+                    <span class="code-filename">HTTP Request</span>
+                    <span class="code-language">HTTP</span>
+                </div>
+                <pre><code>GET /api/products/123 HTTP/1.1
+Host: inventrackapp.com
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...</code></pre>
+
+                <h3>Step 1: Request Arrives</h3>
+
+                <p>
+                    The HTTP request enters ASP.NET Core's web server (Kestrel).
+                </p>
+
+                <h3>Step 2: Middleware Pipeline</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">Program.cs</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-variable">app</span>.<span class="code-method">UseExceptionHandler</span>(<span class="code-string">"/error"</span>);  <span class="code-comment">// 1. Exception handling</span>
+<span class="code-variable">app</span>.<span class="code-method">UseHttpsRedirection</span>();           <span class="code-comment">// 2. Redirect to HTTPS</span>
+<span class="code-variable">app</span>.<span class="code-method">UseStaticFiles</span>();               <span class="code-comment">// 3. Check for static files</span>
+<span class="code-variable">app</span>.<span class="code-method">UseRouting</span>();                   <span class="code-comment">// 4. Match endpoint</span>
+<span class="code-variable">app</span>.<span class="code-method">UseCors</span>();                      <span class="code-comment">// 5. CORS headers</span>
+<span class="code-variable">app</span>.<span class="code-method">UseAuthentication</span>();           <span class="code-comment">// 6. Identify user</span>
+<span class="code-variable">app</span>.<span class="code-method">UseAuthorization</span>();            <span class="code-comment">// 7. Check permissions</span>
+<span class="code-variable">app</span>.<span class="code-method">MapControllers</span>();               <span class="code-comment">// 8. Execute endpoint</span></code></pre>
+
+                <h3>Step 3: Routing</h3>
+
+                <p>
+                    ASP.NET Core matches the URL <code>/api/products/123</code> to a controller action:
+                </p>
+
+                <div class="code-header">
+                    <span class="code-filename">Controllers/ProductsController.cs</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code>[<span class="code-class">ApiController</span>]
+[<span class="code-class">Route</span>(<span class="code-string">"api/[controller]"</span>)]  <span class="code-comment">// Matches "api/products"</span>
+<span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">ProductsController</span> : <span class="code-class">ControllerBase</span>
+{
+    [<span class="code-class">HttpGet</span>(<span class="code-string">"{id}"</span>)]  <span class="code-comment">// Matches "123"</span>
+    <span class="code-keyword">public</span> <span class="code-keyword">async</span> <span class="code-class">Task</span>&lt;<span class="code-class">IActionResult</span>&gt; <span class="code-method">GetProduct</span>(<span class="code-type">int</span> <span class="code-variable">id</span>)
+    {
+        <span class="code-comment">// This method will be executed!</span>
+    }
+}</code></pre>
+
+                <h3>Step 4: Model Binding</h3>
+
+                <p>
+                    ASP.NET Core extracts <code>123</code> from the URL and binds it to the <code>id</code> parameter:
+                </p>
+
+                <div class="code-header">
+                    <span class="code-filename">Model Binding</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-comment">// URL: /api/products/123</span>
+<span class="code-comment">// Route template: {id}</span>
+<span class="code-comment">// Result: id = 123</span>
+
+[<span class="code-class">HttpGet</span>(<span class="code-string">"{id}"</span>)]
+<span class="code-keyword">public</span> <span class="code-keyword">async</span> <span class="code-class">Task</span>&lt;<span class="code-class">IActionResult</span>&gt; <span class="code-method">GetProduct</span>(<span class="code-type">int</span> <span class="code-variable">id</span>)  <span class="code-comment">// id = 123</span>
+{
+    <span class="code-comment">// ...</span>
+}</code></pre>
+
+                <h3>Step 5: Action Execution</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">Execute Business Logic</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code>[<span class="code-class">HttpGet</span>(<span class="code-string">"{id}"</span>)]
+<span class="code-keyword">public</span> <span class="code-keyword">async</span> <span class="code-class">Task</span>&lt;<span class="code-class">IActionResult</span>&gt; <span class="code-method">GetProduct</span>(<span class="code-type">int</span> <span class="code-variable">id</span>)
+{
+    <span class="code-comment">// 1. Retrieve from database</span>
+    <span class="code-keyword">var</span> <span class="code-variable">product</span> = <span class="code-keyword">await</span> <span class="code-variable">_productService</span>.<span class="code-method">GetByIdAsync</span>(<span class="code-variable">id</span>);
+    
+    <span class="code-comment">// 2. Check if found</span>
+    <span class="code-keyword">if</span> (<span class="code-variable">product</span> == <span class="code-keyword">null</span>)
+        <span class="code-keyword">return</span> <span class="code-method">NotFound</span>();
+    
+    <span class="code-comment">// 3. Return result</span>
+    <span class="code-keyword">return</span> <span class="code-method">Ok</span>(<span class="code-variable">product</span>);
+}</code></pre>
+
+                <h3>Step 6: Result Execution</h3>
+
+                <p>
+                    ASP.NET Core converts the result to an HTTP response:
+                </p>
+
+                <div class="code-header">
+                    <span class="code-filename">Result → HTTP Response</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-comment">// Ok(product) becomes:</span>
+
+<span class="code-class">HTTP</span>/<span class="code-number">1.1</span> <span class="code-number">200</span> <span class="code-variable">OK</span>
+<span class="code-class">Content</span>-<span class="code-class">Type</span>: <span class="code-variable">application</span>/<span class="code-variable">json</span>
+<span class="code-class">Content</span>-<span class="code-class">Length</span>: <span class="code-number">145</span>
+
+{
+  <span class="code-string">"id"</span>: <span class="code-number">123</span>,
+  <span class="code-string">"name"</span>: <span class="code-string">"Laptop"</span>,
+  <span class="code-string">"price"</span>: <span class="code-number">999.99</span>,
+  <span class="code-string">"quantityInStock"</span>: <span class="code-number">50</span>
+}</code></pre>
+
+                <h3>Step 7: Response Through Middleware</h3>
+
+                <p>
+                    The response flows back through the middleware pipeline in reverse order.
+                </p>
+
+                <h3>Step 8: Response Sent</h3>
+
+                <p>
+                    The HTTP response is sent back to the client.
+                </p>
+
+                <div class="section-divider"></div>
+
+                <h2>Model Binding in Detail</h2>
+
+                <p>
+                    Model binding extracts data from various sources:
+                </p>
+
+                <h3>1. Route Parameters</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">From Route</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-comment">// URL: /api/products/123</span>
+[<span class="code-class">HttpGet</span>(<span class="code-string">"{id}"</span>)]
+<span class="code-keyword">public</span> <span class="code-class">IActionResult</span> <span class="code-method">GetProduct</span>(<span class="code-type">int</span> <span class="code-variable">id</span>)  <span class="code-comment">// id = 123</span>
+{
+    <span class="code-keyword">return</span> <span class="code-method">Ok</span>();
+}</code></pre>
+
+                <h3>2. Query String</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">From Query</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-comment">// URL: /api/products?page=2&pageSize=10</span>
+[<span class="code-class">HttpGet</span>]
+<span class="code-keyword">public</span> <span class="code-class">IActionResult</span> <span class="code-method">GetProducts</span>(<span class="code-type">int</span> <span class="code-variable">page</span>, <span class="code-type">int</span> <span class="code-variable">pageSize</span>)
+{
+    <span class="code-comment">// page = 2, pageSize = 10</span>
+    <span class="code-keyword">return</span> <span class="code-method">Ok</span>();
+}</code></pre>
+
+                <h3>3. Request Body</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">From Body</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-comment">// POST /api/products</span>
+<span class="code-comment">// Body: { "name": "Laptop", "price": 999.99 }</span>
+
+[<span class="code-class">HttpPost</span>]
+<span class="code-keyword">public</span> <span class="code-class">IActionResult</span> <span class="code-method">CreateProduct</span>([<span class="code-class">FromBody</span>] <span class="code-class">ProductDto</span> <span class="code-variable">product</span>)
+{
+    <span class="code-comment">// product.Name = "Laptop"</span>
+    <span class="code-comment">// product.Price = 999.99</span>
+    <span class="code-keyword">return</span> <span class="code-method">Created</span>();
+}</code></pre>
+
+                <h3>4. Headers</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">From Header</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-comment">// Header: X-API-Key: secret123</span>
+
+[<span class="code-class">HttpGet</span>]
+<span class="code-keyword">public</span> <span class="code-class">IActionResult</span> <span class="code-method">GetProducts</span>([<span class="code-class">FromHeader</span>(<span class="code-variable">Name</span> = <span class="code-string">"X-API-Key"</span>)] <span class="code-type">string</span> <span class="code-variable">apiKey</span>)
+{
+    <span class="code-comment">// apiKey = "secret123"</span>
+    <span class="code-keyword">return</span> <span class="code-method">Ok</span>();
+}</code></pre>
+
+                <h3>5. Complex Objects</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">Multiple Sources</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-comment">// URL: /api/products/123?includeDetails=true</span>
+<span class="code-comment">// Body: { "quantity": 10 }</span>
+
+[<span class="code-class">HttpPut</span>(<span class="code-string">"{id}"</span>)]
+<span class="code-keyword">public</span> <span class="code-class">IActionResult</span> <span class="code-method">UpdateStock</span>(
+    <span class="code-type">int</span> <span class="code-variable">id</span>,                                    <span class="code-comment">// From route</span>
+    <span class="code-type">bool</span> <span class="code-variable">includeDetails</span>,                       <span class="code-comment">// From query</span>
+    [<span class="code-class">FromBody</span>] <span class="code-class">StockUpdateDto</span> <span class="code-variable">update</span>)    <span class="code-comment">// From body</span>
+{
+    <span class="code-keyword">return</span> <span class="code-method">Ok</span>();
+}</code></pre>
+
+                <div class="section-divider"></div>
+
+                <h2>Response Generation</h2>
+
+                <p>
+                    ASP.NET Core provides helper methods to generate responses:
+                </p>
+
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Method</th>
+                            <th>Status Code</th>
+                            <th>Use Case</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><code>Ok(data)</code></td>
+                            <td>200</td>
+                            <td>Successful GET request</td>
+                        </tr>
+                        <tr>
+                            <td><code>Created(uri, data)</code></td>
+                            <td>201</td>
+                            <td>Resource created (POST)</td>
+                        </tr>
+                        <tr>
+                            <td><code>NoContent()</code></td>
+                            <td>204</td>
+                            <td>Successful DELETE/PUT</td>
+                        </tr>
+                        <tr>
+                            <td><code>BadRequest()</code></td>
+                            <td>400</td>
+                            <td>Invalid request data</td>
+                        </tr>
+                        <tr>
+                            <td><code>Unauthorized()</code></td>
+                            <td>401</td>
+                            <td>Not authenticated</td>
+                        </tr>
+                        <tr>
+                            <td><code>Forbid()</code></td>
+                            <td>403</td>
+                            <td>Not authorized</td>
+                        </tr>
+                        <tr>
+                            <td><code>NotFound()</code></td>
+                            <td>404</td>
+                            <td>Resource not found</td>
+                        </tr>
+                        <tr>
+                            <td><code>Conflict()</code></td>
+                            <td>409</td>
+                            <td>Resource conflict</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="section-divider"></div>
+
+                <h2>Complete InvenTrack Example</h2>
+
+                <div class="code-header">
+                    <span class="code-filename">Controllers/ProductsController.cs</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code>[<span class="code-class">ApiController</span>]
+[<span class="code-class">Route</span>(<span class="code-string">"api/[controller]"</span>)]
+<span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">ProductsController</span> : <span class="code-class">ControllerBase</span>
+{
+    <span class="code-keyword">private</span> <span class="code-keyword">readonly</span> <span class="code-class">IProductService</span> <span class="code-variable">_productService</span>;
+    <span class="code-keyword">private</span> <span class="code-keyword">readonly</span> <span class="code-class">ILogger</span>&lt;<span class="code-class">ProductsController</span>&gt; <span class="code-variable">_logger</span>;
+
+    <span class="code-keyword">public</span> <span class="code-method">ProductsController</span>(
+        <span class="code-class">IProductService</span> <span class="code-variable">productService</span>,
+        <span class="code-class">ILogger</span>&lt;<span class="code-class">ProductsController</span>&gt; <span class="code-variable">logger</span>)
+    {
+        <span class="code-variable">_productService</span> = <span class="code-variable">productService</span>;
+        <span class="code-variable">_logger</span> = <span class="code-variable">logger</span>;
+    }
+
+    <span class="code-comment">// GET /api/products</span>
+    [<span class="code-class">HttpGet</span>]
+    <span class="code-keyword">public</span> <span class="code-keyword">async</span> <span class="code-class">Task</span>&lt;<span class="code-class">IActionResult</span>&gt; <span class="code-method">GetProducts</span>(
+        [<span class="code-class">FromQuery</span>] <span class="code-type">int</span> <span class="code-variable">page</span> = <span class="code-number">1</span>,
+        [<span class="code-class">FromQuery</span>] <span class="code-type">int</span> <span class="code-variable">pageSize</span> = <span class="code-number">10</span>)
+    {
+        <span class="code-variable">_logger</span>.<span class="code-method">LogInformation</span>(<span class="code-string">"Getting products - Page: </span>{<span class="code-variable">Page</span>}<span class="code-string">, PageSize: </span>{<span class="code-variable">PageSize</span>}<span class="code-string">"</span>, <span class="code-variable">page</span>, <span class="code-variable">pageSize</span>);
+        
+        <span class="code-keyword">var</span> <span class="code-variable">products</span> = <span class="code-keyword">await</span> <span class="code-variable">_productService</span>.<span class="code-method">GetPagedAsync</span>(<span class="code-variable">page</span>, <span class="code-variable">pageSize</span>);
+        
+        <span class="code-keyword">return</span> <span class="code-method">Ok</span>(<span class="code-variable">products</span>);
+    }
+
+    <span class="code-comment">// GET /api/products/123</span>
+    [<span class="code-class">HttpGet</span>(<span class="code-string">"{id}"</span>)]
+    <span class="code-keyword">public</span> <span class="code-keyword">async</span> <span class="code-class">Task</span>&lt;<span class="code-class">IActionResult</span>&gt; <span class="code-method">GetProduct</span>(<span class="code-type">int</span> <span class="code-variable">id</span>)
+    {
+        <span class="code-variable">_logger</span>.<span class="code-method">LogInformation</span>(<span class="code-string">"Getting product with ID: </span>{<span class="code-variable">Id</span>}<span class="code-string">"</span>, <span class="code-variable">id</span>);
+        
+        <span class="code-keyword">var</span> <span class="code-variable">product</span> = <span class="code-keyword">await</span> <span class="code-variable">_productService</span>.<span class="code-method">GetByIdAsync</span>(<span class="code-variable">id</span>);
+        
+        <span class="code-keyword">if</span> (<span class="code-variable">product</span> == <span class="code-keyword">null</span>)
+        {
+            <span class="code-variable">_logger</span>.<span class="code-method">LogWarning</span>(<span class="code-string">"Product not found: </span>{<span class="code-variable">Id</span>}<span class="code-string">"</span>, <span class="code-variable">id</span>);
+            <span class="code-keyword">return</span> <span class="code-method">NotFound</span>(<span class="code-keyword">new</span> { <span class="code-variable">message</span> = <span class="code-string">$"Product with ID </span>{<span class="code-variable">id</span>}<span class="code-string"> not found"</span> });
+        }
+        
+        <span class="code-keyword">return</span> <span class="code-method">Ok</span>(<span class="code-variable">product</span>);
+    }
+
+    <span class="code-comment">// POST /api/products</span>
+    [<span class="code-class">HttpPost</span>]
+    <span class="code-keyword">public</span> <span class="code-keyword">async</span> <span class="code-class">Task</span>&lt;<span class="code-class">IActionResult</span>&gt; <span class="code-method">CreateProduct</span>([<span class="code-class">FromBody</span>] <span class="code-class">CreateProductDto</span> <span class="code-variable">dto</span>)
+    {
+        <span class="code-variable">_logger</span>.<span class="code-method">LogInformation</span>(<span class="code-string">"Creating product: </span>{<span class="code-variable">Name</span>}<span class="code-string">"</span>, <span class="code-variable">dto</span>.<span class="code-variable">Name</span>);
+        
+        <span class="code-keyword">var</span> <span class="code-variable">product</span> = <span class="code-keyword">await</span> <span class="code-variable">_productService</span>.<span class="code-method">CreateAsync</span>(<span class="code-variable">dto</span>);
+        
+        <span class="code-keyword">return</span> <span class="code-method">CreatedAtAction</span>(
+            <span class="code-keyword">nameof</span>(<span class="code-method">GetProduct</span>),
+            <span class="code-keyword">new</span> { <span class="code-variable">id</span> = <span class="code-variable">product</span>.<span class="code-variable">Id</span> },
+            <span class="code-variable">product</span>);
+    }
+
+    <span class="code-comment">// PUT /api/products/123</span>
+    [<span class="code-class">HttpPut</span>(<span class="code-string">"{id}"</span>)]
+    <span class="code-keyword">public</span> <span class="code-keyword">async</span> <span class="code-class">Task</span>&lt;<span class="code-class">IActionResult</span>&gt; <span class="code-method">UpdateProduct</span>(
+        <span class="code-type">int</span> <span class="code-variable">id</span>,
+        [<span class="code-class">FromBody</span>] <span class="code-class">UpdateProductDto</span> <span class="code-variable">dto</span>)
+    {
+        <span class="code-variable">_logger</span>.<span class="code-method">LogInformation</span>(<span class="code-string">"Updating product: </span>{<span class="code-variable">Id</span>}<span class="code-string">"</span>, <span class="code-variable">id</span>);
+        
+        <span class="code-keyword">var</span> <span class="code-variable">success</span> = <span class="code-keyword">await</span> <span class="code-variable">_productService</span>.<span class="code-method">UpdateAsync</span>(<span class="code-variable">id</span>, <span class="code-variable">dto</span>);
+        
+        <span class="code-keyword">if</span> (!<span class="code-variable">success</span>)
+            <span class="code-keyword">return</span> <span class="code-method">NotFound</span>();
+        
+        <span class="code-keyword">return</span> <span class="code-method">NoContent</span>();
+    }
+
+    <span class="code-comment">// DELETE /api/products/123</span>
+    [<span class="code-class">HttpDelete</span>(<span class="code-string">"{id}"</span>)]
+    <span class="code-keyword">public</span> <span class="code-keyword">async</span> <span class="code-class">Task</span>&lt;<span class="code-class">IActionResult</span>&gt; <span class="code-method">DeleteProduct</span>(<span class="code-type">int</span> <span class="code-variable">id</span>)
+    {
+        <span class="code-variable">_logger</span>.<span class="code-method">LogInformation</span>(<span class="code-string">"Deleting product: </span>{<span class="code-variable">Id</span>}<span class="code-string">"</span>, <span class="code-variable">id</span>);
+        
+        <span class="code-keyword">var</span> <span class="code-variable">success</span> = <span class="code-keyword">await</span> <span class="code-variable">_productService</span>.<span class="code-method">DeleteAsync</span>(<span class="code-variable">id</span>);
+        
+        <span class="code-keyword">if</span> (!<span class="code-variable">success</span>)
+            <span class="code-keyword">return</span> <span class="code-method">NotFound</span>();
+        
+        <span class="code-keyword">return</span> <span class="code-method">NoContent</span>();
+    }
+}</code></pre>
+
+                <h2>Key Takeaways</h2>
+
+                <ul>
+                    <li><strong>8-step lifecycle</strong>: Request → Middleware → Routing → Binding → Execution → Result
+                        → Middleware → Response</li>
+                    <li><strong>Middleware pipeline</strong>: Processes request before reaching controller</li>
+                    <li><strong>Routing</strong>: Matches URL to controller/action</li>
+                    <li><strong>Model binding</strong>: Extracts data from route, query, body, headers</li>
+                    <li><strong>Action execution</strong>: Business logic runs</li>
+                    <li><strong>Result execution</strong>: Converts result to HTTP response</li>
+                    <li>Use <code>Ok()</code>, <code>Created()</code>, <code>NotFound()</code>, etc. for responses</li>
+                    <li>Model binding sources: <code>[FromRoute]</code>, <code>[FromQuery]</code>,
+                        <code>[FromBody]</code>, <code>[FromHeader]</code></li>
+                    <li>Response flows back through middleware in reverse</li>
+                    <li>Logging helps trace request flow</li>
+                </ul>
+
+                <div class="callout callout-concept">
+                    <div class="callout-title">🎯 Next Steps</div>
+                    <p>
+                        You now understand the complete request/response cycle! In the next section, we'll explore
+                        <strong>HTTP Methods</strong>—GET, POST, PUT, DELETE, PATCH, and when to use each one.
+                    </p>
+                </div>
+
+                <nav class="page-nav">
+                    <a href="01-http-basics.html" class="prev">HTTP Protocol Basics</a>
+                    <a href="03-http-methods.html" class="next">HTTP Methods</a>
+                </nav>
+
+            
+        <footer class="page-footer">
+          Built with 💜 by <a href="https://akwasi.dev" target="_blank" rel="noopener noreferrer">Akwasi Adu-Kyeremeh</a> for developers who want to truly understand what they're building.
+        </footer>
+
+      </div>
+        </main>
+    </div>
+</body>
+
+</html>

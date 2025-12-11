@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>What is an ORM? | ASP.NET Core Mastery</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;500&family=Source+Serif+4:ital,wght@0,400;0,600;1,400&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="../assets/style.css">
+</head>
+
+<body>
+    <div class="page-wrapper">
+        <aside class="sidebar">
+            <a href="../index.html" class="sidebar-logo">ASP.NET Core Mastery</a>
+            <div class="sidebar-section">Part IX: Entity Framework Core</div>
+            <ul class="sidebar-nav">
+                <li><a href="01-what-is-orm.html" class="active">What is an ORM?</a></li>
+                <li><a href="02-dbcontext-entities.html">DbContext and Entities</a></li>
+                <li><a href="03-code-first-migrations.html">Code-First Migrations</a></li>
+                <li><a href="04-querying-linq.html">Querying Data with LINQ</a></li>
+                <li><a href="05-relationships.html">Relationships</a></li>
+                <li><a href="06-loading-strategies.html">Loading Strategies</a></li>
+                <li><a href="07-advanced-ef-core.html">Advanced EF Core</a></li>
+            </ul>
+            <div class="sidebar-section">Resources</div>
+            <ul class="sidebar-nav">
+                <li><a href="../index.html">Full Roadmap</a></li>
+            </ul>
+        </aside>
+
+        <main class="main-content">
+            <div class="content-container">
+                <nav class="breadcrumb">
+                    <a href="../index.html">Home</a>
+                    <span>→</span>
+                    <a href="01-what-is-orm.html">Part IX: Entity Framework Core</a>
+                    <span>→</span>
+                    What is an ORM?
+                </nav>
+
+                <div class="progress-indicator">
+                    <span>Section 1 of 7</span>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 14.29%"></div>
+                    </div>
+                </div>
+
+                <h1>What is an ORM?</h1>
+
+                <div class="learning-objectives">
+                    <h3>🎯 What You'll Learn</h3>
+                    <ul>
+                        <li>What ORM stands for</li>
+                        <li>Why use an ORM</li>
+                        <li>What is Entity Framework Core</li>
+                        <li>EF Core vs ADO.NET</li>
+                        <li>Database providers</li>
+                        <li>When to use EF Core</li>
+                    </ul>
+                </div>
+
+                <h2>What is an ORM?</h2>
+
+                <p>
+                    <strong>ORM</strong> stands for <strong>Object-Relational Mapping</strong>. It's a technique that
+                    lets you interact with a database using object-oriented code instead of writing SQL.
+                </p>
+
+                <div class="code-header">
+                    <span class="code-filename">Without ORM (ADO.NET)</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-keyword">using</span> <span class="code-keyword">var</span> <span class="code-variable">connection</span> = <span class="code-keyword">new</span> <span class="code-class">SqlConnection</span>(<span class="code-variable">connectionString</span>);
+<span class="code-variable">connection</span>.<span class="code-method">Open</span>();
+
+<span class="code-keyword">var</span> <span class="code-variable">command</span> = <span class="code-keyword">new</span> <span class="code-class">SqlCommand</span>(<span class="code-string">"SELECT * FROM Products WHERE Id = @id"</span>, <span class="code-variable">connection</span>);
+<span class="code-variable">command</span>.<span class="code-variable">Parameters</span>.<span class="code-method">AddWithValue</span>(<span class="code-string">"@id"</span>, <span class="code-number">1</span>);
+
+<span class="code-keyword">using</span> <span class="code-keyword">var</span> <span class="code-variable">reader</span> = <span class="code-variable">command</span>.<span class="code-method">ExecuteReader</span>();
+<span class="code-keyword">if</span> (<span class="code-variable">reader</span>.<span class="code-method">Read</span>())
+{
+    <span class="code-keyword">var</span> <span class="code-variable">product</span> = <span class="code-keyword">new</span> <span class="code-class">Product</span>
+    {
+        <span class="code-variable">Id</span> = (<span class="code-type">int</span>)<span class="code-variable">reader</span>[<span class="code-string">"Id"</span>],
+        <span class="code-variable">Name</span> = (<span class="code-type">string</span>)<span class="code-variable">reader</span>[<span class="code-string">"Name"</span>],
+        <span class="code-variable">Price</span> = (<span class="code-type">decimal</span>)<span class="code-variable">reader</span>[<span class="code-string">"Price"</span>]
+    };
+}</code></pre>
+
+                <div class="code-header">
+                    <span class="code-filename">With ORM (Entity Framework Core)</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-keyword">var</span> <span class="code-variable">product</span> = <span class="code-keyword">await</span> <span class="code-variable">_context</span>.<span class="code-variable">Products</span>.<span class="code-method">FindAsync</span>(<span class="code-number">1</span>);</code></pre>
+
+                <div class="callout callout-concept">
+                    <div class="callout-title">💡 Key Concept</div>
+                    <p>
+                        ORMs bridge the gap between object-oriented programming and relational databases,
+                        allowing you to work with database data as C# objects.
+                    </p>
+                </div>
+
+                <div class="section-divider"></div>
+
+                <h2>Why Use an ORM?</h2>
+
+                <h3>Benefits</h3>
+
+                <ul>
+                    <li><strong>Productivity</strong>: Write less code, focus on business logic</li>
+                    <li><strong>Type safety</strong>: Compile-time checking instead of runtime errors</li>
+                    <li><strong>Database agnostic</strong>: Switch databases with minimal code changes</li>
+                    <li><strong>LINQ support</strong>: Query with C# instead of SQL</li>
+                    <li><strong>Change tracking</strong>: Automatic detection of modified entities</li>
+                    <li><strong>Migrations</strong>: Version control for database schema</li>
+                    <li><strong>Relationships</strong>: Automatic handling of foreign keys</li>
+                </ul>
+
+                <h3>Drawbacks</h3>
+
+                <ul>
+                    <li><strong>Performance overhead</strong>: Slightly slower than raw SQL</li>
+                    <li><strong>Learning curve</strong>: Need to understand ORM concepts</li>
+                    <li><strong>Complex queries</strong>: Some queries are harder to express</li>
+                    <li><strong>Generated SQL</strong>: Less control over exact SQL</li>
+                </ul>
+
+                <div class="section-divider"></div>
+
+                <h2>What is Entity Framework Core?</h2>
+
+                <p>
+                    <strong>Entity Framework Core (EF Core)</strong> is Microsoft's modern, lightweight,
+                    cross-platform ORM for .NET.
+                </p>
+
+                <h3>Key Features</h3>
+
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Feature</th>
+                            <th>Description</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>LINQ Queries</strong></td>
+                            <td>Query databases using C# LINQ syntax</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Change Tracking</strong></td>
+                            <td>Automatically tracks entity changes</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Migrations</strong></td>
+                            <td>Code-first database schema management</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Relationships</strong></td>
+                            <td>One-to-one, one-to-many, many-to-many</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Lazy Loading</strong></td>
+                            <td>Load related data on demand</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Raw SQL</strong></td>
+                            <td>Execute raw SQL when needed</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="section-divider"></div>
+
+                <h2>EF Core vs ADO.NET</h2>
+
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Aspect</th>
+                            <th>EF Core</th>
+                            <th>ADO.NET</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Code</strong></td>
+                            <td>Less code, more productive</td>
+                            <td>More code, more control</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Type Safety</strong></td>
+                            <td>Compile-time checking</td>
+                            <td>Runtime errors</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Performance</strong></td>
+                            <td>Good for most scenarios</td>
+                            <td>Fastest possible</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Learning Curve</strong></td>
+                            <td>Moderate</td>
+                            <td>Steeper (SQL knowledge)</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Maintenance</strong></td>
+                            <td>Easier to maintain</td>
+                            <td>More manual work</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="section-divider"></div>
+
+                <h2>Database Providers</h2>
+
+                <p>
+                    EF Core supports multiple databases through <strong>database providers</strong>:
+                </p>
+
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Database</th>
+                            <th>Provider Package</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>SQL Server</td>
+                            <td><code>Microsoft.EntityFrameworkCore.SqlServer</code></td>
+                        </tr>
+                        <tr>
+                            <td>PostgreSQL</td>
+                            <td><code>Npgsql.EntityFrameworkCore.PostgreSQL</code></td>
+                        </tr>
+                        <tr>
+                            <td>MySQL</td>
+                            <td><code>Pomelo.EntityFrameworkCore.MySql</code></td>
+                        </tr>
+                        <tr>
+                            <td>SQLite</td>
+                            <td><code>Microsoft.EntityFrameworkCore.Sqlite</code></td>
+                        </tr>
+                        <tr>
+                            <td>In-Memory</td>
+                            <td><code>Microsoft.EntityFrameworkCore.InMemory</code></td>
+                        </tr>
+                        <tr>
+                            <td>Cosmos DB</td>
+                            <td><code>Microsoft.EntityFrameworkCore.Cosmos</code></td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h3>Installation Example</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">Install SQL Server Provider</span>
+                    <span class="code-language">Bash</span>
+                </div>
+                <pre><code>dotnet add package Microsoft.EntityFrameworkCore.SqlServer
+dotnet add package Microsoft.EntityFrameworkCore.Tools</code></pre>
+
+                <div class="section-divider"></div>
+
+                <h2>When to Use EF Core</h2>
+
+                <h3>✅ Good Use Cases</h3>
+
+                <ul>
+                    <li><strong>CRUD applications</strong>: Standard create/read/update/delete</li>
+                    <li><strong>Line-of-business apps</strong>: Enterprise applications</li>
+                    <li><strong>Rapid development</strong>: Prototypes and MVPs</li>
+                    <li><strong>Domain-driven design</strong>: Rich domain models</li>
+                    <li><strong>Code-first approach</strong>: Define schema in code</li>
+                </ul>
+
+                <h3>❌ Consider Alternatives When</h3>
+
+                <ul>
+                    <li><strong>High performance critical</strong>: Microseconds matter</li>
+                    <li><strong>Complex queries</strong>: Heavy reporting, analytics</li>
+                    <li><strong>Stored procedures</strong>: Existing SP-heavy architecture</li>
+                    <li><strong>Bulk operations</strong>: Millions of records at once</li>
+                    <li><strong>Legacy databases</strong>: Complex existing schemas</li>
+                </ul>
+
+                <div class="section-divider"></div>
+
+                <h2>Simple Example</h2>
+
+                <div class="code-header">
+                    <span class="code-filename">Product Entity</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">Product</span>
+{
+    <span class="code-keyword">public</span> <span class="code-type">int</span> <span class="code-variable">Id</span> { <span class="code-keyword">get</span>; <span class="code-keyword">set</span>; }
+    <span class="code-keyword">public</span> <span class="code-type">string</span> <span class="code-variable">Name</span> { <span class="code-keyword">get</span>; <span class="code-keyword">set</span>; } = <span class="code-keyword">string</span>.<span class="code-variable">Empty</span>;
+    <span class="code-keyword">public</span> <span class="code-type">decimal</span> <span class="code-variable">Price</span> { <span class="code-keyword">get</span>; <span class="code-keyword">set</span>; }
+    <span class="code-keyword">public</span> <span class="code-type">int</span> <span class="code-variable">Quantity</span> { <span class="code-keyword">get</span>; <span class="code-keyword">set</span>; }
+}</code></pre>
+
+                <div class="code-header">
+                    <span class="code-filename">DbContext</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">InvenTrackDbContext</span> : <span class="code-class">DbContext</span>
+{
+    <span class="code-keyword">public</span> <span class="code-class">DbSet</span>&lt;<span class="code-class">Product</span>&gt; <span class="code-variable">Products</span> { <span class="code-keyword">get</span>; <span class="code-keyword">set</span>; }
+
+    <span class="code-keyword">protected</span> <span class="code-keyword">override</span> <span class="code-type">void</span> <span class="code-method">OnConfiguring</span>(<span class="code-class">DbContextOptionsBuilder</span> <span class="code-variable">optionsBuilder</span>)
+    {
+        <span class="code-variable">optionsBuilder</span>.<span class="code-method">UseSqlServer</span>(<span class="code-string">"Server=.;Database=InvenTrack;Trusted_Connection=True;"</span>);
+    }
+}</code></pre>
+
+                <div class="code-header">
+                    <span class="code-filename">Using EF Core</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-keyword">using</span> <span class="code-keyword">var</span> <span class="code-variable">context</span> = <span class="code-keyword">new</span> <span class="code-class">InvenTrackDbContext</span>();
+
+<span class="code-comment">// Create</span>
+<span class="code-keyword">var</span> <span class="code-variable">product</span> = <span class="code-keyword">new</span> <span class="code-class">Product</span> { <span class="code-variable">Name</span> = <span class="code-string">"Laptop"</span>, <span class="code-variable">Price</span> = <span class="code-number">999.99m</span>, <span class="code-variable">Quantity</span> = <span class="code-number">10</span> };
+<span class="code-variable">context</span>.<span class="code-variable">Products</span>.<span class="code-method">Add</span>(<span class="code-variable">product</span>);
+<span class="code-keyword">await</span> <span class="code-variable">context</span>.<span class="code-method">SaveChangesAsync</span>();
+
+<span class="code-comment">// Read</span>
+<span class="code-keyword">var</span> <span class="code-variable">allProducts</span> = <span class="code-keyword">await</span> <span class="code-variable">context</span>.<span class="code-variable">Products</span>.<span class="code-method">ToListAsync</span>();
+
+<span class="code-comment">// Update</span>
+<span class="code-variable">product</span>.<span class="code-variable">Price</span> = <span class="code-number">899.99m</span>;
+<span class="code-keyword">await</span> <span class="code-variable">context</span>.<span class="code-method">SaveChangesAsync</span>();
+
+<span class="code-comment">// Delete</span>
+<span class="code-variable">context</span>.<span class="code-variable">Products</span>.<span class="code-method">Remove</span>(<span class="code-variable">product</span>);
+<span class="code-keyword">await</span> <span class="code-variable">context</span>.<span class="code-method">SaveChangesAsync</span>();</code></pre>
+
+                <h2>Key Takeaways</h2>
+
+                <ul>
+                    <li><strong>ORM</strong>: Object-Relational Mapping bridges objects and databases</li>
+                    <li><strong>EF Core</strong>: Microsoft's modern, cross-platform ORM</li>
+                    <li><strong>Benefits</strong>: Productivity, type safety, LINQ support</li>
+                    <li><strong>Trade-offs</strong>: Slight performance overhead vs convenience</li>
+                    <li><strong>Database providers</strong>: Support for SQL Server, PostgreSQL, MySQL, etc.</li>
+                    <li><strong>Use cases</strong>: Best for CRUD apps, rapid development, domain models</li>
+                    <li><strong>DbContext</strong>: Central class for database operations</li>
+                    <li><strong>Entities</strong>: C# classes that map to database tables</li>
+                </ul>
+
+                <div class="callout callout-concept">
+                    <div class="callout-title">🎯 Next Steps</div>
+                    <p>
+                        You now understand what an ORM is and why EF Core is useful! In the next section,
+                        we'll dive deeper into <strong>DbContext and Entities</strong>—how to define your
+                        database context and entity classes.
+                    </p>
+                </div>
+
+                <nav class="page-nav">
+                    <a href="../index.html" class="prev">Back to Roadmap</a>
+                    <a href="02-dbcontext-entities.html" class="next">DbContext and Entities</a>
+                </nav>
+
+            
+        <footer class="page-footer">
+          Built with 💜 by <a href="https://akwasi.dev" target="_blank" rel="noopener noreferrer">Akwasi Adu-Kyeremeh</a> for developers who want to truly understand what they're building.
+        </footer>
+
+      </div>
+        </main>
+    </div>
+</body>
+
+</html>

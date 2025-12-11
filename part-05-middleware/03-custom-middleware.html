@@ -1,0 +1,591 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Creating Custom Middleware | ASP.NET Core Mastery</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;500&family=Source+Serif+4:ital,wght@0,400;0,600;1,400&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="../assets/style.css">
+</head>
+
+<body>
+    <div class="page-wrapper">
+        <aside class="sidebar">
+            <a href="../index.html" class="sidebar-logo">ASP.NET Core Mastery</a>
+            <div class="sidebar-section">Part V: Middleware & Pipeline</div>
+            <ul class="sidebar-nav">
+                <li><a href="01-request-pipeline.html">The Request Pipeline</a></li>
+                <li><a href="02-built-in-middleware.html">Built-in Middleware</a></li>
+                <li><a href="03-custom-middleware.html" class="active">Creating Custom Middleware</a></li>
+                <li><a href="04-middleware-ordering.html">Middleware Ordering</a></li>
+                <li><a href="05-exception-handling.html">Exception Handling Middleware</a></li>
+            </ul>
+            <div class="sidebar-section">Resources</div>
+            <ul class="sidebar-nav">
+                <li><a href="../index.html">Full Roadmap</a></li>
+            </ul>
+        </aside>
+
+        <main class="main-content">
+            <div class="content-container">
+                <nav class="breadcrumb">
+                    <a href="../index.html">Home</a>
+                    <span>→</span>
+                    <a href="01-request-pipeline.html">Part V: Middleware & Pipeline</a>
+                    <span>→</span>
+                    Creating Custom Middleware
+                </nav>
+
+                <div class="progress-indicator">
+                    <span>Section 3 of 5</span>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 60%"></div>
+                    </div>
+                </div>
+
+                <h1>Creating Custom Middleware</h1>
+
+                <div class="learning-objectives">
+                    <h3>🎯 What You'll Learn</h3>
+                    <ul>
+                        <li>Three ways to create custom middleware</li>
+                        <li>Inline middleware with app.Use()</li>
+                        <li>Convention-based middleware classes</li>
+                        <li>Factory-based middleware with IMiddleware</li>
+                        <li>Dependency injection in middleware</li>
+                        <li>Extension methods for middleware</li>
+                        <li>Practical InvenTrack examples</li>
+                        <li>Best practices</li>
+                    </ul>
+                </div>
+
+                <h2>Three Ways to Create Middleware</h2>
+
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Approach</th>
+                            <th>When to Use</th>
+                            <th>Complexity</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Inline</strong></td>
+                            <td>Simple, one-off logic</td>
+                            <td>Low</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Convention-based</strong></td>
+                            <td>Most common, reusable</td>
+                            <td>Medium</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Factory-based</strong></td>
+                            <td>Complex DI scenarios</td>
+                            <td>High</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="section-divider"></div>
+
+                <h2>1. Inline Middleware</h2>
+
+                <p>
+                    Use <code>app.Use()</code> for simple, one-off middleware:
+                </p>
+
+                <div class="code-header">
+                    <span class="code-filename">Request Timing Middleware</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-variable">app</span>.<span class="code-method">Use</span>(<span class="code-keyword">async</span> (<span class="code-variable">context</span>, <span class="code-variable">next</span>) =&gt;
+{
+    <span class="code-keyword">var</span> <span class="code-variable">stopwatch</span> = <span class="code-class">Stopwatch</span>.<span class="code-method">StartNew</span>();
+    
+    <span class="code-keyword">await</span> <span class="code-variable">next</span>();
+    
+    <span class="code-variable">stopwatch</span>.<span class="code-method">Stop</span>();
+    <span class="code-keyword">var</span> <span class="code-variable">elapsed</span> = <span class="code-variable">stopwatch</span>.<span class="code-variable">ElapsedMilliseconds</span>;
+    
+    <span class="code-variable">context</span>.<span class="code-variable">Response</span>.<span class="code-variable">Headers</span>[<span class="code-string">"X-Response-Time"</span>] = <span class="code-string">$"</span>{<span class="code-variable">elapsed</span>}<span class="code-string">ms"</span>;
+});</code></pre>
+
+                <h3>API Key Validation</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">Inline API Key Check</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-variable">app</span>.<span class="code-method">Use</span>(<span class="code-keyword">async</span> (<span class="code-variable">context</span>, <span class="code-variable">next</span>) =&gt;
+{
+    <span class="code-keyword">if</span> (!<span class="code-variable">context</span>.<span class="code-variable">Request</span>.<span class="code-variable">Headers</span>.<span class="code-method">TryGetValue</span>(<span class="code-string">"X-API-Key"</span>, <span class="code-keyword">out</span> <span class="code-keyword">var</span> <span class="code-variable">apiKey</span>))
+    {
+        <span class="code-variable">context</span>.<span class="code-variable">Response</span>.<span class="code-variable">StatusCode</span> = <span class="code-number">401</span>;
+        <span class="code-keyword">await</span> <span class="code-variable">context</span>.<span class="code-variable">Response</span>.<span class="code-method">WriteAsync</span>(<span class="code-string">"API Key missing"</span>);
+        <span class="code-keyword">return</span>; <span class="code-comment">// Short-circuit</span>
+    }
+    
+    <span class="code-keyword">if</span> (<span class="code-variable">apiKey</span> != <span class="code-string">"secret-key-123"</span>)
+    {
+        <span class="code-variable">context</span>.<span class="code-variable">Response</span>.<span class="code-variable">StatusCode</span> = <span class="code-number">403</span>;
+        <span class="code-keyword">await</span> <span class="code-variable">context</span>.<span class="code-variable">Response</span>.<span class="code-method">WriteAsync</span>(<span class="code-string">"Invalid API Key"</span>);
+        <span class="code-keyword">return</span>;
+    }
+    
+    <span class="code-keyword">await</span> <span class="code-variable">next</span>();
+});</code></pre>
+
+                <div class="callout callout-tip">
+                    <div class="callout-title">💡 When to Use Inline</div>
+                    <p>
+                        Inline middleware is great for:
+                    </p>
+                    <ul>
+                        <li>Quick prototyping</li>
+                        <li>Simple logic that won't be reused</li>
+                        <li>Learning and experimentation</li>
+                    </ul>
+                    <p>
+                        For production code, use convention-based or factory-based middleware.
+                    </p>
+                </div>
+
+                <div class="section-divider"></div>
+
+                <h2>2. Convention-Based Middleware</h2>
+
+                <p>
+                    The most common approach. Create a class with a specific structure:
+                </p>
+
+                <h3>Basic Structure</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">Middleware/RequestLoggingMiddleware.cs</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">RequestLoggingMiddleware</span>
+{
+    <span class="code-keyword">private</span> <span class="code-keyword">readonly</span> <span class="code-class">RequestDelegate</span> <span class="code-variable">_next</span>;
+    <span class="code-keyword">private</span> <span class="code-keyword">readonly</span> <span class="code-class">ILogger</span>&lt;<span class="code-class">RequestLoggingMiddleware</span>&gt; <span class="code-variable">_logger</span>;
+
+    <span class="code-comment">// Constructor: Inject RequestDelegate and singleton services</span>
+    <span class="code-keyword">public</span> <span class="code-method">RequestLoggingMiddleware</span>(
+        <span class="code-class">RequestDelegate</span> <span class="code-variable">next</span>,
+        <span class="code-class">ILogger</span>&lt;<span class="code-class">RequestLoggingMiddleware</span>&gt; <span class="code-variable">logger</span>)
+    {
+        <span class="code-variable">_next</span> = <span class="code-variable">next</span>;
+        <span class="code-variable">_logger</span> = <span class="code-variable">logger</span>;
+    }
+
+    <span class="code-comment">// InvokeAsync: Process the request</span>
+    <span class="code-keyword">public</span> <span class="code-keyword">async</span> <span class="code-class">Task</span> <span class="code-method">InvokeAsync</span>(<span class="code-class">HttpContext</span> <span class="code-variable">context</span>)
+    {
+        <span class="code-variable">_logger</span>.<span class="code-method">LogInformation</span>(
+            <span class="code-string">"Request: </span>{<span class="code-variable">Method</span>}<span class="code-string"> </span>{<span class="code-variable">Path</span>}<span class="code-string">"</span>,
+            <span class="code-variable">context</span>.<span class="code-variable">Request</span>.<span class="code-variable">Method</span>,
+            <span class="code-variable">context</span>.<span class="code-variable">Request</span>.<span class="code-variable">Path</span>);
+
+        <span class="code-keyword">await</span> <span class="code-variable">_next</span>(<span class="code-variable">context</span>);
+
+        <span class="code-variable">_logger</span>.<span class="code-method">LogInformation</span>(
+            <span class="code-string">"Response: </span>{<span class="code-variable">StatusCode</span>}<span class="code-string">"</span>,
+            <span class="code-variable">context</span>.<span class="code-variable">Response</span>.<span class="code-variable">StatusCode</span>);
+    }
+}</code></pre>
+
+                <h3>Registration</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">Program.cs</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-variable">app</span>.<span class="code-method">UseMiddleware</span>&lt;<span class="code-class">RequestLoggingMiddleware</span>&gt;();</code></pre>
+
+                <h3>Extension Method (Recommended)</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">Extensions/MiddlewareExtensions.cs</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-keyword">public</span> <span class="code-keyword">static</span> <span class="code-keyword">class</span> <span class="code-class">MiddlewareExtensions</span>
+{
+    <span class="code-keyword">public</span> <span class="code-keyword">static</span> <span class="code-class">IApplicationBuilder</span> <span class="code-method">UseRequestLogging</span>(
+        <span class="code-keyword">this</span> <span class="code-class">IApplicationBuilder</span> <span class="code-variable">app</span>)
+    {
+        <span class="code-keyword">return</span> <span class="code-variable">app</span>.<span class="code-method">UseMiddleware</span>&lt;<span class="code-class">RequestLoggingMiddleware</span>&gt;();
+    }
+}</code></pre>
+
+                <div class="code-header">
+                    <span class="code-filename">Program.cs (Clean!)</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-variable">app</span>.<span class="code-method">UseRequestLogging</span>();</code></pre>
+
+                <div class="section-divider"></div>
+
+                <h2>Dependency Injection in Middleware</h2>
+
+                <h3>Constructor Injection (Singleton Services Only)</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">Constructor DI</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">MyMiddleware</span>
+{
+    <span class="code-keyword">private</span> <span class="code-keyword">readonly</span> <span class="code-class">RequestDelegate</span> <span class="code-variable">_next</span>;
+    <span class="code-keyword">private</span> <span class="code-keyword">readonly</span> <span class="code-class">ILogger</span>&lt;<span class="code-class">MyMiddleware</span>&gt; <span class="code-variable">_logger</span>; <span class="code-comment">// Singleton</span>
+
+    <span class="code-keyword">public</span> <span class="code-method">MyMiddleware</span>(
+        <span class="code-class">RequestDelegate</span> <span class="code-variable">next</span>,
+        <span class="code-class">ILogger</span>&lt;<span class="code-class">MyMiddleware</span>&gt; <span class="code-variable">logger</span>)
+    {
+        <span class="code-variable">_next</span> = <span class="code-variable">next</span>;
+        <span class="code-variable">_logger</span> = <span class="code-variable">logger</span>;
+    }
+}</code></pre>
+
+                <h3>InvokeAsync Injection (Scoped Services)</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">InvokeAsync DI</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">DatabaseHealthCheckMiddleware</span>
+{
+    <span class="code-keyword">private</span> <span class="code-keyword">readonly</span> <span class="code-class">RequestDelegate</span> <span class="code-variable">_next</span>;
+
+    <span class="code-keyword">public</span> <span class="code-method">DatabaseHealthCheckMiddleware</span>(<span class="code-class">RequestDelegate</span> <span class="code-variable">next</span>)
+    {
+        <span class="code-variable">_next</span> = <span class="code-variable">next</span>;
+    }
+
+    <span class="code-comment">// Inject scoped services here!</span>
+    <span class="code-keyword">public</span> <span class="code-keyword">async</span> <span class="code-class">Task</span> <span class="code-method">InvokeAsync</span>(
+        <span class="code-class">HttpContext</span> <span class="code-variable">context</span>,
+        <span class="code-class">InvenTrackDbContext</span> <span class="code-variable">dbContext</span>) <span class="code-comment">// Scoped!</span>
+    {
+        <span class="code-keyword">if</span> (<span class="code-variable">context</span>.<span class="code-variable">Request</span>.<span class="code-variable">Path</span> == <span class="code-string">"/health"</span>)
+        {
+            <span class="code-keyword">var</span> <span class="code-variable">canConnect</span> = <span class="code-keyword">await</span> <span class="code-variable">dbContext</span>.<span class="code-variable">Database</span>.<span class="code-method">CanConnectAsync</span>();
+            
+            <span class="code-variable">context</span>.<span class="code-variable">Response</span>.<span class="code-variable">StatusCode</span> = <span class="code-variable">canConnect</span> ? <span class="code-number">200</span> : <span class="code-number">503</span>;
+            <span class="code-keyword">await</span> <span class="code-variable">context</span>.<span class="code-variable">Response</span>.<span class="code-method">WriteAsync</span>(
+                <span class="code-variable">canConnect</span> ? <span class="code-string">"Healthy"</span> : <span class="code-string">"Unhealthy"</span>);
+            <span class="code-keyword">return</span>;
+        }
+        
+        <span class="code-keyword">await</span> <span class="code-variable">_next</span>(<span class="code-variable">context</span>);
+    }
+}</code></pre>
+
+                <div class="callout callout-warning">
+                    <div class="callout-title">⚠️ DI Rules for Middleware</div>
+                    <p>
+                        <strong>Constructor</strong>: Only inject <strong>singleton</strong> services (ILogger,
+                        IConfiguration)<br>
+                        <strong>InvokeAsync</strong>: Can inject <strong>scoped</strong> services (DbContext,
+                        repositories)
+                    </p>
+                    <p>
+                        Why? Middleware instances are created once (singleton lifetime), but InvokeAsync is called
+                        per request.
+                    </p>
+                </div>
+
+                <div class="section-divider"></div>
+
+                <h2>3. Factory-Based Middleware</h2>
+
+                <p>
+                    Implement <code>IMiddleware</code> for complex DI scenarios:
+                </p>
+
+                <div class="code-header">
+                    <span class="code-filename">Middleware/TenantMiddleware.cs</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">TenantMiddleware</span> : <span class="code-class">IMiddleware</span>
+{
+    <span class="code-keyword">private</span> <span class="code-keyword">readonly</span> <span class="code-class">ITenantService</span> <span class="code-variable">_tenantService</span>;
+
+    <span class="code-comment">// Can inject scoped services in constructor!</span>
+    <span class="code-keyword">public</span> <span class="code-method">TenantMiddleware</span>(<span class="code-class">ITenantService</span> <span class="code-variable">tenantService</span>)
+    {
+        <span class="code-variable">_tenantService</span> = <span class="code-variable">tenantService</span>;
+    }
+
+    <span class="code-keyword">public</span> <span class="code-keyword">async</span> <span class="code-class">Task</span> <span class="code-method">InvokeAsync</span>(<span class="code-class">HttpContext</span> <span class="code-variable">context</span>, <span class="code-class">RequestDelegate</span> <span class="code-variable">next</span>)
+    {
+        <span class="code-keyword">var</span> <span class="code-variable">tenantId</span> = <span class="code-variable">context</span>.<span class="code-variable">Request</span>.<span class="code-variable">Headers</span>[<span class="code-string">"X-Tenant-Id"</span>].<span class="code-method">ToString</span>();
+        
+        <span class="code-keyword">if</span> (<span class="code-type">string</span>.<span class="code-method">IsNullOrEmpty</span>(<span class="code-variable">tenantId</span>))
+        {
+            <span class="code-variable">context</span>.<span class="code-variable">Response</span>.<span class="code-variable">StatusCode</span> = <span class="code-number">400</span>;
+            <span class="code-keyword">await</span> <span class="code-variable">context</span>.<span class="code-variable">Response</span>.<span class="code-method">WriteAsync</span>(<span class="code-string">"Tenant ID required"</span>);
+            <span class="code-keyword">return</span>;
+        }
+        
+        <span class="code-keyword">await</span> <span class="code-variable">_tenantService</span>.<span class="code-method">SetCurrentTenantAsync</span>(<span class="code-variable">tenantId</span>);
+        
+        <span class="code-keyword">await</span> <span class="code-variable">next</span>(<span class="code-variable">context</span>);
+    }
+}</code></pre>
+
+                <h3>Registration</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">Program.cs</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-comment">// Register as scoped</span>
+<span class="code-variable">builder</span>.<span class="code-variable">Services</span>.<span class="code-method">AddScoped</span>&lt;<span class="code-class">TenantMiddleware</span>&gt;();
+
+<span class="code-comment">// Use it</span>
+<span class="code-variable">app</span>.<span class="code-method">UseMiddleware</span>&lt;<span class="code-class">TenantMiddleware</span>&gt;();</code></pre>
+
+                <div class="section-divider"></div>
+
+                <h2>Complete InvenTrack Examples</h2>
+
+                <h3>Example 1: Request Timing Middleware</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">Middleware/RequestTimingMiddleware.cs</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">RequestTimingMiddleware</span>
+{
+    <span class="code-keyword">private</span> <span class="code-keyword">readonly</span> <span class="code-class">RequestDelegate</span> <span class="code-variable">_next</span>;
+    <span class="code-keyword">private</span> <span class="code-keyword">readonly</span> <span class="code-class">ILogger</span>&lt;<span class="code-class">RequestTimingMiddleware</span>&gt; <span class="code-variable">_logger</span>;
+
+    <span class="code-keyword">public</span> <span class="code-method">RequestTimingMiddleware</span>(
+        <span class="code-class">RequestDelegate</span> <span class="code-variable">next</span>,
+        <span class="code-class">ILogger</span>&lt;<span class="code-class">RequestTimingMiddleware</span>&gt; <span class="code-variable">logger</span>)
+    {
+        <span class="code-variable">_next</span> = <span class="code-variable">next</span>;
+        <span class="code-variable">_logger</span> = <span class="code-variable">logger</span>;
+    }
+
+    <span class="code-keyword">public</span> <span class="code-keyword">async</span> <span class="code-class">Task</span> <span class="code-method">InvokeAsync</span>(<span class="code-class">HttpContext</span> <span class="code-variable">context</span>)
+    {
+        <span class="code-keyword">var</span> <span class="code-variable">stopwatch</span> = <span class="code-class">Stopwatch</span>.<span class="code-method">StartNew</span>();
+        
+        <span class="code-keyword">try</span>
+        {
+            <span class="code-keyword">await</span> <span class="code-variable">_next</span>(<span class="code-variable">context</span>);
+        }
+        <span class="code-keyword">finally</span>
+        {
+            <span class="code-variable">stopwatch</span>.<span class="code-method">Stop</span>();
+            <span class="code-keyword">var</span> <span class="code-variable">elapsed</span> = <span class="code-variable">stopwatch</span>.<span class="code-variable">ElapsedMilliseconds</span>;
+            
+            <span class="code-variable">_logger</span>.<span class="code-method">LogInformation</span>(
+                <span class="code-string">"</span>{<span class="code-variable">Method</span>}<span class="code-string"> </span>{<span class="code-variable">Path</span>}<span class="code-string"> completed in </span>{<span class="code-variable">Elapsed</span>}<span class="code-string">ms with status </span>{<span class="code-variable">StatusCode</span>}<span class="code-string">"</span>,
+                <span class="code-variable">context</span>.<span class="code-variable">Request</span>.<span class="code-variable">Method</span>,
+                <span class="code-variable">context</span>.<span class="code-variable">Request</span>.<span class="code-variable">Path</span>,
+                <span class="code-variable">elapsed</span>,
+                <span class="code-variable">context</span>.<span class="code-variable">Response</span>.<span class="code-variable">StatusCode</span>);
+            
+            <span class="code-variable">context</span>.<span class="code-variable">Response</span>.<span class="code-variable">Headers</span>[<span class="code-string">"X-Response-Time-Ms"</span>] = <span class="code-variable">elapsed</span>.<span class="code-method">ToString</span>();
+        }
+    }
+}</code></pre>
+
+                <h3>Example 2: API Key Validation Middleware</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">Middleware/ApiKeyMiddleware.cs</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">ApiKeyMiddleware</span>
+{
+    <span class="code-keyword">private</span> <span class="code-keyword">readonly</span> <span class="code-class">RequestDelegate</span> <span class="code-variable">_next</span>;
+    <span class="code-keyword">private</span> <span class="code-keyword">readonly</span> <span class="code-class">IConfiguration</span> <span class="code-variable">_configuration</span>;
+
+    <span class="code-keyword">public</span> <span class="code-method">ApiKeyMiddleware</span>(
+        <span class="code-class">RequestDelegate</span> <span class="code-variable">next</span>,
+        <span class="code-class">IConfiguration</span> <span class="code-variable">configuration</span>)
+    {
+        <span class="code-variable">_next</span> = <span class="code-variable">next</span>;
+        <span class="code-variable">_configuration</span> = <span class="code-variable">configuration</span>;
+    }
+
+    <span class="code-keyword">public</span> <span class="code-keyword">async</span> <span class="code-class">Task</span> <span class="code-method">InvokeAsync</span>(<span class="code-class">HttpContext</span> <span class="code-variable">context</span>)
+    {
+        <span class="code-comment">// Skip API key check for health endpoint</span>
+        <span class="code-keyword">if</span> (<span class="code-variable">context</span>.<span class="code-variable">Request</span>.<span class="code-variable">Path</span>.<span class="code-method">StartsWithSegments</span>(<span class="code-string">"/health"</span>))
+        {
+            <span class="code-keyword">await</span> <span class="code-variable">_next</span>(<span class="code-variable">context</span>);
+            <span class="code-keyword">return</span>;
+        }
+
+        <span class="code-keyword">if</span> (!<span class="code-variable">context</span>.<span class="code-variable">Request</span>.<span class="code-variable">Headers</span>.<span class="code-method">TryGetValue</span>(<span class="code-string">"X-API-Key"</span>, <span class="code-keyword">out</span> <span class="code-keyword">var</span> <span class="code-variable">providedKey</span>))
+        {
+            <span class="code-variable">context</span>.<span class="code-variable">Response</span>.<span class="code-variable">StatusCode</span> = <span class="code-number">401</span>;
+            <span class="code-keyword">await</span> <span class="code-variable">context</span>.<span class="code-variable">Response</span>.<span class="code-method">WriteAsJsonAsync</span>(<span class="code-keyword">new</span>
+            {
+                <span class="code-variable">error</span> = <span class="code-string">"API Key is missing"</span>
+            });
+            <span class="code-keyword">return</span>;
+        }
+
+        <span class="code-keyword">var</span> <span class="code-variable">validKey</span> = <span class="code-variable">_configuration</span>[<span class="code-string">"ApiKey"</span>];
+        
+        <span class="code-keyword">if</span> (<span class="code-variable">providedKey</span> != <span class="code-variable">validKey</span>)
+        {
+            <span class="code-variable">context</span>.<span class="code-variable">Response</span>.<span class="code-variable">StatusCode</span> = <span class="code-number">403</span>;
+            <span class="code-keyword">await</span> <span class="code-variable">context</span>.<span class="code-variable">Response</span>.<span class="code-method">WriteAsJsonAsync</span>(<span class="code-keyword">new</span>
+            {
+                <span class="code-variable">error</span> = <span class="code-string">"Invalid API Key"</span>
+            });
+            <span class="code-keyword">return</span>;
+        }
+
+        <span class="code-keyword">await</span> <span class="code-variable">_next</span>(<span class="code-variable">context</span>);
+    }
+}</code></pre>
+
+                <h3>Example 3: Correlation ID Middleware</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">Middleware/CorrelationIdMiddleware.cs</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">CorrelationIdMiddleware</span>
+{
+    <span class="code-keyword">private</span> <span class="code-keyword">readonly</span> <span class="code-class">RequestDelegate</span> <span class="code-variable">_next</span>;
+    <span class="code-keyword">private</span> <span class="code-keyword">const</span> <span class="code-type">string</span> <span class="code-variable">CorrelationIdHeader</span> = <span class="code-string">"X-Correlation-Id"</span>;
+
+    <span class="code-keyword">public</span> <span class="code-method">CorrelationIdMiddleware</span>(<span class="code-class">RequestDelegate</span> <span class="code-variable">next</span>)
+    {
+        <span class="code-variable">_next</span> = <span class="code-variable">next</span>;
+    }
+
+    <span class="code-keyword">public</span> <span class="code-keyword">async</span> <span class="code-class">Task</span> <span class="code-method">InvokeAsync</span>(<span class="code-class">HttpContext</span> <span class="code-variable">context</span>)
+    {
+        <span class="code-comment">// Get or generate correlation ID</span>
+        <span class="code-keyword">var</span> <span class="code-variable">correlationId</span> = <span class="code-variable">context</span>.<span class="code-variable">Request</span>.<span class="code-variable">Headers</span>[<span class="code-variable">CorrelationIdHeader</span>].<span class="code-method">FirstOrDefault</span>()
+            ?? <span class="code-class">Guid</span>.<span class="code-method">NewGuid</span>().<span class="code-method">ToString</span>();
+
+        <span class="code-comment">// Store in HttpContext.Items for use in controllers/services</span>
+        <span class="code-variable">context</span>.<span class="code-variable">Items</span>[<span class="code-variable">CorrelationIdHeader</span>] = <span class="code-variable">correlationId</span>;
+
+        <span class="code-comment">// Add to response headers</span>
+        <span class="code-variable">context</span>.<span class="code-variable">Response</span>.<span class="code-variable">Headers</span>[<span class="code-variable">CorrelationIdHeader</span>] = <span class="code-variable">correlationId</span>;
+
+        <span class="code-keyword">await</span> <span class="code-variable">_next</span>(<span class="code-variable">context</span>);
+    }
+}</code></pre>
+
+                <h3>Extension Methods</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">Extensions/MiddlewareExtensions.cs</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-keyword">public</span> <span class="code-keyword">static</span> <span class="code-keyword">class</span> <span class="code-class">MiddlewareExtensions</span>
+{
+    <span class="code-keyword">public</span> <span class="code-keyword">static</span> <span class="code-class">IApplicationBuilder</span> <span class="code-method">UseRequestTiming</span>(
+        <span class="code-keyword">this</span> <span class="code-class">IApplicationBuilder</span> <span class="code-variable">app</span>)
+    {
+        <span class="code-keyword">return</span> <span class="code-variable">app</span>.<span class="code-method">UseMiddleware</span>&lt;<span class="code-class">RequestTimingMiddleware</span>&gt;();
+    }
+
+    <span class="code-keyword">public</span> <span class="code-keyword">static</span> <span class="code-class">IApplicationBuilder</span> <span class="code-method">UseApiKey</span>(
+        <span class="code-keyword">this</span> <span class="code-class">IApplicationBuilder</span> <span class="code-variable">app</span>)
+    {
+        <span class="code-keyword">return</span> <span class="code-variable">app</span>.<span class="code-method">UseMiddleware</span>&lt;<span class="code-class">ApiKeyMiddleware</span>&gt;();
+    }
+
+    <span class="code-keyword">public</span> <span class="code-keyword">static</span> <span class="code-class">IApplicationBuilder</span> <span class="code-method">UseCorrelationId</span>(
+        <span class="code-keyword">this</span> <span class="code-class">IApplicationBuilder</span> <span class="code-variable">app</span>)
+    {
+        <span class="code-keyword">return</span> <span class="code-variable">app</span>.<span class="code-method">UseMiddleware</span>&lt;<span class="code-class">CorrelationIdMiddleware</span>&gt;();
+    }
+}</code></pre>
+
+                <h3>Usage in Program.cs</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">Program.cs</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-keyword">var</span> <span class="code-variable">app</span> = <span class="code-variable">builder</span>.<span class="code-method">Build</span>();
+
+<span class="code-comment">// Custom middleware</span>
+<span class="code-variable">app</span>.<span class="code-method">UseCorrelationId</span>();
+<span class="code-variable">app</span>.<span class="code-method">UseRequestTiming</span>();
+<span class="code-variable">app</span>.<span class="code-method">UseApiKey</span>();
+
+<span class="code-comment">// Built-in middleware</span>
+<span class="code-variable">app</span>.<span class="code-method">UseAuthentication</span>();
+<span class="code-variable">app</span>.<span class="code-method">UseAuthorization</span>();
+
+<span class="code-variable">app</span>.<span class="code-method">MapControllers</span>();
+<span class="code-variable">app</span>.<span class="code-method">Run</span>();</code></pre>
+
+                <h2>Best Practices</h2>
+
+                <ul>
+                    <li><strong>Use extension methods</strong> for clean registration</li>
+                    <li><strong>Constructor</strong>: Only inject singleton services</li>
+                    <li><strong>InvokeAsync</strong>: Can inject scoped services</li>
+                    <li><strong>Always call next()</strong> unless short-circuiting intentionally</li>
+                    <li><strong>Use try/finally</strong> for cleanup (like timing)</li>
+                    <li><strong>Set response headers before calling next()</strong> if needed</li>
+                    <li><strong>Check response.HasStarted</strong> before modifying response</li>
+                    <li><strong>Use HttpContext.Items</strong> to pass data to later middleware</li>
+                    <li><strong>Keep middleware focused</strong> on one responsibility</li>
+                    <li><strong>Test middleware</strong> in isolation</li>
+                </ul>
+
+                <h2>Key Takeaways</h2>
+
+                <ul>
+                    <li><strong>Three approaches</strong>: Inline, Convention-based, Factory-based</li>
+                    <li><strong>Inline</strong>: Quick and simple with <code>app.Use()</code></li>
+                    <li><strong>Convention-based</strong>: Most common, reusable classes</li>
+                    <li><strong>Factory-based</strong>: Implement <code>IMiddleware</code> for complex DI</li>
+                    <li><strong>DI rules</strong>: Constructor (singleton), InvokeAsync (scoped)</li>
+                    <li><strong>Extension methods</strong> make registration clean</li>
+                    <li>Middleware is created once (singleton lifetime)</li>
+                    <li>InvokeAsync is called per request</li>
+                    <li>Always use <code>try/finally</code> for cleanup</li>
+                    <li>Test middleware independently</li>
+                </ul>
+
+                <div class="callout callout-concept">
+                    <div class="callout-title">🎯 Next Steps</div>
+                    <p>
+                        You now know how to create custom middleware! In the next section, we'll explore
+                        <strong>Middleware Ordering</strong>—understanding why order matters, common ordering
+                        patterns, and how to avoid common mistakes.
+                    </p>
+                </div>
+
+                <nav class="page-nav">
+                    <a href="02-built-in-middleware.html" class="prev">Built-in Middleware</a>
+                    <a href="04-middleware-ordering.html" class="next">Middleware Ordering</a>
+                </nav>
+
+            
+        <footer class="page-footer">
+          Built with 💜 by <a href="https://akwasi.dev" target="_blank" rel="noopener noreferrer">Akwasi Adu-Kyeremeh</a> for developers who want to truly understand what they're building.
+        </footer>
+
+      </div>
+        </main>
+    </div>
+</body>
+
+</html>

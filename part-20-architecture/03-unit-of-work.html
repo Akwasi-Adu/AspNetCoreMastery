@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Unit of Work | ASP.NET Core Mastery</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;500&family=Source+Serif+4:ital,wght@0,400;0,600;1,400&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="../assets/style.css">
+</head>
+
+<body>
+    <div class="page-wrapper">
+        <aside class="sidebar">
+            <a href="../index.html" class="sidebar-logo">ASP.NET Core Mastery</a>
+            <div class="sidebar-section">Part XX: Architecture</div>
+            <ul class="sidebar-nav">
+                <li><a href="01-solid-principles.html">SOLID Principles</a></li>
+                <li><a href="02-repository-pattern.html">Repository Pattern</a></li>
+                <li><a href="03-unit-of-work.html" class="active">Unit of Work</a></li>
+                <li><a href="04-clean-architecture.html">Clean Architecture</a></li>
+                <li><a href="05-ddd-basics.html">Domain-Driven Design Basics</a></li>
+            </ul>
+            <div class="sidebar-section">Resources</div>
+            <ul class="sidebar-nav">
+                <li><a href="../index.html">Full Roadmap</a></li>
+            </ul>
+        </aside>
+
+        <main class="main-content">
+            <div class="content-container">
+                <nav class="breadcrumb">
+                    <a href="../index.html">Home</a>
+                    <span>→</span>
+                    <a href="01-solid-principles.html">Part XX: Architecture & Patterns</a>
+                    <span>→</span>
+                    Unit of Work
+                </nav>
+
+                <div class="progress-indicator">
+                    <span>Section 3 of 5</span>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 60%"></div>
+                    </div>
+                </div>
+
+                <h1>Unit of Work</h1>
+
+                <div class="learning-objectives">
+                    <h3>🎯 What You'll Learn</h3>
+                    <ul>
+                        <li>What is Unit of Work</li>
+                        <li>Creating UnitOfWork interface</li>
+                        <li>Implementing UnitOfWork</li>
+                        <li>Transaction management</li>
+                        <li>Using with repositories</li>
+                    </ul>
+                </div>
+
+                <h2>What is Unit of Work?</h2>
+
+                <p>
+                    The <strong>Unit of Work</strong> pattern maintains a list of changes and coordinates writing them
+                    to the database in a single transaction.
+                </p>
+
+                <div class="section-divider"></div>
+
+                <h2>Why Use Unit of Work?</h2>
+
+                <ul>
+                    <li><strong>Transaction management</strong>: Single SaveChanges() call</li>
+                    <li><strong>Consistency</strong>: All changes succeed or fail together</li>
+                    <li><strong>Performance</strong>: Batch database operations</li>
+                    <li><strong>Coordination</strong>: Manage multiple repositories</li>
+                </ul>
+
+                <div class="section-divider"></div>
+
+                <h2>Unit of Work Interface</h2>
+
+                <div class="code-header">
+                    <span class="code-filename">IUnitOfWork.cs</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-keyword">public</span> <span class="code-keyword">interface</span> <span class="code-class">IUnitOfWork</span> : <span class="code-class">IDisposable</span>
+{
+    <span class="code-class">IProductRepository</span> <span class="code-variable">Products</span> { <span class="code-keyword">get</span>; }
+    <span class="code-class">IOrderRepository</span> <span class="code-variable">Orders</span> { <span class="code-keyword">get</span>; }
+    <span class="code-class">ICustomerRepository</span> <span class="code-variable">Customers</span> { <span class="code-keyword">get</span>; }
+    
+    <span class="code-class">Task</span>&lt;<span class="code-type">int</span>&gt; <span class="code-method">SaveChangesAsync</span>();
+}</code></pre>
+
+                <div class="section-divider"></div>
+
+                <h2>Unit of Work Implementation</h2>
+
+                <div class="code-header">
+                    <span class="code-filename">UnitOfWork.cs</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">UnitOfWork</span> : <span class="code-class">IUnitOfWork</span>
+{
+    <span class="code-keyword">private</span> <span class="code-keyword">readonly</span> <span class="code-class">InvenTrackDbContext</span> <span class="code-variable">_context</span>;
+    <span class="code-keyword">private</span> <span class="code-class">IProductRepository</span> <span class="code-variable">_products</span>;
+    <span class="code-keyword">private</span> <span class="code-class">IOrderRepository</span> <span class="code-variable">_orders</span>;
+    <span class="code-keyword">private</span> <span class="code-class">ICustomerRepository</span> <span class="code-variable">_customers</span>;
+
+    <span class="code-keyword">public</span> <span class="code-method">UnitOfWork</span>(<span class="code-class">InvenTrackDbContext</span> <span class="code-variable">context</span>)
+    {
+        <span class="code-variable">_context</span> = <span class="code-variable">context</span>;
+    }
+
+    <span class="code-keyword">public</span> <span class="code-class">IProductRepository</span> <span class="code-variable">Products</span> =>
+        <span class="code-variable">_products</span> ??= <span class="code-keyword">new</span> <span class="code-class">ProductRepository</span>(<span class="code-variable">_context</span>);
+
+    <span class="code-keyword">public</span> <span class="code-class">IOrderRepository</span> <span class="code-variable">Orders</span> =>
+        <span class="code-variable">_orders</span> ??= <span class="code-keyword">new</span> <span class="code-class">OrderRepository</span>(<span class="code-variable">_context</span>);
+
+    <span class="code-keyword">public</span> <span class="code-class">ICustomerRepository</span> <span class="code-variable">Customers</span> =>
+        <span class="code-variable">_customers</span> ??= <span class="code-keyword">new</span> <span class="code-class">CustomerRepository</span>(<span class="code-variable">_context</span>);
+
+    <span class="code-keyword">public</span> <span class="code-keyword">async</span> <span class="code-class">Task</span>&lt;<span class="code-type">int</span>&gt; <span class="code-method">SaveChangesAsync</span>()
+    {
+        <span class="code-keyword">return</span> <span class="code-keyword">await</span> <span class="code-variable">_context</span>.<span class="code-method">SaveChangesAsync</span>();
+    }
+
+    <span class="code-keyword">public</span> <span class="code-keyword">void</span> <span class="code-method">Dispose</span>()
+    {
+        <span class="code-variable">_context</span>.<span class="code-method">Dispose</span>();
+    }
+}</code></pre>
+
+                <div class="section-divider"></div>
+
+                <h2>Register Unit of Work</h2>
+
+                <div class="code-header">
+                    <span class="code-filename">Program.cs</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-variable">builder</span>.<span class="code-variable">Services</span>.<span class="code-method">AddScoped</span>&lt;<span class="code-class">IUnitOfWork</span>, <span class="code-class">UnitOfWork</span>&gt;();</code></pre>
+
+                <div class="section-divider"></div>
+
+                <h2>Using Unit of Work</h2>
+
+                <div class="code-header">
+                    <span class="code-filename">OrdersController.cs</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">OrdersController</span> : <span class="code-class">Controller</span>
+{
+    <span class="code-keyword">private</span> <span class="code-keyword">readonly</span> <span class="code-class">IUnitOfWork</span> <span class="code-variable">_unitOfWork</span>;
+
+    <span class="code-keyword">public</span> <span class="code-method">OrdersController</span>(<span class="code-class">IUnitOfWork</span> <span class="code-variable">unitOfWork</span>)
+    {
+        <span class="code-variable">_unitOfWork</span> = <span class="code-variable">unitOfWork</span>;
+    }
+
+    [<span class="code-class">HttpPost</span>]
+    <span class="code-keyword">public</span> <span class="code-keyword">async</span> <span class="code-class">Task</span>&lt;<span class="code-class">IActionResult</span>&gt; <span class="code-method">Create</span>(<span class="code-class">Order</span> <span class="code-variable">order</span>)
+    {
+        <span class="code-comment">// Add order</span>
+        <span class="code-keyword">await</span> <span class="code-variable">_unitOfWork</span>.<span class="code-variable">Orders</span>.<span class="code-method">AddAsync</span>(<span class="code-variable">order</span>);
+
+        <span class="code-comment">// Update product stock</span>
+        <span class="code-keyword">foreach</span> (<span class="code-keyword">var</span> <span class="code-variable">item</span> <span class="code-keyword">in</span> <span class="code-variable">order</span>.<span class="code-variable">Items</span>)
+        {
+            <span class="code-keyword">var</span> <span class="code-variable">product</span> = <span class="code-keyword">await</span> <span class="code-variable">_unitOfWork</span>.<span class="code-variable">Products</span>.<span class="code-method">GetByIdAsync</span>(<span class="code-variable">item</span>.<span class="code-variable">ProductId</span>);
+            <span class="code-variable">product</span>.<span class="code-variable">Quantity</span> -= <span class="code-variable">item</span>.<span class="code-variable">Quantity</span>;
+            <span class="code-keyword">await</span> <span class="code-variable">_unitOfWork</span>.<span class="code-variable">Products</span>.<span class="code-method">UpdateAsync</span>(<span class="code-variable">product</span>);
+        }
+
+        <span class="code-comment">// Save all changes in one transaction</span>
+        <span class="code-keyword">await</span> <span class="code-variable">_unitOfWork</span>.<span class="code-method">SaveChangesAsync</span>();
+
+        <span class="code-keyword">return</span> <span class="code-method">RedirectToAction</span>(<span class="code-string">"Index"</span>);
+    }
+}</code></pre>
+
+                <div class="section-divider"></div>
+
+                <h2>Modified Repository (No SaveChanges)</h2>
+
+                <div class="code-header">
+                    <span class="code-filename">ProductRepository.cs</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">ProductRepository</span> : <span class="code-class">IProductRepository</span>
+{
+    <span class="code-keyword">private</span> <span class="code-keyword">readonly</span> <span class="code-class">InvenTrackDbContext</span> <span class="code-variable">_context</span>;
+
+    <span class="code-keyword">public</span> <span class="code-keyword">async</span> <span class="code-class">Task</span> <span class="code-method">AddAsync</span>(<span class="code-class">Product</span> <span class="code-variable">product</span>)
+    {
+        <span class="code-keyword">await</span> <span class="code-variable">_context</span>.<span class="code-variable">Products</span>.<span class="code-method">AddAsync</span>(<span class="code-variable">product</span>);
+        <span class="code-comment">// No SaveChangesAsync() here!</span>
+    }
+
+    <span class="code-keyword">public</span> <span class="code-class">Task</span> <span class="code-method">UpdateAsync</span>(<span class="code-class">Product</span> <span class="code-variable">product</span>)
+    {
+        <span class="code-variable">_context</span>.<span class="code-variable">Products</span>.<span class="code-method">Update</span>(<span class="code-variable">product</span>);
+        <span class="code-comment">// No SaveChangesAsync() here!</span>
+        <span class="code-keyword">return</span> <span class="code-class">Task</span>.<span class="code-variable">CompletedTask</span>;
+    }
+}</code></pre>
+
+                <h2>Key Takeaways</h2>
+
+                <ul>
+                    <li><strong>Unit of Work</strong>: Coordinates multiple repositories</li>
+                    <li><strong>Single transaction</strong>: One SaveChangesAsync() call</li>
+                    <li><strong>Consistency</strong>: All or nothing</li>
+                    <li><strong>Repositories</strong>: Don't call SaveChanges()</li>
+                    <li><strong>UnitOfWork</strong>: Calls SaveChanges() once</li>
+                    <li><strong>Pattern combination</strong>: Works with Repository Pattern</li>
+                </ul>
+
+                <nav class="page-nav">
+                    <a href="02-repository-pattern.html" class="prev">Repository Pattern</a>
+                    <a href="04-clean-architecture.html" class="next">Clean Architecture</a>
+                </nav>
+
+            
+        <footer class="page-footer">
+          Built with 💜 by <a href="https://akwasi.dev" target="_blank" rel="noopener noreferrer">Akwasi Adu-Kyeremeh</a> for developers who want to truly understand what they're building.
+        </footer>
+
+      </div>
+        </main>
+    </div>
+</body>
+
+</html>

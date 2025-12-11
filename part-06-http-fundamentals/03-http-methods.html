@@ -1,0 +1,579 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HTTP Methods | ASP.NET Core Mastery</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;500&family=Source+Serif+4:ital,wght@0,400;0,600;1,400&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="../assets/style.css">
+</head>
+
+<body>
+    <div class="page-wrapper">
+        <aside class="sidebar">
+            <a href="../index.html" class="sidebar-logo">ASP.NET Core Mastery</a>
+            <div class="sidebar-section">Part VI: HTTP & Web Fundamentals</div>
+            <ul class="sidebar-nav">
+                <li><a href="01-http-basics.html">HTTP Protocol Basics</a></li>
+                <li><a href="02-request-response.html">Request/Response Cycle</a></li>
+                <li><a href="03-http-methods.html" class="active">HTTP Methods</a></li>
+                <li><a href="04-status-codes.html">Status Codes</a></li>
+                <li><a href="05-headers-content-types.html">Headers and Content Types</a></li>
+                <li><a href="06-cookies-sessions.html">Cookies and Sessions</a></li>
+            </ul>
+            <div class="sidebar-section">Resources</div>
+            <ul class="sidebar-nav">
+                <li><a href="../index.html">Full Roadmap</a></li>
+            </ul>
+        </aside>
+
+        <main class="main-content">
+            <div class="content-container">
+                <nav class="breadcrumb">
+                    <a href="../index.html">Home</a>
+                    <span>→</span>
+                    <a href="01-http-basics.html">Part VI: HTTP & Web Fundamentals</a>
+                    <span>→</span>
+                    HTTP Methods
+                </nav>
+
+                <div class="progress-indicator">
+                    <span>Section 3 of 6</span>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 50%"></div>
+                    </div>
+                </div>
+
+                <h1>HTTP Methods</h1>
+
+                <div class="learning-objectives">
+                    <h3>🎯 What You'll Learn</h3>
+                    <ul>
+                        <li>Common HTTP methods (GET, POST, PUT, DELETE, PATCH)</li>
+                        <li>When to use each method</li>
+                        <li>Idempotency and safety</li>
+                        <li>RESTful API conventions</li>
+                        <li>ASP.NET Core attributes for methods</li>
+                        <li>Complete InvenTrack CRUD examples</li>
+                    </ul>
+                </div>
+
+                <h2>HTTP Methods Overview</h2>
+
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Method</th>
+                            <th>Purpose</th>
+                            <th>Safe</th>
+                            <th>Idempotent</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>GET</strong></td>
+                            <td>Retrieve data</td>
+                            <td>✅</td>
+                            <td>✅</td>
+                        </tr>
+                        <tr>
+                            <td><strong>POST</strong></td>
+                            <td>Create new resource</td>
+                            <td>❌</td>
+                            <td>❌</td>
+                        </tr>
+                        <tr>
+                            <td><strong>PUT</strong></td>
+                            <td>Update/replace resource</td>
+                            <td>❌</td>
+                            <td>✅</td>
+                        </tr>
+                        <tr>
+                            <td><strong>PATCH</strong></td>
+                            <td>Partial update</td>
+                            <td>❌</td>
+                            <td>❌</td>
+                        </tr>
+                        <tr>
+                            <td><strong>DELETE</strong></td>
+                            <td>Delete resource</td>
+                            <td>❌</td>
+                            <td>✅</td>
+                        </tr>
+                        <tr>
+                            <td><strong>HEAD</strong></td>
+                            <td>Get headers only</td>
+                            <td>✅</td>
+                            <td>✅</td>
+                        </tr>
+                        <tr>
+                            <td><strong>OPTIONS</strong></td>
+                            <td>Get allowed methods</td>
+                            <td>✅</td>
+                            <td>✅</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="callout callout-concept">
+                    <div class="callout-title">💡 Key Concepts</div>
+                    <p>
+                        <strong>Safe</strong>: Doesn't modify server state (read-only)<br>
+                        <strong>Idempotent</strong>: Multiple identical requests have the same effect as one
+                    </p>
+                </div>
+
+                <div class="section-divider"></div>
+
+                <h2>1. GET - Retrieve Data</h2>
+
+                <p>
+                    <strong>GET</strong> retrieves data without modifying server state.
+                </p>
+
+                <h3>Characteristics</h3>
+                <ul>
+                    <li>✅ Safe (read-only)</li>
+                    <li>✅ Idempotent (same result every time)</li>
+                    <li>❌ No request body</li>
+                    <li>✅ Can be cached</li>
+                    <li>✅ Can be bookmarked</li>
+                </ul>
+
+                <div class="code-header">
+                    <span class="code-filename">GET Examples</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-comment">// Get all products</span>
+[<span class="code-class">HttpGet</span>]
+<span class="code-keyword">public</span> <span class="code-keyword">async</span> <span class="code-class">Task</span>&lt;<span class="code-class">IActionResult</span>&gt; <span class="code-method">GetProducts</span>()
+{
+    <span class="code-keyword">var</span> <span class="code-variable">products</span> = <span class="code-keyword">await</span> <span class="code-variable">_productService</span>.<span class="code-method">GetAllAsync</span>();
+    <span class="code-keyword">return</span> <span class="code-method">Ok</span>(<span class="code-variable">products</span>);
+}
+
+<span class="code-comment">// Get single product</span>
+[<span class="code-class">HttpGet</span>(<span class="code-string">"{id}"</span>)]
+<span class="code-keyword">public</span> <span class="code-keyword">async</span> <span class="code-class">Task</span>&lt;<span class="code-class">IActionResult</span>&gt; <span class="code-method">GetProduct</span>(<span class="code-type">int</span> <span class="code-variable">id</span>)
+{
+    <span class="code-keyword">var</span> <span class="code-variable">product</span> = <span class="code-keyword">await</span> <span class="code-variable">_productService</span>.<span class="code-method">GetByIdAsync</span>(<span class="code-variable">id</span>);
+    <span class="code-keyword">if</span> (<span class="code-variable">product</span> == <span class="code-keyword">null</span>)
+        <span class="code-keyword">return</span> <span class="code-method">NotFound</span>();
+    <span class="code-keyword">return</span> <span class="code-method">Ok</span>(<span class="code-variable">product</span>);
+}
+
+<span class="code-comment">// Get with query parameters</span>
+[<span class="code-class">HttpGet</span>(<span class="code-string">"search"</span>)]
+<span class="code-keyword">public</span> <span class="code-keyword">async</span> <span class="code-class">Task</span>&lt;<span class="code-class">IActionResult</span>&gt; <span class="code-method">SearchProducts</span>(
+    [<span class="code-class">FromQuery</span>] <span class="code-type">string</span> <span class="code-variable">name</span>,
+    [<span class="code-class">FromQuery</span>] <span class="code-type">decimal</span>? <span class="code-variable">minPrice</span>,
+    [<span class="code-class">FromQuery</span>] <span class="code-type">decimal</span>? <span class="code-variable">maxPrice</span>)
+{
+    <span class="code-keyword">var</span> <span class="code-variable">products</span> = <span class="code-keyword">await</span> <span class="code-variable">_productService</span>.<span class="code-method">SearchAsync</span>(<span class="code-variable">name</span>, <span class="code-variable">minPrice</span>, <span class="code-variable">maxPrice</span>);
+    <span class="code-keyword">return</span> <span class="code-method">Ok</span>(<span class="code-variable">products</span>);
+}</code></pre>
+
+                <div class="code-header">
+                    <span class="code-filename">HTTP Request</span>
+                    <span class="code-language">HTTP</span>
+                </div>
+                <pre><code>GET /api/products/123 HTTP/1.1
+Host: inventrackapp.com</code></pre>
+
+                <div class="section-divider"></div>
+
+                <h2>2. POST - Create Resource</h2>
+
+                <p>
+                    <strong>POST</strong> creates a new resource on the server.
+                </p>
+
+                <h3>Characteristics</h3>
+                <ul>
+                    <li>❌ Not safe (modifies state)</li>
+                    <li>❌ Not idempotent (creates new resource each time)</li>
+                    <li>✅ Has request body</li>
+                    <li>Returns <code>201 Created</code> with <code>Location</code> header</li>
+                </ul>
+
+                <div class="code-header">
+                    <span class="code-filename">POST Example</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code>[<span class="code-class">HttpPost</span>]
+<span class="code-keyword">public</span> <span class="code-keyword">async</span> <span class="code-class">Task</span>&lt;<span class="code-class">IActionResult</span>&gt; <span class="code-method">CreateProduct</span>([<span class="code-class">FromBody</span>] <span class="code-class">CreateProductDto</span> <span class="code-variable">dto</span>)
+{
+    <span class="code-keyword">if</span> (!<span class="code-class">ModelState</span>.<span class="code-variable">IsValid</span>)
+        <span class="code-keyword">return</span> <span class="code-method">BadRequest</span>(<span class="code-class">ModelState</span>);
+    
+    <span class="code-keyword">var</span> <span class="code-variable">product</span> = <span class="code-keyword">await</span> <span class="code-variable">_productService</span>.<span class="code-method">CreateAsync</span>(<span class="code-variable">dto</span>);
+    
+    <span class="code-comment">// Return 201 Created with Location header</span>
+    <span class="code-keyword">return</span> <span class="code-method">CreatedAtAction</span>(
+        <span class="code-keyword">nameof</span>(<span class="code-method">GetProduct</span>),
+        <span class="code-keyword">new</span> { <span class="code-variable">id</span> = <span class="code-variable">product</span>.<span class="code-variable">Id</span> },
+        <span class="code-variable">product</span>);
+}</code></pre>
+
+                <div class="code-header">
+                    <span class="code-filename">HTTP Request</span>
+                    <span class="code-language">HTTP</span>
+                </div>
+                <pre><code>POST /api/products HTTP/1.1
+Host: inventrackapp.com
+Content-Type: application/json
+
+{
+  "name": "Laptop",
+  "price": 999.99,
+  "quantityInStock": 50
+}</code></pre>
+
+                <div class="code-header">
+                    <span class="code-filename">HTTP Response</span>
+                    <span class="code-language">HTTP</span>
+                </div>
+                <pre><code>HTTP/1.1 201 Created
+Location: /api/products/123
+Content-Type: application/json
+
+{
+  "id": 123,
+  "name": "Laptop",
+  "price": 999.99,
+  "quantityInStock": 50
+}</code></pre>
+
+                <div class="section-divider"></div>
+
+                <h2>3. PUT - Update/Replace Resource</h2>
+
+                <p>
+                    <strong>PUT</strong> replaces an entire resource.
+                </p>
+
+                <h3>Characteristics</h3>
+                <ul>
+                    <li>❌ Not safe (modifies state)</li>
+                    <li>✅ Idempotent (same result every time)</li>
+                    <li>✅ Has request body</li>
+                    <li>Replaces <strong>entire</strong> resource</li>
+                    <li>Returns <code>204 No Content</code> or <code>200 OK</code></li>
+                </ul>
+
+                <div class="code-header">
+                    <span class="code-filename">PUT Example</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code>[<span class="code-class">HttpPut</span>(<span class="code-string">"{id}"</span>)]
+<span class="code-keyword">public</span> <span class="code-keyword">async</span> <span class="code-class">Task</span>&lt;<span class="code-class">IActionResult</span>&gt; <span class="code-method">UpdateProduct</span>(
+    <span class="code-type">int</span> <span class="code-variable">id</span>,
+    [<span class="code-class">FromBody</span>] <span class="code-class">UpdateProductDto</span> <span class="code-variable">dto</span>)
+{
+    <span class="code-keyword">if</span> (!<span class="code-class">ModelState</span>.<span class="code-variable">IsValid</span>)
+        <span class="code-keyword">return</span> <span class="code-method">BadRequest</span>(<span class="code-class">ModelState</span>);
+    
+    <span class="code-keyword">var</span> <span class="code-variable">success</span> = <span class="code-keyword">await</span> <span class="code-variable">_productService</span>.<span class="code-method">UpdateAsync</span>(<span class="code-variable">id</span>, <span class="code-variable">dto</span>);
+    
+    <span class="code-keyword">if</span> (!<span class="code-variable">success</span>)
+        <span class="code-keyword">return</span> <span class="code-method">NotFound</span>();
+    
+    <span class="code-keyword">return</span> <span class="code-method">NoContent</span>(); <span class="code-comment">// 204</span>
+}</code></pre>
+
+                <div class="code-header">
+                    <span class="code-filename">HTTP Request</span>
+                    <span class="code-language">HTTP</span>
+                </div>
+                <pre><code>PUT /api/products/123 HTTP/1.1
+Host: inventrackapp.com
+Content-Type: application/json
+
+{
+  "name": "Laptop Pro",
+  "price": 1299.99,
+  "quantityInStock": 30
+}</code></pre>
+
+                <div class="section-divider"></div>
+
+                <h2>4. PATCH - Partial Update</h2>
+
+                <p>
+                    <strong>PATCH</strong> updates only specific fields of a resource.
+                </p>
+
+                <h3>Characteristics</h3>
+                <ul>
+                    <li>❌ Not safe (modifies state)</li>
+                    <li>❌ Not idempotent (depends on implementation)</li>
+                    <li>✅ Has request body</li>
+                    <li>Updates <strong>specific fields</strong> only</li>
+                </ul>
+
+                <div class="code-header">
+                    <span class="code-filename">PATCH Example</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code>[<span class="code-class">HttpPatch</span>(<span class="code-string">"{id}/stock"</span>)]
+<span class="code-keyword">public</span> <span class="code-keyword">async</span> <span class="code-class">Task</span>&lt;<span class="code-class">IActionResult</span>&gt; <span class="code-method">UpdateStock</span>(
+    <span class="code-type">int</span> <span class="code-variable">id</span>,
+    [<span class="code-class">FromBody</span>] <span class="code-class">UpdateStockDto</span> <span class="code-variable">dto</span>)
+{
+    <span class="code-keyword">var</span> <span class="code-variable">success</span> = <span class="code-keyword">await</span> <span class="code-variable">_productService</span>.<span class="code-method">UpdateStockAsync</span>(<span class="code-variable">id</span>, <span class="code-variable">dto</span>.<span class="code-variable">QuantityInStock</span>);
+    
+    <span class="code-keyword">if</span> (!<span class="code-variable">success</span>)
+        <span class="code-keyword">return</span> <span class="code-method">NotFound</span>();
+    
+    <span class="code-keyword">return</span> <span class="code-method">NoContent</span>();
+}</code></pre>
+
+                <div class="code-header">
+                    <span class="code-filename">HTTP Request</span>
+                    <span class="code-language">HTTP</span>
+                </div>
+                <pre><code>PATCH /api/products/123/stock HTTP/1.1
+Host: inventrackapp.com
+Content-Type: application/json
+
+{
+  "quantityInStock": 75
+}</code></pre>
+
+                <div class="callout callout-info">
+                    <div class="callout-title">ℹ️ PUT vs PATCH</div>
+                    <p>
+                        <strong>PUT</strong>: Replace entire resource (all fields required)<br>
+                        <strong>PATCH</strong>: Update specific fields (only changed fields sent)
+                    </p>
+                </div>
+
+                <div class="section-divider"></div>
+
+                <h2>5. DELETE - Remove Resource</h2>
+
+                <p>
+                    <strong>DELETE</strong> removes a resource from the server.
+                </p>
+
+                <h3>Characteristics</h3>
+                <ul>
+                    <li>❌ Not safe (modifies state)</li>
+                    <li>✅ Idempotent (deleting twice = same result)</li>
+                    <li>❌ No request body</li>
+                    <li>Returns <code>204 No Content</code> or <code>200 OK</code></li>
+                </ul>
+
+                <div class="code-header">
+                    <span class="code-filename">DELETE Example</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code>[<span class="code-class">HttpDelete</span>(<span class="code-string">"{id}"</span>)]
+<span class="code-keyword">public</span> <span class="code-keyword">async</span> <span class="code-class">Task</span>&lt;<span class="code-class">IActionResult</span>&gt; <span class="code-method">DeleteProduct</span>(<span class="code-type">int</span> <span class="code-variable">id</span>)
+{
+    <span class="code-keyword">var</span> <span class="code-variable">success</span> = <span class="code-keyword">await</span> <span class="code-variable">_productService</span>.<span class="code-method">DeleteAsync</span>(<span class="code-variable">id</span>);
+    
+    <span class="code-keyword">if</span> (!<span class="code-variable">success</span>)
+        <span class="code-keyword">return</span> <span class="code-method">NotFound</span>();
+    
+    <span class="code-keyword">return</span> <span class="code-method">NoContent</span>(); <span class="code-comment">// 204</span>
+}</code></pre>
+
+                <div class="code-header">
+                    <span class="code-filename">HTTP Request</span>
+                    <span class="code-language">HTTP</span>
+                </div>
+                <pre><code>DELETE /api/products/123 HTTP/1.1
+Host: inventrackapp.com</code></pre>
+
+                <div class="section-divider"></div>
+
+                <h2>RESTful API Conventions</h2>
+
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Operation</th>
+                            <th>Method</th>
+                            <th>URL</th>
+                            <th>Success Code</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>List all</td>
+                            <td>GET</td>
+                            <td>/api/products</td>
+                            <td>200 OK</td>
+                        </tr>
+                        <tr>
+                            <td>Get one</td>
+                            <td>GET</td>
+                            <td>/api/products/123</td>
+                            <td>200 OK</td>
+                        </tr>
+                        <tr>
+                            <td>Create</td>
+                            <td>POST</td>
+                            <td>/api/products</td>
+                            <td>201 Created</td>
+                        </tr>
+                        <tr>
+                            <td>Update (full)</td>
+                            <td>PUT</td>
+                            <td>/api/products/123</td>
+                            <td>204 No Content</td>
+                        </tr>
+                        <tr>
+                            <td>Update (partial)</td>
+                            <td>PATCH</td>
+                            <td>/api/products/123</td>
+                            <td>204 No Content</td>
+                        </tr>
+                        <tr>
+                            <td>Delete</td>
+                            <td>DELETE</td>
+                            <td>/api/products/123</td>
+                            <td>204 No Content</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="section-divider"></div>
+
+                <h2>Complete InvenTrack CRUD Example</h2>
+
+                <div class="code-header">
+                    <span class="code-filename">Controllers/ProductsController.cs</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code>[<span class="code-class">ApiController</span>]
+[<span class="code-class">Route</span>(<span class="code-string">"api/[controller]"</span>)]
+<span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">ProductsController</span> : <span class="code-class">ControllerBase</span>
+{
+    <span class="code-keyword">private</span> <span class="code-keyword">readonly</span> <span class="code-class">IProductService</span> <span class="code-variable">_productService</span>;
+
+    <span class="code-keyword">public</span> <span class="code-method">ProductsController</span>(<span class="code-class">IProductService</span> <span class="code-variable">productService</span>)
+    {
+        <span class="code-variable">_productService</span> = <span class="code-variable">productService</span>;
+    }
+
+    <span class="code-comment">// GET: api/products</span>
+    [<span class="code-class">HttpGet</span>]
+    <span class="code-keyword">public</span> <span class="code-keyword">async</span> <span class="code-class">Task</span>&lt;<span class="code-class">ActionResult</span>&lt;<span class="code-class">IEnumerable</span>&lt;<span class="code-class">ProductDto</span>&gt;&gt;&gt; <span class="code-method">GetProducts</span>()
+    {
+        <span class="code-keyword">var</span> <span class="code-variable">products</span> = <span class="code-keyword">await</span> <span class="code-variable">_productService</span>.<span class="code-method">GetAllAsync</span>();
+        <span class="code-keyword">return</span> <span class="code-method">Ok</span>(<span class="code-variable">products</span>);
+    }
+
+    <span class="code-comment">// GET: api/products/123</span>
+    [<span class="code-class">HttpGet</span>(<span class="code-string">"{id}"</span>)]
+    <span class="code-keyword">public</span> <span class="code-keyword">async</span> <span class="code-class">Task</span>&lt;<span class="code-class">ActionResult</span>&lt;<span class="code-class">ProductDto</span>&gt;&gt; <span class="code-method">GetProduct</span>(<span class="code-type">int</span> <span class="code-variable">id</span>)
+    {
+        <span class="code-keyword">var</span> <span class="code-variable">product</span> = <span class="code-keyword">await</span> <span class="code-variable">_productService</span>.<span class="code-method">GetByIdAsync</span>(<span class="code-variable">id</span>);
+        
+        <span class="code-keyword">if</span> (<span class="code-variable">product</span> == <span class="code-keyword">null</span>)
+            <span class="code-keyword">return</span> <span class="code-method">NotFound</span>();
+        
+        <span class="code-keyword">return</span> <span class="code-method">Ok</span>(<span class="code-variable">product</span>);
+    }
+
+    <span class="code-comment">// POST: api/products</span>
+    [<span class="code-class">HttpPost</span>]
+    <span class="code-keyword">public</span> <span class="code-keyword">async</span> <span class="code-class">Task</span>&lt;<span class="code-class">ActionResult</span>&lt;<span class="code-class">ProductDto</span>&gt;&gt; <span class="code-method">CreateProduct</span>(
+        [<span class="code-class">FromBody</span>] <span class="code-class">CreateProductDto</span> <span class="code-variable">dto</span>)
+    {
+        <span class="code-keyword">var</span> <span class="code-variable">product</span> = <span class="code-keyword">await</span> <span class="code-variable">_productService</span>.<span class="code-method">CreateAsync</span>(<span class="code-variable">dto</span>);
+        
+        <span class="code-keyword">return</span> <span class="code-method">CreatedAtAction</span>(
+            <span class="code-keyword">nameof</span>(<span class="code-method">GetProduct</span>),
+            <span class="code-keyword">new</span> { <span class="code-variable">id</span> = <span class="code-variable">product</span>.<span class="code-variable">Id</span> },
+            <span class="code-variable">product</span>);
+    }
+
+    <span class="code-comment">// PUT: api/products/123</span>
+    [<span class="code-class">HttpPut</span>(<span class="code-string">"{id}"</span>)]
+    <span class="code-keyword">public</span> <span class="code-keyword">async</span> <span class="code-class">Task</span>&lt;<span class="code-class">IActionResult</span>&gt; <span class="code-method">UpdateProduct</span>(
+        <span class="code-type">int</span> <span class="code-variable">id</span>,
+        [<span class="code-class">FromBody</span>] <span class="code-class">UpdateProductDto</span> <span class="code-variable">dto</span>)
+    {
+        <span class="code-keyword">var</span> <span class="code-variable">success</span> = <span class="code-keyword">await</span> <span class="code-variable">_productService</span>.<span class="code-method">UpdateAsync</span>(<span class="code-variable">id</span>, <span class="code-variable">dto</span>);
+        
+        <span class="code-keyword">if</span> (!<span class="code-variable">success</span>)
+            <span class="code-keyword">return</span> <span class="code-method">NotFound</span>();
+        
+        <span class="code-keyword">return</span> <span class="code-method">NoContent</span>();
+    }
+
+    <span class="code-comment">// PATCH: api/products/123/stock</span>
+    [<span class="code-class">HttpPatch</span>(<span class="code-string">"{id}/stock"</span>)]
+    <span class="code-keyword">public</span> <span class="code-keyword">async</span> <span class="code-class">Task</span>&lt;<span class="code-class">IActionResult</span>&gt; <span class="code-method">UpdateStock</span>(
+        <span class="code-type">int</span> <span class="code-variable">id</span>,
+        [<span class="code-class">FromBody</span>] <span class="code-class">UpdateStockDto</span> <span class="code-variable">dto</span>)
+    {
+        <span class="code-keyword">var</span> <span class="code-variable">success</span> = <span class="code-keyword">await</span> <span class="code-variable">_productService</span>.<span class="code-method">UpdateStockAsync</span>(<span class="code-variable">id</span>, <span class="code-variable">dto</span>.<span class="code-variable">QuantityInStock</span>);
+        
+        <span class="code-keyword">if</span> (!<span class="code-variable">success</span>)
+            <span class="code-keyword">return</span> <span class="code-method">NotFound</span>();
+        
+        <span class="code-keyword">return</span> <span class="code-method">NoContent</span>();
+    }
+
+    <span class="code-comment">// DELETE: api/products/123</span>
+    [<span class="code-class">HttpDelete</span>(<span class="code-string">"{id}"</span>)]
+    <span class="code-keyword">public</span> <span class="code-keyword">async</span> <span class="code-class">Task</span>&lt;<span class="code-class">IActionResult</span>&gt; <span class="code-method">DeleteProduct</span>(<span class="code-type">int</span> <span class="code-variable">id</span>)
+    {
+        <span class="code-keyword">var</span> <span class="code-variable">success</span> = <span class="code-keyword">await</span> <span class="code-variable">_productService</span>.<span class="code-method">DeleteAsync</span>(<span class="code-variable">id</span>);
+        
+        <span class="code-keyword">if</span> (!<span class="code-variable">success</span>)
+            <span class="code-keyword">return</span> <span class="code-method">NotFound</span>();
+        
+        <span class="code-keyword">return</span> <span class="code-method">NoContent</span>();
+    }
+}</code></pre>
+
+                <h2>Key Takeaways</h2>
+
+                <ul>
+                    <li><strong>GET</strong>: Retrieve data (safe, idempotent)</li>
+                    <li><strong>POST</strong>: Create new resource (not safe, not idempotent)</li>
+                    <li><strong>PUT</strong>: Replace entire resource (not safe, idempotent)</li>
+                    <li><strong>PATCH</strong>: Partial update (not safe, not idempotent)</li>
+                    <li><strong>DELETE</strong>: Remove resource (not safe, idempotent)</li>
+                    <li><strong>Safe</strong>: Read-only operations (GET, HEAD, OPTIONS)</li>
+                    <li><strong>Idempotent</strong>: Same result when called multiple times (GET, PUT, DELETE)</li>
+                    <li>Use <code>[HttpGet]</code>, <code>[HttpPost]</code>, etc. attributes</li>
+                    <li>Follow RESTful conventions for consistency</li>
+                    <li>Return appropriate status codes (200, 201, 204, 404)</li>
+                </ul>
+
+                <div class="callout callout-concept">
+                    <div class="callout-title">🎯 Next Steps</div>
+                    <p>
+                        You now understand HTTP methods! In the next section, we'll explore
+                        <strong>Status Codes</strong>—what they mean, when to use them, and how to return
+                        the right status code for every situation.
+                    </p>
+                </div>
+
+                <nav class="page-nav">
+                    <a href="02-request-response.html" class="prev">Request/Response Cycle</a>
+                    <a href="04-status-codes.html" class="next">Status Codes</a>
+                </nav>
+
+            
+        <footer class="page-footer">
+          Built with 💜 by <a href="https://akwasi.dev" target="_blank" rel="noopener noreferrer">Akwasi Adu-Kyeremeh</a> for developers who want to truly understand what they're building.
+        </footer>
+
+      </div>
+        </main>
+    </div>
+</body>
+
+</html>

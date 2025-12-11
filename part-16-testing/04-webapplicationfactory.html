@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WebApplicationFactory | ASP.NET Core Mastery</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;500&family=Source+Serif+4:ital,wght@0,400;0,600;1,400&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="../assets/style.css">
+</head>
+
+<body>
+    <div class="page-wrapper">
+        <aside class="sidebar">
+            <a href="../index.html" class="sidebar-logo">ASP.NET Core Mastery</a>
+            <div class="sidebar-section">Part XVI: Testing</div>
+            <ul class="sidebar-nav">
+                <li><a href="01-unit-testing-xunit.html">Unit Testing with xUnit</a></li>
+                <li><a href="02-mocking-with-moq.html">Mocking with Moq</a></li>
+                <li><a href="03-integration-testing.html">Integration Testing</a></li>
+                <li><a href="04-webapplicationfactory.html" class="active">WebApplicationFactory</a></li>
+                <li><a href="05-test-driven-development.html">Test-Driven Development</a></li>
+            </ul>
+            <div class="sidebar-section">Resources</div>
+            <ul class="sidebar-nav">
+                <li><a href="../index.html">Full Roadmap</a></li>
+            </ul>
+        </aside>
+
+        <main class="main-content">
+            <div class="content-container">
+                <nav class="breadcrumb">
+                    <a href="../index.html">Home</a>
+                    <span>→</span>
+                    <a href="01-unit-testing-xunit.html">Part XVI: Testing</a>
+                    <span>→</span>
+                    WebApplicationFactory
+                </nav>
+
+                <div class="progress-indicator">
+                    <span>Section 4 of 5</span>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 80%"></div>
+                    </div>
+                </div>
+
+                <h1>WebApplicationFactory</h1>
+
+                <div class="learning-objectives">
+                    <h3>🎯 What You'll Learn</h3>
+                    <ul>
+                        <li>What is WebApplicationFactory</li>
+                        <li>Testing HTTP endpoints</li>
+                        <li>Creating test server</li>
+                        <li>Making HTTP requests</li>
+                        <li>Testing full application</li>
+                    </ul>
+                </div>
+
+                <h2>What is WebApplicationFactory?</h2>
+
+                <p>
+                    <strong>WebApplicationFactory</strong> creates an in-memory test server for testing your entire
+                    ASP.NET Core application,
+                    including HTTP endpoints, middleware, and routing.
+                </p>
+
+                <div class="section-divider"></div>
+
+                <h2>Setup</h2>
+
+                <div class="code-header">
+                    <span class="code-filename">Install Package</span>
+                    <span class="code-language">Bash</span>
+                </div>
+                <pre><code>dotnet add package Microsoft.AspNetCore.Mvc.Testing</code></pre>
+
+                <div class="code-header">
+                    <span class="code-filename">Make Program.cs Testable</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-comment">// Add at end of Program.cs</span>
+<span class="code-keyword">public</span> <span class="code-keyword">partial</span> <span class="code-keyword">class</span> <span class="code-class">Program</span> { }</code></pre>
+
+                <div class="section-divider"></div>
+
+                <h2>Creating Test Class</h2>
+
+                <div class="code-header">
+                    <span class="code-filename">ProductsControllerTests.cs</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">ProductsControllerTests</span> 
+    : <span class="code-class">IClassFixture</span>&lt;<span class="code-class">WebApplicationFactory</span>&lt;<span class="code-class">Program</span>&gt;&gt;
+{
+    <span class="code-keyword">private</span> <span class="code-keyword">readonly</span> <span class="code-class">WebApplicationFactory</span>&lt;<span class="code-class">Program</span>&gt; <span class="code-variable">_factory</span>;
+
+    <span class="code-keyword">public</span> <span class="code-method">ProductsControllerTests</span>(<span class="code-class">WebApplicationFactory</span>&lt;<span class="code-class">Program</span>&gt; <span class="code-variable">factory</span>)
+    {
+        <span class="code-variable">_factory</span> = <span class="code-variable">factory</span>;
+    }
+}</code></pre>
+
+                <div class="section-divider"></div>
+
+                <h2>Testing GET Endpoints</h2>
+
+                <div class="code-header">
+                    <span class="code-filename">Test GET Request</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code>[<span class="code-class">Fact</span>]
+<span class="code-keyword">public</span> <span class="code-keyword">async</span> <span class="code-class">Task</span> <span class="code-method">Get_Products_ReturnsSuccessStatusCode</span>()
+{
+    <span class="code-comment">// Arrange</span>
+    <span class="code-keyword">var</span> <span class="code-variable">client</span> = <span class="code-variable">_factory</span>.<span class="code-method">CreateClient</span>();
+
+    <span class="code-comment">// Act</span>
+    <span class="code-keyword">var</span> <span class="code-variable">response</span> = <span class="code-keyword">await</span> <span class="code-variable">client</span>.<span class="code-method">GetAsync</span>(<span class="code-string">"/api/products"</span>);
+
+    <span class="code-comment">// Assert</span>
+    <span class="code-variable">response</span>.<span class="code-method">EnsureSuccessStatusCode</span>(); <span class="code-comment">// 200-299</span>
+    <span class="code-class">Assert</span>.<span class="code-method">Equal</span>(<span class="code-string">"application/json; charset=utf-8"</span>, 
+        <span class="code-variable">response</span>.<span class="code-variable">Content</span>.<span class="code-variable">Headers</span>.<span class="code-variable">ContentType</span>.<span class="code-method">ToString</span>());
+}</code></pre>
+
+                <div class="section-divider"></div>
+
+                <h2>Testing POST Endpoints</h2>
+
+                <div class="code-header">
+                    <span class="code-filename">Test POST Request</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code>[<span class="code-class">Fact</span>]
+<span class="code-keyword">public</span> <span class="code-keyword">async</span> <span class="code-class">Task</span> <span class="code-method">Post_CreateProduct_ReturnsCreatedProduct</span>()
+{
+    <span class="code-comment">// Arrange</span>
+    <span class="code-keyword">var</span> <span class="code-variable">client</span> = <span class="code-variable">_factory</span>.<span class="code-method">CreateClient</span>();
+    <span class="code-keyword">var</span> <span class="code-variable">product</span> = <span class="code-keyword">new</span> <span class="code-class">Product</span> { <span class="code-variable">Name</span> = <span class="code-string">"Test Product"</span>, <span class="code-variable">Price</span> = <span class="code-number">99</span> };
+    <span class="code-keyword">var</span> <span class="code-variable">content</span> = <span class="code-keyword">new</span> <span class="code-class">StringContent</span>(
+        <span class="code-class">JsonSerializer</span>.<span class="code-method">Serialize</span>(<span class="code-variable">product</span>),
+        <span class="code-class">Encoding</span>.<span class="code-variable">UTF8</span>,
+        <span class="code-string">"application/json"</span>);
+
+    <span class="code-comment">// Act</span>
+    <span class="code-keyword">var</span> <span class="code-variable">response</span> = <span class="code-keyword">await</span> <span class="code-variable">client</span>.<span class="code-method">PostAsync</span>(<span class="code-string">"/api/products"</span>, <span class="code-variable">content</span>);
+
+    <span class="code-comment">// Assert</span>
+    <span class="code-variable">response</span>.<span class="code-method">EnsureSuccessStatusCode</span>();
+    <span class="code-keyword">var</span> <span class="code-variable">responseString</span> = <span class="code-keyword">await</span> <span class="code-variable">response</span>.<span class="code-variable">Content</span>.<span class="code-method">ReadAsStringAsync</span>();
+    <span class="code-keyword">var</span> <span class="code-variable">createdProduct</span> = <span class="code-class">JsonSerializer</span>.<span class="code-method">Deserialize</span>&lt;<span class="code-class">Product</span>&gt;(<span class="code-variable">responseString</span>);
+    
+    <span class="code-class">Assert</span>.<span class="code-method">NotNull</span>(<span class="code-variable">createdProduct</span>);
+    <span class="code-class">Assert</span>.<span class="code-method">Equal</span>(<span class="code-string">"Test Product"</span>, <span class="code-variable">createdProduct</span>.<span class="code-variable">Name</span>);
+}</code></pre>
+
+                <div class="section-divider"></div>
+
+                <h2>Custom WebApplicationFactory</h2>
+
+                <p>Customize the factory to use in-memory database.</p>
+
+                <div class="code-header">
+                    <span class="code-filename">CustomWebApplicationFactory.cs</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">CustomWebApplicationFactory</span> : <span class="code-class">WebApplicationFactory</span>&lt;<span class="code-class">Program</span>&gt;
+{
+    <span class="code-keyword">protected</span> <span class="code-keyword">override</span> <span class="code-keyword">void</span> <span class="code-method">ConfigureWebHost</span>(<span class="code-class">IWebHostBuilder</span> <span class="code-variable">builder</span>)
+    {
+        <span class="code-variable">builder</span>.<span class="code-method">ConfigureServices</span>(<span class="code-variable">services</span> =>
+        {
+            <span class="code-comment">// Remove real database</span>
+            <span class="code-keyword">var</span> <span class="code-variable">descriptor</span> = <span class="code-variable">services</span>.<span class="code-method">SingleOrDefault</span>(
+                <span class="code-variable">d</span> => <span class="code-variable">d</span>.<span class="code-variable">ServiceType</span> == <span class="code-keyword">typeof</span>(<span class="code-class">DbContextOptions</span>&lt;<span class="code-class">InvenTrackDbContext</span>&gt;));
+
+            <span class="code-keyword">if</span> (<span class="code-variable">descriptor</span> != <span class="code-keyword">null</span>)
+                <span class="code-variable">services</span>.<span class="code-method">Remove</span>(<span class="code-variable">descriptor</span>);
+
+            <span class="code-comment">// Add in-memory database</span>
+            <span class="code-variable">services</span>.<span class="code-method">AddDbContext</span>&lt;<span class="code-class">InvenTrackDbContext</span>&gt;(<span class="code-variable">options</span> =>
+                <span class="code-variable">options</span>.<span class="code-method">UseInMemoryDatabase</span>(<span class="code-string">"TestDb"</span>));
+        });
+    }
+}</code></pre>
+
+                <h2>Key Takeaways</h2>
+
+                <ul>
+                    <li><strong>WebApplicationFactory</strong>: In-memory test server</li>
+                    <li><strong>IClassFixture</strong>: Share factory across tests</li>
+                    <li><strong>CreateClient()</strong>: Get HttpClient for requests</li>
+                    <li><strong>EnsureSuccessStatusCode()</strong>: Assert 200-299</li>
+                    <li><strong>Custom factory</strong>: Override ConfigureWebHost</li>
+                    <li><strong>Full integration</strong>: Tests entire application</li>
+                </ul>
+
+                <nav class="page-nav">
+                    <a href="03-integration-testing.html" class="prev">Integration Testing</a>
+                    <a href="05-test-driven-development.html" class="next">Test-Driven Development</a>
+                </nav>
+
+            
+        <footer class="page-footer">
+          Built with 💜 by <a href="https://akwasi.dev" target="_blank" rel="noopener noreferrer">Akwasi Adu-Kyeremeh</a> for developers who want to truly understand what they're building.
+        </footer>
+
+      </div>
+        </main>
+    </div>
+</body>
+
+</html>

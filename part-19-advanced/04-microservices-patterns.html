@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Microservices Patterns | ASP.NET Core Mastery</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;500&family=Source+Serif+4:ital,wght@0,400;0,600;1,400&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="../assets/style.css">
+</head>
+
+<body>
+    <div class="page-wrapper">
+        <aside class="sidebar">
+            <a href="../index.html" class="sidebar-logo">ASP.NET Core Mastery</a>
+            <div class="sidebar-section">Part XIX: Advanced</div>
+            <ul class="sidebar-nav">
+                <li><a href="01-signalr.html">SignalR</a></li>
+                <li><a href="02-grpc.html">gRPC</a></li>
+                <li><a href="03-background-services.html">Background Services</a></li>
+                <li><a href="04-microservices-patterns.html" class="active">Microservices Patterns</a></li>
+                <li><a href="05-health-checks.html">Health Checks</a></li>
+                <li><a href="06-distributed-tracing.html">Distributed Tracing</a></li>
+            </ul>
+            <div class="sidebar-section">Resources</div>
+            <ul class="sidebar-nav">
+                <li><a href="../index.html">Full Roadmap</a></li>
+            </ul>
+        </aside>
+
+        <main class="main-content">
+            <div class="content-container">
+                <nav class="breadcrumb">
+                    <a href="../index.html">Home</a>
+                    <span>→</span>
+                    <a href="01-signalr.html">Part XIX: Advanced Topics</a>
+                    <span>→</span>
+                    Microservices Patterns
+                </nav>
+
+                <div class="progress-indicator">
+                    <span>Section 4 of 6</span>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 66.67%"></div>
+                    </div>
+                </div>
+
+                <h1>Microservices Patterns</h1>
+
+                <div class="learning-objectives">
+                    <h3>🎯 What You'll Learn</h3>
+                    <ul>
+                        <li>What are microservices</li>
+                        <li>API Gateway pattern</li>
+                        <li>Service discovery</li>
+                        <li>Circuit breaker</li>
+                        <li>Retry policies</li>
+                    </ul>
+                </div>
+
+                <h2>What are Microservices?</h2>
+
+                <p>
+                    <strong>Microservices</strong> are small, independent services that communicate over HTTP/gRPC,
+                    each responsible for a specific business capability.
+                </p>
+
+                <div class="section-divider"></div>
+
+                <h2>Monolith vs Microservices</h2>
+
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Aspect</th>
+                            <th>Monolith</th>
+                            <th>Microservices</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Deployment</strong></td>
+                            <td>Single unit</td>
+                            <td>Independent services</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Scaling</strong></td>
+                            <td>Scale entire app</td>
+                            <td>Scale individual services</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Technology</strong></td>
+                            <td>Single stack</td>
+                            <td>Different stacks per service</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Complexity</strong></td>
+                            <td>Lower</td>
+                            <td>Higher</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Failure</strong></td>
+                            <td>Entire app fails</td>
+                            <td>Isolated failures</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="section-divider"></div>
+
+                <h2>API Gateway Pattern</h2>
+
+                <p>Single entry point for all client requests, routing to appropriate microservices.</p>
+
+                <div class="code-header">
+                    <span class="code-filename">Install Ocelot</span>
+                    <span class="code-language">Bash</span>
+                </div>
+                <pre><code>dotnet add package Ocelot</code></pre>
+
+                <div class="code-header">
+                    <span class="code-filename">ocelot.json</span>
+                    <span class="code-language">JSON</span>
+                </div>
+                <pre><code>{
+  <span class="code-string">"Routes"</span>: [
+    {
+      <span class="code-string">"DownstreamPathTemplate"</span>: <span class="code-string">"/api/products/{everything}"</span>,
+      <span class="code-string">"DownstreamScheme"</span>: <span class="code-string">"http"</span>,
+      <span class="code-string">"DownstreamHostAndPorts"</span>: [
+        {
+          <span class="code-string">"Host"</span>: <span class="code-string">"localhost"</span>,
+          <span class="code-string">"Port"</span>: 5001
+        }
+      ],
+      <span class="code-string">"UpstreamPathTemplate"</span>: <span class="code-string">"/products/{everything}"</span>,
+      <span class="code-string">"UpstreamHttpMethod"</span>: [ <span class="code-string">"Get"</span>, <span class="code-string">"Post"</span> ]
+    },
+    {
+      <span class="code-string">"DownstreamPathTemplate"</span>: <span class="code-string">"/api/orders/{everything}"</span>,
+      <span class="code-string">"DownstreamScheme"</span>: <span class="code-string">"http"</span>,
+      <span class="code-string">"DownstreamHostAndPorts"</span>: [
+        {
+          <span class="code-string">"Host"</span>: <span class="code-string">"localhost"</span>,
+          <span class="code-string">"Port"</span>: 5002
+        }
+      ],
+      <span class="code-string">"UpstreamPathTemplate"</span>: <span class="code-string">"/orders/{everything}"</span>,
+      <span class="code-string">"UpstreamHttpMethod"</span>: [ <span class="code-string">"Get"</span>, <span class="code-string">"Post"</span> ]
+    }
+  ]
+}</code></pre>
+
+                <div class="code-header">
+                    <span class="code-filename">Program.cs</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-variable">builder</span>.<span class="code-variable">Configuration</span>.<span class="code-method">AddJsonFile</span>(<span class="code-string">"ocelot.json"</span>);
+<span class="code-variable">builder</span>.<span class="code-variable">Services</span>.<span class="code-method">AddOcelot</span>();
+
+<span class="code-keyword">var</span> <span class="code-variable">app</span> = <span class="code-variable">builder</span>.<span class="code-method">Build</span>();
+<span class="code-keyword">await</span> <span class="code-variable">app</span>.<span class="code-method">UseOcelot</span>();</code></pre>
+
+                <div class="section-divider"></div>
+
+                <h2>Circuit Breaker Pattern</h2>
+
+                <p>Prevent cascading failures by stopping calls to failing services.</p>
+
+                <div class="code-header">
+                    <span class="code-filename">Install Polly</span>
+                    <span class="code-language">Bash</span>
+                </div>
+                <pre><code>dotnet add package Microsoft.Extensions.Http.Polly</code></pre>
+
+                <div class="code-header">
+                    <span class="code-filename">Program.cs</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-keyword">using</span> <span class="code-variable">Polly</span>;
+
+<span class="code-variable">builder</span>.<span class="code-variable">Services</span>.<span class="code-method">AddHttpClient</span>(<span class="code-string">"ProductService"</span>, <span class="code-variable">client</span> =>
+{
+    <span class="code-variable">client</span>.<span class="code-variable">BaseAddress</span> = <span class="code-keyword">new</span> <span class="code-class">Uri</span>(<span class="code-string">"http://localhost:5001"</span>);
+})
+.<span class="code-method">AddTransientHttpErrorPolicy</span>(<span class="code-variable">policy</span> => 
+    <span class="code-variable">policy</span>.<span class="code-method">CircuitBreakerAsync</span>(<span class="code-number">5</span>, <span class="code-class">TimeSpan</span>.<span class="code-method">FromSeconds</span>(<span class="code-number">30</span>)));</code></pre>
+
+                <div class="section-divider"></div>
+
+                <h2>Retry Policy</h2>
+
+                <div class="code-header">
+                    <span class="code-filename">Retry with Polly</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-variable">builder</span>.<span class="code-variable">Services</span>.<span class="code-method">AddHttpClient</span>(<span class="code-string">"ProductService"</span>, <span class="code-variable">client</span> =>
+{
+    <span class="code-variable">client</span>.<span class="code-variable">BaseAddress</span> = <span class="code-keyword">new</span> <span class="code-class">Uri</span>(<span class="code-string">"http://localhost:5001"</span>);
+})
+.<span class="code-method">AddTransientHttpErrorPolicy</span>(<span class="code-variable">policy</span> => 
+    <span class="code-variable">policy</span>.<span class="code-method">WaitAndRetryAsync</span>(<span class="code-number">3</span>, <span class="code-variable">retryAttempt</span> => 
+        <span class="code-class">TimeSpan</span>.<span class="code-method">FromSeconds</span>(<span class="code-class">Math</span>.<span class="code-method">Pow</span>(<span class="code-number">2</span>, <span class="code-variable">retryAttempt</span>))));</code></pre>
+
+                <h2>InvenTrack Microservices Example</h2>
+
+                <div class="code-header">
+                    <span class="code-filename">OrderService calling ProductService</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">OrderService</span>
+{
+    <span class="code-keyword">private</span> <span class="code-keyword">readonly</span> <span class="code-class">IHttpClientFactory</span> <span class="code-variable">_httpClientFactory</span>;
+
+    <span class="code-keyword">public</span> <span class="code-keyword">async</span> <span class="code-class">Task</span>&lt;<span class="code-class">Product</span>&gt; <span class="code-method">GetProductAsync</span>(<span class="code-type">int</span> <span class="code-variable">productId</span>)
+    {
+        <span class="code-keyword">var</span> <span class="code-variable">client</span> = <span class="code-variable">_httpClientFactory</span>.<span class="code-method">CreateClient</span>(<span class="code-string">"ProductService"</span>);
+        <span class="code-keyword">var</span> <span class="code-variable">response</span> = <span class="code-keyword">await</span> <span class="code-variable">client</span>.<span class="code-method">GetAsync</span>(<span class="code-string">$"/api/products/</span><span class="code-variable">{productId}</span><span class="code-string">"</span>);
+        <span class="code-variable">response</span>.<span class="code-method">EnsureSuccessStatusCode</span>();
+        
+        <span class="code-keyword">return</span> <span class="code-keyword">await</span> <span class="code-variable">response</span>.<span class="code-variable">Content</span>.<span class="code-method">ReadFromJsonAsync</span>&lt;<span class="code-class">Product</span>&gt;();
+    }
+}</code></pre>
+
+                <h2>Key Takeaways</h2>
+
+                <ul>
+                    <li><strong>Microservices</strong>: Independent, scalable services</li>
+                    <li><strong>API Gateway</strong>: Single entry point (Ocelot)</li>
+                    <li><strong>Circuit breaker</strong>: Prevent cascading failures</li>
+                    <li><strong>Retry policy</strong>: Handle transient errors</li>
+                    <li><strong>Polly</strong>: Resilience library</li>
+                    <li><strong>Trade-offs</strong>: Higher complexity for better scalability</li>
+                </ul>
+
+                <nav class="page-nav">
+                    <a href="03-background-services.html" class="prev">Background Services</a>
+                    <a href="05-health-checks.html" class="next">Health Checks</a>
+                </nav>
+
+            
+        <footer class="page-footer">
+          Built with 💜 by <a href="https://akwasi.dev" target="_blank" rel="noopener noreferrer">Akwasi Adu-Kyeremeh</a> for developers who want to truly understand what they're building.
+        </footer>
+
+      </div>
+        </main>
+    </div>
+</body>
+
+</html>

@@ -1,0 +1,515 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Areas | ASP.NET Core Mastery</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;500&family=Source+Serif+4:ital,wght@0,400;0,600;1,400&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="../assets/style.css">
+</head>
+
+<body>
+    <div class="page-wrapper">
+        <aside class="sidebar">
+            <a href="../index.html" class="sidebar-logo">ASP.NET Core Mastery</a>
+            <div class="sidebar-section">Part VII: Routing</div>
+            <ul class="sidebar-nav">
+                <li><a href="01-endpoint-routing.html">Endpoint Routing Basics</a></li>
+                <li><a href="02-conventional-vs-attribute.html">Conventional vs Attribute Routing</a></li>
+                <li><a href="03-route-parameters.html">Route Parameters</a></li>
+                <li><a href="04-route-constraints.html">Route Constraints</a></li>
+                <li><a href="05-url-generation.html">URL Generation</a></li>
+                <li><a href="06-areas.html" class="active">Areas</a></li>
+            </ul>
+            <div class="sidebar-section">Resources</div>
+            <ul class="sidebar-nav">
+                <li><a href="../index.html">Full Roadmap</a></li>
+            </ul>
+        </aside>
+
+        <main class="main-content">
+            <div class="content-container">
+                <nav class="breadcrumb">
+                    <a href="../index.html">Home</a>
+                    <span>→</span>
+                    <a href="01-endpoint-routing.html">Part VII: Routing</a>
+                    <span>→</span>
+                    Areas
+                </nav>
+
+                <div class="progress-indicator">
+                    <span>Section 6 of 6</span>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 100%"></div>
+                    </div>
+                </div>
+
+                <h1>Areas</h1>
+
+                <div class="learning-objectives">
+                    <h3>🎯 What You'll Learn</h3>
+                    <ul>
+                        <li>What areas are and why use them</li>
+                        <li>Creating area structure</li>
+                        <li>Routing with areas</li>
+                        <li>Area attribute routing</li>
+                        <li>URL generation for areas</li>
+                        <li>Best practices</li>
+                    </ul>
+                </div>
+
+                <h2>What are Areas?</h2>
+
+                <p>
+                    <strong>Areas</strong> organize large MVC applications into logical sections, each with
+                    its own controllers, views, and models.
+                </p>
+
+                <h3>Why Use Areas?</h3>
+
+                <ul>
+                    <li><strong>Organization</strong>: Separate admin, customer, and public sections</li>
+                    <li><strong>Team collaboration</strong>: Different teams work on different areas</li>
+                    <li><strong>Modularity</strong>: Each area is self-contained</li>
+                    <li><strong>Scalability</strong>: Manage large applications</li>
+                </ul>
+
+                <div class="code-header">
+                    <span class="code-filename">Example Areas</span>
+                    <span class="code-language">Text</span>
+                </div>
+                <pre><code>InvenTrack/
+├── Areas/
+│   ├── Admin/          ← Admin dashboard
+│   │   ├── Controllers/
+│   │   ├── Views/
+│   │   └── Models/
+│   ├── Customer/       ← Customer portal
+│   │   ├── Controllers/
+│   │   ├── Views/
+│   │   └── Models/
+│   └── Reports/        ← Reporting section
+│       ├── Controllers/
+│       ├── Views/
+│       └── Models/
+└── Controllers/        ← Default (no area)</code></pre>
+
+                <div class="section-divider"></div>
+
+                <h2>Creating an Area</h2>
+
+                <h3>1. Create Folder Structure</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">Folder Structure</span>
+                    <span class="code-language">Text</span>
+                </div>
+                <pre><code>Areas/
+└── Admin/
+    ├── Controllers/
+    │   └── DashboardController.cs
+    ├── Views/
+    │   ├── Dashboard/
+    │   │   └── Index.cshtml
+    │   └── _ViewStart.cshtml
+    └── Models/</code></pre>
+
+                <h3>2. Add [Area] Attribute</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">Areas/Admin/Controllers/DashboardController.cs</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code>[<span class="code-class">Area</span>(<span class="code-string">"Admin"</span>)]
+<span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">DashboardController</span> : <span class="code-class">Controller</span>
+{
+    <span class="code-keyword">public</span> <span class="code-class">IActionResult</span> <span class="code-method">Index</span>()
+    {
+        <span class="code-keyword">return</span> <span class="code-method">View</span>();
+    }
+}</code></pre>
+
+                <h3>3. Configure Routing</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">Program.cs</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-variable">app</span>.<span class="code-method">MapControllerRoute</span>(
+    <span class="code-variable">name</span>: <span class="code-string">"areas"</span>,
+    <span class="code-variable">pattern</span>: <span class="code-string">"{area:exists}/{controller=Home}/{action=Index}/{id?}"</span>);
+
+<span class="code-variable">app</span>.<span class="code-method">MapControllerRoute</span>(
+    <span class="code-variable">name</span>: <span class="code-string">"default"</span>,
+    <span class="code-variable">pattern</span>: <span class="code-string">"{controller=Home}/{action=Index}/{id?}"</span>);</code></pre>
+
+                <div class="callout callout-info">
+                    <div class="callout-title">ℹ️ {area:exists}</div>
+                    <p>
+                        The <code>{area:exists}</code> constraint ensures the route only matches if the
+                        area exists. Area routes should come <strong>before</strong> default routes.
+                    </p>
+                </div>
+
+                <div class="section-divider"></div>
+
+                <h2>Routing with Areas</h2>
+
+                <h3>URL Pattern</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">Area URLs</span>
+                    <span class="code-language">Text</span>
+                </div>
+                <pre><code>/Admin/Dashboard/Index
+ ↓      ↓         ↓
+Area   Controller Action</code></pre>
+
+                <h3>Conventional Routing</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">Program.cs</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-comment">// Area route (must come first)</span>
+<span class="code-variable">app</span>.<span class="code-method">MapControllerRoute</span>(
+    <span class="code-variable">name</span>: <span class="code-string">"admin"</span>,
+    <span class="code-variable">pattern</span>: <span class="code-string">"Admin/{controller=Dashboard}/{action=Index}/{id?}"</span>,
+    <span class="code-variable">defaults</span>: <span class="code-keyword">new</span> { <span class="code-variable">area</span> = <span class="code-string">"Admin"</span> });
+
+<span class="code-comment">// Default route</span>
+<span class="code-variable">app</span>.<span class="code-method">MapControllerRoute</span>(
+    <span class="code-variable">name</span>: <span class="code-string">"default"</span>,
+    <span class="code-variable">pattern</span>: <span class="code-string">"{controller=Home}/{action=Index}/{id?}"</span>);</code></pre>
+
+                <div class="section-divider"></div>
+
+                <h2>Attribute Routing with Areas</h2>
+
+                <div class="code-header">
+                    <span class="code-filename">Using [Area] Attribute</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code>[<span class="code-class">Area</span>(<span class="code-string">"Admin"</span>)]
+[<span class="code-class">Route</span>(<span class="code-string">"admin/[controller]/[action]"</span>)]
+<span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">ProductsController</span> : <span class="code-class">Controller</span>
+{
+    <span class="code-comment">// GET /admin/products/index</span>
+    <span class="code-keyword">public</span> <span class="code-class">IActionResult</span> <span class="code-method">Index</span>() { }
+
+    <span class="code-comment">// GET /admin/products/create</span>
+    <span class="code-keyword">public</span> <span class="code-class">IActionResult</span> <span class="code-method">Create</span>() { }
+}</code></pre>
+
+                <h3>Using [area] Token</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">Token Replacement</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code>[<span class="code-class">Area</span>(<span class="code-string">"Admin"</span>)]
+[<span class="code-class">Route</span>(<span class="code-string">"[area]/[controller]/[action]"</span>)]
+<span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">DashboardController</span> : <span class="code-class">Controller</span>
+{
+    <span class="code-comment">// GET /admin/dashboard/index</span>
+    <span class="code-keyword">public</span> <span class="code-class">IActionResult</span> <span class="code-method">Index</span>() { }
+}</code></pre>
+
+                <div class="section-divider"></div>
+
+                <h2>URL Generation for Areas</h2>
+
+                <h3>Url.Action() with Area</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">Generate Area URLs</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-comment">// Link to area controller</span>
+<span class="code-keyword">var</span> <span class="code-variable">url</span> = <span class="code-class">Url</span>.<span class="code-method">Action</span>(<span class="code-string">"Index"</span>, <span class="code-string">"Dashboard"</span>, <span class="code-keyword">new</span> { <span class="code-variable">area</span> = <span class="code-string">"Admin"</span> });
+<span class="code-comment">// → /Admin/Dashboard/Index</span>
+
+<span class="code-comment">// Link to default (no area)</span>
+<span class="code-keyword">var</span> <span class="code-variable">url</span> = <span class="code-class">Url</span>.<span class="code-method">Action</span>(<span class="code-string">"Index"</span>, <span class="code-string">"Home"</span>, <span class="code-keyword">new</span> { <span class="code-variable">area</span> = <span class="code-string">""</span> });
+<span class="code-comment">// → /Home/Index</span></code></pre>
+
+                <h3>In Razor Views</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">Views/Shared/_Layout.cshtml</span>
+                    <span class="code-language">HTML</span>
+                </div>
+                <pre><code>&lt;!-- Link to Admin area --&gt;
+&lt;a asp-area="Admin" asp-controller="Dashboard" asp-action="Index"&gt;
+    Admin Dashboard
+&lt;/a&gt;
+
+&lt;!-- Link to default (no area) --&gt;
+&lt;a asp-area="" asp-controller="Home" asp-action="Index"&gt;
+    Home
+&lt;/a&gt;</code></pre>
+
+                <h3>RedirectToAction() with Area</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">Redirects</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-comment">// Redirect to area</span>
+<span class="code-keyword">return</span> <span class="code-method">RedirectToAction</span>(<span class="code-string">"Index"</span>, <span class="code-string">"Dashboard"</span>, <span class="code-keyword">new</span> { <span class="code-variable">area</span> = <span class="code-string">"Admin"</span> });
+
+<span class="code-comment">// Redirect to default</span>
+<span class="code-keyword">return</span> <span class="code-method">RedirectToAction</span>(<span class="code-string">"Index"</span>, <span class="code-string">"Home"</span>, <span class="code-keyword">new</span> { <span class="code-variable">area</span> = <span class="code-string">""</span> });</code></pre>
+
+                <div class="section-divider"></div>
+
+                <h2>Complete InvenTrack Example</h2>
+
+                <h3>Folder Structure</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">InvenTrack Areas</span>
+                    <span class="code-language">Text</span>
+                </div>
+                <pre><code>InvenTrack/
+├── Areas/
+│   ├── Admin/
+│   │   ├── Controllers/
+│   │   │   ├── DashboardController.cs
+│   │   │   ├── ProductsController.cs
+│   │   │   └── UsersController.cs
+│   │   └── Views/
+│   │       ├── Dashboard/
+│   │       │   └── Index.cshtml
+│   │       ├── Products/
+│   │       │   ├── Index.cshtml
+│   │       │   └── Create.cshtml
+│   │       └── _ViewStart.cshtml
+│   └── Reports/
+│       ├── Controllers/
+│       │   ├── SalesController.cs
+│       │   └── InventoryController.cs
+│       └── Views/
+└── Controllers/
+    └── HomeController.cs</code></pre>
+
+                <h3>Admin Area Controller</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">Areas/Admin/Controllers/ProductsController.cs</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code>[<span class="code-class">Area</span>(<span class="code-string">"Admin"</span>)]
+[<span class="code-class">Route</span>(<span class="code-string">"[area]/[controller]/[action]"</span>)]
+[<span class="code-class">Authorize</span>(<span class="code-variable">Roles</span> = <span class="code-string">"Admin"</span>)]
+<span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">ProductsController</span> : <span class="code-class">Controller</span>
+{
+    <span class="code-keyword">private</span> <span class="code-keyword">readonly</span> <span class="code-class">IProductService</span> <span class="code-variable">_productService</span>;
+
+    <span class="code-keyword">public</span> <span class="code-method">ProductsController</span>(<span class="code-class">IProductService</span> <span class="code-variable">productService</span>)
+    {
+        <span class="code-variable">_productService</span> = <span class="code-variable">productService</span>;
+    }
+
+    <span class="code-comment">// GET /admin/products/index</span>
+    <span class="code-keyword">public</span> <span class="code-keyword">async</span> <span class="code-class">Task</span>&lt;<span class="code-class">IActionResult</span>&gt; <span class="code-method">Index</span>()
+    {
+        <span class="code-keyword">var</span> <span class="code-variable">products</span> = <span class="code-keyword">await</span> <span class="code-variable">_productService</span>.<span class="code-method">GetAllAsync</span>();
+        <span class="code-keyword">return</span> <span class="code-method">View</span>(<span class="code-variable">products</span>);
+    }
+
+    <span class="code-comment">// GET /admin/products/create</span>
+    <span class="code-keyword">public</span> <span class="code-class">IActionResult</span> <span class="code-method">Create</span>()
+    {
+        <span class="code-keyword">return</span> <span class="code-method">View</span>();
+    }
+
+    <span class="code-comment">// POST /admin/products/create</span>
+    [<span class="code-class">HttpPost</span>]
+    [<span class="code-class">ValidateAntiForgeryToken</span>]
+    <span class="code-keyword">public</span> <span class="code-keyword">async</span> <span class="code-class">Task</span>&lt;<span class="code-class">IActionResult</span>&gt; <span class="code-method">Create</span>(<span class="code-class">ProductViewModel</span> <span class="code-variable">model</span>)
+    {
+        <span class="code-keyword">if</span> (!<span class="code-class">ModelState</span>.<span class="code-variable">IsValid</span>)
+            <span class="code-keyword">return</span> <span class="code-method">View</span>(<span class="code-variable">model</span>);
+
+        <span class="code-keyword">await</span> <span class="code-variable">_productService</span>.<span class="code-method">CreateAsync</span>(<span class="code-variable">model</span>);
+        
+        <span class="code-comment">// Redirect to Index in same area</span>
+        <span class="code-keyword">return</span> <span class="code-method">RedirectToAction</span>(<span class="code-keyword">nameof</span>(<span class="code-method">Index</span>));
+    }
+}</code></pre>
+
+                <h3>Reports Area Controller</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">Areas/Reports/Controllers/SalesController.cs</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code>[<span class="code-class">Area</span>(<span class="code-string">"Reports"</span>)]
+[<span class="code-class">Route</span>(<span class="code-string">"[area]/[controller]/[action]"</span>)]
+<span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">SalesController</span> : <span class="code-class">Controller</span>
+{
+    <span class="code-comment">// GET /reports/sales/monthly</span>
+    <span class="code-keyword">public</span> <span class="code-class">IActionResult</span> <span class="code-method">Monthly</span>()
+    {
+        <span class="code-keyword">return</span> <span class="code-method">View</span>();
+    }
+
+    <span class="code-comment">// GET /reports/sales/yearly</span>
+    <span class="code-keyword">public</span> <span class="code-class">IActionResult</span> <span class="code-method">Yearly</span>()
+    {
+        <span class="code-keyword">return</span> <span class="code-method">View</span>();
+    }
+}</code></pre>
+
+                <h3>Program.cs Configuration</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">Program.cs</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-variable">builder</span>.<span class="code-variable">Services</span>.<span class="code-method">AddControllersWithViews</span>();
+
+<span class="code-keyword">var</span> <span class="code-variable">app</span> = <span class="code-variable">builder</span>.<span class="code-method">Build</span>();
+
+<span class="code-variable">app</span>.<span class="code-method">UseRouting</span>();
+<span class="code-variable">app</span>.<span class="code-method">UseAuthentication</span>();
+<span class="code-variable">app</span>.<span class="code-method">UseAuthorization</span>();
+
+<span class="code-comment">// Area routes (must come first)</span>
+<span class="code-variable">app</span>.<span class="code-method">MapControllerRoute</span>(
+    <span class="code-variable">name</span>: <span class="code-string">"areas"</span>,
+    <span class="code-variable">pattern</span>: <span class="code-string">"{area:exists}/{controller=Dashboard}/{action=Index}/{id?}"</span>);
+
+<span class="code-comment">// Default route</span>
+<span class="code-variable">app</span>.<span class="code-method">MapControllerRoute</span>(
+    <span class="code-variable">name</span>: <span class="code-string">"default"</span>,
+    <span class="code-variable">pattern</span>: <span class="code-string">"{controller=Home}/{action=Index}/{id?}"</span>);
+
+<span class="code-variable">app</span>.<span class="code-method">Run</span>();</code></pre>
+
+                <h3>Navigation Menu</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">Views/Shared/_Layout.cshtml</span>
+                    <span class="code-language">HTML</span>
+                </div>
+                <pre><code>&lt;nav&gt;
+    &lt;!-- Default area --&gt;
+    &lt;a asp-area="" asp-controller="Home" asp-action="Index"&gt;Home&lt;/a&gt;
+    
+    &lt;!-- Admin area --&gt;
+    &lt;a asp-area="Admin" asp-controller="Dashboard" asp-action="Index"&gt;
+        Admin Dashboard
+    &lt;/a&gt;
+    &lt;a asp-area="Admin" asp-controller="Products" asp-action="Index"&gt;
+        Manage Products
+    &lt;/a&gt;
+    
+    &lt;!-- Reports area --&gt;
+    &lt;a asp-area="Reports" asp-controller="Sales" asp-action="Monthly"&gt;
+        Sales Reports
+    &lt;/a&gt;
+&lt;/nav&gt;</code></pre>
+
+                <h2>Best Practices</h2>
+
+                <ul>
+                    <li><strong>Logical grouping</strong>: Group related functionality (Admin, Reports, etc.)</li>
+                    <li><strong>Area routes first</strong>: Register area routes before default routes</li>
+                    <li><strong>Use [Area] attribute</strong>: Always decorate area controllers</li>
+                    <li><strong>Consistent naming</strong>: Use PascalCase for area names</li>
+                    <li><strong>Authorization</strong>: Apply area-wide authorization</li>
+                    <li><strong>Shared layouts</strong>: Each area can have its own layout</li>
+                    <li><strong>URL generation</strong>: Always specify area in links</li>
+                    <li><strong>Empty area</strong>: Use <code>area = ""</code> for default</li>
+                </ul>
+
+                <h2>When to Use Areas</h2>
+
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Use Areas</th>
+                            <th>Don't Use Areas</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Large applications</td>
+                            <td>Small applications</td>
+                        </tr>
+                        <tr>
+                            <td>Multiple logical sections</td>
+                            <td>Single-purpose apps</td>
+                        </tr>
+                        <tr>
+                            <td>Team collaboration</td>
+                            <td>Solo projects</td>
+                        </tr>
+                        <tr>
+                            <td>Admin vs public sections</td>
+                            <td>Simple CRUD apps</td>
+                        </tr>
+                        <tr>
+                            <td>Modular architecture</td>
+                            <td>APIs (use versioning instead)</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h2>Key Takeaways</h2>
+
+                <ul>
+                    <li><strong>Areas</strong>: Organize large MVC apps into logical sections</li>
+                    <li><strong>[Area] attribute</strong>: Required on area controllers</li>
+                    <li><strong>Folder structure</strong>: Areas/[AreaName]/Controllers/Views/Models</li>
+                    <li><strong>Routing</strong>: <code>{area:exists}/{controller}/{action}</code></li>
+                    <li><strong>URL generation</strong>: Include <code>area</code> in route values</li>
+                    <li><strong>Area routes first</strong>: Register before default routes</li>
+                    <li><strong>[area] token</strong>: Use in attribute routes</li>
+                    <li><strong>Empty area</strong>: <code>area = ""</code> for default</li>
+                    <li><strong>Use cases</strong>: Admin panels, reports, customer portals</li>
+                </ul>
+
+                <div class="callout callout-concept">
+                    <div class="callout-title">🎉 Part VII Complete!</div>
+                    <p>
+                        Congratulations! You've completed <strong>Part VII: Routing</strong>. You now understand:
+                    </p>
+                    <ul>
+                        <li>✅ Endpoint routing architecture</li>
+                        <li>✅ Conventional vs attribute routing</li>
+                        <li>✅ Route parameters (required, optional, catch-all)</li>
+                        <li>✅ Route constraints (int, guid, regex, custom)</li>
+                        <li>✅ URL generation (Url.Action, CreatedAtAction, LinkGenerator)</li>
+                        <li>✅ Areas for organizing large applications</li>
+                    </ul>
+                    <p>
+                        You now have complete control over routing in ASP.NET Core! This knowledge is
+                        essential for building well-structured, maintainable applications. Keep up the
+                        great work! 🚀
+                    </p>
+                </div>
+
+                <nav class="page-nav">
+                    <a href="05-url-generation.html" class="prev">URL Generation</a>
+                    <a href="../index.html" class="next">Back to Roadmap</a>
+                </nav>
+
+            
+        <footer class="page-footer">
+          Built with 💜 by <a href="https://akwasi.dev" target="_blank" rel="noopener noreferrer">Akwasi Adu-Kyeremeh</a> for developers who want to truly understand what they're building.
+        </footer>
+
+      </div>
+        </main>
+    </div>
+</body>
+
+</html>

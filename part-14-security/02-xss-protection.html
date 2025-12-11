@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cross-Site Scripting (XSS) | ASP.NET Core Mastery</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;500&family=Source+Serif+4:ital,wght@0,400;0,600;1,400&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="../assets/style.css">
+</head>
+
+<body>
+    <div class="page-wrapper">
+        <aside class="sidebar">
+            <a href="../index.html" class="sidebar-logo">ASP.NET Core Mastery</a>
+            <div class="sidebar-section">Part XIV: Security</div>
+            <ul class="sidebar-nav">
+                <li><a href="01-owasp-top-10.html">OWASP Top 10</a></li>
+                <li><a href="02-xss-protection.html" class="active">Cross-Site Scripting (XSS)</a></li>
+                <li><a href="03-csrf-protection.html">Cross-Site Request Forgery (CSRF)</a></li>
+                <li><a href="04-sql-injection.html">SQL Injection</a></li>
+                <li><a href="05-data-protection-api.html">Data Protection API</a></li>
+                <li><a href="06-https-security-headers.html">HTTPS and Security Headers</a></li>
+            </ul>
+            <div class="sidebar-section">Resources</div>
+            <ul class="sidebar-nav">
+                <li><a href="../index.html">Full Roadmap</a></li>
+            </ul>
+        </aside>
+
+        <main class="main-content">
+            <div class="content-container">
+                <nav class="breadcrumb">
+                    <a href="../index.html">Home</a>
+                    <span>→</span>
+                    <a href="01-owasp-top-10.html">Part XIV: Security</a>
+                    <span>→</span>
+                    Cross-Site Scripting (XSS)
+                </nav>
+
+                <div class="progress-indicator">
+                    <span>Section 2 of 6</span>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 33.33%"></div>
+                    </div>
+                </div>
+
+                <h1>Cross-Site Scripting (XSS)</h1>
+
+                <div class="learning-objectives">
+                    <h3>🎯 What You'll Learn</h3>
+                    <ul>
+                        <li>What is XSS</li>
+                        <li>Types of XSS attacks</li>
+                        <li>Razor automatic encoding</li>
+                        <li>@Html.Raw() dangers</li>
+                        <li>Content Security Policy</li>
+                    </ul>
+                </div>
+
+                <h2>What is XSS?</h2>
+
+                <p>
+                    <strong>Cross-Site Scripting (XSS)</strong> is an injection attack where malicious scripts are
+                    injected into trusted websites.
+                    The attacker's script executes in the victim's browser.
+                </p>
+
+                <div class="section-divider"></div>
+
+                <h2>Types of XSS</h2>
+
+                <h3>1. Stored XSS (Persistent)</h3>
+                <p>Malicious script stored in database and displayed to all users.</p>
+                <div class="code-header">
+                    <span class="code-filename">Example Attack</span>
+                    <span class="code-language">JavaScript</span>
+                </div>
+                <pre><code><span class="code-comment">// User submits comment:</span>
+&lt;script&gt;alert('XSS')&lt;/script&gt;
+
+<span class="code-comment">// Stored in database, executed when displayed</span></code></pre>
+
+                <h3>2. Reflected XSS</h3>
+                <p>Malicious script in URL, reflected back to user.</p>
+                <div class="code-header">
+                    <span class="code-filename">Example Attack</span>
+                    <span class="code-language">Text</span>
+                </div>
+                <pre><code>https://example.com/search?q=&lt;script&gt;alert('XSS')&lt;/script&gt;</code></pre>
+
+                <h3>3. DOM-based XSS</h3>
+                <p>Client-side JavaScript modifies DOM with untrusted data.</p>
+
+                <div class="section-divider"></div>
+
+                <h2>Razor Automatic Encoding</h2>
+
+                <p>Razor automatically HTML-encodes output, preventing XSS.</p>
+
+                <div class="code-header">
+                    <span class="code-filename">Safe (Automatic Encoding)</span>
+                    <span class="code-language">HTML</span>
+                </div>
+                <pre><code><span class="code-tag">@Model</span>.<span class="code-variable">UserInput</span>
+
+<span class="code-comment">&lt;!-- If UserInput = "&lt;script&gt;alert('XSS')&lt;/script&gt;" --&gt;</span>
+<span class="code-comment">&lt;!-- Rendered as: &amp;lt;script&amp;gt;alert('XSS')&amp;lt;/script&amp;gt; --&gt;</span></code></pre>
+
+                <div class="section-divider"></div>
+
+                <h2>@Html.Raw() Dangers</h2>
+
+                <p><code>@Html.Raw()</code> bypasses encoding - use with extreme caution!</p>
+
+                <div class="code-header">
+                    <span class="code-filename">Dangerous (No Encoding)</span>
+                    <span class="code-language">HTML</span>
+                </div>
+                <pre><code><span class="code-tag">@Html.Raw</span>(<span class="code-variable">Model</span>.<span class="code-variable">UserInput</span>)
+
+<span class="code-comment">&lt;!-- Script executes! DANGEROUS! --&gt;</span></code></pre>
+
+                <div class="callout callout-info">
+                    <div class="callout-title">⚠️ Warning</div>
+                    <p>
+                        Only use <code>@Html.Raw()</code> with trusted, sanitized content. Never with user input!
+                    </p>
+                </div>
+
+                <div class="section-divider"></div>
+
+                <h2>Sanitizing HTML</h2>
+
+                <p>If you must allow HTML, use a sanitizer library.</p>
+
+                <div class="code-header">
+                    <span class="code-filename">Install HtmlSanitizer</span>
+                    <span class="code-language">Bash</span>
+                </div>
+                <pre><code>dotnet add package HtmlSanitizer</code></pre>
+
+                <div class="code-header">
+                    <span class="code-filename">Sanitize HTML</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-keyword">var</span> <span class="code-variable">sanitizer</span> = <span class="code-keyword">new</span> <span class="code-class">HtmlSanitizer</span>();
+<span class="code-keyword">var</span> <span class="code-variable">clean</span> = <span class="code-variable">sanitizer</span>.<span class="code-method">Sanitize</span>(<span class="code-variable">userInput</span>);
+
+<span class="code-comment">// Now safe to use with @Html.Raw()</span>
+<span class="code-tag">@Html.Raw</span>(<span class="code-variable">clean</span>)</code></pre>
+
+                <div class="section-divider"></div>
+
+                <h2>Content Security Policy (CSP)</h2>
+
+                <p>CSP header restricts which scripts can execute.</p>
+
+                <div class="code-header">
+                    <span class="code-filename">Add CSP Header</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-variable">app</span>.<span class="code-method">Use</span>(<span class="code-keyword">async</span> (<span class="code-variable">context</span>, <span class="code-variable">next</span>) =>
+{
+    <span class="code-variable">context</span>.<span class="code-variable">Response</span>.<span class="code-variable">Headers</span>.<span class="code-method">Add</span>(
+        <span class="code-string">"Content-Security-Policy"</span>,
+        <span class="code-string">"default-src 'self'; script-src 'self'"</span>);
+    <span class="code-keyword">await</span> <span class="code-method">next</span>();
+});</code></pre>
+
+                <h2>Best Practices</h2>
+
+                <ul>
+                    <li><strong>Trust Razor encoding</strong>: Don't use @Html.Raw() with user input</li>
+                    <li><strong>Validate input</strong>: Reject suspicious input</li>
+                    <li><strong>Sanitize HTML</strong>: Use HtmlSanitizer if HTML is needed</li>
+                    <li><strong>Use CSP</strong>: Restrict script sources</li>
+                    <li><strong>HttpOnly cookies</strong>: Prevent JavaScript access to cookies</li>
+                </ul>
+
+                <h2>Key Takeaways</h2>
+
+                <ul>
+                    <li><strong>XSS</strong>: Malicious scripts injected into pages</li>
+                    <li><strong>Razor encoding</strong>: Automatic protection</li>
+                    <li><strong>@Html.Raw()</strong>: Dangerous with user input</li>
+                    <li><strong>HtmlSanitizer</strong>: Clean untrusted HTML</li>
+                    <li><strong>CSP</strong>: Restrict script execution</li>
+                </ul>
+
+                <nav class="page-nav">
+                    <a href="01-owasp-top-10.html" class="prev">OWASP Top 10</a>
+                    <a href="03-csrf-protection.html" class="next">Cross-Site Request Forgery (CSRF)</a>
+                </nav>
+
+            
+        <footer class="page-footer">
+          Built with 💜 by <a href="https://akwasi.dev" target="_blank" rel="noopener noreferrer">Akwasi Adu-Kyeremeh</a> for developers who want to truly understand what they're building.
+        </footer>
+
+      </div>
+        </main>
+    </div>
+</body>
+
+</html>

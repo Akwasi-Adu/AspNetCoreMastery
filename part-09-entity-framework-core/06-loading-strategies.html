@@ -1,0 +1,511 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Loading Strategies | ASP.NET Core Mastery</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;500&family=Source+Serif+4:ital,wght@0,400;0,600;1,400&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="../assets/style.css">
+</head>
+
+<body>
+    <div class="page-wrapper">
+        <aside class="sidebar">
+            <a href="../index.html" class="sidebar-logo">ASP.NET Core Mastery</a>
+            <div class="sidebar-section">Part IX: Entity Framework Core</div>
+            <ul class="sidebar-nav">
+                <li><a href="01-what-is-orm.html">What is an ORM?</a></li>
+                <li><a href="02-dbcontext-entities.html">DbContext and Entities</a></li>
+                <li><a href="03-code-first-migrations.html">Code-First Migrations</a></li>
+                <li><a href="04-querying-linq.html">Querying Data with LINQ</a></li>
+                <li><a href="05-relationships.html">Relationships</a></li>
+                <li><a href="06-loading-strategies.html" class="active">Loading Strategies</a></li>
+                <li><a href="07-advanced-ef-core.html">Advanced EF Core</a></li>
+            </ul>
+            <div class="sidebar-section">Resources</div>
+            <ul class="sidebar-nav">
+                <li><a href="../index.html">Full Roadmap</a></li>
+            </ul>
+        </aside>
+
+        <main class="main-content">
+            <div class="content-container">
+                <nav class="breadcrumb">
+                    <a href="../index.html">Home</a>
+                    <span>→</span>
+                    <a href="01-what-is-orm.html">Part IX: Entity Framework Core</a>
+                    <span>→</span>
+                    Loading Strategies
+                </nav>
+
+                <div class="progress-indicator">
+                    <span>Section 6 of 7</span>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 85.71%"></div>
+                    </div>
+                </div>
+
+                <h1>Loading Strategies</h1>
+
+                <div class="learning-objectives">
+                    <h3>🎯 What You'll Learn</h3>
+                    <ul>
+                        <li>Eager loading with Include</li>
+                        <li>Lazy loading</li>
+                        <li>Explicit loading</li>
+                        <li>Select loading</li>
+                        <li>N+1 problem</li>
+                        <li>When to use each strategy</li>
+                    </ul>
+                </div>
+
+                <h2>What are Loading Strategies?</h2>
+
+                <p>
+                    <strong>Loading strategies</strong> determine when and how related data is loaded from
+                    the database.
+                </p>
+
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Strategy</th>
+                            <th>When Loaded</th>
+                            <th>Use Case</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Eager Loading</strong></td>
+                            <td>With initial query</td>
+                            <td>Always need related data</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Lazy Loading</strong></td>
+                            <td>When accessed</td>
+                            <td>Sometimes need related data</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Explicit Loading</strong></td>
+                            <td>Manually triggered</td>
+                            <td>Conditional loading</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Select Loading</strong></td>
+                            <td>With projection</td>
+                            <td>Specific properties only</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="section-divider"></div>
+
+                <h2>Eager Loading</h2>
+
+                <p>
+                    <strong>Eager loading</strong> loads related data as part of the initial query using
+                    <code>Include()</code>.
+                </p>
+
+                <h3>Basic Include</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">Include Related Data</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-comment">// Load products with their categories</span>
+<span class="code-keyword">var</span> <span class="code-variable">products</span> = <span class="code-keyword">await</span> <span class="code-variable">_context</span>.<span class="code-variable">Products</span>
+    .<span class="code-method">Include</span>(<span class="code-variable">p</span> => <span class="code-variable">p</span>.<span class="code-variable">Category</span>)
+    .<span class="code-method">ToListAsync</span>();
+
+<span class="code-comment">// Now you can access category without additional queries</span>
+<span class="code-keyword">foreach</span> (<span class="code-keyword">var</span> <span class="code-variable">product</span> <span class="code-keyword">in</span> <span class="code-variable">products</span>)
+{
+    <span class="code-class">Console</span>.<span class="code-method">WriteLine</span>(<span class="code-string">$"</span>{<span class="code-variable">product</span>.<span class="code-variable">Name</span>}<span class="code-string"> - </span>{<span class="code-variable">product</span>.<span class="code-variable">Category</span>.<span class="code-variable">Name</span>}<span class="code-string">"</span>);
+}</code></pre>
+
+                <h3>Multiple Includes</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">Include Multiple Relationships</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-keyword">var</span> <span class="code-variable">products</span> = <span class="code-keyword">await</span> <span class="code-variable">_context</span>.<span class="code-variable">Products</span>
+    .<span class="code-method">Include</span>(<span class="code-variable">p</span> => <span class="code-variable">p</span>.<span class="code-variable">Category</span>)
+    .<span class="code-method">Include</span>(<span class="code-variable">p</span> => <span class="code-variable">p</span>.<span class="code-variable">Tags</span>)
+    .<span class="code-method">ToListAsync</span>();</code></pre>
+
+                <h3>ThenInclude (Nested)</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">Include Nested Relationships</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-comment">// Load orders with items and products</span>
+<span class="code-keyword">var</span> <span class="code-variable">orders</span> = <span class="code-keyword">await</span> <span class="code-variable">_context</span>.<span class="code-variable">Orders</span>
+    .<span class="code-method">Include</span>(<span class="code-variable">o</span> => <span class="code-variable">o</span>.<span class="code-variable">Items</span>)
+        .<span class="code-method">ThenInclude</span>(<span class="code-variable">i</span> => <span class="code-variable">i</span>.<span class="code-variable">Product</span>)
+    .<span class="code-method">ToListAsync</span>();
+
+<span class="code-comment">// Multiple ThenIncludes</span>
+<span class="code-keyword">var</span> <span class="code-variable">orders</span> = <span class="code-keyword">await</span> <span class="code-variable">_context</span>.<span class="code-variable">Orders</span>
+    .<span class="code-method">Include</span>(<span class="code-variable">o</span> => <span class="code-variable">o</span>.<span class="code-variable">Items</span>)
+        .<span class="code-method">ThenInclude</span>(<span class="code-variable">i</span> => <span class="code-variable">i</span>.<span class="code-variable">Product</span>)
+            .<span class="code-method">ThenInclude</span>(<span class="code-variable">p</span> => <span class="code-variable">p</span>.<span class="code-variable">Category</span>)
+    .<span class="code-method">ToListAsync</span>();</code></pre>
+
+                <h3>Filtered Include (EF Core 5+)</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">Filter Related Data</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-comment">// Only include products with quantity > 0</span>
+<span class="code-keyword">var</span> <span class="code-variable">categories</span> = <span class="code-keyword">await</span> <span class="code-variable">_context</span>.<span class="code-variable">Categories</span>
+    .<span class="code-method">Include</span>(<span class="code-variable">c</span> => <span class="code-variable">c</span>.<span class="code-variable">Products</span>.<span class="code-method">Where</span>(<span class="code-variable">p</span> => <span class="code-variable">p</span>.<span class="code-variable">Quantity</span> > <span class="code-number">0</span>))
+    .<span class="code-method">ToListAsync</span>();
+
+<span class="code-comment">// Order related data</span>
+<span class="code-keyword">var</span> <span class="code-variable">categories</span> = <span class="code-keyword">await</span> <span class="code-variable">_context</span>.<span class="code-variable">Categories</span>
+    .<span class="code-method">Include</span>(<span class="code-variable">c</span> => <span class="code-variable">c</span>.<span class="code-variable">Products</span>.<span class="code-method">OrderBy</span>(<span class="code-variable">p</span> => <span class="code-variable">p</span>.<span class="code-variable">Name</span>))
+    .<span class="code-method">ToListAsync</span>();</code></pre>
+
+                <div class="section-divider"></div>
+
+                <h2>Lazy Loading</h2>
+
+                <p>
+                    <strong>Lazy loading</strong> automatically loads related data when you access the
+                    navigation property.
+                </p>
+
+                <h3>Setup</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">Install Package</span>
+                    <span class="code-language">Bash</span>
+                </div>
+                <pre><code>dotnet add package Microsoft.EntityFrameworkCore.Proxies</code></pre>
+
+                <div class="code-header">
+                    <span class="code-filename">Enable Lazy Loading</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-variable">builder</span>.<span class="code-variable">Services</span>.<span class="code-method">AddDbContext</span>&lt;<span class="code-class">InvenTrackDbContext</span>&gt;(<span class="code-variable">options</span> =&gt;
+    <span class="code-variable">options</span>.<span class="code-method">UseSqlServer</span>(<span class="code-variable">connectionString</span>)
+        .<span class="code-method">UseLazyLoadingProxies</span>());</code></pre>
+
+                <h3>Make Navigation Properties Virtual</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">Virtual Navigation Properties</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">Product</span>
+{
+    <span class="code-keyword">public</span> <span class="code-type">int</span> <span class="code-variable">Id</span> { <span class="code-keyword">get</span>; <span class="code-keyword">set</span>; }
+    <span class="code-keyword">public</span> <span class="code-type">string</span> <span class="code-variable">Name</span> { <span class="code-keyword">get</span>; <span class="code-keyword">set</span>; } = <span class="code-keyword">string</span>.<span class="code-variable">Empty</span>;
+    <span class="code-keyword">public</span> <span class="code-type">int</span> <span class="code-variable">CategoryId</span> { <span class="code-keyword">get</span>; <span class="code-keyword">set</span>; }
+
+    <span class="code-comment">// Virtual enables lazy loading</span>
+    <span class="code-keyword">public</span> <span class="code-keyword">virtual</span> <span class="code-class">Category</span> <span class="code-variable">Category</span> { <span class="code-keyword">get</span>; <span class="code-keyword">set</span>; } = <span class="code-keyword">null</span>!;
+}</code></pre>
+
+                <h3>Usage</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">Lazy Loading in Action</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-comment">// Load product without category</span>
+<span class="code-keyword">var</span> <span class="code-variable">product</span> = <span class="code-keyword">await</span> <span class="code-variable">_context</span>.<span class="code-variable">Products</span>.<span class="code-method">FindAsync</span>(<span class="code-number">1</span>);
+
+<span class="code-comment">// Accessing Category triggers a database query</span>
+<span class="code-keyword">var</span> <span class="code-variable">categoryName</span> = <span class="code-variable">product</span>.<span class="code-variable">Category</span>.<span class="code-variable">Name</span>; <span class="code-comment">// Query executed here</span></code></pre>
+
+                <div class="callout callout-warning">
+                    <div class="callout-title">⚠️ N+1 Problem</div>
+                    <p>
+                        Lazy loading can cause the <strong>N+1 problem</strong>: loading a list of N entities,
+                        then making N additional queries for related data. Use eager loading for collections!
+                    </p>
+                </div>
+
+                <div class="section-divider"></div>
+
+                <h2>Explicit Loading</h2>
+
+                <p>
+                    <strong>Explicit loading</strong> gives you manual control over when to load related data.
+                </p>
+
+                <div class="code-header">
+                    <span class="code-filename">Load Related Data Explicitly</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-comment">// Load product</span>
+<span class="code-keyword">var</span> <span class="code-variable">product</span> = <span class="code-keyword">await</span> <span class="code-variable">_context</span>.<span class="code-variable">Products</span>.<span class="code-method">FindAsync</span>(<span class="code-number">1</span>);
+
+<span class="code-comment">// Explicitly load category</span>
+<span class="code-keyword">await</span> <span class="code-variable">_context</span>.<span class="code-method">Entry</span>(<span class="code-variable">product</span>)
+    .<span class="code-method">Reference</span>(<span class="code-variable">p</span> => <span class="code-variable">p</span>.<span class="code-variable">Category</span>)
+    .<span class="code-method">LoadAsync</span>();
+
+<span class="code-comment">// Explicitly load collection</span>
+<span class="code-keyword">var</span> <span class="code-variable">category</span> = <span class="code-keyword">await</span> <span class="code-variable">_context</span>.<span class="code-variable">Categories</span>.<span class="code-method">FindAsync</span>(<span class="code-number">1</span>);
+
+<span class="code-keyword">await</span> <span class="code-variable">_context</span>.<span class="code-method">Entry</span>(<span class="code-variable">category</span>)
+    .<span class="code-method">Collection</span>(<span class="code-variable">c</span> => <span class="code-variable">c</span>.<span class="code-variable">Products</span>)
+    .<span class="code-method">LoadAsync</span>();</code></pre>
+
+                <h3>Filtered Explicit Loading</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">Query Related Data</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-keyword">var</span> <span class="code-variable">category</span> = <span class="code-keyword">await</span> <span class="code-variable">_context</span>.<span class="code-variable">Categories</span>.<span class="code-method">FindAsync</span>(<span class="code-number">1</span>);
+
+<span class="code-comment">// Load only products with quantity > 0</span>
+<span class="code-keyword">await</span> <span class="code-variable">_context</span>.<span class="code-method">Entry</span>(<span class="code-variable">category</span>)
+    .<span class="code-method">Collection</span>(<span class="code-variable">c</span> => <span class="code-variable">c</span>.<span class="code-variable">Products</span>)
+    .<span class="code-method">Query</span>()
+    .<span class="code-method">Where</span>(<span class="code-variable">p</span> => <span class="code-variable">p</span>.<span class="code-variable">Quantity</span> > <span class="code-number">0</span>)
+    .<span class="code-method">LoadAsync</span>();
+
+<span class="code-comment">// Get count without loading</span>
+<span class="code-keyword">var</span> <span class="code-variable">productCount</span> = <span class="code-keyword">await</span> <span class="code-variable">_context</span>.<span class="code-method">Entry</span>(<span class="code-variable">category</span>)
+    .<span class="code-method">Collection</span>(<span class="code-variable">c</span> => <span class="code-variable">c</span>.<span class="code-variable">Products</span>)
+    .<span class="code-method">Query</span>()
+    .<span class="code-method">CountAsync</span>();</code></pre>
+
+                <div class="section-divider"></div>
+
+                <h2>Select Loading (Projection)</h2>
+
+                <p>
+                    <strong>Select loading</strong> loads only the specific properties you need.
+                </p>
+
+                <div class="code-header">
+                    <span class="code-filename">Project Specific Data</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-comment">// Load only needed properties</span>
+<span class="code-keyword">var</span> <span class="code-variable">products</span> = <span class="code-keyword">await</span> <span class="code-variable">_context</span>.<span class="code-variable">Products</span>
+    .<span class="code-method">Select</span>(<span class="code-variable">p</span> => <span class="code-keyword">new</span>
+    {
+        <span class="code-variable">p</span>.<span class="code-variable">Id</span>,
+        <span class="code-variable">p</span>.<span class="code-variable">Name</span>,
+        <span class="code-variable">p</span>.<span class="code-variable">Price</span>,
+        <span class="code-variable">CategoryName</span> = <span class="code-variable">p</span>.<span class="code-variable">Category</span>.<span class="code-variable">Name</span> <span class="code-comment">// Only category name</span>
+    })
+    .<span class="code-method">ToListAsync</span>();</code></pre>
+
+                <div class="callout callout-info">
+                    <div class="callout-title">💡 Most Efficient</div>
+                    <p>
+                        Select loading is often the most efficient because it only retrieves the exact
+                        data you need from the database.
+                    </p>
+                </div>
+
+                <div class="section-divider"></div>
+
+                <h2>The N+1 Problem</h2>
+
+                <h3>❌ Bad: N+1 Queries</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">Causes N+1 Problem</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-comment">// 1 query to get products</span>
+<span class="code-keyword">var</span> <span class="code-variable">products</span> = <span class="code-keyword">await</span> <span class="code-variable">_context</span>.<span class="code-variable">Products</span>.<span class="code-method">ToListAsync</span>();
+
+<span class="code-comment">// N queries (one per product) to get categories</span>
+<span class="code-keyword">foreach</span> (<span class="code-keyword">var</span> <span class="code-variable">product</span> <span class="code-keyword">in</span> <span class="code-variable">products</span>)
+{
+    <span class="code-class">Console</span>.<span class="code-method">WriteLine</span>(<span class="code-variable">product</span>.<span class="code-variable">Category</span>.<span class="code-variable">Name</span>); <span class="code-comment">// Lazy load triggers query</span>
+}
+
+<span class="code-comment">// Total: 1 + N queries!</span></code></pre>
+
+                <h3>✅ Good: Single Query</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">Use Eager Loading</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-comment">// Single query with JOIN</span>
+<span class="code-keyword">var</span> <span class="code-variable">products</span> = <span class="code-keyword">await</span> <span class="code-variable">_context</span>.<span class="code-variable">Products</span>
+    .<span class="code-method">Include</span>(<span class="code-variable">p</span> => <span class="code-variable">p</span>.<span class="code-variable">Category</span>)
+    .<span class="code-method">ToListAsync</span>();
+
+<span class="code-keyword">foreach</span> (<span class="code-keyword">var</span> <span class="code-variable">product</span> <span class="code-keyword">in</span> <span class="code-variable">products</span>)
+{
+    <span class="code-class">Console</span>.<span class="code-method">WriteLine</span>(<span class="code-variable">product</span>.<span class="code-variable">Category</span>.<span class="code-variable">Name</span>); <span class="code-comment">// No additional query</span>
+}
+
+<span class="code-comment">// Total: 1 query!</span></code></pre>
+
+                <h2>Complete InvenTrack Example</h2>
+
+                <div class="code-header">
+                    <span class="code-filename">Controllers/ProductsController.cs</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code>[<span class="code-class">ApiController</span>]
+[<span class="code-class">Route</span>(<span class="code-string">"api/[controller]"</span>)]
+<span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">ProductsController</span> : <span class="code-class">ControllerBase</span>
+{
+    <span class="code-keyword">private</span> <span class="code-keyword">readonly</span> <span class="code-class">InvenTrackDbContext</span> <span class="code-variable">_context</span>;
+
+    <span class="code-keyword">public</span> <span class="code-method">ProductsController</span>(<span class="code-class">InvenTrackDbContext</span> <span class="code-variable">context</span>)
+    {
+        <span class="code-variable">_context</span> = <span class="code-variable">context</span>;
+    }
+
+    <span class="code-comment">// Eager loading: Always need category</span>
+    [<span class="code-class">HttpGet</span>]
+    <span class="code-keyword">public</span> <span class="code-keyword">async</span> <span class="code-class">Task</span>&lt;<span class="code-class">ActionResult</span>&gt; <span class="code-method">GetProducts</span>()
+    {
+        <span class="code-keyword">var</span> <span class="code-variable">products</span> = <span class="code-keyword">await</span> <span class="code-variable">_context</span>.<span class="code-variable">Products</span>
+            .<span class="code-method">Include</span>(<span class="code-variable">p</span> => <span class="code-variable">p</span>.<span class="code-variable">Category</span>)
+            .<span class="code-method">ToListAsync</span>();
+
+        <span class="code-keyword">return</span> <span class="code-method">Ok</span>(<span class="code-variable">products</span>);
+    }
+
+    <span class="code-comment">// Select loading: Only need specific properties</span>
+    [<span class="code-class">HttpGet</span>(<span class="code-string">"summary"</span>)]
+    <span class="code-keyword">public</span> <span class="code-keyword">async</span> <span class="code-class">Task</span>&lt;<span class="code-class">ActionResult</span>&gt; <span class="code-method">GetProductSummary</span>()
+    {
+        <span class="code-keyword">var</span> <span class="code-variable">products</span> = <span class="code-keyword">await</span> <span class="code-variable">_context</span>.<span class="code-variable">Products</span>
+            .<span class="code-method">Select</span>(<span class="code-variable">p</span> => <span class="code-keyword">new</span>
+            {
+                <span class="code-variable">p</span>.<span class="code-variable">Id</span>,
+                <span class="code-variable">p</span>.<span class="code-variable">Name</span>,
+                <span class="code-variable">p</span>.<span class="code-variable">Price</span>,
+                <span class="code-variable">CategoryName</span> = <span class="code-variable">p</span>.<span class="code-variable">Category</span>.<span class="code-variable">Name</span>
+            })
+            .<span class="code-method">ToListAsync</span>();
+
+        <span class="code-keyword">return</span> <span class="code-method">Ok</span>(<span class="code-variable">products</span>);
+    }
+
+    <span class="code-comment">// Explicit loading: Conditionally load related data</span>
+    [<span class="code-class">HttpGet</span>(<span class="code-string">"{id}"</span>)]
+    <span class="code-keyword">public</span> <span class="code-keyword">async</span> <span class="code-class">Task</span>&lt;<span class="code-class">ActionResult</span>&gt; <span class="code-method">GetProduct</span>(<span class="code-type">int</span> <span class="code-variable">id</span>, [<span class="code-class">FromQuery</span>] <span class="code-type">bool</span> <span class="code-variable">includeCategory</span> = <span class="code-keyword">false</span>)
+    {
+        <span class="code-keyword">var</span> <span class="code-variable">product</span> = <span class="code-keyword">await</span> <span class="code-variable">_context</span>.<span class="code-variable">Products</span>.<span class="code-method">FindAsync</span>(<span class="code-variable">id</span>);
+
+        <span class="code-keyword">if</span> (<span class="code-variable">product</span> == <span class="code-keyword">null</span>)
+            <span class="code-keyword">return</span> <span class="code-method">NotFound</span>();
+
+        <span class="code-comment">// Explicitly load category if requested</span>
+        <span class="code-keyword">if</span> (<span class="code-variable">includeCategory</span>)
+        {
+            <span class="code-keyword">await</span> <span class="code-variable">_context</span>.<span class="code-method">Entry</span>(<span class="code-variable">product</span>)
+                .<span class="code-method">Reference</span>(<span class="code-variable">p</span> => <span class="code-variable">p</span>.<span class="code-variable">Category</span>)
+                .<span class="code-method">LoadAsync</span>();
+        }
+
+        <span class="code-keyword">return</span> <span class="code-method">Ok</span>(<span class="code-variable">product</span>);
+    }
+}</code></pre>
+
+                <h2>When to Use Each Strategy</h2>
+
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Strategy</th>
+                            <th>When to Use</th>
+                            <th>Pros</th>
+                            <th>Cons</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Eager</strong></td>
+                            <td>Always need related data</td>
+                            <td>Single query, no N+1</td>
+                            <td>May load unnecessary data</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Lazy</strong></td>
+                            <td>Sometimes need data</td>
+                            <td>Load on demand</td>
+                            <td>N+1 problem, many queries</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Explicit</strong></td>
+                            <td>Conditional loading</td>
+                            <td>Full control</td>
+                            <td>More code</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Select</strong></td>
+                            <td>Specific properties only</td>
+                            <td>Most efficient</td>
+                            <td>Can't update entities</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h2>Best Practices</h2>
+
+                <ul>
+                    <li><strong>Prefer eager loading</strong>: For collections to avoid N+1</li>
+                    <li><strong>Use Select</strong>: When you only need specific properties</li>
+                    <li><strong>Avoid lazy loading</strong>: In web APIs (can cause issues)</li>
+                    <li><strong>Explicit loading</strong>: For conditional scenarios</li>
+                    <li><strong>Profile queries</strong>: Use logging to see generated SQL</li>
+                    <li><strong>AsNoTracking()</strong>: For read-only queries (better performance)</li>
+                    <li><strong>Filtered includes</strong>: Reduce data transfer</li>
+                </ul>
+
+                <h2>Key Takeaways</h2>
+
+                <ul>
+                    <li><strong>Eager loading</strong>: Include() loads related data upfront</li>
+                    <li><strong>Lazy loading</strong>: Loads when accessed (requires virtual)</li>
+                    <li><strong>Explicit loading</strong>: Manual control with Entry().Load()</li>
+                    <li><strong>Select loading</strong>: Project specific properties</li>
+                    <li><strong>N+1 problem</strong>: Avoid with eager loading</li>
+                    <li><strong>ThenInclude()</strong>: Load nested relationships</li>
+                    <li><strong>Filtered includes</strong>: Where/OrderBy on related data</li>
+                    <li><strong>Choose wisely</strong>: Based on your specific use case</li>
+                </ul>
+
+                <div class="callout callout-concept">
+                    <div class="callout-title">🎯 Next Steps</div>
+                    <p>
+                        You now understand loading strategies! In the final section, we'll explore
+                        <strong>Advanced EF Core</strong>—raw SQL, transactions, performance optimization,
+                        and best practices.
+                    </p>
+                </div>
+
+                <nav class="page-nav">
+                    <a href="05-relationships.html" class="prev">Relationships</a>
+                    <a href="07-advanced-ef-core.html" class="next">Advanced EF Core</a>
+                </nav>
+
+            
+        <footer class="page-footer">
+          Built with 💜 by <a href="https://akwasi.dev" target="_blank" rel="noopener noreferrer">Akwasi Adu-Kyeremeh</a> for developers who want to truly understand what they're building.
+        </footer>
+
+      </div>
+        </main>
+    </div>
+</body>
+
+</html>

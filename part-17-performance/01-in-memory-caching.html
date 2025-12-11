@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>In-Memory Caching | ASP.NET Core Mastery</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;500&family=Source+Serif+4:ital,wght@0,400;0,600;1,400&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="../assets/style.css">
+</head>
+
+<body>
+    <div class="page-wrapper">
+        <aside class="sidebar">
+            <a href="../index.html" class="sidebar-logo">ASP.NET Core Mastery</a>
+            <div class="sidebar-section">Part XVII: Performance</div>
+            <ul class="sidebar-nav">
+                <li><a href="01-in-memory-caching.html" class="active">In-Memory Caching</a></li>
+                <li><a href="02-distributed-caching.html">Distributed Caching</a></li>
+                <li><a href="03-response-caching.html">Response Caching</a></li>
+                <li><a href="04-async-best-practices.html">Async Best Practices</a></li>
+                <li><a href="05-ef-core-performance.html">EF Core Performance</a></li>
+                <li><a href="06-profiling-tools.html">Profiling Tools</a></li>
+            </ul>
+            <div class="sidebar-section">Resources</div>
+            <ul class="sidebar-nav">
+                <li><a href="../index.html">Full Roadmap</a></li>
+            </ul>
+        </aside>
+
+        <main class="main-content">
+            <div class="content-container">
+                <nav class="breadcrumb">
+                    <a href="../index.html">Home</a>
+                    <span>→</span>
+                    <a href="01-in-memory-caching.html">Part XVII: Performance</a>
+                    <span>→</span>
+                    In-Memory Caching
+                </nav>
+
+                <div class="progress-indicator">
+                    <span>Section 1 of 6</span>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 16.67%"></div>
+                    </div>
+                </div>
+
+                <h1>In-Memory Caching</h1>
+
+                <div class="learning-objectives">
+                    <h3>🎯 What You'll Learn</h3>
+                    <ul>
+                        <li>What is caching</li>
+                        <li>IMemoryCache interface</li>
+                        <li>Setting cache entries</li>
+                        <li>Cache expiration</li>
+                        <li>Cache eviction</li>
+                    </ul>
+                </div>
+
+                <h2>What is Caching?</h2>
+
+                <p>
+                    <strong>Caching</strong> stores frequently accessed data in memory to avoid expensive operations
+                    like database queries or API calls.
+                </p>
+
+                <div class="section-divider"></div>
+
+                <h2>Setup</h2>
+
+                <div class="code-header">
+                    <span class="code-filename">Program.cs</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-variable">builder</span>.<span class="code-variable">Services</span>.<span class="code-method">AddMemoryCache</span>();</code></pre>
+
+                <div class="section-divider"></div>
+
+                <h2>Using IMemoryCache</h2>
+
+                <div class="code-header">
+                    <span class="code-filename">Inject IMemoryCache</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">ProductsController</span> : <span class="code-class">Controller</span>
+{
+    <span class="code-keyword">private</span> <span class="code-keyword">readonly</span> <span class="code-class">IMemoryCache</span> <span class="code-variable">_cache</span>;
+
+    <span class="code-keyword">public</span> <span class="code-method">ProductsController</span>(<span class="code-class">IMemoryCache</span> <span class="code-variable">cache</span>)
+    {
+        <span class="code-variable">_cache</span> = <span class="code-variable">cache</span>;
+    }
+}</code></pre>
+
+                <div class="section-divider"></div>
+
+                <h2>Setting and Getting Cache</h2>
+
+                <div class="code-header">
+                    <span class="code-filename">Basic Caching</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-comment">// Set cache</span>
+<span class="code-variable">_cache</span>.<span class="code-method">Set</span>(<span class="code-string">"products"</span>, <span class="code-variable">products</span>);
+
+<span class="code-comment">// Get cache</span>
+<span class="code-keyword">if</span> (<span class="code-variable">_cache</span>.<span class="code-method">TryGetValue</span>(<span class="code-string">"products"</span>, <span class="code-keyword">out</span> <span class="code-class">List</span>&lt;<span class="code-class">Product</span>&gt; <span class="code-variable">cachedProducts</span>))
+{
+    <span class="code-keyword">return</span> <span class="code-variable">cachedProducts</span>;
+}</code></pre>
+
+                <h3>GetOrCreate Pattern</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">GetOrCreate</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-keyword">var</span> <span class="code-variable">products</span> = <span class="code-variable">_cache</span>.<span class="code-method">GetOrCreate</span>(<span class="code-string">"products"</span>, <span class="code-variable">entry</span> =>
+{
+    <span class="code-variable">entry</span>.<span class="code-variable">AbsoluteExpirationRelativeToNow</span> = <span class="code-class">TimeSpan</span>.<span class="code-method">FromMinutes</span>(<span class="code-number">5</span>);
+    <span class="code-keyword">return</span> <span class="code-variable">_context</span>.<span class="code-variable">Products</span>.<span class="code-method">ToList</span>();
+});</code></pre>
+
+                <div class="section-divider"></div>
+
+                <h2>Cache Expiration</h2>
+
+                <h3>Absolute Expiration</h3>
+                <p>Cache expires at a specific time.</p>
+
+                <div class="code-header">
+                    <span class="code-filename">Absolute Expiration</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-variable">_cache</span>.<span class="code-method">Set</span>(<span class="code-string">"products"</span>, <span class="code-variable">products</span>, <span class="code-keyword">new</span> <span class="code-class">MemoryCacheEntryOptions</span>
+{
+    <span class="code-variable">AbsoluteExpirationRelativeToNow</span> = <span class="code-class">TimeSpan</span>.<span class="code-method">FromMinutes</span>(<span class="code-number">10</span>)
+});</code></pre>
+
+                <h3>Sliding Expiration</h3>
+                <p>Cache expires if not accessed within the time window.</p>
+
+                <div class="code-header">
+                    <span class="code-filename">Sliding Expiration</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-variable">_cache</span>.<span class="code-method">Set</span>(<span class="code-string">"products"</span>, <span class="code-variable">products</span>, <span class="code-keyword">new</span> <span class="code-class">MemoryCacheEntryOptions</span>
+{
+    <span class="code-variable">SlidingExpiration</span> = <span class="code-class">TimeSpan</span>.<span class="code-method">FromMinutes</span>(<span class="code-number">5</span>)
+});</code></pre>
+
+                <div class="section-divider"></div>
+
+                <h2>Cache Eviction</h2>
+
+                <div class="code-header">
+                    <span class="code-filename">Remove from Cache</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-variable">_cache</span>.<span class="code-method">Remove</span>(<span class="code-string">"products"</span>);</code></pre>
+
+                <h2>InvenTrack Example</h2>
+
+                <div class="code-header">
+                    <span class="code-filename">ProductsController.cs</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">ProductsController</span> : <span class="code-class">Controller</span>
+{
+    <span class="code-keyword">private</span> <span class="code-keyword">readonly</span> <span class="code-class">IMemoryCache</span> <span class="code-variable">_cache</span>;
+    <span class="code-keyword">private</span> <span class="code-keyword">readonly</span> <span class="code-class">InvenTrackDbContext</span> <span class="code-variable">_context</span>;
+
+    [<span class="code-class">HttpGet</span>]
+    <span class="code-keyword">public</span> <span class="code-keyword">async</span> <span class="code-class">Task</span>&lt;<span class="code-class">IActionResult</span>&gt; <span class="code-method">Index</span>()
+    {
+        <span class="code-keyword">const</span> <span class="code-type">string</span> <span class="code-variable">cacheKey</span> = <span class="code-string">"products_list"</span>;
+
+        <span class="code-comment">// Try get from cache</span>
+        <span class="code-keyword">if</span> (!<span class="code-variable">_cache</span>.<span class="code-method">TryGetValue</span>(<span class="code-variable">cacheKey</span>, <span class="code-keyword">out</span> <span class="code-class">List</span>&lt;<span class="code-class">Product</span>&gt; <span class="code-variable">products</span>))
+        {
+            <span class="code-comment">// Not in cache, fetch from database</span>
+            <span class="code-variable">products</span> = <span class="code-keyword">await</span> <span class="code-variable">_context</span>.<span class="code-variable">Products</span>.<span class="code-method">ToListAsync</span>();
+
+            <span class="code-comment">// Set cache with 5 minute expiration</span>
+            <span class="code-keyword">var</span> <span class="code-variable">cacheOptions</span> = <span class="code-keyword">new</span> <span class="code-class">MemoryCacheEntryOptions</span>
+            {
+                <span class="code-variable">AbsoluteExpirationRelativeToNow</span> = <span class="code-class">TimeSpan</span>.<span class="code-method">FromMinutes</span>(<span class="code-number">5</span>),
+                <span class="code-variable">SlidingExpiration</span> = <span class="code-class">TimeSpan</span>.<span class="code-method">FromMinutes</span>(<span class="code-number">2</span>)
+            };
+
+            <span class="code-variable">_cache</span>.<span class="code-method">Set</span>(<span class="code-variable">cacheKey</span>, <span class="code-variable">products</span>, <span class="code-variable">cacheOptions</span>);
+        }
+
+        <span class="code-keyword">return</span> <span class="code-method">View</span>(<span class="code-variable">products</span>);
+    }
+
+    [<span class="code-class">HttpPost</span>]
+    <span class="code-keyword">public</span> <span class="code-keyword">async</span> <span class="code-class">Task</span>&lt;<span class="code-class">IActionResult</span>&gt; <span class="code-method">Create</span>(<span class="code-class">Product</span> <span class="code-variable">product</span>)
+    {
+        <span class="code-variable">_context</span>.<span class="code-variable">Products</span>.<span class="code-method">Add</span>(<span class="code-variable">product</span>);
+        <span class="code-keyword">await</span> <span class="code-variable">_context</span>.<span class="code-method">SaveChangesAsync</span>();
+
+        <span class="code-comment">// Invalidate cache</span>
+        <span class="code-variable">_cache</span>.<span class="code-method">Remove</span>(<span class="code-string">"products_list"</span>);
+
+        <span class="code-keyword">return</span> <span class="code-method">RedirectToAction</span>(<span class="code-string">"Index"</span>);
+    }
+}</code></pre>
+
+                <h2>Key Takeaways</h2>
+
+                <ul>
+                    <li><strong>Caching</strong>: Store data in memory for fast access</li>
+                    <li><strong>AddMemoryCache()</strong>: Register caching service</li>
+                    <li><strong>IMemoryCache</strong>: Inject to use caching</li>
+                    <li><strong>Set()/Get()</strong>: Store and retrieve data</li>
+                    <li><strong>GetOrCreate()</strong>: Get or create if missing</li>
+                    <li><strong>Absolute expiration</strong>: Expires at specific time</li>
+                    <li><strong>Sliding expiration</strong>: Expires if not accessed</li>
+                    <li><strong>Remove()</strong>: Invalidate cache</li>
+                </ul>
+
+                <nav class="page-nav">
+                    <a href="../index.html" class="prev">Back to Roadmap</a>
+                    <a href="02-distributed-caching.html" class="next">Distributed Caching</a>
+                </nav>
+
+            
+        <footer class="page-footer">
+          Built with 💜 by <a href="https://akwasi.dev" target="_blank" rel="noopener noreferrer">Akwasi Adu-Kyeremeh</a> for developers who want to truly understand what they're building.
+        </footer>
+
+      </div>
+        </main>
+    </div>
+</body>
+
+</html>

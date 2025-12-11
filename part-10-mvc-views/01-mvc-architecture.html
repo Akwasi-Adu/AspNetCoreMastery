@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MVC Architecture | ASP.NET Core Mastery</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;500&family=Source+Serif+4:ital,wght@0,400;0,600;1,400&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="../assets/style.css">
+</head>
+
+<body>
+    <div class="page-wrapper">
+        <aside class="sidebar">
+            <a href="../index.html" class="sidebar-logo">ASP.NET Core Mastery</a>
+            <div class="sidebar-section">Part X: MVC & Views</div>
+            <ul class="sidebar-nav">
+                <li><a href="01-mvc-architecture.html" class="active">MVC Architecture</a></li>
+                <li><a href="02-controllers-for-views.html">Controllers for Views</a></li>
+                <li><a href="03-razor-syntax.html">Razor Syntax</a></li>
+                <li><a href="04-layouts-partials.html">Layouts and Partials</a></li>
+                <li><a href="05-view-components.html">View Components</a></li>
+                <li><a href="06-tag-helpers.html">Tag Helpers</a></li>
+            </ul>
+            <div class="sidebar-section">Resources</div>
+            <ul class="sidebar-nav">
+                <li><a href="../index.html">Full Roadmap</a></li>
+            </ul>
+        </aside>
+
+        <main class="main-content">
+            <div class="content-container">
+                <nav class="breadcrumb">
+                    <a href="../index.html">Home</a>
+                    <span>→</span>
+                    <a href="01-mvc-architecture.html">Part X: MVC & Views</a>
+                    <span>→</span>
+                    MVC Architecture
+                </nav>
+
+                <div class="progress-indicator">
+                    <span>Section 1 of 6</span>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 16.67%"></div>
+                    </div>
+                </div>
+
+                <h1>MVC Architecture</h1>
+
+                <div class="learning-objectives">
+                    <h3>🎯 What You'll Learn</h3>
+                    <ul>
+                        <li>What is MVC</li>
+                        <li>Model-View-Controller pattern</li>
+                        <li>MVC vs Web API</li>
+                        <li>Setting up MVC</li>
+                        <li>Folder structure</li>
+                        <li>Request pipeline</li>
+                    </ul>
+                </div>
+
+                <h2>What is MVC?</h2>
+
+                <p>
+                    <strong>MVC (Model-View-Controller)</strong> is a design pattern for building web applications
+                    that separates concerns into three components:
+                </p>
+
+                <ul>
+                    <li><strong>Model</strong>: Data and business logic</li>
+                    <li><strong>View</strong>: User interface (HTML)</li>
+                    <li><strong>Controller</strong>: Handles requests and coordinates Model and View</li>
+                </ul>
+
+                <div class="callout callout-concept">
+                    <div class="callout-title">💡 Key Concept</div>
+                    <p>
+                        MVC separates your application into three distinct layers, making it easier to maintain,
+                        test, and scale.
+                    </p>
+                </div>
+
+                <div class="section-divider"></div>
+
+                <h2>The MVC Pattern</h2>
+
+                <h3>Model</h3>
+
+                <p>
+                    The <strong>Model</strong> represents your data and business logic.
+                </p>
+
+                <div class="code-header">
+                    <span class="code-filename">Models/Product.cs</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">Product</span>
+{
+    <span class="code-keyword">public</span> <span class="code-type">int</span> <span class="code-variable">Id</span> { <span class="code-keyword">get</span>; <span class="code-keyword">set</span>; }
+    <span class="code-keyword">public</span> <span class="code-type">string</span> <span class="code-variable">Name</span> { <span class="code-keyword">get</span>; <span class="code-keyword">set</span>; } = <span class="code-keyword">string</span>.<span class="code-variable">Empty</span>;
+    <span class="code-keyword">public</span> <span class="code-type">decimal</span> <span class="code-variable">Price</span> { <span class="code-keyword">get</span>; <span class="code-keyword">set</span>; }
+    <span class="code-keyword">public</span> <span class="code-type">int</span> <span class="code-variable">Quantity</span> { <span class="code-keyword">get</span>; <span class="code-keyword">set</span>; }
+}</code></pre>
+
+                <h3>View</h3>
+
+                <p>
+                    The <strong>View</strong> is the HTML template that displays data to the user.
+                </p>
+
+                <div class="code-header">
+                    <span class="code-filename">Views/Products/Index.cshtml</span>
+                    <span class="code-language">HTML</span>
+                </div>
+                <pre><code><span class="code-tag">@model</span> <span class="code-class">List</span>&lt;<span class="code-class">Product</span>&gt;
+
+&lt;<span class="code-tag">h1</span>&gt;Products&lt;/<span class="code-tag">h1</span>&gt;
+
+&lt;<span class="code-tag">table</span>&gt;
+    &lt;<span class="code-tag">thead</span>&gt;
+        &lt;<span class="code-tag">tr</span>&gt;
+            &lt;<span class="code-tag">th</span>&gt;Name&lt;/<span class="code-tag">th</span>&gt;
+            &lt;<span class="code-tag">th</span>&gt;Price&lt;/<span class="code-tag">th</span>&gt;
+            &lt;<span class="code-tag">th</span>&gt;Quantity&lt;/<span class="code-tag">th</span>&gt;
+        &lt;/<span class="code-tag">tr</span>&gt;
+    &lt;/<span class="code-tag">thead</span>&gt;
+    &lt;<span class="code-tag">tbody</span>&gt;
+        <span class="code-tag">@foreach</span> (<span class="code-keyword">var</span> <span class="code-variable">product</span> <span class="code-keyword">in</span> <span class="code-variable">Model</span>)
+        {
+            &lt;<span class="code-tag">tr</span>&gt;
+                &lt;<span class="code-tag">td</span>&gt;<span class="code-tag">@product</span>.<span class="code-variable">Name</span>&lt;/<span class="code-tag">td</span>&gt;
+                &lt;<span class="code-tag">td</span>&gt;<span class="code-tag">@product</span>.<span class="code-variable">Price</span>&lt;/<span class="code-tag">td</span>&gt;
+                &lt;<span class="code-tag">td</span>&gt;<span class="code-tag">@product</span>.<span class="code-variable">Quantity</span>&lt;/<span class="code-tag">td</span>&gt;
+            &lt;/<span class="code-tag">tr</span>&gt;
+        }
+    &lt;/<span class="code-tag">tbody</span>&gt;
+&lt;/<span class="code-tag">table</span>&gt;</code></pre>
+
+                <h3>Controller</h3>
+
+                <p>
+                    The <strong>Controller</strong> handles HTTP requests and returns views.
+                </p>
+
+                <div class="code-header">
+                    <span class="code-filename">Controllers/ProductsController.cs</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">ProductsController</span> : <span class="code-class">Controller</span>
+{
+    <span class="code-keyword">private</span> <span class="code-keyword">readonly</span> <span class="code-class">InvenTrackDbContext</span> <span class="code-variable">_context</span>;
+
+    <span class="code-keyword">public</span> <span class="code-method">ProductsController</span>(<span class="code-class">InvenTrackDbContext</span> <span class="code-variable">context</span>)
+    {
+        <span class="code-variable">_context</span> = <span class="code-variable">context</span>;
+    }
+
+    <span class="code-keyword">public</span> <span class="code-keyword">async</span> <span class="code-class">Task</span>&lt;<span class="code-class">IActionResult</span>&gt; <span class="code-method">Index</span>()
+    {
+        <span class="code-keyword">var</span> <span class="code-variable">products</span> = <span class="code-keyword">await</span> <span class="code-variable">_context</span>.<span class="code-variable">Products</span>.<span class="code-method">ToListAsync</span>();
+        <span class="code-keyword">return</span> <span class="code-method">View</span>(<span class="code-variable">products</span>);
+    }
+}</code></pre>
+
+                <div class="section-divider"></div>
+
+                <h2>Request Flow</h2>
+
+                <ol>
+                    <li><strong>User</strong> navigates to <code>/Products</code></li>
+                    <li><strong>Routing</strong> maps URL to <code>ProductsController.Index()</code></li>
+                    <li><strong>Controller</strong> retrieves data from database</li>
+                    <li><strong>Controller</strong> passes data to View</li>
+                    <li><strong>View</strong> renders HTML with data</li>
+                    <li><strong>HTML</strong> is returned to the browser</li>
+                </ol>
+
+                <div class="section-divider"></div>
+
+                <h2>MVC vs Web API</h2>
+
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Aspect</th>
+                            <th>MVC</th>
+                            <th>Web API</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Purpose</strong></td>
+                            <td>Server-rendered HTML</td>
+                            <td>JSON/XML data</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Base Class</strong></td>
+                            <td><code>Controller</code></td>
+                            <td><code>ControllerBase</code></td>
+                        </tr>
+                        <tr>
+                            <td><strong>Returns</strong></td>
+                            <td><code>IActionResult</code> (Views)</td>
+                            <td><code>ActionResult&lt;T&gt;</code> (Data)</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Use Case</strong></td>
+                            <td>Traditional web apps</td>
+                            <td>SPAs, mobile apps</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Attributes</strong></td>
+                            <td>Route attributes optional</td>
+                            <td><code>[ApiController]</code> required</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="section-divider"></div>
+
+                <h2>Setting Up MVC</h2>
+
+                <h3>Create MVC Project</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">Create Project</span>
+                    <span class="code-language">Bash</span>
+                </div>
+                <pre><code>dotnet new mvc -n InvenTrack.Web
+cd InvenTrack.Web
+dotnet run</code></pre>
+
+                <h3>Configure Services</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">Program.cs</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-keyword">var</span> <span class="code-variable">builder</span> = <span class="code-class">WebApplication</span>.<span class="code-method">CreateBuilder</span>(<span class="code-variable">args</span>);
+
+<span class="code-comment">// Add MVC services</span>
+<span class="code-variable">builder</span>.<span class="code-variable">Services</span>.<span class="code-method">AddControllersWithViews</span>();
+
+<span class="code-keyword">var</span> <span class="code-variable">app</span> = <span class="code-variable">builder</span>.<span class="code-method">Build</span>();
+
+<span class="code-comment">// Configure middleware</span>
+<span class="code-keyword">if</span> (!<span class="code-variable">app</span>.<span class="code-variable">Environment</span>.<span class="code-method">IsDevelopment</span>())
+{
+    <span class="code-variable">app</span>.<span class="code-method">UseExceptionHandler</span>(<span class="code-string">"/Home/Error"</span>);
+    <span class="code-variable">app</span>.<span class="code-method">UseHsts</span>();
+}
+
+<span class="code-variable">app</span>.<span class="code-method">UseHttpsRedirection</span>();
+<span class="code-variable">app</span>.<span class="code-method">UseStaticFiles</span>();
+<span class="code-variable">app</span>.<span class="code-method">UseRouting</span>();
+<span class="code-variable">app</span>.<span class="code-method">UseAuthorization</span>();
+
+<span class="code-comment">// Map default route</span>
+<span class="code-variable">app</span>.<span class="code-method">MapControllerRoute</span>(
+    <span class="code-variable">name</span>: <span class="code-string">"default"</span>,
+    <span class="code-variable">pattern</span>: <span class="code-string">"{controller=Home}/{action=Index}/{id?}"</span>);
+
+<span class="code-variable">app</span>.<span class="code-method">Run</span>();</code></pre>
+
+                <div class="section-divider"></div>
+
+                <h2>Folder Structure</h2>
+
+                <pre><code>InvenTrack.Web/
+├── Controllers/
+│   ├── HomeController.cs
+│   └── ProductsController.cs
+├── Models/
+│   ├── Product.cs
+│   └── ErrorViewModel.cs
+├── Views/
+│   ├── Home/
+│   │   └── Index.cshtml
+│   ├── Products/
+│   │   ├── Index.cshtml
+│   │   └── Details.cshtml
+│   └── Shared/
+│       ├── _Layout.cshtml
+│       └── _ViewStart.cshtml
+├── wwwroot/
+│   ├── css/
+│   ├── js/
+│   └── lib/
+├── Program.cs
+└── appsettings.json</code></pre>
+
+                <h3>Key Folders</h3>
+
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Folder</th>
+                            <th>Purpose</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><code>Controllers/</code></td>
+                            <td>MVC controllers</td>
+                        </tr>
+                        <tr>
+                            <td><code>Models/</code></td>
+                            <td>View models and entities</td>
+                        </tr>
+                        <tr>
+                            <td><code>Views/</code></td>
+                            <td>Razor view templates</td>
+                        </tr>
+                        <tr>
+                            <td><code>Views/Shared/</code></td>
+                            <td>Shared layouts and partials</td>
+                        </tr>
+                        <tr>
+                            <td><code>wwwroot/</code></td>
+                            <td>Static files (CSS, JS, images)</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="section-divider"></div>
+
+                <h2>View Discovery</h2>
+
+                <p>
+                    ASP.NET Core searches for views in this order:
+                </p>
+
+                <ol>
+                    <li><code>Views/{ControllerName}/{ActionName}.cshtml</code></li>
+                    <li><code>Views/Shared/{ActionName}.cshtml</code></li>
+                </ol>
+
+                <div class="code-header">
+                    <span class="code-filename">Example</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-comment">// ProductsController.Index() looks for:</span>
+<span class="code-comment">// 1. Views/Products/Index.cshtml</span>
+<span class="code-comment">// 2. Views/Shared/Index.cshtml</span>
+
+<span class="code-keyword">public</span> <span class="code-class">IActionResult</span> <span class="code-method">Index</span>()
+{
+    <span class="code-keyword">return</span> <span class="code-method">View</span>(); <span class="code-comment">// Searches for Index.cshtml</span>
+}
+
+<span class="code-comment">// Specify view name</span>
+<span class="code-keyword">public</span> <span class="code-class">IActionResult</span> <span class="code-method">Index</span>()
+{
+    <span class="code-keyword">return</span> <span class="code-method">View</span>(<span class="code-string">"ProductList"</span>); <span class="code-comment">// Searches for ProductList.cshtml</span>
+}</code></pre>
+
+                <h2>Complete InvenTrack Example</h2>
+
+                <div class="code-header">
+                    <span class="code-filename">Models/Product.cs</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">Product</span>
+{
+    <span class="code-keyword">public</span> <span class="code-type">int</span> <span class="code-variable">Id</span> { <span class="code-keyword">get</span>; <span class="code-keyword">set</span>; }
+    <span class="code-keyword">public</span> <span class="code-type">string</span> <span class="code-variable">Name</span> { <span class="code-keyword">get</span>; <span class="code-keyword">set</span>; } = <span class="code-keyword">string</span>.<span class="code-variable">Empty</span>;
+    <span class="code-keyword">public</span> <span class="code-type">decimal</span> <span class="code-variable">Price</span> { <span class="code-keyword">get</span>; <span class="code-keyword">set</span>; }
+    <span class="code-keyword">public</span> <span class="code-type">int</span> <span class="code-variable">Quantity</span> { <span class="code-keyword">get</span>; <span class="code-keyword">set</span>; }
+    <span class="code-keyword">public</span> <span class="code-type">string</span> <span class="code-variable">Category</span> { <span class="code-keyword">get</span>; <span class="code-keyword">set</span>; } = <span class="code-keyword">string</span>.<span class="code-variable">Empty</span>;
+}</code></pre>
+
+                <div class="code-header">
+                    <span class="code-filename">Controllers/ProductsController.cs</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">ProductsController</span> : <span class="code-class">Controller</span>
+{
+    <span class="code-keyword">private</span> <span class="code-keyword">readonly</span> <span class="code-class">InvenTrackDbContext</span> <span class="code-variable">_context</span>;
+
+    <span class="code-keyword">public</span> <span class="code-method">ProductsController</span>(<span class="code-class">InvenTrackDbContext</span> <span class="code-variable">context</span>)
+    {
+        <span class="code-variable">_context</span> = <span class="code-variable">context</span>;
+    }
+
+    <span class="code-comment">// GET: /Products</span>
+    <span class="code-keyword">public</span> <span class="code-keyword">async</span> <span class="code-class">Task</span>&lt;<span class="code-class">IActionResult</span>&gt; <span class="code-method">Index</span>()
+    {
+        <span class="code-keyword">var</span> <span class="code-variable">products</span> = <span class="code-keyword">await</span> <span class="code-variable">_context</span>.<span class="code-variable">Products</span>.<span class="code-method">ToListAsync</span>();
+        <span class="code-keyword">return</span> <span class="code-method">View</span>(<span class="code-variable">products</span>);
+    }
+
+    <span class="code-comment">// GET: /Products/Details/5</span>
+    <span class="code-keyword">public</span> <span class="code-keyword">async</span> <span class="code-class">Task</span>&lt;<span class="code-class">IActionResult</span>&gt; <span class="code-method">Details</span>(<span class="code-type">int</span> <span class="code-variable">id</span>)
+    {
+        <span class="code-keyword">var</span> <span class="code-variable">product</span> = <span class="code-keyword">await</span> <span class="code-variable">_context</span>.<span class="code-variable">Products</span>.<span class="code-method">FindAsync</span>(<span class="code-variable">id</span>);
+        
+        <span class="code-keyword">if</span> (<span class="code-variable">product</span> == <span class="code-keyword">null</span>)
+            <span class="code-keyword">return</span> <span class="code-method">NotFound</span>();
+
+        <span class="code-keyword">return</span> <span class="code-method">View</span>(<span class="code-variable">product</span>);
+    }
+}</code></pre>
+
+                <div class="code-header">
+                    <span class="code-filename">Views/Products/Index.cshtml</span>
+                    <span class="code-language">HTML</span>
+                </div>
+                <pre><code><span class="code-tag">@model</span> <span class="code-class">List</span>&lt;<span class="code-class">Product</span>&gt;
+
+&lt;<span class="code-tag">h1</span>&gt;InvenTrack Products&lt;/<span class="code-tag">h1</span>&gt;
+
+&lt;<span class="code-tag">table</span> <span class="code-attribute">class</span>=<span class="code-string">"table"</span>&gt;
+    &lt;<span class="code-tag">thead</span>&gt;
+        &lt;<span class="code-tag">tr</span>&gt;
+            &lt;<span class="code-tag">th</span>&gt;Name&lt;/<span class="code-tag">th</span>&gt;
+            &lt;<span class="code-tag">th</span>&gt;Category&lt;/<span class="code-tag">th</span>&gt;
+            &lt;<span class="code-tag">th</span>&gt;Price&lt;/<span class="code-tag">th</span>&gt;
+            &lt;<span class="code-tag">th</span>&gt;Quantity&lt;/<span class="code-tag">th</span>&gt;
+            &lt;<span class="code-tag">th</span>&gt;&lt;/<span class="code-tag">th</span>&gt;
+        &lt;/<span class="code-tag">tr</span>&gt;
+    &lt;/<span class="code-tag">thead</span>&gt;
+    &lt;<span class="code-tag">tbody</span>&gt;
+        <span class="code-tag">@foreach</span> (<span class="code-keyword">var</span> <span class="code-variable">product</span> <span class="code-keyword">in</span> <span class="code-variable">Model</span>)
+        {
+            &lt;<span class="code-tag">tr</span>&gt;
+                &lt;<span class="code-tag">td</span>&gt;<span class="code-tag">@product</span>.<span class="code-variable">Name</span>&lt;/<span class="code-tag">td</span>&gt;
+                &lt;<span class="code-tag">td</span>&gt;<span class="code-tag">@product</span>.<span class="code-variable">Category</span>&lt;/<span class="code-tag">td</span>&gt;
+                &lt;<span class="code-tag">td</span>&gt;$<span class="code-tag">@product</span>.<span class="code-variable">Price</span>&lt;/<span class="code-tag">td</span>&gt;
+                &lt;<span class="code-tag">td</span>&gt;<span class="code-tag">@product</span>.<span class="code-variable">Quantity</span>&lt;/<span class="code-tag">td</span>&gt;
+                &lt;<span class="code-tag">td</span>&gt;
+                    &lt;<span class="code-tag">a</span> <span class="code-attribute">asp-action</span>=<span class="code-string">"Details"</span> <span class="code-attribute">asp-route-id</span>=<span class="code-string">"@product.Id"</span>&gt;Details&lt;/<span class="code-tag">a</span>&gt;
+                &lt;/<span class="code-tag">td</span>&gt;
+            &lt;/<span class="code-tag">tr</span>&gt;
+        }
+    &lt;/<span class="code-tag">tbody</span>&gt;
+&lt;/<span class="code-tag">table</span>&gt;</code></pre>
+
+                <h2>Best Practices</h2>
+
+                <ul>
+                    <li><strong>Separation of concerns</strong>: Keep Models, Views, and Controllers separate</li>
+                    <li><strong>Thin controllers</strong>: Move business logic to services</li>
+                    <li><strong>View models</strong>: Use DTOs for views, not domain models</li>
+                    <li><strong>Async actions</strong>: Use async/await for database operations</li>
+                    <li><strong>Dependency injection</strong>: Inject services into controllers</li>
+                    <li><strong>Naming conventions</strong>: Follow ASP.NET Core conventions</li>
+                </ul>
+
+                <h2>Key Takeaways</h2>
+
+                <ul>
+                    <li><strong>MVC</strong>: Model-View-Controller design pattern</li>
+                    <li><strong>Model</strong>: Data and business logic</li>
+                    <li><strong>View</strong>: HTML templates (Razor)</li>
+                    <li><strong>Controller</strong>: Handles requests, returns views</li>
+                    <li><strong>AddControllersWithViews()</strong>: Registers MVC services</li>
+                    <li><strong>MapControllerRoute()</strong>: Configures routing</li>
+                    <li><strong>View discovery</strong>: Views/{Controller}/{Action}.cshtml</li>
+                    <li><strong>Server-rendered</strong>: HTML generated on server</li>
+                </ul>
+
+                <div class="callout callout-concept">
+                    <div class="callout-title">🎯 Next Steps</div>
+                    <p>
+                        You now understand MVC architecture! In the next section, we'll explore
+                        <strong>Controllers for Views</strong>—action methods, action results,
+                        and passing data to views.
+                    </p>
+                </div>
+
+                <nav class="page-nav">
+                    <a href="../index.html" class="prev">Back to Roadmap</a>
+                    <a href="02-controllers-for-views.html" class="next">Controllers for Views</a>
+                </nav>
+
+            
+        <footer class="page-footer">
+          Built with 💜 by <a href="https://akwasi.dev" target="_blank" rel="noopener noreferrer">Akwasi Adu-Kyeremeh</a> for developers who want to truly understand what they're building.
+        </footer>
+
+      </div>
+        </main>
+    </div>
+</body>
+
+</html>

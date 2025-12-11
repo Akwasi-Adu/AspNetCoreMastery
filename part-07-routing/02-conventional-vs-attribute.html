@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Conventional vs Attribute Routing | ASP.NET Core Mastery</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;500&family=Source+Serif+4:ital,wght@0,400;0,600;1,400&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="../assets/style.css">
+</head>
+
+<body>
+    <div class="page-wrapper">
+        <aside class="sidebar">
+            <a href="../index.html" class="sidebar-logo">ASP.NET Core Mastery</a>
+            <div class="sidebar-section">Part VII: Routing</div>
+            <ul class="sidebar-nav">
+                <li><a href="01-endpoint-routing.html">Endpoint Routing Basics</a></li>
+                <li><a href="02-conventional-vs-attribute.html" class="active">Conventional vs Attribute Routing</a>
+                </li>
+                <li><a href="03-route-parameters.html">Route Parameters</a></li>
+                <li><a href="04-route-constraints.html">Route Constraints</a></li>
+                <li><a href="05-url-generation.html">URL Generation</a></li>
+                <li><a href="06-areas.html">Areas</a></li>
+            </ul>
+            <div class="sidebar-section">Resources</div>
+            <ul class="sidebar-nav">
+                <li><a href="../index.html">Full Roadmap</a></li>
+            </ul>
+        </aside>
+
+        <main class="main-content">
+            <div class="content-container">
+                <nav class="breadcrumb">
+                    <a href="../index.html">Home</a>
+                    <span>→</span>
+                    <a href="01-endpoint-routing.html">Part VII: Routing</a>
+                    <span>→</span>
+                    Conventional vs Attribute Routing
+                </nav>
+
+                <div class="progress-indicator">
+                    <span>Section 2 of 6</span>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 33.33%"></div>
+                    </div>
+                </div>
+
+                <h1>Conventional vs Attribute Routing</h1>
+
+                <div class="learning-objectives">
+                    <h3>🎯 What You'll Learn</h3>
+                    <ul>
+                        <li>Conventional routing (template-based)</li>
+                        <li>Attribute routing (decorator-based)</li>
+                        <li>When to use each approach</li>
+                        <li>Combining both routing types</li>
+                        <li>Token replacement in routes</li>
+                        <li>Best practices</li>
+                    </ul>
+                </div>
+
+                <h2>Two Routing Approaches</h2>
+
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Feature</th>
+                            <th>Conventional Routing</th>
+                            <th>Attribute Routing</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Definition</strong></td>
+                            <td>Centralized route templates</td>
+                            <td>Routes defined on controllers/actions</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Configuration</strong></td>
+                            <td>Program.cs</td>
+                            <td>Controller attributes</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Flexibility</strong></td>
+                            <td>Less flexible</td>
+                            <td>More flexible</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Best For</strong></td>
+                            <td>MVC apps with consistent patterns</td>
+                            <td>Web APIs, custom routes</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="section-divider"></div>
+
+                <h2>Conventional Routing</h2>
+
+                <p>
+                    <strong>Conventional routing</strong> defines route templates centrally in <code>Program.cs</code>.
+                </p>
+
+                <h3>Basic Setup</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">Program.cs</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-variable">builder</span>.<span class="code-variable">Services</span>.<span class="code-method">AddControllersWithViews</span>();
+
+<span class="code-keyword">var</span> <span class="code-variable">app</span> = <span class="code-variable">builder</span>.<span class="code-method">Build</span>();
+
+<span class="code-variable">app</span>.<span class="code-method">MapControllerRoute</span>(
+    <span class="code-variable">name</span>: <span class="code-string">"default"</span>,
+    <span class="code-variable">pattern</span>: <span class="code-string">"{controller=Home}/{action=Index}/{id?}"</span>);</code></pre>
+
+                <h3>Route Template Breakdown</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">Template: {controller=Home}/{action=Index}/{id?}</span>
+                    <span class="code-language">Text</span>
+                </div>
+                <pre><code>{controller=Home}  → Controller name (default: Home)
+{action=Index}     → Action name (default: Index)
+{id?}              → Optional ID parameter</code></pre>
+
+                <h3>URL Matching Examples</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">URL Matching</span>
+                    <span class="code-language">Text</span>
+                </div>
+                <pre><code>URL: /
+→ Controller: Home, Action: Index
+
+URL: /Products
+→ Controller: Products, Action: Index
+
+URL: /Products/Details
+→ Controller: Products, Action: Details
+
+URL: /Products/Details/123
+→ Controller: Products, Action: Details, id: 123</code></pre>
+
+                <h3>Multiple Routes</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">Multiple Conventional Routes</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-comment">// Custom route for blog</span>
+<span class="code-variable">app</span>.<span class="code-method">MapControllerRoute</span>(
+    <span class="code-variable">name</span>: <span class="code-string">"blog"</span>,
+    <span class="code-variable">pattern</span>: <span class="code-string">"blog/{year}/{month}/{day}/{slug}"</span>,
+    <span class="code-variable">defaults</span>: <span class="code-keyword">new</span> { <span class="code-variable">controller</span> = <span class="code-string">"Blog"</span>, <span class="code-variable">action</span> = <span class="code-string">"Post"</span> });
+
+<span class="code-comment">// Default route</span>
+<span class="code-variable">app</span>.<span class="code-method">MapControllerRoute</span>(
+    <span class="code-variable">name</span>: <span class="code-string">"default"</span>,
+    <span class="code-variable">pattern</span>: <span class="code-string">"{controller=Home}/{action=Index}/{id?}"</span>);</code></pre>
+
+                <div class="callout callout-info">
+                    <div class="callout-title">ℹ️ Route Order Matters</div>
+                    <p>
+                        Routes are matched in the order they're registered. More specific routes should
+                        come before general routes.
+                    </p>
+                </div>
+
+                <div class="section-divider"></div>
+
+                <h2>Attribute Routing</h2>
+
+                <p>
+                    <strong>Attribute routing</strong> defines routes using attributes on controllers and actions.
+                </p>
+
+                <h3>Controller-Level Routes</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">Controllers/ProductsController.cs</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code>[<span class="code-class">Route</span>(<span class="code-string">"api/[controller]"</span>)]
+<span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">ProductsController</span> : <span class="code-class">ControllerBase</span>
+{
+    <span class="code-comment">// GET /api/products</span>
+    [<span class="code-class">HttpGet</span>]
+    <span class="code-keyword">public</span> <span class="code-class">IActionResult</span> <span class="code-method">GetAll</span>() { }
+
+    <span class="code-comment">// GET /api/products/123</span>
+    [<span class="code-class">HttpGet</span>(<span class="code-string">"{id}"</span>)]
+    <span class="code-keyword">public</span> <span class="code-class">IActionResult</span> <span class="code-method">GetById</span>(<span class="code-type">int</span> <span class="code-variable">id</span>) { }
+
+    <span class="code-comment">// POST /api/products</span>
+    [<span class="code-class">HttpPost</span>]
+    <span class="code-keyword">public</span> <span class="code-class">IActionResult</span> <span class="code-method">Create</span>() { }
+}</code></pre>
+
+                <h3>Token Replacement</h3>
+
+                <p>
+                    <code>[controller]</code> and <code>[action]</code> tokens are replaced with actual names.
+                </p>
+
+                <div class="code-header">
+                    <span class="code-filename">Token Replacement</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code>[<span class="code-class">Route</span>(<span class="code-string">"api/[controller]"</span>)]  <span class="code-comment">// → api/products</span>
+<span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">ProductsController</span> : <span class="code-class">ControllerBase</span>
+{
+    [<span class="code-class">HttpGet</span>(<span class="code-string">"[action]"</span>)]  <span class="code-comment">// → api/products/search</span>
+    <span class="code-keyword">public</span> <span class="code-class">IActionResult</span> <span class="code-method">Search</span>() { }
+}</code></pre>
+
+                <h3>Multiple Routes per Action</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">Multiple Routes</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code>[<span class="code-class">HttpGet</span>(<span class="code-string">"{id}"</span>)]
+[<span class="code-class">HttpGet</span>(<span class="code-string">"by-id/{id}"</span>)]  <span class="code-comment">// Alternative route</span>
+<span class="code-keyword">public</span> <span class="code-class">IActionResult</span> <span class="code-method">GetById</span>(<span class="code-type">int</span> <span class="code-variable">id</span>)
+{
+    <span class="code-comment">// Accessible via:</span>
+    <span class="code-comment">// GET /api/products/123</span>
+    <span class="code-comment">// GET /api/products/by-id/123</span>
+}</code></pre>
+
+                <h3>Override Controller Route</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">Absolute Routes</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code>[<span class="code-class">Route</span>(<span class="code-string">"api/[controller]"</span>)]
+<span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">ProductsController</span> : <span class="code-class">ControllerBase</span>
+{
+    <span class="code-comment">// Relative route: /api/products/123</span>
+    [<span class="code-class">HttpGet</span>(<span class="code-string">"{id}"</span>)]
+    <span class="code-keyword">public</span> <span class="code-class">IActionResult</span> <span class="code-method">GetById</span>(<span class="code-type">int</span> <span class="code-variable">id</span>) { }
+
+    <span class="code-comment">// Absolute route (starts with /): /health</span>
+    [<span class="code-class">HttpGet</span>(<span class="code-string">"/health"</span>)]
+    <span class="code-keyword">public</span> <span class="code-class">IActionResult</span> <span class="code-method">Health</span>() { }
+}</code></pre>
+
+                <div class="callout callout-warning">
+                    <div class="callout-title">⚠️ Absolute Routes</div>
+                    <p>
+                        Routes starting with <code>/</code> or <code>~/</code> override the controller route.
+                        Use sparingly to avoid confusion.
+                    </p>
+                </div>
+
+                <div class="section-divider"></div>
+
+                <h2>Combining Both Approaches</h2>
+
+                <p>
+                    You can use both conventional and attribute routing in the same application.
+                </p>
+
+                <div class="code-header">
+                    <span class="code-filename">Program.cs</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-comment">// Conventional routing for MVC controllers</span>
+<span class="code-variable">app</span>.<span class="code-method">MapControllerRoute</span>(
+    <span class="code-variable">name</span>: <span class="code-string">"default"</span>,
+    <span class="code-variable">pattern</span>: <span class="code-string">"{controller=Home}/{action=Index}/{id?}"</span>);
+
+<span class="code-comment">// Attribute routing for API controllers</span>
+<span class="code-variable">app</span>.<span class="code-method">MapControllers</span>();</code></pre>
+
+                <div class="section-divider"></div>
+
+                <h2>Complete InvenTrack Example</h2>
+
+                <h3>API Controller (Attribute Routing)</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">Controllers/ProductsController.cs</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code>[<span class="code-class">ApiController</span>]
+[<span class="code-class">Route</span>(<span class="code-string">"api/[controller]"</span>)]
+<span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">ProductsController</span> : <span class="code-class">ControllerBase</span>
+{
+    <span class="code-comment">// GET /api/products</span>
+    [<span class="code-class">HttpGet</span>]
+    <span class="code-keyword">public</span> <span class="code-class">IActionResult</span> <span class="code-method">GetAll</span>()
+    {
+        <span class="code-keyword">return</span> <span class="code-method">Ok</span>(<span class="code-string">"All products"</span>);
+    }
+
+    <span class="code-comment">// GET /api/products/123</span>
+    [<span class="code-class">HttpGet</span>(<span class="code-string">"{id:int}"</span>)]
+    <span class="code-keyword">public</span> <span class="code-class">IActionResult</span> <span class="code-method">GetById</span>(<span class="code-type">int</span> <span class="code-variable">id</span>)
+    {
+        <span class="code-keyword">return</span> <span class="code-method">Ok</span>(<span class="code-string">$"Product </span>{<span class="code-variable">id</span>}<span class="code-string">"</span>);
+    }
+
+    <span class="code-comment">// GET /api/products/search?name=laptop</span>
+    [<span class="code-class">HttpGet</span>(<span class="code-string">"search"</span>)]
+    <span class="code-keyword">public</span> <span class="code-class">IActionResult</span> <span class="code-method">Search</span>([<span class="code-class">FromQuery</span>] <span class="code-type">string</span> <span class="code-variable">name</span>)
+    {
+        <span class="code-keyword">return</span> <span class="code-method">Ok</span>(<span class="code-string">$"Searching for </span>{<span class="code-variable">name</span>}<span class="code-string">"</span>);
+    }
+
+    <span class="code-comment">// GET /api/products/category/electronics</span>
+    [<span class="code-class">HttpGet</span>(<span class="code-string">"category/{categoryName}"</span>)]
+    <span class="code-keyword">public</span> <span class="code-class">IActionResult</span> <span class="code-method">GetByCategory</span>(<span class="code-type">string</span> <span class="code-variable">categoryName</span>)
+    {
+        <span class="code-keyword">return</span> <span class="code-method">Ok</span>(<span class="code-string">$"Products in </span>{<span class="code-variable">categoryName</span>}<span class="code-string">"</span>);
+    }
+
+    <span class="code-comment">// POST /api/products</span>
+    [<span class="code-class">HttpPost</span>]
+    <span class="code-keyword">public</span> <span class="code-class">IActionResult</span> <span class="code-method">Create</span>([<span class="code-class">FromBody</span>] <span class="code-class">ProductDto</span> <span class="code-variable">product</span>)
+    {
+        <span class="code-keyword">return</span> <span class="code-method">Created</span>(<span class="code-string">"/api/products/123"</span>, <span class="code-variable">product</span>);
+    }
+
+    <span class="code-comment">// PUT /api/products/123</span>
+    [<span class="code-class">HttpPut</span>(<span class="code-string">"{id}"</span>)]
+    <span class="code-keyword">public</span> <span class="code-class">IActionResult</span> <span class="code-method">Update</span>(<span class="code-type">int</span> <span class="code-variable">id</span>, [<span class="code-class">FromBody</span>] <span class="code-class">ProductDto</span> <span class="code-variable">product</span>)
+    {
+        <span class="code-keyword">return</span> <span class="code-method">NoContent</span>();
+    }
+
+    <span class="code-comment">// DELETE /api/products/123</span>
+    [<span class="code-class">HttpDelete</span>(<span class="code-string">"{id}"</span>)]
+    <span class="code-keyword">public</span> <span class="code-class">IActionResult</span> <span class="code-method">Delete</span>(<span class="code-type">int</span> <span class="code-variable">id</span>)
+    {
+        <span class="code-keyword">return</span> <span class="code-method">NoContent</span>();
+    }
+}</code></pre>
+
+                <h3>MVC Controller (Conventional Routing)</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">Controllers/HomeController.cs</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">HomeController</span> : <span class="code-class">Controller</span>
+{
+    <span class="code-comment">// GET /</span>
+    <span class="code-keyword">public</span> <span class="code-class">IActionResult</span> <span class="code-method">Index</span>()
+    {
+        <span class="code-keyword">return</span> <span class="code-method">View</span>();
+    }
+
+    <span class="code-comment">// GET /Home/About</span>
+    <span class="code-keyword">public</span> <span class="code-class">IActionResult</span> <span class="code-method">About</span>()
+    {
+        <span class="code-keyword">return</span> <span class="code-method">View</span>();
+    }
+}</code></pre>
+
+                <h2>When to Use Each</h2>
+
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Use Conventional Routing</th>
+                            <th>Use Attribute Routing</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>MVC apps with consistent patterns</td>
+                            <td>Web APIs</td>
+                        </tr>
+                        <tr>
+                            <td>Simple CRUD operations</td>
+                            <td>Custom route requirements</td>
+                        </tr>
+                        <tr>
+                            <td>Traditional web applications</td>
+                            <td>RESTful APIs</td>
+                        </tr>
+                        <tr>
+                            <td>When routes follow conventions</td>
+                            <td>When routes need flexibility</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h2>Best Practices</h2>
+
+                <ul>
+                    <li><strong>APIs</strong>: Use attribute routing for flexibility</li>
+                    <li><strong>MVC apps</strong>: Use conventional routing for consistency</li>
+                    <li><strong>Token replacement</strong>: Use <code>[controller]</code> and <code>[action]</code> for
+                        maintainability</li>
+                    <li><strong>Route order</strong>: Specific routes before general routes</li>
+                    <li><strong>Absolute routes</strong>: Avoid unless necessary</li>
+                    <li><strong>Consistency</strong>: Stick to one approach per controller type</li>
+                    <li><strong>Versioning</strong>: Use routes like <code>api/v1/[controller]</code></li>
+                    <li><strong>Documentation</strong>: Comment complex routes</li>
+                </ul>
+
+                <h2>Key Takeaways</h2>
+
+                <ul>
+                    <li><strong>Conventional routing</strong>: Centralized templates in Program.cs</li>
+                    <li><strong>Attribute routing</strong>: Routes defined on controllers/actions</li>
+                    <li><strong>Token replacement</strong>: <code>[controller]</code> and <code>[action]</code></li>
+                    <li><strong>Flexibility</strong>: Attribute routing is more flexible</li>
+                    <li><strong>APIs</strong>: Prefer attribute routing</li>
+                    <li><strong>MVC</strong>: Conventional routing works well</li>
+                    <li><strong>Combining</strong>: Both can coexist in the same app</li>
+                    <li><strong>Route order</strong>: Matters for conventional routing</li>
+                    <li><strong>Absolute routes</strong>: Start with <code>/</code> to override controller route</li>
+                </ul>
+
+                <div class="callout callout-concept">
+                    <div class="callout-title">🎯 Next Steps</div>
+                    <p>
+                        You now understand conventional vs attribute routing! In the next section, we'll explore
+                        <strong>Route Parameters</strong>—how to capture data from URLs and use it in your actions.
+                    </p>
+                </div>
+
+                <nav class="page-nav">
+                    <a href="01-endpoint-routing.html" class="prev">Endpoint Routing Basics</a>
+                    <a href="03-route-parameters.html" class="next">Route Parameters</a>
+                </nav>
+
+            
+        <footer class="page-footer">
+          Built with 💜 by <a href="https://akwasi.dev" target="_blank" rel="noopener noreferrer">Akwasi Adu-Kyeremeh</a> for developers who want to truly understand what they're building.
+        </footer>
+
+      </div>
+        </main>
+    </div>
+</body>
+
+</html>

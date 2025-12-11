@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kestrel and Reverse Proxies | ASP.NET Core Mastery</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;500&family=Source+Serif+4:ital,wght@0,400;0,600;1,400&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="../assets/style.css">
+</head>
+
+<body>
+    <div class="page-wrapper">
+        <aside class="sidebar">
+            <a href="../index.html" class="sidebar-logo">ASP.NET Core Mastery</a>
+            <div class="sidebar-section">Part XVIII: Deployment</div>
+            <ul class="sidebar-nav">
+                <li><a href="01-kestrel-reverse-proxies.html" class="active">Kestrel and Reverse Proxies</a></li>
+                <li><a href="02-iis-hosting.html">IIS Hosting</a></li>
+                <li><a href="03-linux-hosting.html">Linux Hosting</a></li>
+                <li><a href="04-docker-containers.html">Docker Containers</a></li>
+                <li><a href="05-azure-app-service.html">Azure App Service</a></li>
+                <li><a href="06-cicd-pipelines.html">CI/CD Pipelines</a></li>
+            </ul>
+            <div class="sidebar-section">Resources</div>
+            <ul class="sidebar-nav">
+                <li><a href="../index.html">Full Roadmap</a></li>
+            </ul>
+        </aside>
+
+        <main class="main-content">
+            <div class="content-container">
+                <nav class="breadcrumb">
+                    <a href="../index.html">Home</a>
+                    <span>→</span>
+                    <a href="01-kestrel-reverse-proxies.html">Part XVIII: Deployment</a>
+                    <span>→</span>
+                    Kestrel and Reverse Proxies
+                </nav>
+
+                <div class="progress-indicator">
+                    <span>Section 1 of 6</span>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 16.67%"></div>
+                    </div>
+                </div>
+
+                <h1>Kestrel and Reverse Proxies</h1>
+
+                <div class="learning-objectives">
+                    <h3>🎯 What You'll Learn</h3>
+                    <ul>
+                        <li>What is Kestrel</li>
+                        <li>Why use a reverse proxy</li>
+                        <li>Nginx configuration</li>
+                        <li>Apache configuration</li>
+                        <li>Kestrel configuration</li>
+                    </ul>
+                </div>
+
+                <h2>What is Kestrel?</h2>
+
+                <p>
+                    <strong>Kestrel</strong> is the cross-platform web server included with ASP.NET Core.
+                    It's fast, lightweight, and can run standalone or behind a reverse proxy.
+                </p>
+
+                <div class="section-divider"></div>
+
+                <h2>Why Use a Reverse Proxy?</h2>
+
+                <ul>
+                    <li><strong>SSL/TLS termination</strong>: Handle HTTPS certificates</li>
+                    <li><strong>Load balancing</strong>: Distribute traffic across servers</li>
+                    <li><strong>Static file serving</strong>: Serve static files efficiently</li>
+                    <li><strong>Security</strong>: Additional security layer</li>
+                    <li><strong>Caching</strong>: Cache responses</li>
+                </ul>
+
+                <div class="section-divider"></div>
+
+                <h2>Nginx as Reverse Proxy</h2>
+
+                <div class="code-header">
+                    <span class="code-filename">/etc/nginx/sites-available/inventtrack</span>
+                    <span class="code-language">Nginx</span>
+                </div>
+                <pre><code>server {
+    listen 80;
+    server_name inventtrack.com www.inventtrack.com;
+
+    location / {
+        proxy_pass http://localhost:5000;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection keep-alive;
+        proxy_set_header Host $host;
+        proxy_cache_bypass $http_upgrade;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+}</code></pre>
+
+                <div class="code-header">
+                    <span class="code-filename">Enable Site</span>
+                    <span class="code-language">Bash</span>
+                </div>
+                <pre><code>sudo ln -s /etc/nginx/sites-available/inventtrack /etc/nginx/sites-enabled/
+sudo nginx -t
+sudo systemctl reload nginx</code></pre>
+
+                <div class="section-divider"></div>
+
+                <h2>Apache as Reverse Proxy</h2>
+
+                <div class="code-header">
+                    <span class="code-filename">/etc/apache2/sites-available/inventtrack.conf</span>
+                    <span class="code-language">Apache</span>
+                </div>
+                <pre><code>&lt;VirtualHost *:80&gt;
+    ServerName inventtrack.com
+    ServerAlias www.inventtrack.com
+
+    ProxyPreserveHost On
+    ProxyPass / http://localhost:5000/
+    ProxyPassReverse / http://localhost:5000/
+
+    RequestHeader set X-Forwarded-Proto "http"
+&lt;/VirtualHost&gt;</code></pre>
+
+                <div class="code-header">
+                    <span class="code-filename">Enable Modules and Site</span>
+                    <span class="code-language">Bash</span>
+                </div>
+                <pre><code>sudo a2enmod proxy proxy_http headers
+sudo a2ensite inventtrack
+sudo systemctl reload apache2</code></pre>
+
+                <div class="section-divider"></div>
+
+                <h2>Kestrel Configuration</h2>
+
+                <div class="code-header">
+                    <span class="code-filename">appsettings.json</span>
+                    <span class="code-language">JSON</span>
+                </div>
+                <pre><code>{
+  <span class="code-string">"Kestrel"</span>: {
+    <span class="code-string">"Endpoints"</span>: {
+      <span class="code-string">"Http"</span>: {
+        <span class="code-string">"Url"</span>: <span class="code-string">"http://localhost:5000"</span>
+      },
+      <span class="code-string">"Https"</span>: {
+        <span class="code-string">"Url"</span>: <span class="code-string">"https://localhost:5001"</span>,
+        <span class="code-string">"Certificate"</span>: {
+          <span class="code-string">"Path"</span>: <span class="code-string">"/path/to/cert.pfx"</span>,
+          <span class="code-string">"Password"</span>: <span class="code-string">"password"</span>
+        }
+      }
+    }
+  }
+}</code></pre>
+
+                <h3>Configure in Program.cs</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">Program.cs</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-variable">builder</span>.<span class="code-variable">WebHost</span>.<span class="code-method">ConfigureKestrel</span>(<span class="code-variable">options</span> =>
+{
+    <span class="code-variable">options</span>.<span class="code-method">ListenLocalhost</span>(<span class="code-number">5000</span>);
+    <span class="code-variable">options</span>.<span class="code-method">ListenLocalhost</span>(<span class="code-number">5001</span>, <span class="code-variable">listenOptions</span> =>
+    {
+        <span class="code-variable">listenOptions</span>.<span class="code-method">UseHttps</span>(<span class="code-string">"/path/to/cert.pfx"</span>, <span class="code-string">"password"</span>);
+    });
+});</code></pre>
+
+                <h2>Forwarded Headers</h2>
+
+                <p>Configure your app to work behind a reverse proxy.</p>
+
+                <div class="code-header">
+                    <span class="code-filename">Program.cs</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-keyword">using</span> <span class="code-variable">Microsoft</span>.<span class="code-variable">AspNetCore</span>.<span class="code-variable">HttpOverrides</span>;
+
+<span class="code-variable">builder</span>.<span class="code-variable">Services</span>.<span class="code-method">Configure</span>&lt;<span class="code-class">ForwardedHeadersOptions</span>&gt;(<span class="code-variable">options</span> =>
+{
+    <span class="code-variable">options</span>.<span class="code-variable">ForwardedHeaders</span> = 
+        <span class="code-class">ForwardedHeaders</span>.<span class="code-variable">XForwardedFor</span> | <span class="code-class">ForwardedHeaders</span>.<span class="code-variable">XForwardedProto</span>;
+});
+
+<span class="code-keyword">var</span> <span class="code-variable">app</span> = <span class="code-variable">builder</span>.<span class="code-method">Build</span>();
+
+<span class="code-variable">app</span>.<span class="code-method">UseForwardedHeaders</span>(); <span class="code-comment">// Must be before UseAuthentication</span></code></pre>
+
+                <h2>Key Takeaways</h2>
+
+                <ul>
+                    <li><strong>Kestrel</strong>: Cross-platform web server</li>
+                    <li><strong>Reverse proxy</strong>: Nginx or Apache in front of Kestrel</li>
+                    <li><strong>Benefits</strong>: SSL termination, load balancing, security</li>
+                    <li><strong>Nginx</strong>: proxy_pass to Kestrel</li>
+                    <li><strong>Apache</strong>: ProxyPass to Kestrel</li>
+                    <li><strong>Forwarded headers</strong>: UseForwardedHeaders() middleware</li>
+                </ul>
+
+                <nav class="page-nav">
+                    <a href="../index.html" class="prev">Back to Roadmap</a>
+                    <a href="02-iis-hosting.html" class="next">IIS Hosting</a>
+                </nav>
+
+            
+        <footer class="page-footer">
+          Built with 💜 by <a href="https://akwasi.dev" target="_blank" rel="noopener noreferrer">Akwasi Adu-Kyeremeh</a> for developers who want to truly understand what they're building.
+        </footer>
+
+      </div>
+        </main>
+    </div>
+</body>
+
+</html>

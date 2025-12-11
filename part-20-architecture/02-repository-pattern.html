@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Repository Pattern | ASP.NET Core Mastery</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;500&family=Source+Serif+4:ital,wght@0,400;0,600;1,400&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="../assets/style.css">
+</head>
+
+<body>
+    <div class="page-wrapper">
+        <aside class="sidebar">
+            <a href="../index.html" class="sidebar-logo">ASP.NET Core Mastery</a>
+            <div class="sidebar-section">Part XX: Architecture</div>
+            <ul class="sidebar-nav">
+                <li><a href="01-solid-principles.html">SOLID Principles</a></li>
+                <li><a href="02-repository-pattern.html" class="active">Repository Pattern</a></li>
+                <li><a href="03-unit-of-work.html">Unit of Work</a></li>
+                <li><a href="04-clean-architecture.html">Clean Architecture</a></li>
+                <li><a href="05-ddd-basics.html">Domain-Driven Design Basics</a></li>
+            </ul>
+            <div class="sidebar-section">Resources</div>
+            <ul class="sidebar-nav">
+                <li><a href="../index.html">Full Roadmap</a></li>
+            </ul>
+        </aside>
+
+        <main class="main-content">
+            <div class="content-container">
+                <nav class="breadcrumb">
+                    <a href="../index.html">Home</a>
+                    <span>→</span>
+                    <a href="01-solid-principles.html">Part XX: Architecture & Patterns</a>
+                    <span>→</span>
+                    Repository Pattern
+                </nav>
+
+                <div class="progress-indicator">
+                    <span>Section 2 of 5</span>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 40%"></div>
+                    </div>
+                </div>
+
+                <h1>Repository Pattern</h1>
+
+                <div class="learning-objectives">
+                    <h3>🎯 What You'll Learn</h3>
+                    <ul>
+                        <li>What is Repository Pattern</li>
+                        <li>Creating repository interface</li>
+                        <li>Implementing repository</li>
+                        <li>Generic repository</li>
+                        <li>Using in controllers</li>
+                    </ul>
+                </div>
+
+                <h2>What is Repository Pattern?</h2>
+
+                <p>
+                    The <strong>Repository Pattern</strong> abstracts data access logic, providing a collection-like
+                    interface for accessing domain objects.
+                </p>
+
+                <div class="section-divider"></div>
+
+                <h2>Benefits</h2>
+
+                <ul>
+                    <li><strong>Separation of concerns</strong>: Business logic separate from data access</li>
+                    <li><strong>Testability</strong>: Easy to mock repositories</li>
+                    <li><strong>Maintainability</strong>: Centralized data access logic</li>
+                    <li><strong>Flexibility</strong>: Easy to switch data sources</li>
+                </ul>
+
+                <div class="section-divider"></div>
+
+                <h2>Repository Interface</h2>
+
+                <div class="code-header">
+                    <span class="code-filename">IProductRepository.cs</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-keyword">public</span> <span class="code-keyword">interface</span> <span class="code-class">IProductRepository</span>
+{
+    <span class="code-class">Task</span>&lt;<span class="code-class">Product</span>&gt; <span class="code-method">GetByIdAsync</span>(<span class="code-type">int</span> <span class="code-variable">id</span>);
+    <span class="code-class">Task</span>&lt;<span class="code-class">IEnumerable</span>&lt;<span class="code-class">Product</span>&gt;&gt; <span class="code-method">GetAllAsync</span>();
+    <span class="code-class">Task</span> <span class="code-method">AddAsync</span>(<span class="code-class">Product</span> <span class="code-variable">product</span>);
+    <span class="code-class">Task</span> <span class="code-method">UpdateAsync</span>(<span class="code-class">Product</span> <span class="code-variable">product</span>);
+    <span class="code-class">Task</span> <span class="code-method">DeleteAsync</span>(<span class="code-type">int</span> <span class="code-variable">id</span>);
+}</code></pre>
+
+                <div class="section-divider"></div>
+
+                <h2>Repository Implementation</h2>
+
+                <div class="code-header">
+                    <span class="code-filename">ProductRepository.cs</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">ProductRepository</span> : <span class="code-class">IProductRepository</span>
+{
+    <span class="code-keyword">private</span> <span class="code-keyword">readonly</span> <span class="code-class">InvenTrackDbContext</span> <span class="code-variable">_context</span>;
+
+    <span class="code-keyword">public</span> <span class="code-method">ProductRepository</span>(<span class="code-class">InvenTrackDbContext</span> <span class="code-variable">context</span>)
+    {
+        <span class="code-variable">_context</span> = <span class="code-variable">context</span>;
+    }
+
+    <span class="code-keyword">public</span> <span class="code-keyword">async</span> <span class="code-class">Task</span>&lt;<span class="code-class">Product</span>&gt; <span class="code-method">GetByIdAsync</span>(<span class="code-type">int</span> <span class="code-variable">id</span>)
+    {
+        <span class="code-keyword">return</span> <span class="code-keyword">await</span> <span class="code-variable">_context</span>.<span class="code-variable">Products</span>.<span class="code-method">FindAsync</span>(<span class="code-variable">id</span>);
+    }
+
+    <span class="code-keyword">public</span> <span class="code-keyword">async</span> <span class="code-class">Task</span>&lt;<span class="code-class">IEnumerable</span>&lt;<span class="code-class">Product</span>&gt;&gt; <span class="code-method">GetAllAsync</span>()
+    {
+        <span class="code-keyword">return</span> <span class="code-keyword">await</span> <span class="code-variable">_context</span>.<span class="code-variable">Products</span>.<span class="code-method">ToListAsync</span>();
+    }
+
+    <span class="code-keyword">public</span> <span class="code-keyword">async</span> <span class="code-class">Task</span> <span class="code-method">AddAsync</span>(<span class="code-class">Product</span> <span class="code-variable">product</span>)
+    {
+        <span class="code-keyword">await</span> <span class="code-variable">_context</span>.<span class="code-variable">Products</span>.<span class="code-method">AddAsync</span>(<span class="code-variable">product</span>);
+        <span class="code-keyword">await</span> <span class="code-variable">_context</span>.<span class="code-method">SaveChangesAsync</span>();
+    }
+
+    <span class="code-keyword">public</span> <span class="code-keyword">async</span> <span class="code-class">Task</span> <span class="code-method">UpdateAsync</span>(<span class="code-class">Product</span> <span class="code-variable">product</span>)
+    {
+        <span class="code-variable">_context</span>.<span class="code-variable">Products</span>.<span class="code-method">Update</span>(<span class="code-variable">product</span>);
+        <span class="code-keyword">await</span> <span class="code-variable">_context</span>.<span class="code-method">SaveChangesAsync</span>();
+    }
+
+    <span class="code-keyword">public</span> <span class="code-keyword">async</span> <span class="code-class">Task</span> <span class="code-method">DeleteAsync</span>(<span class="code-type">int</span> <span class="code-variable">id</span>)
+    {
+        <span class="code-keyword">var</span> <span class="code-variable">product</span> = <span class="code-keyword">await</span> <span class="code-variable">_context</span>.<span class="code-variable">Products</span>.<span class="code-method">FindAsync</span>(<span class="code-variable">id</span>);
+        <span class="code-keyword">if</span> (<span class="code-variable">product</span> != <span class="code-keyword">null</span>)
+        {
+            <span class="code-variable">_context</span>.<span class="code-variable">Products</span>.<span class="code-method">Remove</span>(<span class="code-variable">product</span>);
+            <span class="code-keyword">await</span> <span class="code-variable">_context</span>.<span class="code-method">SaveChangesAsync</span>();
+        }
+    }
+}</code></pre>
+
+                <div class="section-divider"></div>
+
+                <h2>Register Repository</h2>
+
+                <div class="code-header">
+                    <span class="code-filename">Program.cs</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-variable">builder</span>.<span class="code-variable">Services</span>.<span class="code-method">AddScoped</span>&lt;<span class="code-class">IProductRepository</span>, <span class="code-class">ProductRepository</span>&gt;();</code></pre>
+
+                <div class="section-divider"></div>
+
+                <h2>Generic Repository</h2>
+
+                <div class="code-header">
+                    <span class="code-filename">IRepository.cs</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-keyword">public</span> <span class="code-keyword">interface</span> <span class="code-class">IRepository</span>&lt;<span class="code-class">T</span>&gt; <span class="code-keyword">where</span> <span class="code-class">T</span> : <span class="code-keyword">class</span>
+{
+    <span class="code-class">Task</span>&lt;<span class="code-class">T</span>&gt; <span class="code-method">GetByIdAsync</span>(<span class="code-type">int</span> <span class="code-variable">id</span>);
+    <span class="code-class">Task</span>&lt;<span class="code-class">IEnumerable</span>&lt;<span class="code-class">T</span>&gt;&gt; <span class="code-method">GetAllAsync</span>();
+    <span class="code-class">Task</span> <span class="code-method">AddAsync</span>(<span class="code-class">T</span> <span class="code-variable">entity</span>);
+    <span class="code-class">Task</span> <span class="code-method">UpdateAsync</span>(<span class="code-class">T</span> <span class="code-variable">entity</span>);
+    <span class="code-class">Task</span> <span class="code-method">DeleteAsync</span>(<span class="code-type">int</span> <span class="code-variable">id</span>);
+}</code></pre>
+
+                <div class="code-header">
+                    <span class="code-filename">Repository.cs</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">Repository</span>&lt;<span class="code-class">T</span>&gt; : <span class="code-class">IRepository</span>&lt;<span class="code-class">T</span>&gt; <span class="code-keyword">where</span> <span class="code-class">T</span> : <span class="code-keyword">class</span>
+{
+    <span class="code-keyword">private</span> <span class="code-keyword">readonly</span> <span class="code-class">InvenTrackDbContext</span> <span class="code-variable">_context</span>;
+    <span class="code-keyword">private</span> <span class="code-keyword">readonly</span> <span class="code-class">DbSet</span>&lt;<span class="code-class">T</span>&gt; <span class="code-variable">_dbSet</span>;
+
+    <span class="code-keyword">public</span> <span class="code-method">Repository</span>(<span class="code-class">InvenTrackDbContext</span> <span class="code-variable">context</span>)
+    {
+        <span class="code-variable">_context</span> = <span class="code-variable">context</span>;
+        <span class="code-variable">_dbSet</span> = <span class="code-variable">_context</span>.<span class="code-method">Set</span>&lt;<span class="code-class">T</span>&gt;();
+    }
+
+    <span class="code-keyword">public</span> <span class="code-keyword">async</span> <span class="code-class">Task</span>&lt;<span class="code-class">T</span>&gt; <span class="code-method">GetByIdAsync</span>(<span class="code-type">int</span> <span class="code-variable">id</span>)
+    {
+        <span class="code-keyword">return</span> <span class="code-keyword">await</span> <span class="code-variable">_dbSet</span>.<span class="code-method">FindAsync</span>(<span class="code-variable">id</span>);
+    }
+
+    <span class="code-keyword">public</span> <span class="code-keyword">async</span> <span class="code-class">Task</span>&lt;<span class="code-class">IEnumerable</span>&lt;<span class="code-class">T</span>&gt;&gt; <span class="code-method">GetAllAsync</span>()
+    {
+        <span class="code-keyword">return</span> <span class="code-keyword">await</span> <span class="code-variable">_dbSet</span>.<span class="code-method">ToListAsync</span>();
+    }
+
+    <span class="code-keyword">public</span> <span class="code-keyword">async</span> <span class="code-class">Task</span> <span class="code-method">AddAsync</span>(<span class="code-class">T</span> <span class="code-variable">entity</span>)
+    {
+        <span class="code-keyword">await</span> <span class="code-variable">_dbSet</span>.<span class="code-method">AddAsync</span>(<span class="code-variable">entity</span>);
+        <span class="code-keyword">await</span> <span class="code-variable">_context</span>.<span class="code-method">SaveChangesAsync</span>();
+    }
+
+    <span class="code-keyword">public</span> <span class="code-keyword">async</span> <span class="code-class">Task</span> <span class="code-method">UpdateAsync</span>(<span class="code-class">T</span> <span class="code-variable">entity</span>)
+    {
+        <span class="code-variable">_dbSet</span>.<span class="code-method">Update</span>(<span class="code-variable">entity</span>);
+        <span class="code-keyword">await</span> <span class="code-variable">_context</span>.<span class="code-method">SaveChangesAsync</span>();
+    }
+
+    <span class="code-keyword">public</span> <span class="code-keyword">async</span> <span class="code-class">Task</span> <span class="code-method">DeleteAsync</span>(<span class="code-type">int</span> <span class="code-variable">id</span>)
+    {
+        <span class="code-keyword">var</span> <span class="code-variable">entity</span> = <span class="code-keyword">await</span> <span class="code-variable">_dbSet</span>.<span class="code-method">FindAsync</span>(<span class="code-variable">id</span>);
+        <span class="code-keyword">if</span> (<span class="code-variable">entity</span> != <span class="code-keyword">null</span>)
+        {
+            <span class="code-variable">_dbSet</span>.<span class="code-method">Remove</span>(<span class="code-variable">entity</span>);
+            <span class="code-keyword">await</span> <span class="code-variable">_context</span>.<span class="code-method">SaveChangesAsync</span>();
+        }
+    }
+}</code></pre>
+
+                <div class="section-divider"></div>
+
+                <h2>Using in Controller</h2>
+
+                <div class="code-header">
+                    <span class="code-filename">ProductsController.cs</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">ProductsController</span> : <span class="code-class">Controller</span>
+{
+    <span class="code-keyword">private</span> <span class="code-keyword">readonly</span> <span class="code-class">IProductRepository</span> <span class="code-variable">_repository</span>;
+
+    <span class="code-keyword">public</span> <span class="code-method">ProductsController</span>(<span class="code-class">IProductRepository</span> <span class="code-variable">repository</span>)
+    {
+        <span class="code-variable">_repository</span> = <span class="code-variable">repository</span>;
+    }
+
+    [<span class="code-class">HttpGet</span>]
+    <span class="code-keyword">public</span> <span class="code-keyword">async</span> <span class="code-class">Task</span>&lt;<span class="code-class">IActionResult</span>&gt; <span class="code-method">Index</span>()
+    {
+        <span class="code-keyword">var</span> <span class="code-variable">products</span> = <span class="code-keyword">await</span> <span class="code-variable">_repository</span>.<span class="code-method">GetAllAsync</span>();
+        <span class="code-keyword">return</span> <span class="code-method">View</span>(<span class="code-variable">products</span>);
+    }
+
+    [<span class="code-class">HttpPost</span>]
+    <span class="code-keyword">public</span> <span class="code-keyword">async</span> <span class="code-class">Task</span>&lt;<span class="code-class">IActionResult</span>&gt; <span class="code-method">Create</span>(<span class="code-class">Product</span> <span class="code-variable">product</span>)
+    {
+        <span class="code-keyword">await</span> <span class="code-variable">_repository</span>.<span class="code-method">AddAsync</span>(<span class="code-variable">product</span>);
+        <span class="code-keyword">return</span> <span class="code-method">RedirectToAction</span>(<span class="code-string">"Index"</span>);
+    }
+}</code></pre>
+
+                <h2>Key Takeaways</h2>
+
+                <ul>
+                    <li><strong>Repository Pattern</strong>: Abstracts data access</li>
+                    <li><strong>Interface</strong>: Define contract for data operations</li>
+                    <li><strong>Implementation</strong>: Encapsulate EF Core logic</li>
+                    <li><strong>Generic Repository</strong>: Reusable for all entities</li>
+                    <li><strong>Dependency Injection</strong>: Inject repository into controllers</li>
+                    <li><strong>Benefits</strong>: Testability, maintainability, flexibility</li>
+                </ul>
+
+                <nav class="page-nav">
+                    <a href="01-solid-principles.html" class="prev">SOLID Principles</a>
+                    <a href="03-unit-of-work.html" class="next">Unit of Work</a>
+                </nav>
+
+            
+        <footer class="page-footer">
+          Built with 💜 by <a href="https://akwasi.dev" target="_blank" rel="noopener noreferrer">Akwasi Adu-Kyeremeh</a> for developers who want to truly understand what they're building.
+        </footer>
+
+      </div>
+        </main>
+    </div>
+</body>
+
+</html>

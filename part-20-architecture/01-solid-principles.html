@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SOLID Principles | ASP.NET Core Mastery</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;500&family=Source+Serif+4:ital,wght@0,400;0,600;1,400&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="../assets/style.css">
+</head>
+
+<body>
+    <div class="page-wrapper">
+        <aside class="sidebar">
+            <a href="../index.html" class="sidebar-logo">ASP.NET Core Mastery</a>
+            <div class="sidebar-section">Part XX: Architecture</div>
+            <ul class="sidebar-nav">
+                <li><a href="01-solid-principles.html" class="active">SOLID Principles</a></li>
+                <li><a href="02-repository-pattern.html">Repository Pattern</a></li>
+                <li><a href="03-unit-of-work.html">Unit of Work</a></li>
+                <li><a href="04-clean-architecture.html">Clean Architecture</a></li>
+                <li><a href="05-ddd-basics.html">Domain-Driven Design Basics</a></li>
+            </ul>
+            <div class="sidebar-section">Resources</div>
+            <ul class="sidebar-nav">
+                <li><a href="../index.html">Full Roadmap</a></li>
+            </ul>
+        </aside>
+
+        <main class="main-content">
+            <div class="content-container">
+                <nav class="breadcrumb">
+                    <a href="../index.html">Home</a>
+                    <span>→</span>
+                    <a href="01-solid-principles.html">Part XX: Architecture & Patterns</a>
+                    <span>→</span>
+                    SOLID Principles
+                </nav>
+
+                <div class="progress-indicator">
+                    <span>Section 1 of 5</span>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 20%"></div>
+                    </div>
+                </div>
+
+                <h1>SOLID Principles</h1>
+
+                <div class="learning-objectives">
+                    <h3>🎯 What You'll Learn</h3>
+                    <ul>
+                        <li>Single Responsibility Principle</li>
+                        <li>Open/Closed Principle</li>
+                        <li>Liskov Substitution Principle</li>
+                        <li>Interface Segregation Principle</li>
+                        <li>Dependency Inversion Principle</li>
+                    </ul>
+                </div>
+
+                <h2>What is SOLID?</h2>
+
+                <p>
+                    <strong>SOLID</strong> is a set of five design principles that make software more maintainable,
+                    flexible, and scalable.
+                </p>
+
+                <div class="section-divider"></div>
+
+                <h2>S - Single Responsibility Principle (SRP)</h2>
+
+                <p><strong>A class should have only one reason to change.</strong></p>
+
+                <div class="code-header">
+                    <span class="code-filename">❌ Bad: Multiple Responsibilities</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">OrderProcessor</span>
+{
+    <span class="code-keyword">public</span> <span class="code-keyword">void</span> <span class="code-method">ProcessOrder</span>(<span class="code-class">Order</span> <span class="code-variable">order</span>)
+    {
+        <span class="code-comment">// Validate order</span>
+        <span class="code-comment">// Save to database</span>
+        <span class="code-comment">// Send email</span>
+        <span class="code-comment">// Generate invoice</span>
+    }
+}</code></pre>
+
+                <div class="code-header">
+                    <span class="code-filename">✅ Good: Single Responsibility</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">OrderValidator</span>
+{
+    <span class="code-keyword">public</span> <span class="code-type">bool</span> <span class="code-method">Validate</span>(<span class="code-class">Order</span> <span class="code-variable">order</span>) { }
+}
+
+<span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">OrderRepository</span>
+{
+    <span class="code-keyword">public</span> <span class="code-keyword">void</span> <span class="code-method">Save</span>(<span class="code-class">Order</span> <span class="code-variable">order</span>) { }
+}
+
+<span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">EmailService</span>
+{
+    <span class="code-keyword">public</span> <span class="code-keyword">void</span> <span class="code-method">SendOrderConfirmation</span>(<span class="code-class">Order</span> <span class="code-variable">order</span>) { }
+}
+
+<span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">InvoiceGenerator</span>
+{
+    <span class="code-keyword">public</span> <span class="code-keyword">void</span> <span class="code-method">Generate</span>(<span class="code-class">Order</span> <span class="code-variable">order</span>) { }
+}</code></pre>
+
+                <div class="section-divider"></div>
+
+                <h2>O - Open/Closed Principle (OCP)</h2>
+
+                <p><strong>Open for extension, closed for modification.</strong></p>
+
+                <div class="code-header">
+                    <span class="code-filename">❌ Bad: Modifying Existing Code</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">DiscountCalculator</span>
+{
+    <span class="code-keyword">public</span> <span class="code-type">decimal</span> <span class="code-method">Calculate</span>(<span class="code-type">decimal</span> <span class="code-variable">price</span>, <span class="code-type">string</span> <span class="code-variable">customerType</span>)
+    {
+        <span class="code-keyword">if</span> (<span class="code-variable">customerType</span> == <span class="code-string">"Regular"</span>)
+            <span class="code-keyword">return</span> <span class="code-variable">price</span> * <span class="code-number">0.95m</span>;
+        <span class="code-keyword">else</span> <span class="code-keyword">if</span> (<span class="code-variable">customerType</span> == <span class="code-string">"Premium"</span>)
+            <span class="code-keyword">return</span> <span class="code-variable">price</span> * <span class="code-number">0.90m</span>;
+        <span class="code-keyword">return</span> <span class="code-variable">price</span>;
+    }
+}</code></pre>
+
+                <div class="code-header">
+                    <span class="code-filename">✅ Good: Extension via Abstraction</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-keyword">public</span> <span class="code-keyword">interface</span> <span class="code-class">IDiscountStrategy</span>
+{
+    <span class="code-type">decimal</span> <span class="code-method">Calculate</span>(<span class="code-type">decimal</span> <span class="code-variable">price</span>);
+}
+
+<span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">RegularDiscount</span> : <span class="code-class">IDiscountStrategy</span>
+{
+    <span class="code-keyword">public</span> <span class="code-type">decimal</span> <span class="code-method">Calculate</span>(<span class="code-type">decimal</span> <span class="code-variable">price</span>) => <span class="code-variable">price</span> * <span class="code-number">0.95m</span>;
+}
+
+<span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">PremiumDiscount</span> : <span class="code-class">IDiscountStrategy</span>
+{
+    <span class="code-keyword">public</span> <span class="code-type">decimal</span> <span class="code-method">Calculate</span>(<span class="code-type">decimal</span> <span class="code-variable">price</span>) => <span class="code-variable">price</span> * <span class="code-number">0.90m</span>;
+}</code></pre>
+
+                <div class="section-divider"></div>
+
+                <h2>L - Liskov Substitution Principle (LSP)</h2>
+
+                <p><strong>Subtypes must be substitutable for their base types.</strong></p>
+
+                <div class="code-header">
+                    <span class="code-filename">❌ Bad: Violates LSP</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">Rectangle</span>
+{
+    <span class="code-keyword">public</span> <span class="code-keyword">virtual</span> <span class="code-type">int</span> <span class="code-variable">Width</span> { <span class="code-keyword">get</span>; <span class="code-keyword">set</span>; }
+    <span class="code-keyword">public</span> <span class="code-keyword">virtual</span> <span class="code-type">int</span> <span class="code-variable">Height</span> { <span class="code-keyword">get</span>; <span class="code-keyword">set</span>; }
+}
+
+<span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">Square</span> : <span class="code-class">Rectangle</span>
+{
+    <span class="code-keyword">public</span> <span class="code-keyword">override</span> <span class="code-type">int</span> <span class="code-variable">Width</span>
+    {
+        <span class="code-keyword">set</span> { <span class="code-keyword">base</span>.<span class="code-variable">Width</span> = <span class="code-keyword">base</span>.<span class="code-variable">Height</span> = <span class="code-keyword">value</span>; }
+    }
+}</code></pre>
+
+                <div class="code-header">
+                    <span class="code-filename">✅ Good: Separate Abstractions</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-keyword">public</span> <span class="code-keyword">interface</span> <span class="code-class">IShape</span>
+{
+    <span class="code-type">int</span> <span class="code-method">GetArea</span>();
+}
+
+<span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">Rectangle</span> : <span class="code-class">IShape</span>
+{
+    <span class="code-keyword">public</span> <span class="code-type">int</span> <span class="code-variable">Width</span> { <span class="code-keyword">get</span>; <span class="code-keyword">set</span>; }
+    <span class="code-keyword">public</span> <span class="code-type">int</span> <span class="code-variable">Height</span> { <span class="code-keyword">get</span>; <span class="code-keyword">set</span>; }
+    <span class="code-keyword">public</span> <span class="code-type">int</span> <span class="code-method">GetArea</span>() => <span class="code-variable">Width</span> * <span class="code-variable">Height</span>;
+}
+
+<span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">Square</span> : <span class="code-class">IShape</span>
+{
+    <span class="code-keyword">public</span> <span class="code-type">int</span> <span class="code-variable">Side</span> { <span class="code-keyword">get</span>; <span class="code-keyword">set</span>; }
+    <span class="code-keyword">public</span> <span class="code-type">int</span> <span class="code-method">GetArea</span>() => <span class="code-variable">Side</span> * <span class="code-variable">Side</span>;
+}</code></pre>
+
+                <div class="section-divider"></div>
+
+                <h2>I - Interface Segregation Principle (ISP)</h2>
+
+                <p><strong>Clients should not depend on interfaces they don't use.</strong></p>
+
+                <div class="code-header">
+                    <span class="code-filename">❌ Bad: Fat Interface</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-keyword">public</span> <span class="code-keyword">interface</span> <span class="code-class">IProduct</span>
+{
+    <span class="code-keyword">void</span> <span class="code-method">Add</span>();
+    <span class="code-keyword">void</span> <span class="code-method">Update</span>();
+    <span class="code-keyword">void</span> <span class="code-method">Delete</span>();
+    <span class="code-keyword">void</span> <span class="code-method">Print</span>();
+    <span class="code-keyword">void</span> <span class="code-method">Export</span>();
+}</code></pre>
+
+                <div class="code-header">
+                    <span class="code-filename">✅ Good: Segregated Interfaces</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-keyword">public</span> <span class="code-keyword">interface</span> <span class="code-class">IProductRepository</span>
+{
+    <span class="code-keyword">void</span> <span class="code-method">Add</span>(<span class="code-class">Product</span> <span class="code-variable">product</span>);
+    <span class="code-keyword">void</span> <span class="code-method">Update</span>(<span class="code-class">Product</span> <span class="code-variable">product</span>);
+    <span class="code-keyword">void</span> <span class="code-method">Delete</span>(<span class="code-type">int</span> <span class="code-variable">id</span>);
+}
+
+<span class="code-keyword">public</span> <span class="code-keyword">interface</span> <span class="code-class">IPrintable</span>
+{
+    <span class="code-keyword">void</span> <span class="code-method">Print</span>();
+}
+
+<span class="code-keyword">public</span> <span class="code-keyword">interface</span> <span class="code-class">IExportable</span>
+{
+    <span class="code-keyword">void</span> <span class="code-method">Export</span>();
+}</code></pre>
+
+                <div class="section-divider"></div>
+
+                <h2>D - Dependency Inversion Principle (DIP)</h2>
+
+                <p><strong>Depend on abstractions, not concretions.</strong></p>
+
+                <div class="code-header">
+                    <span class="code-filename">❌ Bad: Depends on Concrete Class</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">OrderService</span>
+{
+    <span class="code-keyword">private</span> <span class="code-keyword">readonly</span> <span class="code-class">SqlServerRepository</span> <span class="code-variable">_repository</span>;
+    
+    <span class="code-keyword">public</span> <span class="code-method">OrderService</span>()
+    {
+        <span class="code-variable">_repository</span> = <span class="code-keyword">new</span> <span class="code-class">SqlServerRepository</span>();
+    }
+}</code></pre>
+
+                <div class="code-header">
+                    <span class="code-filename">✅ Good: Depends on Abstraction</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">OrderService</span>
+{
+    <span class="code-keyword">private</span> <span class="code-keyword">readonly</span> <span class="code-class">IOrderRepository</span> <span class="code-variable">_repository</span>;
+    
+    <span class="code-keyword">public</span> <span class="code-method">OrderService</span>(<span class="code-class">IOrderRepository</span> <span class="code-variable">repository</span>)
+    {
+        <span class="code-variable">_repository</span> = <span class="code-variable">repository</span>;
+    }
+}</code></pre>
+
+                <h2>Key Takeaways</h2>
+
+                <ul>
+                    <li><strong>SRP</strong>: One class, one responsibility</li>
+                    <li><strong>OCP</strong>: Extend behavior without modifying code</li>
+                    <li><strong>LSP</strong>: Subtypes must be substitutable</li>
+                    <li><strong>ISP</strong>: Small, focused interfaces</li>
+                    <li><strong>DIP</strong>: Depend on abstractions, not implementations</li>
+                </ul>
+
+                <nav class="page-nav">
+                    <a href="../index.html" class="prev">Back to Roadmap</a>
+                    <a href="02-repository-pattern.html" class="next">Repository Pattern</a>
+                </nav>
+
+            
+        <footer class="page-footer">
+          Built with 💜 by <a href="https://akwasi.dev" target="_blank" rel="noopener noreferrer">Akwasi Adu-Kyeremeh</a> for developers who want to truly understand what they're building.
+        </footer>
+
+      </div>
+        </main>
+    </div>
+</body>
+
+</html>

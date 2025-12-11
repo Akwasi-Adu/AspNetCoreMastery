@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Razor Syntax | ASP.NET Core Mastery</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;500&family=Source+Serif+4:ital,wght@0,400;0,600;1,400&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="../assets/style.css">
+</head>
+
+<body>
+    <div class="page-wrapper">
+        <aside class="sidebar">
+            <a href="../index.html" class="sidebar-logo">ASP.NET Core Mastery</a>
+            <div class="sidebar-section">Part X: MVC & Views</div>
+            <ul class="sidebar-nav">
+                <li><a href="01-mvc-architecture.html">MVC Architecture</a></li>
+                <li><a href="02-controllers-for-views.html">Controllers for Views</a></li>
+                <li><a href="03-razor-syntax.html" class="active">Razor Syntax</a></li>
+                <li><a href="04-layouts-partials.html">Layouts and Partials</a></li>
+                <li><a href="05-view-components.html">View Components</a></li>
+                <li><a href="06-tag-helpers.html">Tag Helpers</a></li>
+            </ul>
+            <div class="sidebar-section">Resources</div>
+            <ul class="sidebar-nav">
+                <li><a href="../index.html">Full Roadmap</a></li>
+            </ul>
+        </aside>
+
+        <main class="main-content">
+            <div class="content-container">
+                <nav class="breadcrumb">
+                    <a href="../index.html">Home</a>
+                    <span>→</span>
+                    <a href="01-mvc-architecture.html">Part X: MVC & Views</a>
+                    <span>→</span>
+                    Razor Syntax
+                </nav>
+
+                <div class="progress-indicator">
+                    <span>Section 3 of 6</span>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 50%"></div>
+                    </div>
+                </div>
+
+                <h1>Razor Syntax</h1>
+
+                <div class="learning-objectives">
+                    <h3>🎯 What You'll Learn</h3>
+                    <ul>
+                        <li>Razor basics</li>
+                        <li>Expressions and code blocks</li>
+                        <li>Control structures</li>
+                        <li>HTML helpers</li>
+                        <li>Razor directives</li>
+                        <li>Comments</li>
+                    </ul>
+                </div>
+
+                <h2>What is Razor?</h2>
+
+                <p>
+                    <strong>Razor</strong> is a markup syntax for embedding C# code into HTML. It uses the
+                    <code>@</code> symbol to transition from HTML to C#.
+                </p>
+
+                <div class="section-divider"></div>
+
+                <h2>Razor Expressions</h2>
+
+                <h3>Inline Expressions</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">Output C# Values</span>
+                    <span class="code-language">HTML</span>
+                </div>
+                <pre><code><span class="code-tag">@model</span> <span class="code-class">Product</span>
+
+&lt;<span class="code-tag">h1</span>&gt;<span class="code-tag">@Model</span>.<span class="code-variable">Name</span>&lt;/<span class="code-tag">h1</span>&gt;
+&lt;<span class="code-tag">p</span>&gt;Price: $<span class="code-tag">@Model</span>.<span class="code-variable">Price</span>&lt;/<span class="code-tag">p</span>&gt;
+&lt;<span class="code-tag">p</span>&gt;Total: $<span class="code-tag">@</span>(<span class="code-variable">Model</span>.<span class="code-variable">Price</span> * <span class="code-variable">Model</span>.<span class="code-variable">Quantity</span>)&lt;/<span class="code-tag">p</span>&gt;</code></pre>
+
+                <h3>Explicit Expressions</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">Use Parentheses for Complex Expressions</span>
+                    <span class="code-language">HTML</span>
+                </div>
+                <pre><code>&lt;<span class="code-tag">p</span>&gt;Email: <span class="code-tag">@</span>(<span class="code-variable">user</span>.<span class="code-variable">FirstName</span> + <span class="code-string">"@example.com"</span>)&lt;/<span class="code-tag">p</span>&gt;
+&lt;<span class="code-tag">p</span>&gt;Discount: <span class="code-tag">@</span>(<span class="code-variable">Model</span>.<span class="code-variable">Price</span> * <span class="code-number">0.1</span>)&lt;/<span class="code-tag">p</span>&gt;</code></pre>
+
+                <h3>Encoding</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">HTML Encoding (Default)</span>
+                    <span class="code-language">HTML</span>
+                </div>
+                <pre><code><span class="code-comment">&lt;!-- Automatically HTML-encoded --&gt;</span>
+&lt;<span class="code-tag">p</span>&gt;<span class="code-tag">@Model</span>.<span class="code-variable">Description</span>&lt;/<span class="code-tag">p</span>&gt;
+
+<span class="code-comment">&lt;!-- Raw HTML (use with caution!) --&gt;</span>
+&lt;<span class="code-tag">p</span>&gt;<span class="code-tag">@Html</span>.<span class="code-method">Raw</span>(<span class="code-variable">Model</span>.<span class="code-variable">HtmlContent</span>)&lt;/<span class="code-tag">p</span>&gt;</code></pre>
+
+                <div class="section-divider"></div>
+
+                <h2>Code Blocks</h2>
+
+                <div class="code-header">
+                    <span class="code-filename">Multi-Line C# Code</span>
+                    <span class="code-language">HTML</span>
+                </div>
+                <pre><code><span class="code-tag">@</span>{
+    <span class="code-keyword">var</span> <span class="code-variable">total</span> = <span class="code-variable">Model</span>.<span class="code-variable">Price</span> * <span class="code-variable">Model</span>.<span class="code-variable">Quantity</span>;
+    <span class="code-keyword">var</span> <span class="code-variable">discount</span> = <span class="code-variable">total</span> * <span class="code-number">0.1m</span>;
+    <span class="code-keyword">var</span> <span class="code-variable">finalPrice</span> = <span class="code-variable">total</span> - <span class="code-variable">discount</span>;
+}
+
+&lt;<span class="code-tag">p</span>&gt;Total: $<span class="code-tag">@total</span>&lt;/<span class="code-tag">p</span>&gt;
+&lt;<span class="code-tag">p</span>&gt;Discount: $<span class="code-tag">@discount</span>&lt;/<span class="code-tag">p</span>&gt;
+&lt;<span class="code-tag">p</span>&gt;Final Price: $<span class="code-tag">@finalPrice</span>&lt;/<span class="code-tag">p</span>&gt;</code></pre>
+
+                <div class="section-divider"></div>
+
+                <h2>Control Structures</h2>
+
+                <h3>If Statements</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">Conditional Rendering</span>
+                    <span class="code-language">HTML</span>
+                </div>
+                <pre><code><span class="code-tag">@if</span> (<span class="code-variable">Model</span>.<span class="code-variable">Quantity</span> > <span class="code-number">0</span>)
+{
+    &lt;<span class="code-tag">span</span> <span class="code-attribute">class</span>=<span class="code-string">"badge badge-success"</span>&gt;In Stock&lt;/<span class="code-tag">span</span>&gt;
+}
+<span class="code-tag">@else</span> <span class="code-tag">if</span> (<span class="code-variable">Model</span>.<span class="code-variable">Quantity</span> == <span class="code-number">0</span>)
+{
+    &lt;<span class="code-tag">span</span> <span class="code-attribute">class</span>=<span class="code-string">"badge badge-warning"</span>&gt;Out of Stock&lt;/<span class="code-tag">span</span>&gt;
+}
+<span class="code-tag">@else</span>
+{
+    &lt;<span class="code-tag">span</span> <span class="code-attribute">class</span>=<span class="code-string">"badge badge-danger"</span>&gt;Discontinued&lt;/<span class="code-tag">span</span>&gt;
+}</code></pre>
+
+                <h3>Foreach Loops</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">Iterate Over Collections</span>
+                    <span class="code-language">HTML</span>
+                </div>
+                <pre><code><span class="code-tag">@model</span> <span class="code-class">List</span>&lt;<span class="code-class">Product</span>&gt;
+
+&lt;<span class="code-tag">ul</span>&gt;
+    <span class="code-tag">@foreach</span> (<span class="code-keyword">var</span> <span class="code-variable">product</span> <span class="code-keyword">in</span> <span class="code-variable">Model</span>)
+    {
+        &lt;<span class="code-tag">li</span>&gt;<span class="code-tag">@product</span>.<span class="code-variable">Name</span> - $<span class="code-tag">@product</span>.<span class="code-variable">Price</span>&lt;/<span class="code-tag">li</span>&gt;
+    }
+&lt;/<span class="code-tag">ul</span>&gt;</code></pre>
+
+                <h3>For Loops</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">Index-Based Iteration</span>
+                    <span class="code-language">HTML</span>
+                </div>
+                <pre><code>&lt;<span class="code-tag">table</span>&gt;
+    <span class="code-tag">@for</span> (<span class="code-type">int</span> <span class="code-variable">i</span> = <span class="code-number">0</span>; <span class="code-variable">i</span> &lt; <span class="code-variable">Model</span>.<span class="code-variable">Count</span>; <span class="code-variable">i</span>++)
+    {
+        &lt;<span class="code-tag">tr</span>&gt;
+            &lt;<span class="code-tag">td</span>&gt;<span class="code-tag">@</span>(<span class="code-variable">i</span> + <span class="code-number">1</span>)&lt;/<span class="code-tag">td</span>&gt;
+            &lt;<span class="code-tag">td</span>&gt;<span class="code-tag">@Model</span>[<span class="code-variable">i</span>].<span class="code-variable">Name</span>&lt;/<span class="code-tag">td</span>&gt;
+        &lt;/<span class="code-tag">tr</span>&gt;
+    }
+&lt;/<span class="code-tag">table</span>&gt;</code></pre>
+
+                <h3>Switch Statements</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">Switch Expression</span>
+                    <span class="code-language">HTML</span>
+                </div>
+                <pre><code><span class="code-tag">@switch</span> (<span class="code-variable">Model</span>.<span class="code-variable">Status</span>)
+{
+    <span class="code-keyword">case</span> <span class="code-string">"Active"</span>:
+        &lt;<span class="code-tag">span</span> <span class="code-attribute">class</span>=<span class="code-string">"badge badge-success"</span>&gt;Active&lt;/<span class="code-tag">span</span>&gt;
+        <span class="code-keyword">break</span>;
+    <span class="code-keyword">case</span> <span class="code-string">"Pending"</span>:
+        &lt;<span class="code-tag">span</span> <span class="code-attribute">class</span>=<span class="code-string">"badge badge-warning"</span>&gt;Pending&lt;/<span class="code-tag">span</span>&gt;
+        <span class="code-keyword">break</span>;
+    <span class="code-keyword">default</span>:
+        &lt;<span class="code-tag">span</span> <span class="code-attribute">class</span>=<span class="code-string">"badge badge-secondary"</span>&gt;Unknown&lt;/<span class="code-tag">span</span>&gt;
+        <span class="code-keyword">break</span>;
+}</code></pre>
+
+                <div class="section-divider"></div>
+
+                <h2>Razor Directives</h2>
+
+                <h3>@model</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">Specify Model Type</span>
+                    <span class="code-language">HTML</span>
+                </div>
+                <pre><code><span class="code-tag">@model</span> <span class="code-class">Product</span>
+<span class="code-tag">@model</span> <span class="code-class">List</span>&lt;<span class="code-class">Product</span>&gt;
+<span class="code-tag">@model</span> <span class="code-class">IEnumerable</span>&lt;<span class="code-class">Product</span>&gt;</code></pre>
+
+                <h3>@using</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">Import Namespaces</span>
+                    <span class="code-language">HTML</span>
+                </div>
+                <pre><code><span class="code-tag">@using</span> <span class="code-class">InvenTrack</span>.<span class="code-class">Models</span>
+<span class="code-tag">@using</span> <span class="code-class">System</span>.<span class="code-class">Linq</span>
+
+&lt;<span class="code-tag">p</span>&gt;<span class="code-tag">@DateTime</span>.<span class="code-variable">Now</span>&lt;/<span class="code-tag">p</span>&gt;</code></pre>
+
+                <h3>@inject</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">Dependency Injection in Views</span>
+                    <span class="code-language">HTML</span>
+                </div>
+                <pre><code><span class="code-tag">@inject</span> <span class="code-class">IConfiguration</span> <span class="code-variable">Configuration</span>
+
+&lt;<span class="code-tag">p</span>&gt;App Name: <span class="code-tag">@Configuration</span>[<span class="code-string">"AppName"</span>]&lt;/<span class="code-tag">p</span>&gt;</code></pre>
+
+                <h3>@section</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">Define Content Sections</span>
+                    <span class="code-language">HTML</span>
+                </div>
+                <pre><code><span class="code-tag">@section</span> <span class="code-variable">Scripts</span> {
+    &lt;<span class="code-tag">script</span> <span class="code-attribute">src</span>=<span class="code-string">"~/js/products.js"</span>&gt;&lt;/<span class="code-tag">script</span>&gt;
+}</code></pre>
+
+                <div class="section-divider"></div>
+
+                <h2>Comments</h2>
+
+                <div class="code-header">
+                    <span class="code-filename">Razor Comments</span>
+                    <span class="code-language">HTML</span>
+                </div>
+                <pre><code><span class="code-comment">@* This is a Razor comment (not sent to browser) *@</span>
+
+<span class="code-comment">&lt;!-- This is an HTML comment (sent to browser) --&gt;</span>
+
+<span class="code-tag">@</span>{
+    <span class="code-comment">// This is a C# comment</span>
+    <span class="code-comment">/* Multi-line
+       C# comment */</span>
+}</code></pre>
+
+                <div class="section-divider"></div>
+
+                <h2>HTML Helpers</h2>
+
+                <h3>Form Helpers</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">Generate Form Elements</span>
+                    <span class="code-language">HTML</span>
+                </div>
+                <pre><code><span class="code-tag">@model</span> <span class="code-class">Product</span>
+
+<span class="code-tag">@using</span> (<span class="code-class">Html</span>.<span class="code-method">BeginForm</span>())
+{
+    <span class="code-tag">@Html</span>.<span class="code-method">LabelFor</span>(<span class="code-variable">m</span> => <span class="code-variable">m</span>.<span class="code-variable">Name</span>)
+    <span class="code-tag">@Html</span>.<span class="code-method">TextBoxFor</span>(<span class="code-variable">m</span> => <span class="code-variable">m</span>.<span class="code-variable">Name</span>)
+    <span class="code-tag">@Html</span>.<span class="code-method">ValidationMessageFor</span>(<span class="code-variable">m</span> => <span class="code-variable">m</span>.<span class="code-variable">Name</span>)
+
+    &lt;<span class="code-tag">button</span> <span class="code-attribute">type</span>=<span class="code-string">"submit"</span>&gt;Save&lt;/<span class="code-tag">button</span>&gt;
+}</code></pre>
+
+                <h3>Display Helpers</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">Display Model Properties</span>
+                    <span class="code-language">HTML</span>
+                </div>
+                <pre><code><span class="code-tag">@Html</span>.<span class="code-method">DisplayNameFor</span>(<span class="code-variable">m</span> => <span class="code-variable">m</span>.<span class="code-variable">Name</span>)
+<span class="code-tag">@Html</span>.<span class="code-method">DisplayFor</span>(<span class="code-variable">m</span> => <span class="code-variable">m</span>.<span class="code-variable">Name</span>)</code></pre>
+
+                <h3>URL Helpers</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">Generate URLs</span>
+                    <span class="code-language">HTML</span>
+                </div>
+                <pre><code>&lt;<span class="code-tag">a</span> <span class="code-attribute">href</span>=<span class="code-string">"@Url.Action("</span><span class="code-variable">Index</span><span class="code-string">", "</span><span class="code-variable">Products</span><span class="code-string">")"</span>&gt;Products&lt;/<span class="code-tag">a</span>&gt;
+&lt;<span class="code-tag">a</span> <span class="code-attribute">href</span>=<span class="code-string">"@Url.Action("</span><span class="code-variable">Details</span><span class="code-string">", new { id = 5 })"</span>&gt;Details&lt;/<span class="code-tag">a</span>&gt;</code></pre>
+
+                <h2>Complete InvenTrack Example</h2>
+
+                <div class="code-header">
+                    <span class="code-filename">Views/Products/Index.cshtml</span>
+                    <span class="code-language">HTML</span>
+                </div>
+                <pre><code><span class="code-tag">@model</span> <span class="code-class">List</span>&lt;<span class="code-class">Product</span>&gt;
+
+<span class="code-tag">@</span>{
+    <span class="code-variable">ViewData</span>[<span class="code-string">"Title"</span>] = <span class="code-string">"Products"</span>;
+    <span class="code-keyword">var</span> <span class="code-variable">totalValue</span> = <span class="code-variable">Model</span>.<span class="code-method">Sum</span>(<span class="code-variable">p</span> => <span class="code-variable">p</span>.<span class="code-variable">Price</span> * <span class="code-variable">p</span>.<span class="code-variable">Quantity</span>);
+}
+
+&lt;<span class="code-tag">div</span> <span class="code-attribute">class</span>=<span class="code-string">"container"</span>&gt;
+    &lt;<span class="code-tag">h1</span>&gt;InvenTrack Products&lt;/<span class="code-tag">h1</span>&gt;
+
+    <span class="code-tag">@if</span> (<span class="code-variable">TempData</span>[<span class="code-string">"Success"</span>] != <span class="code-keyword">null</span>)
+    {
+        &lt;<span class="code-tag">div</span> <span class="code-attribute">class</span>=<span class="code-string">"alert alert-success"</span>&gt;
+            <span class="code-tag">@TempData</span>[<span class="code-string">"Success"</span>]
+        &lt;/<span class="code-tag">div</span>&gt;
+    }
+
+    &lt;<span class="code-tag">div</span> <span class="code-attribute">class</span>=<span class="code-string">"mb-3"</span>&gt;
+        &lt;<span class="code-tag">a</span> <span class="code-attribute">asp-action</span>=<span class="code-string">"Create"</span> <span class="code-attribute">class</span>=<span class="code-string">"btn btn-primary"</span>&gt;Add New Product&lt;/<span class="code-tag">a</span>&gt;
+    &lt;/<span class="code-tag">div</span>&gt;
+
+    <span class="code-tag">@if</span> (<span class="code-variable">Model</span>.<span class="code-variable">Count</span> == <span class="code-number">0</span>)
+    {
+        &lt;<span class="code-tag">p</span>&gt;No products found.&lt;/<span class="code-tag">p</span>&gt;
+    }
+    <span class="code-tag">@else</span>
+    {
+        &lt;<span class="code-tag">table</span> <span class="code-attribute">class</span>=<span class="code-string">"table table-striped"</span>&gt;
+            &lt;<span class="code-tag">thead</span>&gt;
+                &lt;<span class="code-tag">tr</span>&gt;
+                    &lt;<span class="code-tag">th</span>&gt;Name&lt;/<span class="code-tag">th</span>&gt;
+                    &lt;<span class="code-tag">th</span>&gt;Category&lt;/<span class="code-tag">th</span>&gt;
+                    &lt;<span class="code-tag">th</span>&gt;Price&lt;/<span class="code-tag">th</span>&gt;
+                    &lt;<span class="code-tag">th</span>&gt;Quantity&lt;/<span class="code-tag">th</span>&gt;
+                    &lt;<span class="code-tag">th</span>&gt;Status&lt;/<span class="code-tag">th</span>&gt;
+                    &lt;<span class="code-tag">th</span>&gt;Actions&lt;/<span class="code-tag">th</span>&gt;
+                &lt;/<span class="code-tag">tr</span>&gt;
+            &lt;/<span class="code-tag">thead</span>&gt;
+            &lt;<span class="code-tag">tbody</span>&gt;
+                <span class="code-tag">@foreach</span> (<span class="code-keyword">var</span> <span class="code-variable">product</span> <span class="code-keyword">in</span> <span class="code-variable">Model</span>)
+                {
+                    &lt;<span class="code-tag">tr</span>&gt;
+                        &lt;<span class="code-tag">td</span>&gt;<span class="code-tag">@product</span>.<span class="code-variable">Name</span>&lt;/<span class="code-tag">td</span>&gt;
+                        &lt;<span class="code-tag">td</span>&gt;<span class="code-tag">@product</span>.<span class="code-variable">Category</span>&lt;/<span class="code-tag">td</span>&gt;
+                        &lt;<span class="code-tag">td</span>&gt;$<span class="code-tag">@product</span>.<span class="code-variable">Price</span>.<span class="code-method">ToString</span>(<span class="code-string">"F2"</span>)&lt;/<span class="code-tag">td</span>&gt;
+                        &lt;<span class="code-tag">td</span>&gt;<span class="code-tag">@product</span>.<span class="code-variable">Quantity</span>&lt;/<span class="code-tag">td</span>&gt;
+                        &lt;<span class="code-tag">td</span>&gt;
+                            <span class="code-tag">@if</span> (<span class="code-variable">product</span>.<span class="code-variable">Quantity</span> > <span class="code-number">10</span>)
+                            {
+                                &lt;<span class="code-tag">span</span> <span class="code-attribute">class</span>=<span class="code-string">"badge bg-success"</span>&gt;In Stock&lt;/<span class="code-tag">span</span>&gt;
+                            }
+                            <span class="code-tag">@else</span> <span class="code-tag">if</span> (<span class="code-variable">product</span>.<span class="code-variable">Quantity</span> > <span class="code-number">0</span>)
+                            {
+                                &lt;<span class="code-tag">span</span> <span class="code-attribute">class</span>=<span class="code-string">"badge bg-warning"</span>&gt;Low Stock&lt;/<span class="code-tag">span</span>&gt;
+                            }
+                            <span class="code-tag">@else</span>
+                            {
+                                &lt;<span class="code-tag">span</span> <span class="code-attribute">class</span>=<span class="code-string">"badge bg-danger"</span>&gt;Out of Stock&lt;/<span class="code-tag">span</span>&gt;
+                            }
+                        &lt;/<span class="code-tag">td</span>&gt;
+                        &lt;<span class="code-tag">td</span>&gt;
+                            &lt;<span class="code-tag">a</span> <span class="code-attribute">asp-action</span>=<span class="code-string">"Details"</span> <span class="code-attribute">asp-route-id</span>=<span class="code-string">"@product.Id"</span> <span class="code-attribute">class</span>=<span class="code-string">"btn btn-sm btn-info"</span>&gt;Details&lt;/<span class="code-tag">a</span>&gt;
+                            &lt;<span class="code-tag">a</span> <span class="code-attribute">asp-action</span>=<span class="code-string">"Edit"</span> <span class="code-attribute">asp-route-id</span>=<span class="code-string">"@product.Id"</span> <span class="code-attribute">class</span>=<span class="code-string">"btn btn-sm btn-warning"</span>&gt;Edit&lt;/<span class="code-tag">a</span>&gt;
+                        &lt;/<span class="code-tag">td</span>&gt;
+                    &lt;/<span class="code-tag">tr</span>&gt;
+                }
+            &lt;/<span class="code-tag">tbody</span>&gt;
+        &lt;/<span class="code-tag">table</span>&gt;
+
+        &lt;<span class="code-tag">div</span> <span class="code-attribute">class</span>=<span class="code-string">"alert alert-info"</span>&gt;
+            Total Products: <span class="code-tag">@Model</span>.<span class="code-variable">Count</span> | Total Inventory Value: $<span class="code-tag">@totalValue</span>.<span class="code-method">ToString</span>(<span class="code-string">"F2"</span>)
+        &lt;/<span class="code-tag">div</span>&gt;
+    }
+&lt;/<span class="code-tag">div</span>&gt;
+
+<span class="code-tag">@section</span> <span class="code-variable">Scripts</span> {
+    &lt;<span class="code-tag">script</span>&gt;
+        <span class="code-class">console</span>.<span class="code-method">log</span>(<span class="code-string">'Products page loaded'</span>);
+    &lt;/<span class="code-tag">script</span>&gt;
+}</code></pre>
+
+                <h2>Best Practices</h2>
+
+                <ul>
+                    <li><strong>Use @ for C#</strong>: Transition from HTML to C# with @</li>
+                    <li><strong>Parentheses for complex expressions</strong>: @(expression)</li>
+                    <li><strong>HTML encoding</strong>: Razor automatically encodes output</li>
+                    <li><strong>Avoid logic in views</strong>: Keep views simple, logic in controllers</li>
+                    <li><strong>Use Tag Helpers</strong>: Prefer over HTML Helpers (next sections)</li>
+                    <li><strong>Razor comments</strong>: Use @* *@ for comments not sent to browser</li>
+                </ul>
+
+                <h2>Key Takeaways</h2>
+
+                <ul>
+                    <li><strong>Razor</strong>: Markup syntax for embedding C# in HTML</li>
+                    <li><strong>@</strong>: Transition from HTML to C#</li>
+                    <li><strong>@model</strong>: Specify view model type</li>
+                    <li><strong>@if/@foreach</strong>: Control structures</li>
+                    <li><strong>@{}</strong>: Code blocks</li>
+                    <li><strong>@using/@inject</strong>: Import namespaces, inject services</li>
+                    <li><strong>@section</strong>: Define content sections</li>
+                    <li><strong>HTML Helpers</strong>: Generate form elements</li>
+                </ul>
+
+                <div class="callout callout-concept">
+                    <div class="callout-title">🎯 Next Steps</div>
+                    <p>
+                        You now understand Razor syntax! In the next section, we'll explore
+                        <strong>Layouts and Partials</strong>—how to create reusable page templates
+                        and shared UI components.
+                    </p>
+                </div>
+
+                <nav class="page-nav">
+                    <a href="02-controllers-for-views.html" class="prev">Controllers for Views</a>
+                    <a href="04-layouts-partials.html" class="next">Layouts and Partials</a>
+                </nav>
+
+            
+        <footer class="page-footer">
+          Built with 💜 by <a href="https://akwasi.dev" target="_blank" rel="noopener noreferrer">Akwasi Adu-Kyeremeh</a> for developers who want to truly understand what they're building.
+        </footer>
+
+      </div>
+        </main>
+    </div>
+</body>
+
+</html>

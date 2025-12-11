@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Handlers | ASP.NET Core Mastery</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;500&family=Source+Serif+4:ital,wght@0,400;0,600;1,400&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="../assets/style.css">
+</head>
+
+<body>
+    <div class="page-wrapper">
+        <aside class="sidebar">
+            <a href="../index.html" class="sidebar-logo">ASP.NET Core Mastery</a>
+            <div class="sidebar-section">Part XI: Razor Pages</div>
+            <ul class="sidebar-nav">
+                <li><a href="01-what-are-razor-pages.html">What are Razor Pages?</a></li>
+                <li><a href="02-page-model-pattern.html">Page Model Pattern</a></li>
+                <li><a href="03-handlers.html" class="active">Handlers (OnGet, OnPost)</a></li>
+                <li><a href="04-forms-validation.html">Forms and Validation</a></li>
+                <li><a href="05-razor-pages-vs-mvc.html">Razor Pages vs MVC</a></li>
+            </ul>
+            <div class="sidebar-section">Resources</div>
+            <ul class="sidebar-nav">
+                <li><a href="../index.html">Full Roadmap</a></li>
+            </ul>
+        </aside>
+
+        <main class="main-content">
+            <div class="content-container">
+                <nav class="breadcrumb">
+                    <a href="../index.html">Home</a>
+                    <span>→</span>
+                    <a href="01-what-are-razor-pages.html">Part XI: Razor Pages</a>
+                    <span>→</span>
+                    Handlers
+                </nav>
+
+                <div class="progress-indicator">
+                    <span>Section 3 of 5</span>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 60%"></div>
+                    </div>
+                </div>
+
+                <h1>Handlers (OnGet, OnPost)</h1>
+
+                <div class="learning-objectives">
+                    <h3>🎯 What You'll Learn</h3>
+                    <ul>
+                        <li>Handler methods</li>
+                        <li>OnGet and OnPost</li>
+                        <li>Named handlers</li>
+                        <li>Handler parameters</li>
+                        <li>Async handlers</li>
+                    </ul>
+                </div>
+
+                <h2>What are Handlers?</h2>
+
+                <p>
+                    <strong>Handlers</strong> are methods in PageModel that respond to HTTP requests (GET, POST, etc.).
+                </p>
+
+                <div class="section-divider"></div>
+
+                <h2>OnGet Handler</h2>
+
+                <p>Handles HTTP GET requests (displaying pages).</p>
+
+                <div class="code-header">
+                    <span class="code-filename">OnGet Handler</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">IndexModel</span> : <span class="code-class">PageModel</span>
+{
+    <span class="code-keyword">public</span> <span class="code-class">List</span>&lt;<span class="code-class">Product</span>&gt; <span class="code-variable">Products</span> { <span class="code-keyword">get</span>; <span class="code-keyword">set</span>; } = <span class="code-keyword">new</span>();
+
+    <span class="code-keyword">public</span> <span class="code-keyword">async</span> <span class="code-class">Task</span> <span class="code-method">OnGetAsync</span>()
+    {
+        <span class="code-variable">Products</span> = <span class="code-keyword">await</span> <span class="code-variable">_context</span>.<span class="code-variable">Products</span>.<span class="code-method">ToListAsync</span>();
+    }
+}</code></pre>
+
+                <div class="section-divider"></div>
+
+                <h2>OnPost Handler</h2>
+
+                <p>Handles HTTP POST requests (form submissions).</p>
+
+                <div class="code-header">
+                    <span class="code-filename">OnPost Handler</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">CreateModel</span> : <span class="code-class">PageModel</span>
+{
+    [<span class="code-class">BindProperty</span>]
+    <span class="code-keyword">public</span> <span class="code-class">Product</span> <span class="code-variable">Product</span> { <span class="code-keyword">get</span>; <span class="code-keyword">set</span>; } = <span class="code-keyword">new</span>();
+
+    <span class="code-keyword">public</span> <span class="code-class">IActionResult</span> <span class="code-method">OnGet</span>()
+    {
+        <span class="code-keyword">return</span> <span class="code-method">Page</span>();
+    }
+
+    <span class="code-keyword">public</span> <span class="code-keyword">async</span> <span class="code-class">Task</span>&lt;<span class="code-class">IActionResult</span>&gt; <span class="code-method">OnPostAsync</span>()
+    {
+        <span class="code-keyword">if</span> (!<span class="code-variable">ModelState</span>.<span class="code-variable">IsValid</span>)
+            <span class="code-keyword">return</span> <span class="code-method">Page</span>();
+
+        <span class="code-variable">_context</span>.<span class="code-variable">Products</span>.<span class="code-method">Add</span>(<span class="code-variable">Product</span>);
+        <span class="code-keyword">await</span> <span class="code-variable">_context</span>.<span class="code-method">SaveChangesAsync</span>();
+
+        <span class="code-keyword">return</span> <span class="code-method">RedirectToPage</span>(<span class="code-string">"Index"</span>);
+    }
+}</code></pre>
+
+                <div class="section-divider"></div>
+
+                <h2>Named Handlers</h2>
+
+                <p>Handle multiple actions on the same page.</p>
+
+                <div class="code-header">
+                    <span class="code-filename">Named Handlers</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">ProductModel</span> : <span class="code-class">PageModel</span>
+{
+    <span class="code-keyword">public</span> <span class="code-class">IActionResult</span> <span class="code-method">OnPostDelete</span>(<span class="code-type">int</span> <span class="code-variable">id</span>)
+    {
+        <span class="code-comment">// Delete product</span>
+        <span class="code-keyword">return</span> <span class="code-method">RedirectToPage</span>();
+    }
+
+    <span class="code-keyword">public</span> <span class="code-class">IActionResult</span> <span class="code-method">OnPostApprove</span>(<span class="code-type">int</span> <span class="code-variable">id</span>)
+    {
+        <span class="code-comment">// Approve product</span>
+        <span class="code-keyword">return</span> <span class="code-method">RedirectToPage</span>();
+    }
+}</code></pre>
+
+                <div class="code-header">
+                    <span class="code-filename">Call Named Handler in View</span>
+                    <span class="code-language">HTML</span>
+                </div>
+                <pre><code>&lt;<span class="code-tag">form</span> <span class="code-attribute">method</span>=<span class="code-string">"post"</span> <span class="code-attribute">asp-page-handler</span>=<span class="code-string">"Delete"</span>&gt;
+    &lt;<span class="code-tag">button</span> <span class="code-attribute">type</span>=<span class="code-string">"submit"</span>&gt;Delete&lt;/<span class="code-tag">button</span>&gt;
+&lt;/<span class="code-tag">form</span>&gt;
+
+&lt;<span class="code-tag">form</span> <span class="code-attribute">method</span>=<span class="code-string">"post"</span> <span class="code-attribute">asp-page-handler</span>=<span class="code-string">"Approve"</span>&gt;
+    &lt;<span class="code-tag">button</span> <span class="code-attribute">type</span>=<span class="code-string">"submit"</span>&gt;Approve&lt;/<span class="code-tag">button</span>&gt;
+&lt;/<span class="code-tag">form</span>&gt;</code></pre>
+
+                <div class="section-divider"></div>
+
+                <h2>Handler Parameters</h2>
+
+                <div class="code-header">
+                    <span class="code-filename">Route and Query Parameters</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-comment">// Route parameter: @page "{id:int}"</span>
+<span class="code-keyword">public</span> <span class="code-keyword">async</span> <span class="code-class">Task</span> <span class="code-method">OnGetAsync</span>(<span class="code-type">int</span> <span class="code-variable">id</span>)
+{
+    <span class="code-variable">Product</span> = <span class="code-keyword">await</span> <span class="code-variable">_context</span>.<span class="code-variable">Products</span>.<span class="code-method">FindAsync</span>(<span class="code-variable">id</span>);
+}
+
+<span class="code-comment">// Query parameter: ?search=laptop</span>
+<span class="code-keyword">public</span> <span class="code-keyword">async</span> <span class="code-class">Task</span> <span class="code-method">OnGetAsync</span>(<span class="code-type">string</span>? <span class="code-variable">search</span>)
+{
+    <span class="code-keyword">var</span> <span class="code-variable">query</span> = <span class="code-variable">_context</span>.<span class="code-variable">Products</span>.<span class="code-method">AsQueryable</span>();
+    <span class="code-keyword">if</span> (!<span class="code-type">string</span>.<span class="code-method">IsNullOrEmpty</span>(<span class="code-variable">search</span>))
+        <span class="code-variable">query</span> = <span class="code-variable">query</span>.<span class="code-method">Where</span>(<span class="code-variable">p</span> => <span class="code-variable">p</span>.<span class="code-variable">Name</span>.<span class="code-method">Contains</span>(<span class="code-variable">search</span>));
+    
+    <span class="code-variable">Products</span> = <span class="code-keyword">await</span> <span class="code-variable">query</span>.<span class="code-method">ToListAsync</span>();
+}</code></pre>
+
+                <h2>Complete InvenTrack Example</h2>
+
+                <div class="code-header">
+                    <span class="code-filename">Pages/Products/Edit.cshtml.cs</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">EditModel</span> : <span class="code-class">PageModel</span>
+{
+    <span class="code-keyword">private</span> <span class="code-keyword">readonly</span> <span class="code-class">InvenTrackDbContext</span> <span class="code-variable">_context</span>;
+
+    <span class="code-keyword">public</span> <span class="code-method">EditModel</span>(<span class="code-class">InvenTrackDbContext</span> <span class="code-variable">context</span>) => <span class="code-variable">_context</span> = <span class="code-variable">context</span>;
+
+    [<span class="code-class">BindProperty</span>]
+    <span class="code-keyword">public</span> <span class="code-class">Product</span> <span class="code-variable">Product</span> { <span class="code-keyword">get</span>; <span class="code-keyword">set</span>; } = <span class="code-keyword">new</span>();
+
+    <span class="code-keyword">public</span> <span class="code-keyword">async</span> <span class="code-class">Task</span>&lt;<span class="code-class">IActionResult</span>&gt; <span class="code-method">OnGetAsync</span>(<span class="code-type">int</span> <span class="code-variable">id</span>)
+    {
+        <span class="code-variable">Product</span> = <span class="code-keyword">await</span> <span class="code-variable">_context</span>.<span class="code-variable">Products</span>.<span class="code-method">FindAsync</span>(<span class="code-variable">id</span>);
+        <span class="code-keyword">if</span> (<span class="code-variable">Product</span> == <span class="code-keyword">null</span>)
+            <span class="code-keyword">return</span> <span class="code-method">NotFound</span>();
+
+        <span class="code-keyword">return</span> <span class="code-method">Page</span>();
+    }
+
+    <span class="code-keyword">public</span> <span class="code-keyword">async</span> <span class="code-class">Task</span>&lt;<span class="code-class">IActionResult</span>&gt; <span class="code-method">OnPostAsync</span>()
+    {
+        <span class="code-keyword">if</span> (!<span class="code-variable">ModelState</span>.<span class="code-variable">IsValid</span>)
+            <span class="code-keyword">return</span> <span class="code-method">Page</span>();
+
+        <span class="code-variable">_context</span>.<span class="code-method">Update</span>(<span class="code-variable">Product</span>);
+        <span class="code-keyword">await</span> <span class="code-variable">_context</span>.<span class="code-method">SaveChangesAsync</span>();
+
+        <span class="code-variable">TempData</span>[<span class="code-string">"Success"</span>] = <span class="code-string">"Product updated!"</span>;
+        <span class="code-keyword">return</span> <span class="code-method">RedirectToPage</span>(<span class="code-string">"Index"</span>);
+    }
+
+    <span class="code-keyword">public</span> <span class="code-keyword">async</span> <span class="code-class">Task</span>&lt;<span class="code-class">IActionResult</span>&gt; <span class="code-method">OnPostDeleteAsync</span>(<span class="code-type">int</span> <span class="code-variable">id</span>)
+    {
+        <span class="code-keyword">var</span> <span class="code-variable">product</span> = <span class="code-keyword">await</span> <span class="code-variable">_context</span>.<span class="code-variable">Products</span>.<span class="code-method">FindAsync</span>(<span class="code-variable">id</span>);
+        <span class="code-keyword">if</span> (<span class="code-variable">product</span> != <span class="code-keyword">null</span>)
+        {
+            <span class="code-variable">_context</span>.<span class="code-variable">Products</span>.<span class="code-method">Remove</span>(<span class="code-variable">product</span>);
+            <span class="code-keyword">await</span> <span class="code-variable">_context</span>.<span class="code-method">SaveChangesAsync</span>();
+            <span class="code-variable">TempData</span>[<span class="code-string">"Success"</span>] = <span class="code-string">"Product deleted!"</span>;
+        }
+
+        <span class="code-keyword">return</span> <span class="code-method">RedirectToPage</span>(<span class="code-string">"Index"</span>);
+    }
+}</code></pre>
+
+                <h2>Key Takeaways</h2>
+
+                <ul>
+                    <li><strong>OnGet</strong>: Handles GET requests</li>
+                    <li><strong>OnPost</strong>: Handles POST requests</li>
+                    <li><strong>Named handlers</strong>: OnPost{Name} for multiple actions</li>
+                    <li><strong>asp-page-handler</strong>: Specify handler in view</li>
+                    <li><strong>Parameters</strong>: Route and query parameters</li>
+                    <li><strong>Async</strong>: Use OnGetAsync/OnPostAsync</li>
+                </ul>
+
+                <nav class="page-nav">
+                    <a href="02-page-model-pattern.html" class="prev">Page Model Pattern</a>
+                    <a href="04-forms-validation.html" class="next">Forms and Validation</a>
+                </nav>
+
+            
+        <footer class="page-footer">
+          Built with 💜 by <a href="https://akwasi.dev" target="_blank" rel="noopener noreferrer">Akwasi Adu-Kyeremeh</a> for developers who want to truly understand what they're building.
+        </footer>
+
+      </div>
+        </main>
+    </div>
+</body>
+
+</html>

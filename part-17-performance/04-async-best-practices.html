@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Async Best Practices | ASP.NET Core Mastery</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;500&family=Source+Serif+4:ital,wght@0,400;0,600;1,400&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="../assets/style.css">
+</head>
+
+<body>
+    <div class="page-wrapper">
+        <aside class="sidebar">
+            <a href="../index.html" class="sidebar-logo">ASP.NET Core Mastery</a>
+            <div class="sidebar-section">Part XVII: Performance</div>
+            <ul class="sidebar-nav">
+                <li><a href="01-in-memory-caching.html">In-Memory Caching</a></li>
+                <li><a href="02-distributed-caching.html">Distributed Caching</a></li>
+                <li><a href="03-response-caching.html">Response Caching</a></li>
+                <li><a href="04-async-best-practices.html" class="active">Async Best Practices</a></li>
+                <li><a href="05-ef-core-performance.html">EF Core Performance</a></li>
+                <li><a href="06-profiling-tools.html">Profiling Tools</a></li>
+            </ul>
+            <div class="sidebar-section">Resources</div>
+            <ul class="sidebar-nav">
+                <li><a href="../index.html">Full Roadmap</a></li>
+            </ul>
+        </aside>
+
+        <main class="main-content">
+            <div class="content-container">
+                <nav class="breadcrumb">
+                    <a href="../index.html">Home</a>
+                    <span>→</span>
+                    <a href="01-in-memory-caching.html">Part XVII: Performance</a>
+                    <span>→</span>
+                    Async Best Practices
+                </nav>
+
+                <div class="progress-indicator">
+                    <span>Section 4 of 6</span>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 66.67%"></div>
+                    </div>
+                </div>
+
+                <h1>Async Best Practices</h1>
+
+                <div class="learning-objectives">
+                    <h3>🎯 What You'll Learn</h3>
+                    <ul>
+                        <li>Why use async/await</li>
+                        <li>Common mistakes</li>
+                        <li>ConfigureAwait</li>
+                        <li>ValueTask</li>
+                        <li>Async all the way</li>
+                    </ul>
+                </div>
+
+                <h2>Why Use Async/Await?</h2>
+
+                <p>
+                    <strong>Async/await</strong> improves scalability by freeing threads during I/O operations
+                    (database, API calls, file access), allowing them to handle other requests.
+                </p>
+
+                <div class="section-divider"></div>
+
+                <h2>✅ Do's</h2>
+
+                <h3>1. Use Async All the Way</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">Async All the Way</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-comment">// ✅ Good</span>
+<span class="code-keyword">public</span> <span class="code-keyword">async</span> <span class="code-class">Task</span>&lt;<span class="code-class">IActionResult</span>&gt; <span class="code-method">Index</span>()
+{
+    <span class="code-keyword">var</span> <span class="code-variable">products</span> = <span class="code-keyword">await</span> <span class="code-variable">_context</span>.<span class="code-variable">Products</span>.<span class="code-method">ToListAsync</span>();
+    <span class="code-keyword">return</span> <span class="code-method">View</span>(<span class="code-variable">products</span>);
+}</code></pre>
+
+                <h3>2. Return Task Directly When Possible</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">Return Task</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-comment">// ✅ Good - no async/await needed</span>
+<span class="code-keyword">public</span> <span class="code-class">Task</span>&lt;<span class="code-class">Product</span>&gt; <span class="code-method">GetProductAsync</span>(<span class="code-type">int</span> <span class="code-variable">id</span>)
+{
+    <span class="code-keyword">return</span> <span class="code-variable">_context</span>.<span class="code-variable">Products</span>.<span class="code-method">FindAsync</span>(<span class="code-variable">id</span>).<span class="code-method">AsTask</span>();
+}</code></pre>
+
+                <div class="section-divider"></div>
+
+                <h2>❌ Don'ts</h2>
+
+                <h3>1. Don't Block on Async Code</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">Blocking (DON'T DO THIS!)</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-comment">// ❌ Bad - causes deadlocks!</span>
+<span class="code-keyword">var</span> <span class="code-variable">products</span> = <span class="code-variable">_context</span>.<span class="code-variable">Products</span>.<span class="code-method">ToListAsync</span>().<span class="code-variable">Result</span>; <span class="code-comment">// DON'T!</span>
+<span class="code-keyword">var</span> <span class="code-variable">product</span> = <span class="code-variable">_context</span>.<span class="code-variable">Products</span>.<span class="code-method">FindAsync</span>(<span class="code-number">1</span>).<span class="code-method">Wait</span>();  <span class="code-comment">// DON'T!</span>
+
+<span class="code-comment">// ✅ Good</span>
+<span class="code-keyword">var</span> <span class="code-variable">products</span> = <span class="code-keyword">await</span> <span class="code-variable">_context</span>.<span class="code-variable">Products</span>.<span class="code-method">ToListAsync</span>();</code></pre>
+
+                <h3>2. Don't Use async void</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">async void (DON'T DO THIS!)</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-comment">// ❌ Bad - can't catch exceptions!</span>
+<span class="code-keyword">public</span> <span class="code-keyword">async</span> <span class="code-keyword">void</span> <span class="code-method">ProcessOrder</span>() { }
+
+<span class="code-comment">// ✅ Good</span>
+<span class="code-keyword">public</span> <span class="code-keyword">async</span> <span class="code-class">Task</span> <span class="code-method">ProcessOrder</span>() { }</code></pre>
+
+                <h3>3. Don't Mix Sync and Async</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">Mixing (DON'T DO THIS!)</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-comment">// ❌ Bad</span>
+<span class="code-keyword">public</span> <span class="code-class">List</span>&lt;<span class="code-class">Product</span>&gt; <span class="code-method">GetProducts</span>()
+{
+    <span class="code-keyword">return</span> <span class="code-variable">_context</span>.<span class="code-variable">Products</span>.<span class="code-method">ToListAsync</span>().<span class="code-variable">Result</span>; <span class="code-comment">// Deadlock risk!</span>
+}
+
+<span class="code-comment">// ✅ Good</span>
+<span class="code-keyword">public</span> <span class="code-keyword">async</span> <span class="code-class">Task</span>&lt;<span class="code-class">List</span>&lt;<span class="code-class">Product</span>&gt;&gt; <span class="code-method">GetProductsAsync</span>()
+{
+    <span class="code-keyword">return</span> <span class="code-keyword">await</span> <span class="code-variable">_context</span>.<span class="code-variable">Products</span>.<span class="code-method">ToListAsync</span>();
+}</code></pre>
+
+                <div class="section-divider"></div>
+
+                <h2>ConfigureAwait</h2>
+
+                <p>In ASP.NET Core, you don't need ConfigureAwait(false) - there's no SynchronizationContext.</p>
+
+                <div class="code-header">
+                    <span class="code-filename">ConfigureAwait</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-comment">// ASP.NET Core - ConfigureAwait(false) not needed</span>
+<span class="code-keyword">var</span> <span class="code-variable">products</span> = <span class="code-keyword">await</span> <span class="code-variable">_context</span>.<span class="code-variable">Products</span>.<span class="code-method">ToListAsync</span>();
+
+<span class="code-comment">// Library code - use ConfigureAwait(false)</span>
+<span class="code-keyword">var</span> <span class="code-variable">products</span> = <span class="code-keyword">await</span> <span class="code-variable">_context</span>.<span class="code-variable">Products</span>.<span class="code-method">ToListAsync</span>().<span class="code-method">ConfigureAwait</span>(<span class="code-keyword">false</span>);</code></pre>
+
+                <div class="section-divider"></div>
+
+                <h2>ValueTask</h2>
+
+                <p>Use ValueTask for hot paths that often complete synchronously.</p>
+
+                <div class="code-header">
+                    <span class="code-filename">ValueTask</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-keyword">public</span> <span class="code-keyword">async</span> <span class="code-class">ValueTask</span>&lt;<span class="code-class">Product</span>&gt; <span class="code-method">GetProductAsync</span>(<span class="code-type">int</span> <span class="code-variable">id</span>)
+{
+    <span class="code-comment">// Check cache first (often returns synchronously)</span>
+    <span class="code-keyword">if</span> (<span class="code-variable">_cache</span>.<span class="code-method">TryGetValue</span>(<span class="code-variable">id</span>, <span class="code-keyword">out</span> <span class="code-class">Product</span> <span class="code-variable">product</span>))
+        <span class="code-keyword">return</span> <span class="code-variable">product</span>;
+
+    <span class="code-comment">// Fetch from database</span>
+    <span class="code-variable">product</span> = <span class="code-keyword">await</span> <span class="code-variable">_context</span>.<span class="code-variable">Products</span>.<span class="code-method">FindAsync</span>(<span class="code-variable">id</span>);
+    <span class="code-variable">_cache</span>.<span class="code-method">Set</span>(<span class="code-variable">id</span>, <span class="code-variable">product</span>);
+    <span class="code-keyword">return</span> <span class="code-variable">product</span>;
+}</code></pre>
+
+                <h2>InvenTrack Example</h2>
+
+                <div class="code-header">
+                    <span class="code-filename">ProductsController.cs</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">ProductsController</span> : <span class="code-class">Controller</span>
+{
+    <span class="code-comment">// ✅ Good - async all the way</span>
+    [<span class="code-class">HttpGet</span>]
+    <span class="code-keyword">public</span> <span class="code-keyword">async</span> <span class="code-class">Task</span>&lt;<span class="code-class">IActionResult</span>&gt; <span class="code-method">Index</span>()
+    {
+        <span class="code-keyword">var</span> <span class="code-variable">products</span> = <span class="code-keyword">await</span> <span class="code-variable">_context</span>.<span class="code-variable">Products</span>
+            .<span class="code-method">Include</span>(<span class="code-variable">p</span> => <span class="code-variable">p</span>.<span class="code-variable">Category</span>)
+            .<span class="code-method">ToListAsync</span>();
+        
+        <span class="code-keyword">return</span> <span class="code-method">View</span>(<span class="code-variable">products</span>);
+    }
+
+    <span class="code-comment">// ✅ Good - return Task directly</span>
+    [<span class="code-class">HttpGet</span>(<span class="code-string">"{id}"</span>)]
+    <span class="code-keyword">public</span> <span class="code-class">Task</span>&lt;<span class="code-class">IActionResult</span>&gt; <span class="code-method">Details</span>(<span class="code-type">int</span> <span class="code-variable">id</span>)
+    {
+        <span class="code-keyword">return</span> <span class="code-method">GetProductDetailsAsync</span>(<span class="code-variable">id</span>);
+    }
+
+    <span class="code-keyword">private</span> <span class="code-keyword">async</span> <span class="code-class">Task</span>&lt;<span class="code-class">IActionResult</span>&gt; <span class="code-method">GetProductDetailsAsync</span>(<span class="code-type">int</span> <span class="code-variable">id</span>)
+    {
+        <span class="code-keyword">var</span> <span class="code-variable">product</span> = <span class="code-keyword">await</span> <span class="code-variable">_context</span>.<span class="code-variable">Products</span>.<span class="code-method">FindAsync</span>(<span class="code-variable">id</span>);
+        <span class="code-keyword">if</span> (<span class="code-variable">product</span> == <span class="code-keyword">null</span>)
+            <span class="code-keyword">return</span> <span class="code-method">NotFound</span>();
+        
+        <span class="code-keyword">return</span> <span class="code-method">View</span>(<span class="code-variable">product</span>);
+    }
+}</code></pre>
+
+                <h2>Key Takeaways</h2>
+
+                <ul>
+                    <li><strong>Async all the way</strong>: Use async from top to bottom</li>
+                    <li><strong>Never block</strong>: Don't use .Result or .Wait()</li>
+                    <li><strong>async Task</strong>: Not async void (except event handlers)</li>
+                    <li><strong>Return Task</strong>: When no await needed</li>
+                    <li><strong>ConfigureAwait</strong>: Not needed in ASP.NET Core</li>
+                    <li><strong>ValueTask</strong>: For hot paths with caching</li>
+                </ul>
+
+                <nav class="page-nav">
+                    <a href="03-response-caching.html" class="prev">Response Caching</a>
+                    <a href="05-ef-core-performance.html" class="next">EF Core Performance</a>
+                </nav>
+
+            
+        <footer class="page-footer">
+          Built with 💜 by <a href="https://akwasi.dev" target="_blank" rel="noopener noreferrer">Akwasi Adu-Kyeremeh</a> for developers who want to truly understand what they're building.
+        </footer>
+
+      </div>
+        </main>
+    </div>
+</body>
+
+</html>

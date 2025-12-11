@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Authentication Fundamentals | ASP.NET Core Mastery</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;500&family=Source+Serif+4:ital,wght@0,400;0,600;1,400&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="../assets/style.css">
+</head>
+
+<body>
+    <div class="page-wrapper">
+        <aside class="sidebar">
+            <a href="../index.html" class="sidebar-logo">ASP.NET Core Mastery</a>
+            <div class="sidebar-section">Part XII: Authentication</div>
+            <ul class="sidebar-nav">
+                <li><a href="01-authentication-fundamentals.html" class="active">Authentication Fundamentals</a></li>
+                <li><a href="02-aspnet-core-identity.html">ASP.NET Core Identity</a></li>
+                <li><a href="03-cookie-authentication.html">Cookie Authentication</a></li>
+                <li><a href="04-jwt-bearer-authentication.html">JWT Bearer Authentication</a></li>
+                <li><a href="05-oauth-openid-connect.html">OAuth 2.0 & OpenID Connect</a></li>
+                <li><a href="06-external-login-providers.html">External Login Providers</a></li>
+            </ul>
+            <div class="sidebar-section">Resources</div>
+            <ul class="sidebar-nav">
+                <li><a href="../index.html">Full Roadmap</a></li>
+            </ul>
+        </aside>
+
+        <main class="main-content">
+            <div class="content-container">
+                <nav class="breadcrumb">
+                    <a href="../index.html">Home</a>
+                    <span>→</span>
+                    <a href="01-authentication-fundamentals.html">Part XII: Authentication</a>
+                    <span>→</span>
+                    Authentication Fundamentals
+                </nav>
+
+                <div class="progress-indicator">
+                    <span>Section 1 of 6</span>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 16.67%"></div>
+                    </div>
+                </div>
+
+                <h1>Authentication Fundamentals</h1>
+
+                <div class="learning-objectives">
+                    <h3>🎯 What You'll Learn</h3>
+                    <ul>
+                        <li>What is authentication</li>
+                        <li>Authentication vs authorization</li>
+                        <li>Authentication schemes</li>
+                        <li>Claims and principals</li>
+                        <li>Authentication middleware</li>
+                    </ul>
+                </div>
+
+                <h2>What is Authentication?</h2>
+
+                <p>
+                    <strong>Authentication</strong> is the process of determining <em>who</em> the user is.
+                    It verifies the user's identity through credentials like username/password, tokens, or external
+                    providers.
+                </p>
+
+                <div class="callout callout-concept">
+                    <div class="callout-title">💡 Key Concept</div>
+                    <p>
+                        <strong>Authentication</strong> = "Who are you?"<br>
+                        <strong>Authorization</strong> = "What are you allowed to do?"
+                    </p>
+                </div>
+
+                <div class="section-divider"></div>
+
+                <h2>Authentication vs Authorization</h2>
+
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Aspect</th>
+                            <th>Authentication</th>
+                            <th>Authorization</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Question</strong></td>
+                            <td>Who are you?</td>
+                            <td>What can you do?</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Purpose</strong></td>
+                            <td>Verify identity</td>
+                            <td>Grant permissions</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Example</strong></td>
+                            <td>Login with username/password</td>
+                            <td>Admin can delete users</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Happens</strong></td>
+                            <td>First</td>
+                            <td>After authentication</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="section-divider"></div>
+
+                <h2>Authentication Schemes</h2>
+
+                <p>ASP.NET Core supports multiple authentication schemes:</p>
+
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Scheme</th>
+                            <th>Description</th>
+                            <th>Use Case</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Cookie</strong></td>
+                            <td>Browser-based authentication</td>
+                            <td>Traditional web apps (MVC, Razor Pages)</td>
+                        </tr>
+                        <tr>
+                            <td><strong>JWT Bearer</strong></td>
+                            <td>Token-based authentication</td>
+                            <td>APIs, SPAs, mobile apps</td>
+                        </tr>
+                        <tr>
+                            <td><strong>OAuth 2.0</strong></td>
+                            <td>Delegated authorization</td>
+                            <td>Third-party access (Google, Facebook)</td>
+                        </tr>
+                        <tr>
+                            <td><strong>OpenID Connect</strong></td>
+                            <td>Identity layer on OAuth 2.0</td>
+                            <td>Single sign-on (SSO)</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="section-divider"></div>
+
+                <h2>Claims and Principals</h2>
+
+                <h3>Claims</h3>
+
+                <p>
+                    A <strong>claim</strong> is a piece of information about the user (name, email, role, etc.).
+                </p>
+
+                <div class="code-header">
+                    <span class="code-filename">Claim Example</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-keyword">var</span> <span class="code-variable">claims</span> = <span class="code-keyword">new</span> <span class="code-class">List</span>&lt;<span class="code-class">Claim</span>&gt;
+{
+    <span class="code-keyword">new</span> <span class="code-class">Claim</span>(<span class="code-class">ClaimTypes</span>.<span class="code-variable">Name</span>, <span class="code-string">"john@example.com"</span>),
+    <span class="code-keyword">new</span> <span class="code-class">Claim</span>(<span class="code-class">ClaimTypes</span>.<span class="code-variable">Email</span>, <span class="code-string">"john@example.com"</span>),
+    <span class="code-keyword">new</span> <span class="code-class">Claim</span>(<span class="code-class">ClaimTypes</span>.<span class="code-variable">Role</span>, <span class="code-string">"Admin"</span>),
+    <span class="code-keyword">new</span> <span class="code-class">Claim</span>(<span class="code-string">"UserId"</span>, <span class="code-string">"123"</span>)
+};</code></pre>
+
+                <h3>ClaimsIdentity</h3>
+
+                <p>A collection of claims representing a single identity.</p>
+
+                <div class="code-header">
+                    <span class="code-filename">ClaimsIdentity</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-keyword">var</span> <span class="code-variable">identity</span> = <span class="code-keyword">new</span> <span class="code-class">ClaimsIdentity</span>(<span class="code-variable">claims</span>, <span class="code-string">"CookieAuth"</span>);</code></pre>
+
+                <h3>ClaimsPrincipal</h3>
+
+                <p>Represents the current user (can have multiple identities).</p>
+
+                <div class="code-header">
+                    <span class="code-filename">ClaimsPrincipal</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-keyword">var</span> <span class="code-variable">principal</span> = <span class="code-keyword">new</span> <span class="code-class">ClaimsPrincipal</span>(<span class="code-variable">identity</span>);
+
+<span class="code-comment">// Access in controllers/pages</span>
+<span class="code-keyword">var</span> <span class="code-variable">userName</span> = <span class="code-variable">User</span>.<span class="code-variable">Identity</span>?.<span class="code-variable">Name</span>;
+<span class="code-keyword">var</span> <span class="code-variable">isAuthenticated</span> = <span class="code-variable">User</span>.<span class="code-variable">Identity</span>?.<span class="code-variable">IsAuthenticated</span>;
+<span class="code-keyword">var</span> <span class="code-variable">email</span> = <span class="code-variable">User</span>.<span class="code-method">FindFirst</span>(<span class="code-class">ClaimTypes</span>.<span class="code-variable">Email</span>)?.<span class="code-variable">Value</span>;</code></pre>
+
+                <div class="section-divider"></div>
+
+                <h2>Authentication Middleware</h2>
+
+                <div class="code-header">
+                    <span class="code-filename">Program.cs</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-keyword">var</span> <span class="code-variable">builder</span> = <span class="code-class">WebApplication</span>.<span class="code-method">CreateBuilder</span>(<span class="code-variable">args</span>);
+
+<span class="code-comment">// Add authentication services</span>
+<span class="code-variable">builder</span>.<span class="code-variable">Services</span>.<span class="code-method">AddAuthentication</span>(<span class="code-string">"CookieAuth"</span>)
+    .<span class="code-method">AddCookie</span>(<span class="code-string">"CookieAuth"</span>);
+
+<span class="code-keyword">var</span> <span class="code-variable">app</span> = <span class="code-variable">builder</span>.<span class="code-method">Build</span>();
+
+<span class="code-comment">// Use authentication middleware (BEFORE authorization)</span>
+<span class="code-variable">app</span>.<span class="code-method">UseAuthentication</span>();
+<span class="code-variable">app</span>.<span class="code-method">UseAuthorization</span>();
+
+<span class="code-variable">app</span>.<span class="code-method">Run</span>();</code></pre>
+
+                <div class="callout callout-info">
+                    <div class="callout-title">⚠️ Order Matters!</div>
+                    <p>
+                        <code>UseAuthentication()</code> must come <strong>before</strong>
+                        <code>UseAuthorization()</code>.
+                        You must know who the user is before checking what they can do.
+                    </p>
+                </div>
+
+                <div class="section-divider"></div>
+
+                <h2>Accessing User Information</h2>
+
+                <div class="code-header">
+                    <span class="code-filename">In Controllers/Pages</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">HomeController</span> : <span class="code-class">Controller</span>
+{
+    <span class="code-keyword">public</span> <span class="code-class">IActionResult</span> <span class="code-method">Index</span>()
+    {
+        <span class="code-comment">// Check if authenticated</span>
+        <span class="code-keyword">if</span> (<span class="code-variable">User</span>.<span class="code-variable">Identity</span>?.<span class="code-variable">IsAuthenticated</span> == <span class="code-keyword">true</span>)
+        {
+            <span class="code-keyword">var</span> <span class="code-variable">userName</span> = <span class="code-variable">User</span>.<span class="code-variable">Identity</span>.<span class="code-variable">Name</span>;
+            <span class="code-keyword">var</span> <span class="code-variable">email</span> = <span class="code-variable">User</span>.<span class="code-method">FindFirst</span>(<span class="code-class">ClaimTypes</span>.<span class="code-variable">Email</span>)?.<span class="code-variable">Value</span>;
+            <span class="code-keyword">var</span> <span class="code-variable">userId</span> = <span class="code-variable">User</span>.<span class="code-method">FindFirst</span>(<span class="code-string">"UserId"</span>)?.<span class="code-variable">Value</span>;
+        }
+
+        <span class="code-keyword">return</span> <span class="code-method">View</span>();
+    }
+}</code></pre>
+
+                <div class="code-header">
+                    <span class="code-filename">In Views</span>
+                    <span class="code-language">HTML</span>
+                </div>
+                <pre><code><span class="code-tag">@if</span> (<span class="code-variable">User</span>.<span class="code-variable">Identity</span>?.<span class="code-variable">IsAuthenticated</span> == <span class="code-keyword">true</span>)
+{
+    &lt;<span class="code-tag">p</span>&gt;Welcome, <span class="code-tag">@User</span>.<span class="code-variable">Identity</span>.<span class="code-variable">Name</span>!&lt;/<span class="code-tag">p</span>&gt;
+}
+<span class="code-tag">@else</span>
+{
+    &lt;<span class="code-tag">a</span> <span class="code-attribute">href</span>=<span class="code-string">"/login"</span>&gt;Login&lt;/<span class="code-tag">a</span>&gt;
+}</code></pre>
+
+                <h2>Key Takeaways</h2>
+
+                <ul>
+                    <li><strong>Authentication</strong>: Verifying who the user is</li>
+                    <li><strong>Authorization</strong>: Determining what the user can do</li>
+                    <li><strong>Claims</strong>: Information about the user</li>
+                    <li><strong>ClaimsIdentity</strong>: Collection of claims</li>
+                    <li><strong>ClaimsPrincipal</strong>: Represents the current user</li>
+                    <li><strong>Schemes</strong>: Cookie, JWT, OAuth, OpenID Connect</li>
+                    <li><strong>Middleware</strong>: UseAuthentication() before UseAuthorization()</li>
+                </ul>
+
+                <div class="callout callout-concept">
+                    <div class="callout-title">🎯 Next Steps</div>
+                    <p>
+                        You now understand authentication fundamentals! In the next section, we'll explore
+                        <strong>ASP.NET Core Identity</strong>—a complete membership system for managing users,
+                        passwords, roles, and more.
+                    </p>
+                </div>
+
+                <nav class="page-nav">
+                    <a href="../index.html" class="prev">Back to Roadmap</a>
+                    <a href="02-aspnet-core-identity.html" class="next">ASP.NET Core Identity</a>
+                </nav>
+
+            
+        <footer class="page-footer">
+          Built with 💜 by <a href="https://akwasi.dev" target="_blank" rel="noopener noreferrer">Akwasi Adu-Kyeremeh</a> for developers who want to truly understand what they're building.
+        </footer>
+
+      </div>
+        </main>
+    </div>
+</body>
+
+</html>

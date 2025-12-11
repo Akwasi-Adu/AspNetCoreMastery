@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The .NET Ecosystem | ASP.NET Core Mastery</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;500&family=Source+Serif+4:ital,wght@0,400;0,600;1,400&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="../assets/style.css">
+</head>
+
+<body>
+    <div class="page-wrapper">
+        <aside class="sidebar">
+            <a href="../index.html" class="sidebar-logo">ASP.NET Core Mastery</a>
+            <div class="sidebar-section">Part II: .NET Core Basics</div>
+            <ul class="sidebar-nav">
+                <li><a href="01-dotnet-ecosystem.html" class="active">The .NET Ecosystem</a></li>
+                <li><a href="02-installing-sdk.html">Installing the .NET SDK</a></li>
+                <li><a href="03-first-console-app.html">Your First Console App</a></li>
+                <li><a href="04-project-structure.html">Project Files & Structure</a></li>
+                <li><a href="05-dotnet-cli.html">The dotnet CLI</a></li>
+                <li><a href="06-nuget-packages.html">NuGet Package Management</a></li>
+            </ul>
+            <div class="sidebar-section">Resources</div>
+            <ul class="sidebar-nav">
+                <li><a href="../index.html">Full Roadmap</a></li>
+            </ul>
+        </aside>
+
+        <main class="main-content">
+            <div class="content-container">
+                <nav class="breadcrumb">
+                    <a href="../index.html">Home</a>
+                    <span>→</span>
+                    <a href="01-dotnet-ecosystem.html">Part II: .NET Core Basics</a>
+                    <span>→</span>
+                    The .NET Ecosystem
+                </nav>
+
+                <div class="progress-indicator">
+                    <span>Section 1 of 6</span>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 16.67%"></div>
+                    </div>
+                </div>
+
+                <h1>The .NET Ecosystem</h1>
+
+                <div class="learning-objectives">
+                    <h3>🎯 What You'll Learn</h3>
+                    <ul>
+                        <li>What .NET is and how it evolved</li>
+                        <li>The difference between .NET Framework, .NET Core, and .NET (modern)</li>
+                        <li>Understanding the .NET runtime (CLR) and libraries (BCL)</li>
+                        <li>What the .NET SDK includes</li>
+                        <li>Cross-platform capabilities</li>
+                        <li>The role of C# in the .NET ecosystem</li>
+                        <li>Why .NET is perfect for building InvenTrack</li>
+                    </ul>
+                </div>
+
+                <h2>What is .NET?</h2>
+
+                <p>
+                    <strong>.NET</strong> is a free, open-source, cross-platform development platform created
+                    by Microsoft. It's a complete ecosystem for building applications—from web apps and APIs
+                    to desktop software, mobile apps, cloud services, games, and IoT devices.
+                </p>
+
+                <div class="callout callout-concept">
+                    <div class="callout-title">💡 Key Concept</div>
+                    <p>
+                        Think of .NET as a complete workshop for building software. It provides:
+                        <strong>Tools</strong> (compilers, debuggers), <strong>Materials</strong> (libraries,
+                        frameworks), and <strong>Instructions</strong> (documentation, patterns). You bring
+                        your code (written in C#, F#, or VB.NET), and .NET handles the rest.
+                    </p>
+                </div>
+
+                <h2>A Brief History: From .NET Framework to Modern .NET</h2>
+
+                <h3>.NET Framework (2002-2019)</h3>
+
+                <p>
+                    The original <strong>.NET Framework</strong> was released in 2002 and ran only on Windows.
+                    It powered millions of enterprise applications but had limitations—it was Windows-only,
+                    monolithic, and slow to evolve.
+                </p>
+
+                <h3>.NET Core (2016-2020)</h3>
+
+                <p>
+                    In 2016, Microsoft released <strong>.NET Core</strong>—a complete rewrite from scratch.
+                    It was:
+                </p>
+
+                <ul>
+                    <li><strong>Cross-platform</strong>: Runs on Windows, macOS, and Linux</li>
+                    <li><strong>Open-source</strong>: Community-driven development on GitHub</li>
+                    <li><strong>Modular</strong>: Install only what you need</li>
+                    <li><strong>High-performance</strong>: Optimized for modern workloads</li>
+                    <li><strong>Side-by-side</strong>: Multiple versions can coexist</li>
+                </ul>
+
+                <h3>.NET (2020-Present)</h3>
+
+                <p>
+                    In November 2020, Microsoft unified everything under a single name: <strong>.NET</strong>
+                    (dropping "Core"). Starting with .NET 5, the version numbers jumped to avoid confusion
+                    with .NET Framework 4.x.
+                </p>
+
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Version</th>
+                            <th>Release Date</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>.NET 5</td>
+                            <td>November 2020</td>
+                            <td>Out of support</td>
+                        </tr>
+                        <tr>
+                            <td>.NET 6 (LTS)</td>
+                            <td>November 2021</td>
+                            <td>Supported until Nov 2024</td>
+                        </tr>
+                        <tr>
+                            <td>.NET 7</td>
+                            <td>November 2022</td>
+                            <td>Out of support</td>
+                        </tr>
+                        <tr>
+                            <td>.NET 8 (LTS)</td>
+                            <td>November 2023</td>
+                            <td>Supported until Nov 2026</td>
+                        </tr>
+                        <tr>
+                            <td>.NET 9</td>
+                            <td>November 2024</td>
+                            <td>Current (STS)</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="callout callout-info">
+                    <div class="callout-title">ℹ️ LTS vs STS</div>
+                    <p>
+                        <strong>LTS (Long-Term Support)</strong>: Supported for 3 years. Use for production apps.<br>
+                        <strong>STS (Standard Term Support)</strong>: Supported for 18 months. Use for latest features.
+                    </p>
+                </div>
+
+                <div class="callout callout-tip">
+                    <div class="callout-title">💡 For This Guide</div>
+                    <p>
+                        We'll use <strong>.NET 8 (LTS)</strong> for InvenTrack. It's stable, well-supported,
+                        and will receive updates until November 2026. All examples work on .NET 6+ with minimal changes.
+                    </p>
+                </div>
+
+                <div class="section-divider"></div>
+
+                <h2>The .NET Architecture</h2>
+
+                <p>
+                    .NET has three main components that work together to run your applications:
+                </p>
+
+                <h3>1. The Runtime (CLR - Common Language Runtime)</h3>
+
+                <p>
+                    The <strong>CLR</strong> is the execution engine that runs your code. It handles:
+                </p>
+
+                <ul>
+                    <li><strong>Just-In-Time (JIT) compilation</strong>: Converts your C# code to machine code</li>
+                    <li><strong>Garbage collection</strong>: Automatic memory management</li>
+                    <li><strong>Exception handling</strong>: Manages errors gracefully</li>
+                    <li><strong>Type safety</strong>: Ensures code correctness</li>
+                    <li><strong>Security</strong>: Enforces code access security</li>
+                </ul>
+
+                <div class="analogy">
+                    Think of the CLR like a car's engine. You don't need to know how it works internally—you
+                    just write code (press the gas pedal), and the CLR handles execution (engine runs, wheels
+                    turn, car moves). It manages all the complex low-level details automatically.
+                </div>
+
+                <h3>2. The Libraries (BCL - Base Class Library)</h3>
+
+                <p>
+                    The <strong>BCL</strong> is a massive collection of pre-built code that handles common tasks:
+                </p>
+
+                <ul>
+                    <li><strong>Collections</strong>: Lists, dictionaries, queues (you've used these!)</li>
+                    <li><strong>File I/O</strong>: Reading and writing files</li>
+                    <li><strong>Networking</strong>: HTTP clients, TCP/IP sockets</li>
+                    <li><strong>Data access</strong>: Database connections, JSON parsing</li>
+                    <li><strong>Security</strong>: Encryption, authentication</li>
+                    <li><strong>Threading</strong>: Parallel processing, async/await</li>
+                </ul>
+
+                <div class="analogy">
+                    The BCL is like a toolbox filled with specialized tools. Need to read a file? Use
+                    <code>File.ReadAllText()</code>. Need to make an HTTP request? Use <code>HttpClient</code>.
+                    You don't build these from scratch—they're ready to use.
+                </div>
+
+                <h3>3. The SDK (Software Development Kit)</h3>
+
+                <p>
+                    The <strong>SDK</strong> contains everything you need to build .NET applications:
+                </p>
+
+                <ul>
+                    <li><strong>Compilers</strong>: Roslyn (C# compiler), F# compiler</li>
+                    <li><strong>dotnet CLI</strong>: Command-line tools for creating, building, running apps</li>
+                    <li><strong>MSBuild</strong>: Build system for compiling projects</li>
+                    <li><strong>NuGet</strong>: Package manager for third-party libraries</li>
+                    <li><strong>Templates</strong>: Project templates (console app, web API, etc.)</li>
+                    <li><strong>Runtime</strong>: Includes the runtime for running apps</li>
+                </ul>
+
+                <div class="callout callout-warning">
+                    <div class="callout-title">⚠️ SDK vs Runtime</div>
+                    <p>
+                        <strong>SDK</strong>: Install this for <em>development</em>. Includes everything.<br>
+                        <strong>Runtime</strong>: Install this for <em>running</em> apps only (production servers).
+                    </p>
+                </div>
+
+                <div class="section-divider"></div>
+
+                <h2>How .NET Code Executes</h2>
+
+                <p>
+                    Understanding how your C# code becomes a running application helps you write better code.
+                </p>
+
+                <div class="code-header">
+                    <span class="code-filename">ExecutionFlow.txt</span>
+                    <span class="code-language">Process</span>
+                </div>
+                <pre><code>1. You write C# code (.cs files)
+   ↓
+2. C# compiler (Roslyn) compiles to Intermediate Language (IL)
+   ↓
+3. IL is stored in assemblies (.dll or .exe files)
+   ↓
+4. When you run the app, the CLR loads the assembly
+   ↓
+5. JIT compiler converts IL to native machine code
+   ↓
+6. CPU executes the native code
+   ↓
+7. Your application runs!</code></pre>
+
+                <div class="callout callout-concept">
+                    <div class="callout-title">💡 Why Two Compilation Steps?</div>
+                    <p>
+                        <strong>C# → IL</strong>: Makes code portable across platforms (Windows, Linux, macOS)<br>
+                        <strong>IL → Machine Code</strong>: Optimized for the specific CPU at runtime<br>
+                        <strong>Result</strong>: Write once, run anywhere, with native performance!
+                    </p>
+                </div>
+
+                <div class="section-divider"></div>
+
+                <h2>Cross-Platform: Write Once, Run Anywhere</h2>
+
+                <p>
+                    Modern .NET runs on Windows, macOS, and Linux. You can develop on any OS and deploy to any OS.
+                </p>
+
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Platform</th>
+                            <th>Development</th>
+                            <th>Deployment</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Windows</td>
+                            <td>✅ Visual Studio, VS Code, Rider</td>
+                            <td>✅ IIS, Windows Server, Azure</td>
+                        </tr>
+                        <tr>
+                            <td>macOS</td>
+                            <td>✅ VS Code, Visual Studio for Mac, Rider</td>
+                            <td>✅ Docker, Kubernetes, Cloud</td>
+                        </tr>
+                        <tr>
+                            <td>Linux</td>
+                            <td>✅ VS Code, Rider, CLI</td>
+                            <td>✅ Docker, Kubernetes, Cloud, Nginx</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="callout callout-tip">
+                    <div class="callout-title">🚀 InvenTrack Deployment</div>
+                    <p>
+                        You can develop InvenTrack on Windows with Visual Studio 2022, then deploy it to:
+                        <strong>Azure App Service</strong> (Windows or Linux), <strong>Docker containers</strong>,
+                        <strong>AWS</strong>, <strong>Google Cloud</strong>, or even a <strong>Raspberry Pi</strong>!
+                    </p>
+                </div>
+
+                <div class="section-divider"></div>
+
+                <h2>The .NET Family: Different Frameworks for Different Needs</h2>
+
+                <p>
+                    .NET includes several frameworks built on top of the core platform:
+                </p>
+
+                <h3>ASP.NET Core (Web Applications)</h3>
+
+                <p>
+                    The framework we'll use for InvenTrack! Build web APIs, MVC apps, Razor Pages, and real-time
+                    apps with SignalR.
+                </p>
+
+                <h3>Entity Framework Core (Database Access)</h3>
+
+                <p>
+                    An Object-Relational Mapper (ORM) that lets you work with databases using C# objects instead
+                    of SQL. We'll use this extensively in InvenTrack.
+                </p>
+
+                <h3>Blazor (Web UI with C#)</h3>
+
+                <p>
+                    Build interactive web UIs using C# instead of JavaScript. Runs in the browser via WebAssembly
+                    or on the server.
+                </p>
+
+                <h3>MAUI (Cross-Platform Mobile/Desktop)</h3>
+
+                <p>
+                    Build native mobile and desktop apps for iOS, Android, macOS, and Windows with a single codebase.
+                </p>
+
+                <h3>ML.NET (Machine Learning)</h3>
+
+                <p>
+                    Add machine learning capabilities to your .NET apps—predictions, classifications, anomaly detection.
+                </p>
+
+                <div class="section-divider"></div>
+
+                <h2>Why .NET for InvenTrack?</h2>
+
+                <p>
+                    Let's talk about why .NET is the perfect choice for building our mini-ERP system:
+                </p>
+
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Feature</th>
+                            <th>Why It Matters for InvenTrack</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Performance</strong></td>
+                            <td>Handle thousands of products, customers, and orders efficiently</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Scalability</strong></td>
+                            <td>Start small, grow to enterprise-scale without rewriting</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Security</strong></td>
+                            <td>Built-in authentication, authorization, data protection</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Productivity</strong></td>
+                            <td>Rich libraries, tooling, and IntelliSense speed up development</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Type Safety</strong></td>
+                            <td>Catch errors at compile-time, not runtime</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Async/Await</strong></td>
+                            <td>Handle database and API calls without blocking</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Cross-Platform</strong></td>
+                            <td>Deploy to Windows, Linux, Docker, or cloud</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Free & Open Source</strong></td>
+                            <td>No licensing costs, community-driven</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="callout callout-tip">
+                    <div class="callout-title">💡 Real-World Adoption</div>
+                    <p>
+                        .NET powers applications at <strong>Stack Overflow</strong>, <strong>Bing</strong>,
+                        <strong>Visual Studio</strong>, <strong>Azure DevOps</strong>, and thousands of enterprise
+                        systems worldwide. It's battle-tested and production-ready.
+                    </p>
+                </div>
+
+                <div class="section-divider"></div>
+
+                <h2>The C# Language and .NET</h2>
+
+                <p>
+                    While .NET supports multiple languages (C#, F#, VB.NET), <strong>C#</strong> is the primary
+                    language and the one we'll use for InvenTrack.
+                </p>
+
+                <div class="callout callout-concept">
+                    <div class="callout-title">💡 C# and .NET: Perfect Together</div>
+                    <p>
+                        C# and .NET co-evolve. Each .NET release brings new C# features. <strong>.NET 8</strong>
+                        ships with <strong>C# 12</strong>, which includes primary constructors, collection expressions,
+                        and more. You get the latest language features automatically!
+                    </p>
+                </div>
+
+                <h2>Key Takeaways</h2>
+
+                <ul>
+                    <li><strong>.NET</strong> is a free, open-source, cross-platform development platform</li>
+                    <li>Modern .NET (5+) unified .NET Core and .NET Framework</li>
+                    <li><strong>.NET 8 (LTS)</strong> is the recommended version for production apps</li>
+                    <li>The <strong>CLR</strong> executes your code, the <strong>BCL</strong> provides libraries</li>
+                    <li>The <strong>SDK</strong> includes everything needed for development</li>
+                    <li>C# code compiles to <strong>IL</strong>, then <strong>JIT-compiles</strong> to native code</li>
+                    <li>.NET runs on <strong>Windows, macOS, and Linux</strong></li>
+                    <li><strong>ASP.NET Core</strong> is the web framework we'll use for InvenTrack</li>
+                    <li>.NET offers <strong>performance, security, and productivity</strong> for enterprise apps</li>
+                </ul>
+
+                <div class="callout callout-concept">
+                    <div class="callout-title">🎯 Next Steps</div>
+                    <p>
+                        Now that you understand what .NET is and how it works, it's time to get hands-on!
+                        In the next section, we'll <strong>install the .NET SDK</strong> and set up your
+                        development environment. You'll be writing and running .NET code in minutes!
+                    </p>
+                </div>
+
+                <nav class="page-nav">
+                    <a href="../index.html" class="prev">Back to Roadmap</a>
+                    <a href="02-installing-sdk.html" class="next">Installing the .NET SDK</a>
+                </nav>
+
+            
+        <footer class="page-footer">
+          Built with 💜 by <a href="https://akwasi.dev" target="_blank" rel="noopener noreferrer">Akwasi Adu-Kyeremeh</a> for developers who want to truly understand what they're building.
+        </footer>
+
+      </div>
+        </main>
+    </div>
+</body>
+
+</html>

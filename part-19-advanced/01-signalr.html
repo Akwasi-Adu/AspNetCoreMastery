@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SignalR | ASP.NET Core Mastery</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;500&family=Source+Serif+4:ital,wght@0,400;0,600;1,400&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="../assets/style.css">
+</head>
+
+<body>
+    <div class="page-wrapper">
+        <aside class="sidebar">
+            <a href="../index.html" class="sidebar-logo">ASP.NET Core Mastery</a>
+            <div class="sidebar-section">Part XIX: Advanced</div>
+            <ul class="sidebar-nav">
+                <li><a href="01-signalr.html" class="active">SignalR</a></li>
+                <li><a href="02-grpc.html">gRPC</a></li>
+                <li><a href="03-background-services.html">Background Services</a></li>
+                <li><a href="04-microservices-patterns.html">Microservices Patterns</a></li>
+                <li><a href="05-health-checks.html">Health Checks</a></li>
+                <li><a href="06-distributed-tracing.html">Distributed Tracing</a></li>
+            </ul>
+            <div class="sidebar-section">Resources</div>
+            <ul class="sidebar-nav">
+                <li><a href="../index.html">Full Roadmap</a></li>
+            </ul>
+        </aside>
+
+        <main class="main-content">
+            <div class="content-container">
+                <nav class="breadcrumb">
+                    <a href="../index.html">Home</a>
+                    <span>→</span>
+                    <a href="01-signalr.html">Part XIX: Advanced Topics</a>
+                    <span>→</span>
+                    SignalR
+                </nav>
+
+                <div class="progress-indicator">
+                    <span>Section 1 of 6</span>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 16.67%"></div>
+                    </div>
+                </div>
+
+                <h1>SignalR</h1>
+
+                <div class="learning-objectives">
+                    <h3>🎯 What You'll Learn</h3>
+                    <ul>
+                        <li>What is SignalR</li>
+                        <li>Creating a Hub</li>
+                        <li>Sending messages</li>
+                        <li>JavaScript client</li>
+                        <li>Groups</li>
+                    </ul>
+                </div>
+
+                <h2>What is SignalR?</h2>
+
+                <p>
+                    <strong>SignalR</strong> enables real-time, bi-directional communication between server and clients
+                    using WebSockets, Server-Sent Events, or Long Polling.
+                </p>
+
+                <div class="section-divider"></div>
+
+                <h2>Setup</h2>
+
+                <div class="code-header">
+                    <span class="code-filename">Program.cs</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-variable">builder</span>.<span class="code-variable">Services</span>.<span class="code-method">AddSignalR</span>();
+
+<span class="code-keyword">var</span> <span class="code-variable">app</span> = <span class="code-variable">builder</span>.<span class="code-method">Build</span>();
+
+<span class="code-variable">app</span>.<span class="code-method">MapHub</span>&lt;<span class="code-class">ChatHub</span>&gt;(<span class="code-string">"/chatHub"</span>);</code></pre>
+
+                <div class="section-divider"></div>
+
+                <h2>Creating a Hub</h2>
+
+                <div class="code-header">
+                    <span class="code-filename">ChatHub.cs</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-keyword">using</span> <span class="code-variable">Microsoft</span>.<span class="code-variable">AspNetCore</span>.<span class="code-variable">SignalR</span>;
+
+<span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">ChatHub</span> : <span class="code-class">Hub</span>
+{
+    <span class="code-keyword">public</span> <span class="code-keyword">async</span> <span class="code-class">Task</span> <span class="code-method">SendMessage</span>(<span class="code-type">string</span> <span class="code-variable">user</span>, <span class="code-type">string</span> <span class="code-variable">message</span>)
+    {
+        <span class="code-keyword">await</span> <span class="code-variable">Clients</span>.<span class="code-variable">All</span>.<span class="code-method">SendAsync</span>(<span class="code-string">"ReceiveMessage"</span>, <span class="code-variable">user</span>, <span class="code-variable">message</span>);
+    }
+}</code></pre>
+
+                <div class="section-divider"></div>
+
+                <h2>JavaScript Client</h2>
+
+                <div class="code-header">
+                    <span class="code-filename">Install Package</span>
+                    <span class="code-language">Bash</span>
+                </div>
+                <pre><code>npm install @microsoft/signalr</code></pre>
+
+                <div class="code-header">
+                    <span class="code-filename">chat.js</span>
+                    <span class="code-language">JavaScript</span>
+                </div>
+                <pre><code><span class="code-keyword">const</span> <span class="code-variable">connection</span> = <span class="code-keyword">new</span> <span class="code-variable">signalR</span>.<span class="code-class">HubConnectionBuilder</span>()
+    .<span class="code-method">withUrl</span>(<span class="code-string">"/chatHub"</span>)
+    .<span class="code-method">build</span>();
+
+<span class="code-comment">// Receive messages</span>
+<span class="code-variable">connection</span>.<span class="code-method">on</span>(<span class="code-string">"ReceiveMessage"</span>, (<span class="code-variable">user</span>, <span class="code-variable">message</span>) => {
+    <span class="code-variable">console</span>.<span class="code-method">log</span>(<span class="code-string">`</span><span class="code-variable">${user}</span><span class="code-string">: </span><span class="code-variable">${message}</span><span class="code-string">`</span>);
+});
+
+<span class="code-comment">// Start connection</span>
+<span class="code-variable">connection</span>.<span class="code-method">start</span>().<span class="code-method">catch</span>(<span class="code-variable">err</span> => <span class="code-variable">console</span>.<span class="code-method">error</span>(<span class="code-variable">err</span>));
+
+<span class="code-comment">// Send message</span>
+<span class="code-variable">connection</span>.<span class="code-method">invoke</span>(<span class="code-string">"SendMessage"</span>, <span class="code-variable">user</span>, <span class="code-variable">message</span>);</code></pre>
+
+                <div class="section-divider"></div>
+
+                <h2>Sending to Specific Clients</h2>
+
+                <div class="code-header">
+                    <span class="code-filename">Targeting Clients</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-comment">// All clients</span>
+<span class="code-keyword">await</span> <span class="code-variable">Clients</span>.<span class="code-variable">All</span>.<span class="code-method">SendAsync</span>(<span class="code-string">"ReceiveMessage"</span>, <span class="code-variable">user</span>, <span class="code-variable">message</span>);
+
+<span class="code-comment">// Caller only</span>
+<span class="code-keyword">await</span> <span class="code-variable">Clients</span>.<span class="code-variable">Caller</span>.<span class="code-method">SendAsync</span>(<span class="code-string">"ReceiveMessage"</span>, <span class="code-variable">user</span>, <span class="code-variable">message</span>);
+
+<span class="code-comment">// All except caller</span>
+<span class="code-keyword">await</span> <span class="code-variable">Clients</span>.<span class="code-variable">Others</span>.<span class="code-method">SendAsync</span>(<span class="code-string">"ReceiveMessage"</span>, <span class="code-variable">user</span>, <span class="code-variable">message</span>);
+
+<span class="code-comment">// Specific client</span>
+<span class="code-keyword">await</span> <span class="code-variable">Clients</span>.<span class="code-method">Client</span>(<span class="code-variable">connectionId</span>).<span class="code-method">SendAsync</span>(<span class="code-string">"ReceiveMessage"</span>, <span class="code-variable">user</span>, <span class="code-variable">message</span>);</code></pre>
+
+                <div class="section-divider"></div>
+
+                <h2>Groups</h2>
+
+                <div class="code-header">
+                    <span class="code-filename">Managing Groups</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-keyword">public</span> <span class="code-keyword">async</span> <span class="code-class">Task</span> <span class="code-method">JoinGroup</span>(<span class="code-type">string</span> <span class="code-variable">groupName</span>)
+{
+    <span class="code-keyword">await</span> <span class="code-variable">Groups</span>.<span class="code-method">AddToGroupAsync</span>(<span class="code-variable">Context</span>.<span class="code-variable">ConnectionId</span>, <span class="code-variable">groupName</span>);
+}
+
+<span class="code-keyword">public</span> <span class="code-keyword">async</span> <span class="code-class">Task</span> <span class="code-method">LeaveGroup</span>(<span class="code-type">string</span> <span class="code-variable">groupName</span>)
+{
+    <span class="code-keyword">await</span> <span class="code-variable">Groups</span>.<span class="code-method">RemoveFromGroupAsync</span>(<span class="code-variable">Context</span>.<span class="code-variable">ConnectionId</span>, <span class="code-variable">groupName</span>);
+}
+
+<span class="code-keyword">public</span> <span class="code-keyword">async</span> <span class="code-class">Task</span> <span class="code-method">SendToGroup</span>(<span class="code-type">string</span> <span class="code-variable">groupName</span>, <span class="code-type">string</span> <span class="code-variable">message</span>)
+{
+    <span class="code-keyword">await</span> <span class="code-variable">Clients</span>.<span class="code-method">Group</span>(<span class="code-variable">groupName</span>).<span class="code-method">SendAsync</span>(<span class="code-string">"ReceiveMessage"</span>, <span class="code-variable">message</span>);
+}</code></pre>
+
+                <h2>InvenTrack Example</h2>
+
+                <div class="code-header">
+                    <span class="code-filename">StockHub.cs</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">StockHub</span> : <span class="code-class">Hub</span>
+{
+    <span class="code-keyword">public</span> <span class="code-keyword">async</span> <span class="code-class">Task</span> <span class="code-method">NotifyStockUpdate</span>(<span class="code-type">int</span> <span class="code-variable">productId</span>, <span class="code-type">int</span> <span class="code-variable">quantity</span>)
+    {
+        <span class="code-keyword">await</span> <span class="code-variable">Clients</span>.<span class="code-variable">All</span>.<span class="code-method">SendAsync</span>(<span class="code-string">"StockUpdated"</span>, <span class="code-variable">productId</span>, <span class="code-variable">quantity</span>);
+    }
+}</code></pre>
+
+                <div class="code-header">
+                    <span class="code-filename">ProductsController.cs</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">ProductsController</span> : <span class="code-class">Controller</span>
+{
+    <span class="code-keyword">private</span> <span class="code-keyword">readonly</span> <span class="code-class">IHubContext</span>&lt;<span class="code-class">StockHub</span>&gt; <span class="code-variable">_hubContext</span>;
+
+    [<span class="code-class">HttpPost</span>]
+    <span class="code-keyword">public</span> <span class="code-keyword">async</span> <span class="code-class">Task</span>&lt;<span class="code-class">IActionResult</span>&gt; <span class="code-method">UpdateStock</span>(<span class="code-type">int</span> <span class="code-variable">id</span>, <span class="code-type">int</span> <span class="code-variable">quantity</span>)
+    {
+        <span class="code-comment">// Update database...</span>
+        
+        <span class="code-comment">// Notify all clients</span>
+        <span class="code-keyword">await</span> <span class="code-variable">_hubContext</span>.<span class="code-variable">Clients</span>.<span class="code-variable">All</span>.<span class="code-method">SendAsync</span>(<span class="code-string">"StockUpdated"</span>, <span class="code-variable">id</span>, <span class="code-variable">quantity</span>);
+        
+        <span class="code-keyword">return</span> <span class="code-method">Ok</span>();
+    }
+}</code></pre>
+
+                <h2>Key Takeaways</h2>
+
+                <ul>
+                    <li><strong>SignalR</strong>: Real-time communication</li>
+                    <li><strong>Hub</strong>: Server-side class for SignalR</li>
+                    <li><strong>Clients.All</strong>: Send to all connected clients</li>
+                    <li><strong>Clients.Caller</strong>: Send to calling client</li>
+                    <li><strong>Groups</strong>: Organize clients into groups</li>
+                    <li><strong>IHubContext</strong>: Send from outside Hub</li>
+                </ul>
+
+                <nav class="page-nav">
+                    <a href="../index.html" class="prev">Back to Roadmap</a>
+                    <a href="02-grpc.html" class="next">gRPC</a>
+                </nav>
+
+            
+        <footer class="page-footer">
+          Built with 💜 by <a href="https://akwasi.dev" target="_blank" rel="noopener noreferrer">Akwasi Adu-Kyeremeh</a> for developers who want to truly understand what they're building.
+        </footer>
+
+      </div>
+        </main>
+    </div>
+</body>
+
+</html>

@@ -1,0 +1,590 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Async/Await | ASP.NET Core Mastery</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;500&family=Source+Serif+4:ital,wght@0,400;0,600;1,400&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="../assets/style.css">
+</head>
+
+<body>
+    <div class="page-wrapper">
+        <aside class="sidebar">
+            <a href="../index.html" class="sidebar-logo">ASP.NET Core Mastery</a>
+            <div class="sidebar-section">Part I: Foundations</div>
+            <ul class="sidebar-nav">
+                <li><a href="01-what-is-programming.html">What is Programming?</a></li>
+                <li><a href="02-what-is-csharp-dotnet.html">What is C# and .NET?</a></li>
+                <li><a href="03-variables-and-data-types.html">Variables and Data Types</a></li>
+                <li><a href="04-operators-and-expressions.html">Operators and Expressions</a></li>
+                <li><a href="05-control-flow.html">Control Flow</a></li>
+                <li><a href="06-methods-and-functions.html">Methods and Functions</a></li>
+                <li><a href="07-oop-classes-objects.html">OOP: Classes &amp; Objects</a></li>
+                <li><a href="08-collections-and-generics.html">Collections and Generics</a></li>
+                <li><a href="09-linq.html">LINQ</a></li>
+                <li><a href="10-async-await.html" class="active">Async/Await</a></li>
+            </ul>
+            <div class="sidebar-section">Resources</div>
+            <ul class="sidebar-nav">
+                <li><a href="../index.html">Full Roadmap</a></li>
+            </ul>
+        </aside>
+
+        <main class="main-content">
+            <div class="content-container">
+                <nav class="breadcrumb">
+                    <a href="../index.html">Home</a>
+                    <span>→</span>
+                    <a href="01-what-is-programming.html">Part I: Foundations</a>
+                    <span>→</span>
+                    Async/Await
+                </nav>
+
+                <div class="progress-indicator">
+                    <span>Section 10 of 10</span>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 100%"></div>
+                    </div>
+                </div>
+
+                <h1>Asynchronous Programming with Async/Await</h1>
+
+                <div class="learning-objectives">
+                    <h3>🎯 What You'll Learn</h3>
+                    <ul>
+                        <li>What asynchronous programming is and why it matters</li>
+                        <li>The difference between synchronous and asynchronous code</li>
+                        <li>Understanding <code>async</code> and <code>await</code> keywords</li>
+                        <li>Working with <code>Task</code> and <code>Task&lt;T&gt;</code></li>
+                        <li>Common async patterns and best practices</li>
+                        <li>Async methods in ASP.NET Core</li>
+                        <li>Error handling in async code</li>
+                        <li>When to use async/await (and when not to)</li>
+                        <li>Building responsive InvenTrack features</li>
+                    </ul>
+                </div>
+
+                <h2>The Problem: Blocking Operations</h2>
+
+                <p>
+                    Imagine your application needs to fetch data from a database, call an external API, or
+                    read a large file. These operations take time—sometimes seconds. What happens while your
+                    code waits?
+                </p>
+
+                <div class="code-header">
+                    <span class="code-filename">SynchronousCode.cs</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-comment">// Synchronous (blocking) code</span>
+<span class="code-keyword">public</span> <span class="code-type">void</span> <span class="code-method">ProcessOrder</span>()
+{
+    Console.<span class="code-method">WriteLine</span>(<span class="code-string">"Starting order processing..."</span>);
+    
+    <span class="code-comment">// This blocks for 3 seconds - nothing else can happen!</span>
+    <span class="code-class">Thread</span>.<span class="code-method">Sleep</span>(<span class="code-number">3000</span>);
+    
+    Console.<span class="code-method">WriteLine</span>(<span class="code-string">"Order processed!"</span>);
+}
+
+<span class="code-comment">// During those 3 seconds:</span>
+<span class="code-comment">// - Desktop app: UI freezes, can't click anything</span>
+<span class="code-comment">// - Web app: Thread is blocked, can't handle other requests</span>
+<span class="code-comment">// - Console app: Just sits there waiting</span></code></pre>
+
+                <div class="callout callout-warning">
+                    <div class="callout-title">⚠️ The Blocking Problem</div>
+                    <p>
+                        <strong>Desktop apps</strong>: UI freezes, users think it crashed<br>
+                        <strong>Web apps</strong>: Threads are wasted waiting, limiting scalability<br>
+                        <strong>Mobile apps</strong>: Battery drain, poor responsiveness<br>
+                        <strong>Result</strong>: Bad user experience and poor resource utilization
+                    </p>
+                </div>
+
+                <h2>The Solution: Asynchronous Programming</h2>
+
+                <p>
+                    <strong>Asynchronous programming</strong> lets your code start a long-running operation
+                    and continue doing other work while waiting for it to complete. When the operation finishes,
+                    your code picks up where it left off.
+                </p>
+
+                <div class="callout callout-concept">
+                    <div class="callout-title">💡 Key Concept</div>
+                    <p>
+                        Think of async like ordering food at a restaurant. <strong>Synchronous</strong>: You stand
+                        at the counter until your food is ready (blocking). <strong>Asynchronous</strong>: You
+                        order, get a buzzer, sit down and chat with friends, and come back when it buzzes
+                        (non-blocking).
+                        The kitchen still takes the same time, but you're free to do other things!
+                    </p>
+                </div>
+
+                <h2>Async/Await Basics</h2>
+
+                <div class="code-header">
+                    <span class="code-filename">AsyncBasics.cs</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-comment">// Async method returns Task</span>
+<span class="code-keyword">public</span> <span class="code-keyword">async</span> <span class="code-class">Task</span> <span class="code-method">ProcessOrderAsync</span>()
+{
+    Console.<span class="code-method">WriteLine</span>(<span class="code-string">"Starting order processing..."</span>);
+    
+    <span class="code-comment">// await = "wait for this, but don't block"</span>
+    <span class="code-keyword">await</span> <span class="code-class">Task</span>.<span class="code-method">Delay</span>(<span class="code-number">3000</span>);
+    
+    Console.<span class="code-method">WriteLine</span>(<span class="code-string">"Order processed!"</span>);
+}
+
+<span class="code-comment">// Calling async method</span>
+<span class="code-keyword">await</span> <span class="code-method">ProcessOrderAsync</span>();
+
+<span class="code-comment">// During those 3 seconds:</span>
+<span class="code-comment">// - Thread is free to do other work</span>
+<span class="code-comment">// - UI remains responsive</span>
+<span class="code-comment">// - Web server can handle other requests</span></code></pre>
+
+                <h3>The async and await Keywords</h3>
+
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Keyword</th>
+                            <th>Purpose</th>
+                            <th>Where Used</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><code>async</code></td>
+                            <td>Marks a method as asynchronous</td>
+                            <td>Method signature</td>
+                        </tr>
+                        <tr>
+                            <td><code>await</code></td>
+                            <td>Waits for async operation without blocking</td>
+                            <td>Inside async methods</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="callout callout-info">
+                    <div class="callout-title">ℹ️ Important Rules</div>
+                    <p>
+                        <strong>1.</strong> Methods marked <code>async</code> must return <code>Task</code>,
+                        <code>Task&lt;T&gt;</code>, or <code>void</code> (avoid void except for event handlers)<br>
+                        <strong>2.</strong> You can only use <code>await</code> inside <code>async</code> methods<br>
+                        <strong>3.</strong> Async methods should be named with "Async" suffix by convention<br>
+                        <strong>4.</strong> <code>await</code> doesn't create a new thread—it yields control
+                    </p>
+                </div>
+
+                <h2>Task and Task&lt;T&gt;</h2>
+
+                <p>
+                    <code>Task</code> represents an asynchronous operation. <code>Task&lt;T&gt;</code> represents
+                    an async operation that returns a value of type <code>T</code>.
+                </p>
+
+                <div class="code-header">
+                    <span class="code-filename">TaskExamples.cs</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-comment">// Task - no return value</span>
+<span class="code-keyword">public</span> <span class="code-keyword">async</span> <span class="code-class">Task</span> <span class="code-method">SaveDataAsync</span>()
+{
+    <span class="code-keyword">await</span> <span class="code-class">Task</span>.<span class="code-method">Delay</span>(<span class="code-number">1000</span>);
+    Console.<span class="code-method">WriteLine</span>(<span class="code-string">"Data saved"</span>);
+}
+
+<span class="code-comment">// Task&lt;T&gt; - returns a value</span>
+<span class="code-keyword">public</span> <span class="code-keyword">async</span> <span class="code-class">Task</span>&lt;<span class="code-type">string</span>&gt; <span class="code-method">FetchDataAsync</span>()
+{
+    <span class="code-keyword">await</span> <span class="code-class">Task</span>.<span class="code-method">Delay</span>(<span class="code-number">1000</span>);
+    <span class="code-keyword">return</span> <span class="code-string">"Data from server"</span>;
+}
+
+<span class="code-comment">// Task&lt;int&gt; - returns an integer</span>
+<span class="code-keyword">public</span> <span class="code-keyword">async</span> <span class="code-class">Task</span>&lt;<span class="code-type">int</span>&gt; <span class="code-method">CalculateAsync</span>()
+{
+    <span class="code-keyword">await</span> <span class="code-class">Task</span>.<span class="code-method">Delay</span>(<span class="code-number">500</span>);
+    <span class="code-keyword">return</span> <span class="code-number">42</span>;
+}
+
+<span class="code-comment">// Using these methods</span>
+<span class="code-keyword">await</span> <span class="code-method">SaveDataAsync</span>();
+<span class="code-type">string</span> <span class="code-variable">data</span> = <span class="code-keyword">await</span> <span class="code-method">FetchDataAsync</span>();
+<span class="code-type">int</span> <span class="code-variable">result</span> = <span class="code-keyword">await</span> <span class="code-method">CalculateAsync</span>();</code></pre>
+
+                <div class="section-divider"></div>
+
+                <h2>Real-World Async Operations</h2>
+
+                <h3>File I/O</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">FileAsync.cs</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-keyword">public</span> <span class="code-keyword">async</span> <span class="code-class">Task</span>&lt;<span class="code-type">string</span>&gt; <span class="code-method">ReadFileAsync</span>(<span class="code-type">string</span> <span class="code-variable">path</span>)
+{
+    <span class="code-keyword">return</span> <span class="code-keyword">await</span> <span class="code-class">File</span>.<span class="code-method">ReadAllTextAsync</span>(<span class="code-variable">path</span>);
+}
+
+<span class="code-keyword">public</span> <span class="code-keyword">async</span> <span class="code-class">Task</span> <span class="code-method">WriteFileAsync</span>(<span class="code-type">string</span> <span class="code-variable">path</span>, <span class="code-type">string</span> <span class="code-variable">content</span>)
+{
+    <span class="code-keyword">await</span> <span class="code-class">File</span>.<span class="code-method">WriteAllTextAsync</span>(<span class="code-variable">path</span>, <span class="code-variable">content</span>);
+}</code></pre>
+
+                <h3>HTTP Requests</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">HttpAsync.cs</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-keyword">public</span> <span class="code-keyword">async</span> <span class="code-class">Task</span>&lt;<span class="code-type">string</span>&gt; <span class="code-method">GetWebPageAsync</span>(<span class="code-type">string</span> <span class="code-variable">url</span>)
+{
+    <span class="code-keyword">using</span> <span class="code-class">HttpClient</span> <span class="code-variable">client</span> = <span class="code-keyword">new</span>();
+    <span class="code-keyword">return</span> <span class="code-keyword">await</span> <span class="code-variable">client</span>.<span class="code-method">GetStringAsync</span>(<span class="code-variable">url</span>);
+}
+
+<span class="code-keyword">public</span> <span class="code-keyword">async</span> <span class="code-class">Task</span>&lt;<span class="code-class">Product</span>&gt; <span class="code-method">GetProductFromApiAsync</span>(<span class="code-type">string</span> <span class="code-variable">sku</span>)
+{
+    <span class="code-keyword">using</span> <span class="code-class">HttpClient</span> <span class="code-variable">client</span> = <span class="code-keyword">new</span>();
+    <span class="code-type">string</span> <span class="code-variable">json</span> = <span class="code-keyword">await</span> <span class="code-variable">client</span>.<span class="code-method">GetStringAsync</span>(<span class="code-string">$"https://api.example.com/products/</span>{<span class="code-variable">sku</span>}<span class="code-string">"</span>);
+    <span class="code-keyword">return</span> <span class="code-class">JsonSerializer</span>.<span class="code-method">Deserialize</span>&lt;<span class="code-class">Product</span>&gt;(<span class="code-variable">json</span>);
+}</code></pre>
+
+                <h3>Database Operations</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">DatabaseAsync.cs</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-keyword">public</span> <span class="code-keyword">async</span> <span class="code-class">Task</span>&lt;<span class="code-class">List</span>&lt;<span class="code-class">Product</span>&gt;&gt; <span class="code-method">GetProductsAsync</span>()
+{
+    <span class="code-keyword">using</span> <span class="code-keyword">var</span> <span class="code-variable">connection</span> = <span class="code-keyword">new</span> <span class="code-class">SqlConnection</span>(<span class="code-variable">connectionString</span>);
+    <span class="code-keyword">await</span> <span class="code-variable">connection</span>.<span class="code-method">OpenAsync</span>();
+    
+    <span class="code-keyword">using</span> <span class="code-keyword">var</span> <span class="code-variable">command</span> = <span class="code-keyword">new</span> <span class="code-class">SqlCommand</span>(<span class="code-string">"SELECT * FROM Products"</span>, <span class="code-variable">connection</span>);
+    <span class="code-keyword">using</span> <span class="code-keyword">var</span> <span class="code-variable">reader</span> = <span class="code-keyword">await</span> <span class="code-variable">command</span>.<span class="code-method">ExecuteReaderAsync</span>();
+    
+    <span class="code-class">List</span>&lt;<span class="code-class">Product</span>&gt; <span class="code-variable">products</span> = <span class="code-keyword">new</span>();
+    <span class="code-keyword">while</span> (<span class="code-keyword">await</span> <span class="code-variable">reader</span>.<span class="code-method">ReadAsync</span>())
+    {
+        <span class="code-comment">// Map data to Product objects</span>
+    }
+    
+    <span class="code-keyword">return</span> <span class="code-variable">products</span>;
+}</code></pre>
+
+                <div class="section-divider"></div>
+
+                <h2>Running Multiple Async Operations</h2>
+
+                <h3>Sequential (One After Another)</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">Sequential.cs</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-comment">// Takes 3 seconds total (1 + 2)</span>
+<span class="code-keyword">await</span> <span class="code-method">Task1Async</span>();  <span class="code-comment">// 1 second</span>
+<span class="code-keyword">await</span> <span class="code-method">Task2Async</span>();  <span class="code-comment">// 2 seconds</span></code></pre>
+
+                <h3>Concurrent (At the Same Time)</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">Concurrent.cs</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-comment">// Start both tasks</span>
+<span class="code-class">Task</span> <span class="code-variable">task1</span> = <span class="code-method">Task1Async</span>();
+<span class="code-class">Task</span> <span class="code-variable">task2</span> = <span class="code-method">Task2Async</span>();
+
+<span class="code-comment">// Wait for both to complete</span>
+<span class="code-keyword">await</span> <span class="code-class">Task</span>.<span class="code-method">WhenAll</span>(<span class="code-variable">task1</span>, <span class="code-variable">task2</span>);
+
+<span class="code-comment">// Takes 2 seconds total (max of 1 and 2)</span></code></pre>
+
+                <h3>Task.WhenAll and Task.WhenAny</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">TaskCombinators.cs</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-comment">// WhenAll - wait for all tasks to complete</span>
+<span class="code-class">Task</span>&lt;<span class="code-type">string</span>&gt; <span class="code-variable">task1</span> = <span class="code-method">FetchData1Async</span>();
+<span class="code-class">Task</span>&lt;<span class="code-type">string</span>&gt; <span class="code-variable">task2</span> = <span class="code-method">FetchData2Async</span>();
+<span class="code-class">Task</span>&lt;<span class="code-type">string</span>&gt; <span class="code-variable">task3</span> = <span class="code-method">FetchData3Async</span>();
+
+<span class="code-type">string</span>[] <span class="code-variable">results</span> = <span class="code-keyword">await</span> <span class="code-class">Task</span>.<span class="code-method">WhenAll</span>(<span class="code-variable">task1</span>, <span class="code-variable">task2</span>, <span class="code-variable">task3</span>);
+
+<span class="code-comment">// WhenAny - wait for first task to complete</span>
+<span class="code-class">Task</span>&lt;<span class="code-type">string</span>&gt; <span class="code-variable">completedTask</span> = <span class="code-keyword">await</span> <span class="code-class">Task</span>.<span class="code-method">WhenAny</span>(<span class="code-variable">task1</span>, <span class="code-variable">task2</span>, <span class="code-variable">task3</span>);
+<span class="code-type">string</span> <span class="code-variable">firstResult</span> = <span class="code-keyword">await</span> <span class="code-variable">completedTask</span>;</code></pre>
+
+                <div class="callout callout-tip">
+                    <div class="callout-title">💡 Performance Tip</div>
+                    <p>
+                        Use <code>Task.WhenAll</code> when you have multiple independent async operations.
+                        Instead of waiting 5 seconds for 5 sequential 1-second operations, they all run
+                        concurrently and complete in just 1 second!
+                    </p>
+                </div>
+
+                <h2>Error Handling in Async Code</h2>
+
+                <div class="code-header">
+                    <span class="code-filename">AsyncErrorHandling.cs</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-keyword">public</span> <span class="code-keyword">async</span> <span class="code-class">Task</span>&lt;<span class="code-class">Product</span>&gt; <span class="code-method">GetProductAsync</span>(<span class="code-type">string</span> <span class="code-variable">sku</span>)
+{
+    <span class="code-keyword">try</span>
+    {
+        <span class="code-keyword">using</span> <span class="code-class">HttpClient</span> <span class="code-variable">client</span> = <span class="code-keyword">new</span>();
+        <span class="code-type">string</span> <span class="code-variable">json</span> = <span class="code-keyword">await</span> <span class="code-variable">client</span>.<span class="code-method">GetStringAsync</span>(<span class="code-string">$"https://api.example.com/products/</span>{<span class="code-variable">sku</span>}<span class="code-string">"</span>);
+        <span class="code-keyword">return</span> <span class="code-class">JsonSerializer</span>.<span class="code-method">Deserialize</span>&lt;<span class="code-class">Product</span>&gt;(<span class="code-variable">json</span>);
+    }
+    <span class="code-keyword">catch</span> (<span class="code-class">HttpRequestException</span> <span class="code-variable">ex</span>)
+    {
+        Console.<span class="code-method">WriteLine</span>(<span class="code-string">$"Network error: </span>{<span class="code-variable">ex</span>.<span class="code-variable">Message</span>}<span class="code-string">"</span>);
+        <span class="code-keyword">return</span> <span class="code-keyword">null</span>;
+    }
+    <span class="code-keyword">catch</span> (<span class="code-class">JsonException</span> <span class="code-variable">ex</span>)
+    {
+        Console.<span class="code-method">WriteLine</span>(<span class="code-string">$"Invalid JSON: </span>{<span class="code-variable">ex</span>.<span class="code-variable">Message</span>}<span class="code-string">"</span>);
+        <span class="code-keyword">return</span> <span class="code-keyword">null</span>;
+    }
+}
+
+<span class="code-comment">// try-catch works the same way with async/await!</span></code></pre>
+
+                <h3>Handling Multiple Task Errors</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">WhenAllErrors.cs</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-keyword">try</span>
+{
+    <span class="code-keyword">await</span> <span class="code-class">Task</span>.<span class="code-method">WhenAll</span>(<span class="code-variable">task1</span>, <span class="code-variable">task2</span>, <span class="code-variable">task3</span>);
+}
+<span class="code-keyword">catch</span> (<span class="code-class">Exception</span> <span class="code-variable">ex</span>)
+{
+    <span class="code-comment">// Only the first exception is caught</span>
+    <span class="code-comment">// To see all exceptions, check task.Exception</span>
+    Console.<span class="code-method">WriteLine</span>(<span class="code-variable">ex</span>.<span class="code-variable">Message</span>);
+}</code></pre>
+
+                <div class="section-divider"></div>
+
+                <h2>InvenTrack: Async in Action</h2>
+
+                <div class="code-header">
+                    <span class="code-filename">InvenTrackAsync.cs</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-keyword">class</span> <span class="code-class">ProductService</span>
+{
+    <span class="code-keyword">private</span> <span class="code-keyword">readonly</span> <span class="code-class">HttpClient</span> <span class="code-variable">httpClient</span>;
+    <span class="code-keyword">private</span> <span class="code-keyword">readonly</span> <span class="code-type">string</span> <span class="code-variable">apiBaseUrl</span>;
+    
+    <span class="code-keyword">public</span> <span class="code-method">ProductService</span>()
+    {
+        <span class="code-variable">httpClient</span> = <span class="code-keyword">new</span> <span class="code-class">HttpClient</span>();
+        <span class="code-variable">apiBaseUrl</span> = <span class="code-string">"https://api.inventrackdemo.com"</span>;
+    }
+    
+    <span class="code-comment">// Fetch single product</span>
+    <span class="code-keyword">public</span> <span class="code-keyword">async</span> <span class="code-class">Task</span>&lt;<span class="code-class">Product</span>&gt; <span class="code-method">GetProductAsync</span>(<span class="code-type">string</span> <span class="code-variable">sku</span>)
+    {
+        <span class="code-type">string</span> <span class="code-variable">url</span> = <span class="code-string">$"</span>{<span class="code-variable">apiBaseUrl</span>}<span class="code-string">/products/</span>{<span class="code-variable">sku</span>}<span class="code-string">"</span>;
+        <span class="code-type">string</span> <span class="code-variable">json</span> = <span class="code-keyword">await</span> <span class="code-variable">httpClient</span>.<span class="code-method">GetStringAsync</span>(<span class="code-variable">url</span>);
+        <span class="code-keyword">return</span> <span class="code-class">JsonSerializer</span>.<span class="code-method">Deserialize</span>&lt;<span class="code-class">Product</span>&gt;(<span class="code-variable">json</span>);
+    }
+    
+    <span class="code-comment">// Fetch all products</span>
+    <span class="code-keyword">public</span> <span class="code-keyword">async</span> <span class="code-class">Task</span>&lt;<span class="code-class">List</span>&lt;<span class="code-class">Product</span>&gt;&gt; <span class="code-method">GetAllProductsAsync</span>()
+    {
+        <span class="code-type">string</span> <span class="code-variable">url</span> = <span class="code-string">$"</span>{<span class="code-variable">apiBaseUrl</span>}<span class="code-string">/products"</span>;
+        <span class="code-type">string</span> <span class="code-variable">json</span> = <span class="code-keyword">await</span> <span class="code-variable">httpClient</span>.<span class="code-method">GetStringAsync</span>(<span class="code-variable">url</span>);
+        <span class="code-keyword">return</span> <span class="code-class">JsonSerializer</span>.<span class="code-method">Deserialize</span>&lt;<span class="code-class">List</span>&lt;<span class="code-class">Product</span>&gt;&gt;(<span class="code-variable">json</span>);
+    }
+    
+    <span class="code-comment">// Update product stock</span>
+    <span class="code-keyword">public</span> <span class="code-keyword">async</span> <span class="code-class">Task</span> <span class="code-method">UpdateStockAsync</span>(<span class="code-type">string</span> <span class="code-variable">sku</span>, <span class="code-type">int</span> <span class="code-variable">newQuantity</span>)
+    {
+        <span class="code-type">string</span> <span class="code-variable">url</span> = <span class="code-string">$"</span>{<span class="code-variable">apiBaseUrl</span>}<span class="code-string">/products/</span>{<span class="code-variable">sku</span>}<span class="code-string">/stock"</span>;
+        <span class="code-keyword">var</span> <span class="code-variable">content</span> = <span class="code-keyword">new</span> <span class="code-class">StringContent</span>(
+            <span class="code-class">JsonSerializer</span>.<span class="code-method">Serialize</span>(<span class="code-keyword">new</span> { <span class="code-variable">quantity</span> = <span class="code-variable">newQuantity</span> }),
+            <span class="code-class">Encoding</span>.<span class="code-variable">UTF8</span>,
+            <span class="code-string">"application/json"</span>
+        );
+        
+        <span class="code-keyword">await</span> <span class="code-variable">httpClient</span>.<span class="code-method">PutAsync</span>(<span class="code-variable">url</span>, <span class="code-variable">content</span>);
+    }
+    
+    <span class="code-comment">// Fetch multiple products concurrently</span>
+    <span class="code-keyword">public</span> <span class="code-keyword">async</span> <span class="code-class">Task</span>&lt;<span class="code-class">List</span>&lt;<span class="code-class">Product</span>&gt;&gt; <span class="code-method">GetProductsBatchAsync</span>(<span class="code-class">List</span>&lt;<span class="code-type">string</span>&gt; <span class="code-variable">skus</span>)
+    {
+        <span class="code-comment">// Create tasks for all SKUs</span>
+        <span class="code-keyword">var</span> <span class="code-variable">tasks</span> = <span class="code-variable">skus</span>.<span class="code-method">Select</span>(<span class="code-variable">sku</span> => <span class="code-method">GetProductAsync</span>(<span class="code-variable">sku</span>)).<span class="code-method">ToList</span>();
+        
+        <span class="code-comment">// Wait for all to complete</span>
+        <span class="code-class">Product</span>[] <span class="code-variable">products</span> = <span class="code-keyword">await</span> <span class="code-class">Task</span>.<span class="code-method">WhenAll</span>(<span class="code-variable">tasks</span>);
+        
+        <span class="code-keyword">return</span> <span class="code-variable">products</span>.<span class="code-method">ToList</span>();
+    }
+    
+    <span class="code-comment">// Generate daily report (multiple async operations)</span>
+    <span class="code-keyword">public</span> <span class="code-keyword">async</span> <span class="code-class">Task</span> <span class="code-method">GenerateDailyReportAsync</span>()
+    {
+        Console.<span class="code-method">WriteLine</span>(<span class="code-string">"Generating daily report..."</span>);
+        
+        <span class="code-comment">// Fetch data concurrently</span>
+        <span class="code-keyword">var</span> <span class="code-variable">productsTask</span> = <span class="code-method">GetAllProductsAsync</span>();
+        <span class="code-keyword">var</span> <span class="code-variable">ordersTask</span> = <span class="code-method">GetTodaysOrdersAsync</span>();
+        <span class="code-keyword">var</span> <span class="code-variable">customersTask</span> = <span class="code-method">GetActiveCustomersAsync</span>();
+        
+        <span class="code-keyword">await</span> <span class="code-class">Task</span>.<span class="code-method">WhenAll</span>(<span class="code-variable">productsTask</span>, <span class="code-variable">ordersTask</span>, <span class="code-variable">customersTask</span>);
+        
+        <span class="code-comment">// Process results</span>
+        <span class="code-keyword">var</span> <span class="code-variable">products</span> = <span class="code-keyword">await</span> <span class="code-variable">productsTask</span>;
+        <span class="code-keyword">var</span> <span class="code-variable">orders</span> = <span class="code-keyword">await</span> <span class="code-variable">ordersTask</span>;
+        <span class="code-keyword">var</span> <span class="code-variable">customers</span> = <span class="code-keyword">await</span> <span class="code-variable">customersTask</span>;
+        
+        <span class="code-comment">// Generate and save report</span>
+        <span class="code-type">string</span> <span class="code-variable">report</span> = <span class="code-method">BuildReport</span>(<span class="code-variable">products</span>, <span class="code-variable">orders</span>, <span class="code-variable">customers</span>);
+        <span class="code-keyword">await</span> <span class="code-class">File</span>.<span class="code-method">WriteAllTextAsync</span>(<span class="code-string">"daily-report.txt"</span>, <span class="code-variable">report</span>);
+        
+        Console.<span class="code-method">WriteLine</span>(<span class="code-string">"Report generated!"</span>);
+    }
+}</code></pre>
+
+                <div class="callout callout-tip">
+                    <div class="callout-title">🚀 Real-World Pattern</div>
+                    <p>
+                        Notice how <code>GenerateDailyReportAsync</code> fetches products, orders, and customers
+                        concurrently with <code>Task.WhenAll</code>. If each takes 2 seconds, sequential would
+                        take 6 seconds, but concurrent takes just 2 seconds!
+                    </p>
+                </div>
+
+                <div class="section-divider"></div>
+
+                <h2>Best Practices</h2>
+
+                <div class="callout callout-info">
+                    <div class="callout-title">✅ Do's</div>
+                    <p>
+                        ✅ Use async/await for I/O operations (file, network, database)<br>
+                        ✅ Name async methods with "Async" suffix<br>
+                        ✅ Return <code>Task</code> or <code>Task&lt;T&gt;</code>, not <code>void</code><br>
+                        ✅ Use <code>ConfigureAwait(false)</code> in libraries (not UI apps)<br>
+                        ✅ Use <code>Task.WhenAll</code> for concurrent operations<br>
+                        ✅ Propagate async all the way up (don't block with <code>.Result</code>)
+                    </p>
+                </div>
+
+                <div class="callout callout-warning">
+                    <div class="callout-title">❌ Don'ts</div>
+                    <p>
+                        ❌ Don't use async for CPU-bound work (use <code>Task.Run</code> instead)<br>
+                        ❌ Don't block on async code with <code>.Result</code> or <code>.Wait()</code> (deadlock
+                        risk)<br>
+                        ❌ Don't use <code>async void</code> except for event handlers<br>
+                        ❌ Don't forget to <code>await</code> your tasks<br>
+                        ❌ Don't create unnecessary tasks for synchronous work
+                    </p>
+                </div>
+
+                <h2>When to Use Async/Await</h2>
+
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Use Async For</th>
+                            <th>Don't Use Async For</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>File I/O operations</td>
+                            <td>Simple calculations</td>
+                        </tr>
+                        <tr>
+                            <td>Network/HTTP requests</td>
+                            <td>In-memory operations</td>
+                        </tr>
+                        <tr>
+                            <td>Database queries</td>
+                            <td>Property getters/setters</td>
+                        </tr>
+                        <tr>
+                            <td>External API calls</td>
+                            <td>Constructors</td>
+                        </tr>
+                        <tr>
+                            <td>Long-running operations</td>
+                            <td>CPU-intensive work (use Task.Run)</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h2>Key Takeaways</h2>
+
+                <ul>
+                    <li><strong>Async/await</strong> enables non-blocking I/O operations</li>
+                    <li><strong>async</strong> keyword marks methods as asynchronous</li>
+                    <li><strong>await</strong> keyword waits without blocking the thread</li>
+                    <li><strong>Task</strong> represents an async operation; <strong>Task&lt;T&gt;</strong> returns a
+                        value</li>
+                    <li><strong>Task.WhenAll</strong> runs multiple operations concurrently</li>
+                    <li><strong>Error handling</strong> works the same with try-catch</li>
+                    <li>Use async for <strong>I/O-bound</strong> work, not CPU-bound</li>
+                    <li><strong>Never block</strong> on async code with .Result or .Wait()</li>
+                    <li>Async methods should end with <strong>"Async"</strong> suffix</li>
+                    <li>Essential for <strong>scalable, responsive</strong> applications</li>
+                </ul>
+
+                <div class="callout callout-concept">
+                    <div class="callout-title">🎉 Part I Complete!</div>
+                    <p>
+                        Congratulations! You've completed <strong>Part I: Foundations</strong>. You now understand
+                        C# fundamentals, OOP, collections, LINQ, and asynchronous programming. You're ready to
+                        build real applications with ASP.NET Core!
+                    </p>
+                    <p>
+                        <strong>Next up</strong>: Part II will dive into ASP.NET Core fundamentals—building web
+                        APIs, handling HTTP requests, dependency injection, middleware, and more. The real fun
+                        begins! 🚀
+                    </p>
+                </div>
+
+                <nav class="page-nav">
+                    <a href="09-linq.html" class="prev">LINQ</a>
+                    <a href="../part-02-dotnet-core-basics/01-dotnet-ecosystem.html" class="next">Continue to Part II
+                        →</a>
+                </nav>
+
+            
+        <footer class="page-footer">
+          Built with 💜 by <a href="https://akwasi.dev" target="_blank" rel="noopener noreferrer">Akwasi Adu-Kyeremeh</a> for developers who want to truly understand what they're building.
+        </footer>
+
+      </div>
+        </main>
+    </div>
+</body>
+
+</html>

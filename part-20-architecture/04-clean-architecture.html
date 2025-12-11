@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Clean Architecture | ASP.NET Core Mastery</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;500&family=Source+Serif+4:ital,wght@0,400;0,600;1,400&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="../assets/style.css">
+</head>
+
+<body>
+    <div class="page-wrapper">
+        <aside class="sidebar">
+            <a href="../index.html" class="sidebar-logo">ASP.NET Core Mastery</a>
+            <div class="sidebar-section">Part XX: Architecture</div>
+            <ul class="sidebar-nav">
+                <li><a href="01-solid-principles.html">SOLID Principles</a></li>
+                <li><a href="02-repository-pattern.html">Repository Pattern</a></li>
+                <li><a href="03-unit-of-work.html">Unit of Work</a></li>
+                <li><a href="04-clean-architecture.html" class="active">Clean Architecture</a></li>
+                <li><a href="05-ddd-basics.html">Domain-Driven Design Basics</a></li>
+            </ul>
+            <div class="sidebar-section">Resources</div>
+            <ul class="sidebar-nav">
+                <li><a href="../index.html">Full Roadmap</a></li>
+            </ul>
+        </aside>
+
+        <main class="main-content">
+            <div class="content-container">
+                <nav class="breadcrumb">
+                    <a href="../index.html">Home</a>
+                    <span>→</span>
+                    <a href="01-solid-principles.html">Part XX: Architecture & Patterns</a>
+                    <span>→</span>
+                    Clean Architecture
+                </nav>
+
+                <div class="progress-indicator">
+                    <span>Section 4 of 5</span>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 80%"></div>
+                    </div>
+                </div>
+
+                <h1>Clean Architecture</h1>
+
+                <div class="learning-objectives">
+                    <h3>🎯 What You'll Learn</h3>
+                    <ul>
+                        <li>What is Clean Architecture</li>
+                        <li>Layers and dependencies</li>
+                        <li>Domain layer</li>
+                        <li>Application layer</li>
+                        <li>Infrastructure layer</li>
+                    </ul>
+                </div>
+
+                <h2>What is Clean Architecture?</h2>
+
+                <p>
+                    <strong>Clean Architecture</strong> organizes code into layers with dependencies pointing inward,
+                    keeping business logic independent of frameworks and infrastructure.
+                </p>
+
+                <div class="section-divider"></div>
+
+                <h2>Layers</h2>
+
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Layer</th>
+                            <th>Responsibility</th>
+                            <th>Dependencies</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Domain</strong></td>
+                            <td>Business entities and rules</td>
+                            <td>None</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Application</strong></td>
+                            <td>Use cases and business logic</td>
+                            <td>Domain</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Infrastructure</strong></td>
+                            <td>Data access, external services</td>
+                            <td>Application, Domain</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Presentation</strong></td>
+                            <td>UI, API controllers</td>
+                            <td>Application</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="section-divider"></div>
+
+                <h2>Project Structure</h2>
+
+                <div class="code-header">
+                    <span class="code-filename">Solution Structure</span>
+                    <span class="code-language">Text</span>
+                </div>
+                <pre><code>InvenTrack/
+├── InvenTrack.Domain/
+│   ├── Entities/
+│   │   ├── Product.cs
+│   │   ├── Order.cs
+│   ├── Interfaces/
+│   │   ├── IProductRepository.cs
+├── InvenTrack.Application/
+│   ├── Services/
+│   │   ├── ProductService.cs
+│   ├── DTOs/
+│   │   ├── ProductDto.cs
+├── InvenTrack.Infrastructure/
+│   ├── Data/
+│   │   ├── InvenTrackDbContext.cs
+│   ├── Repositories/
+│   │   ├── ProductRepository.cs
+├── InvenTrack.Web/
+│   ├── Controllers/
+│   │   ├── ProductsController.cs</code></pre>
+
+                <div class="section-divider"></div>
+
+                <h2>Domain Layer</h2>
+
+                <div class="code-header">
+                    <span class="code-filename">Domain/Entities/Product.cs</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-keyword">namespace</span> <span class="code-variable">InvenTrack</span>.<span class="code-variable">Domain</span>.<span class="code-variable">Entities</span>;
+
+<span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">Product</span>
+{
+    <span class="code-keyword">public</span> <span class="code-type">int</span> <span class="code-variable">Id</span> { <span class="code-keyword">get</span>; <span class="code-keyword">set</span>; }
+    <span class="code-keyword">public</span> <span class="code-type">string</span> <span class="code-variable">Name</span> { <span class="code-keyword">get</span>; <span class="code-keyword">set</span>; }
+    <span class="code-keyword">public</span> <span class="code-type">decimal</span> <span class="code-variable">Price</span> { <span class="code-keyword">get</span>; <span class="code-keyword">set</span>; }
+    <span class="code-keyword">public</span> <span class="code-type">int</span> <span class="code-variable">Quantity</span> { <span class="code-keyword">get</span>; <span class="code-keyword">set</span>; }
+
+    <span class="code-keyword">public</span> <span class="code-type">bool</span> <span class="code-method">IsLowStock</span>() => <span class="code-variable">Quantity</span> &lt; <span class="code-number">10</span>;
+}</code></pre>
+
+                <div class="code-header">
+                    <span class="code-filename">Domain/Interfaces/IProductRepository.cs</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-keyword">namespace</span> <span class="code-variable">InvenTrack</span>.<span class="code-variable">Domain</span>.<span class="code-variable">Interfaces</span>;
+
+<span class="code-keyword">public</span> <span class="code-keyword">interface</span> <span class="code-class">IProductRepository</span>
+{
+    <span class="code-class">Task</span>&lt;<span class="code-class">Product</span>&gt; <span class="code-method">GetByIdAsync</span>(<span class="code-type">int</span> <span class="code-variable">id</span>);
+    <span class="code-class">Task</span>&lt;<span class="code-class">IEnumerable</span>&lt;<span class="code-class">Product</span>&gt;&gt; <span class="code-method">GetAllAsync</span>();
+    <span class="code-class">Task</span> <span class="code-method">AddAsync</span>(<span class="code-class">Product</span> <span class="code-variable">product</span>);
+}</code></pre>
+
+                <div class="section-divider"></div>
+
+                <h2>Application Layer</h2>
+
+                <div class="code-header">
+                    <span class="code-filename">Application/DTOs/ProductDto.cs</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-keyword">namespace</span> <span class="code-variable">InvenTrack</span>.<span class="code-variable">Application</span>.<span class="code-variable">DTOs</span>;
+
+<span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">ProductDto</span>
+{
+    <span class="code-keyword">public</span> <span class="code-type">int</span> <span class="code-variable">Id</span> { <span class="code-keyword">get</span>; <span class="code-keyword">set</span>; }
+    <span class="code-keyword">public</span> <span class="code-type">string</span> <span class="code-variable">Name</span> { <span class="code-keyword">get</span>; <span class="code-keyword">set</span>; }
+    <span class="code-keyword">public</span> <span class="code-type">decimal</span> <span class="code-variable">Price</span> { <span class="code-keyword">get</span>; <span class="code-keyword">set</span>; }
+}</code></pre>
+
+                <div class="code-header">
+                    <span class="code-filename">Application/Services/ProductService.cs</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-keyword">namespace</span> <span class="code-variable">InvenTrack</span>.<span class="code-variable">Application</span>.<span class="code-variable">Services</span>;
+
+<span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">ProductService</span>
+{
+    <span class="code-keyword">private</span> <span class="code-keyword">readonly</span> <span class="code-class">IProductRepository</span> <span class="code-variable">_repository</span>;
+
+    <span class="code-keyword">public</span> <span class="code-method">ProductService</span>(<span class="code-class">IProductRepository</span> <span class="code-variable">repository</span>)
+    {
+        <span class="code-variable">_repository</span> = <span class="code-variable">repository</span>;
+    }
+
+    <span class="code-keyword">public</span> <span class="code-keyword">async</span> <span class="code-class">Task</span>&lt;<span class="code-class">IEnumerable</span>&lt;<span class="code-class">ProductDto</span>&gt;&gt; <span class="code-method">GetAllProductsAsync</span>()
+    {
+        <span class="code-keyword">var</span> <span class="code-variable">products</span> = <span class="code-keyword">await</span> <span class="code-variable">_repository</span>.<span class="code-method">GetAllAsync</span>();
+        
+        <span class="code-keyword">return</span> <span class="code-variable">products</span>.<span class="code-method">Select</span>(<span class="code-variable">p</span> => <span class="code-keyword">new</span> <span class="code-class">ProductDto</span>
+        {
+            <span class="code-variable">Id</span> = <span class="code-variable">p</span>.<span class="code-variable">Id</span>,
+            <span class="code-variable">Name</span> = <span class="code-variable">p</span>.<span class="code-variable">Name</span>,
+            <span class="code-variable">Price</span> = <span class="code-variable">p</span>.<span class="code-variable">Price</span>
+        });
+    }
+}</code></pre>
+
+                <div class="section-divider"></div>
+
+                <h2>Infrastructure Layer</h2>
+
+                <div class="code-header">
+                    <span class="code-filename">Infrastructure/Repositories/ProductRepository.cs</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-keyword">namespace</span> <span class="code-variable">InvenTrack</span>.<span class="code-variable">Infrastructure</span>.<span class="code-variable">Repositories</span>;
+
+<span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">ProductRepository</span> : <span class="code-class">IProductRepository</span>
+{
+    <span class="code-keyword">private</span> <span class="code-keyword">readonly</span> <span class="code-class">InvenTrackDbContext</span> <span class="code-variable">_context</span>;
+
+    <span class="code-keyword">public</span> <span class="code-method">ProductRepository</span>(<span class="code-class">InvenTrackDbContext</span> <span class="code-variable">context</span>)
+    {
+        <span class="code-variable">_context</span> = <span class="code-variable">context</span>;
+    }
+
+    <span class="code-keyword">public</span> <span class="code-keyword">async</span> <span class="code-class">Task</span>&lt;<span class="code-class">Product</span>&gt; <span class="code-method">GetByIdAsync</span>(<span class="code-type">int</span> <span class="code-variable">id</span>)
+    {
+        <span class="code-keyword">return</span> <span class="code-keyword">await</span> <span class="code-variable">_context</span>.<span class="code-variable">Products</span>.<span class="code-method">FindAsync</span>(<span class="code-variable">id</span>);
+    }
+}</code></pre>
+
+                <div class="section-divider"></div>
+
+                <h2>Presentation Layer</h2>
+
+                <div class="code-header">
+                    <span class="code-filename">Web/Controllers/ProductsController.cs</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-keyword">namespace</span> <span class="code-variable">InvenTrack</span>.<span class="code-variable">Web</span>.<span class="code-variable">Controllers</span>;
+
+<span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">ProductsController</span> : <span class="code-class">Controller</span>
+{
+    <span class="code-keyword">private</span> <span class="code-keyword">readonly</span> <span class="code-class">ProductService</span> <span class="code-variable">_productService</span>;
+
+    <span class="code-keyword">public</span> <span class="code-method">ProductsController</span>(<span class="code-class">ProductService</span> <span class="code-variable">productService</span>)
+    {
+        <span class="code-variable">_productService</span> = <span class="code-variable">productService</span>;
+    }
+
+    [<span class="code-class">HttpGet</span>]
+    <span class="code-keyword">public</span> <span class="code-keyword">async</span> <span class="code-class">Task</span>&lt;<span class="code-class">IActionResult</span>&gt; <span class="code-method">Index</span>()
+    {
+        <span class="code-keyword">var</span> <span class="code-variable">products</span> = <span class="code-keyword">await</span> <span class="code-variable">_productService</span>.<span class="code-method">GetAllProductsAsync</span>();
+        <span class="code-keyword">return</span> <span class="code-method">View</span>(<span class="code-variable">products</span>);
+    }
+}</code></pre>
+
+                <h2>Key Takeaways</h2>
+
+                <ul>
+                    <li><strong>Clean Architecture</strong>: Layers with inward dependencies</li>
+                    <li><strong>Domain</strong>: Business entities and interfaces (no dependencies)</li>
+                    <li><strong>Application</strong>: Use cases and DTOs (depends on Domain)</li>
+                    <li><strong>Infrastructure</strong>: Data access (depends on Domain)</li>
+                    <li><strong>Presentation</strong>: UI/API (depends on Application)</li>
+                    <li><strong>Benefits</strong>: Testable, maintainable, framework-independent</li>
+                </ul>
+
+                <nav class="page-nav">
+                    <a href="03-unit-of-work.html" class="prev">Unit of Work</a>
+                    <a href="05-ddd-basics.html" class="next">Domain-Driven Design Basics</a>
+                </nav>
+
+            
+        <footer class="page-footer">
+          Built with 💜 by <a href="https://akwasi.dev" target="_blank" rel="noopener noreferrer">Akwasi Adu-Kyeremeh</a> for developers who want to truly understand what they're building.
+        </footer>
+
+      </div>
+        </main>
+    </div>
+</body>
+
+</html>

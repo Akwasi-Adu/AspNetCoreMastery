@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Layouts and Partials | ASP.NET Core Mastery</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;500&family=Source+Serif+4:ital,wght@0,400;0,600;1,400&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="../assets/style.css">
+</head>
+
+<body>
+    <div class="page-wrapper">
+        <aside class="sidebar">
+            <a href="../index.html" class="sidebar-logo">ASP.NET Core Mastery</a>
+            <div class="sidebar-section">Part X: MVC & Views</div>
+            <ul class="sidebar-nav">
+                <li><a href="01-mvc-architecture.html">MVC Architecture</a></li>
+                <li><a href="02-controllers-for-views.html">Controllers for Views</a></li>
+                <li><a href="03-razor-syntax.html">Razor Syntax</a></li>
+                <li><a href="04-layouts-partials.html" class="active">Layouts and Partials</a></li>
+                <li><a href="05-view-components.html">View Components</a></li>
+                <li><a href="06-tag-helpers.html">Tag Helpers</a></li>
+            </ul>
+            <div class="sidebar-section">Resources</div>
+            <ul class="sidebar-nav">
+                <li><a href="../index.html">Full Roadmap</a></li>
+            </ul>
+        </aside>
+
+        <main class="main-content">
+            <div class="content-container">
+                <nav class="breadcrumb">
+                    <a href="../index.html">Home</a>
+                    <span>→</span>
+                    <a href="01-mvc-architecture.html">Part X: MVC & Views</a>
+                    <span>→</span>
+                    Layouts and Partials
+                </nav>
+
+                <div class="progress-indicator">
+                    <span>Section 4 of 6</span>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 66.67%"></div>
+                    </div>
+                </div>
+
+                <h1>Layouts and Partials</h1>
+
+                <div class="learning-objectives">
+                    <h3>🎯 What You'll Learn</h3>
+                    <ul>
+                        <li>Layout pages</li>
+                        <li>_ViewStart.cshtml</li>
+                        <li>_ViewImports.cshtml</li>
+                        <li>Partial views</li>
+                        <li>Sections</li>
+                        <li>Nested layouts</li>
+                    </ul>
+                </div>
+
+                <h2>What are Layouts?</h2>
+
+                <p>
+                    <strong>Layouts</strong> are master page templates that define the common structure
+                    (header, footer, navigation) for multiple pages.
+                </p>
+
+                <div class="section-divider"></div>
+
+                <h2>Creating a Layout</h2>
+
+                <div class="code-header">
+                    <span class="code-filename">Views/Shared/_Layout.cshtml</span>
+                    <span class="code-language">HTML</span>
+                </div>
+                <pre><code>&lt;!DOCTYPE html&gt;
+&lt;<span class="code-tag">html</span> <span class="code-attribute">lang</span>=<span class="code-string">"en"</span>&gt;
+&lt;<span class="code-tag">head</span>&gt;
+    &lt;<span class="code-tag">meta</span> <span class="code-attribute">charset</span>=<span class="code-string">"utf-8"</span>&gt;
+    &lt;<span class="code-tag">meta</span> <span class="code-attribute">name</span>=<span class="code-string">"viewport"</span> <span class="code-attribute">content</span>=<span class="code-string">"width=device-width, initial-scale=1.0"</span>&gt;
+    &lt;<span class="code-tag">title</span>&gt;<span class="code-tag">@ViewData</span>[<span class="code-string">"Title"</span>] - InvenTrack&lt;/<span class="code-tag">title</span>&gt;
+    &lt;<span class="code-tag">link</span> <span class="code-attribute">rel</span>=<span class="code-string">"stylesheet"</span> <span class="code-attribute">href</span>=<span class="code-string">"~/css/site.css"</span>&gt;
+&lt;/<span class="code-tag">head</span>&gt;
+&lt;<span class="code-tag">body</span>&gt;
+    &lt;<span class="code-tag">header</span>&gt;
+        &lt;<span class="code-tag">nav</span>&gt;
+            &lt;<span class="code-tag">a</span> <span class="code-attribute">asp-controller</span>=<span class="code-string">"Home"</span> <span class="code-attribute">asp-action</span>=<span class="code-string">"Index"</span>&gt;Home&lt;/<span class="code-tag">a</span>&gt;
+            &lt;<span class="code-tag">a</span> <span class="code-attribute">asp-controller</span>=<span class="code-string">"Products"</span> <span class="code-attribute">asp-action</span>=<span class="code-string">"Index"</span>&gt;Products&lt;/<span class="code-tag">a</span>&gt;
+        &lt;/<span class="code-tag">nav</span>&gt;
+    &lt;/<span class="code-tag">header</span>&gt;
+
+    &lt;<span class="code-tag">main</span>&gt;
+        <span class="code-tag">@RenderBody</span>() <span class="code-comment">&lt;!-- Page content goes here --&gt;</span>
+    &lt;/<span class="code-tag">main</span>&gt;
+
+    &lt;<span class="code-tag">footer</span>&gt;
+        &lt;<span class="code-tag">p</span>&gt;&amp;copy; <span class="code-tag">@DateTime</span>.<span class="code-variable">Now</span>.<span class="code-variable">Year</span> - InvenTrack&lt;/<span class="code-tag">p</span>&gt;
+    &lt;/<span class="code-tag">footer</span>&gt;
+
+    <span class="code-tag">@await</span> <span class="code-method">RenderSectionAsync</span>(<span class="code-string">"Scripts"</span>, <span class="code-variable">required</span>: <span class="code-keyword">false</span>)
+&lt;/<span class="code-tag">body</span>&gt;
+&lt;/<span class="code-tag">html</span>&gt;</code></pre>
+
+                <div class="callout callout-info">
+                    <div class="callout-title">💡 Key Methods</div>
+                    <p>
+                        <strong>@RenderBody()</strong>: Renders the content of the child view<br>
+                        <strong>@RenderSection()</strong>: Renders optional/required sections
+                    </p>
+                </div>
+
+                <div class="section-divider"></div>
+
+                <h2>Using a Layout</h2>
+
+                <h3>Specify Layout in View</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">Views/Products/Index.cshtml</span>
+                    <span class="code-language">HTML</span>
+                </div>
+                <pre><code><span class="code-tag">@</span>{
+    <span class="code-variable">Layout</span> = <span class="code-string">"_Layout"</span>;
+    <span class="code-variable">ViewData</span>[<span class="code-string">"Title"</span>] = <span class="code-string">"Products"</span>;
+}
+
+&lt;<span class="code-tag">h1</span>&gt;Products&lt;/<span class="code-tag">h1</span>&gt;
+&lt;<span class="code-tag">p</span>&gt;This content will be rendered in @RenderBody()&lt;/<span class="code-tag">p</span>&gt;</code></pre>
+
+                <h3>_ViewStart.cshtml</h3>
+
+                <p>
+                    <strong>_ViewStart.cshtml</strong> sets the default layout for all views.
+                </p>
+
+                <div class="code-header">
+                    <span class="code-filename">Views/_ViewStart.cshtml</span>
+                    <span class="code-language">HTML</span>
+                </div>
+                <pre><code><span class="code-tag">@</span>{
+    <span class="code-variable">Layout</span> = <span class="code-string">"_Layout"</span>;
+}</code></pre>
+
+                <p>Now all views automatically use <code>_Layout.cshtml</code>.</p>
+
+                <div class="section-divider"></div>
+
+                <h2>Sections</h2>
+
+                <p>
+                    <strong>Sections</strong> allow views to inject content into specific areas of the layout.
+                </p>
+
+                <h3>Define Section in Layout</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">Views/Shared/_Layout.cshtml</span>
+                    <span class="code-language">HTML</span>
+                </div>
+                <pre><code>&lt;<span class="code-tag">head</span>&gt;
+    <span class="code-comment">&lt;!-- Optional section --&gt;</span>
+    <span class="code-tag">@await</span> <span class="code-method">RenderSectionAsync</span>(<span class="code-string">"Styles"</span>, <span class="code-variable">required</span>: <span class="code-keyword">false</span>)
+&lt;/<span class="code-tag">head</span>&gt;
+&lt;<span class="code-tag">body</span>&gt;
+    <span class="code-tag">@RenderBody</span>()
+
+    <span class="code-comment">&lt;!-- Required section --&gt;</span>
+    <span class="code-tag">@await</span> <span class="code-method">RenderSectionAsync</span>(<span class="code-string">"Scripts"</span>, <span class="code-variable">required</span>: <span class="code-keyword">true</span>)
+&lt;/<span class="code-tag">body</span>&gt;</code></pre>
+
+                <h3>Provide Section in View</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">Views/Products/Index.cshtml</span>
+                    <span class="code-language">HTML</span>
+                </div>
+                <pre><code>&lt;<span class="code-tag">h1</span>&gt;Products&lt;/<span class="code-tag">h1</span>&gt;
+
+<span class="code-tag">@section</span> <span class="code-variable">Styles</span> {
+    &lt;<span class="code-tag">link</span> <span class="code-attribute">rel</span>=<span class="code-string">"stylesheet"</span> <span class="code-attribute">href</span>=<span class="code-string">"~/css/products.css"</span>&gt;
+}
+
+<span class="code-tag">@section</span> <span class="code-variable">Scripts</span> {
+    &lt;<span class="code-tag">script</span> <span class="code-attribute">src</span>=<span class="code-string">"~/js/products.js"</span>&gt;&lt;/<span class="code-tag">script</span>&gt;
+}</code></pre>
+
+                <h3>Check if Section Exists</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">Conditional Section Rendering</span>
+                    <span class="code-language">HTML</span>
+                </div>
+                <pre><code><span class="code-tag">@if</span> (<span class="code-method">IsSectionDefined</span>(<span class="code-string">"Styles"</span>))
+{
+    <span class="code-tag">@await</span> <span class="code-method">RenderSectionAsync</span>(<span class="code-string">"Styles"</span>)
+}
+<span class="code-tag">@else</span>
+{
+    &lt;<span class="code-tag">link</span> <span class="code-attribute">rel</span>=<span class="code-string">"stylesheet"</span> <span class="code-attribute">href</span>=<span class="code-string">"~/css/default.css"</span>&gt;
+}</code></pre>
+
+                <div class="section-divider"></div>
+
+                <h2>Partial Views</h2>
+
+                <p>
+                    <strong>Partial views</strong> are reusable UI components that can be included in multiple views.
+                </p>
+
+                <h3>Create Partial View</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">Views/Shared/_ProductCard.cshtml</span>
+                    <span class="code-language">HTML</span>
+                </div>
+                <pre><code><span class="code-tag">@model</span> <span class="code-class">Product</span>
+
+&lt;<span class="code-tag">div</span> <span class="code-attribute">class</span>=<span class="code-string">"card"</span>&gt;
+    &lt;<span class="code-tag">h3</span>&gt;<span class="code-tag">@Model</span>.<span class="code-variable">Name</span>&lt;/<span class="code-tag">h3</span>&gt;
+    &lt;<span class="code-tag">p</span>&gt;$<span class="code-tag">@Model</span>.<span class="code-variable">Price</span>&lt;/<span class="code-tag">p</span>&gt;
+    &lt;<span class="code-tag">p</span>&gt;Quantity: <span class="code-tag">@Model</span>.<span class="code-variable">Quantity</span>&lt;/<span class="code-tag">p</span>&gt;
+&lt;/<span class="code-tag">div</span>&gt;</code></pre>
+
+                <h3>Render Partial View</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">Use Partial in View</span>
+                    <span class="code-language">HTML</span>
+                </div>
+                <pre><code><span class="code-tag">@model</span> <span class="code-class">List</span>&lt;<span class="code-class">Product</span>&gt;
+
+&lt;<span class="code-tag">div</span> <span class="code-attribute">class</span>=<span class="code-string">"product-grid"</span>&gt;
+    <span class="code-tag">@foreach</span> (<span class="code-keyword">var</span> <span class="code-variable">product</span> <span class="code-keyword">in</span> <span class="code-variable">Model</span>)
+    {
+        &lt;<span class="code-tag">partial</span> <span class="code-attribute">name</span>=<span class="code-string">"_ProductCard"</span> <span class="code-attribute">model</span>=<span class="code-string">"product"</span> /&gt;
+    }
+&lt;/<span class="code-tag">div</span>&gt;</code></pre>
+
+                <h3>Alternative Syntax</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">Different Ways to Render Partials</span>
+                    <span class="code-language">HTML</span>
+                </div>
+                <pre><code><span class="code-comment">&lt;!-- Tag Helper (recommended) --&gt;</span>
+&lt;<span class="code-tag">partial</span> <span class="code-attribute">name</span>=<span class="code-string">"_ProductCard"</span> <span class="code-attribute">model</span>=<span class="code-string">"product"</span> /&gt;
+
+<span class="code-comment">&lt;!-- HTML Helper --&gt;</span>
+<span class="code-tag">@await</span> <span class="code-class">Html</span>.<span class="code-method">PartialAsync</span>(<span class="code-string">"_ProductCard"</span>, <span class="code-variable">product</span>)
+
+<span class="code-comment">&lt;!-- Synchronous (avoid) --&gt;</span>
+<span class="code-tag">@Html</span>.<span class="code-method">Partial</span>(<span class="code-string">"_ProductCard"</span>, <span class="code-variable">product</span>)</code></pre>
+
+                <div class="section-divider"></div>
+
+                <h2>_ViewImports.cshtml</h2>
+
+                <p>
+                    <strong>_ViewImports.cshtml</strong> imports namespaces and tag helpers for all views.
+                </p>
+
+                <div class="code-header">
+                    <span class="code-filename">Views/_ViewImports.cshtml</span>
+                    <span class="code-language">HTML</span>
+                </div>
+                <pre><code><span class="code-tag">@using</span> <span class="code-class">InvenTrack</span>
+<span class="code-tag">@using</span> <span class="code-class">InvenTrack</span>.<span class="code-class">Models</span>
+<span class="code-tag">@addTagHelper</span> *, <span class="code-class">Microsoft</span>.<span class="code-class">AspNetCore</span>.<span class="code-class">Mvc</span>.<span class="code-class">TagHelpers</span></code></pre>
+
+                <div class="section-divider"></div>
+
+                <h2>Nested Layouts</h2>
+
+                <p>
+                    You can create layouts that inherit from other layouts.
+                </p>
+
+                <div class="code-header">
+                    <span class="code-filename">Views/Shared/_AdminLayout.cshtml</span>
+                    <span class="code-language">HTML</span>
+                </div>
+                <pre><code><span class="code-tag">@</span>{
+    <span class="code-variable">Layout</span> = <span class="code-string">"_Layout"</span>; <span class="code-comment">// Inherit from main layout</span>
+}
+
+&lt;<span class="code-tag">div</span> <span class="code-attribute">class</span>=<span class="code-string">"admin-sidebar"</span>&gt;
+    &lt;<span class="code-tag">a</span> <span class="code-attribute">asp-controller</span>=<span class="code-string">"Admin"</span> <span class="code-attribute">asp-action</span>=<span class="code-string">"Dashboard"</span>&gt;Dashboard&lt;/<span class="code-tag">a</span>&gt;
+    &lt;<span class="code-tag">a</span> <span class="code-attribute">asp-controller</span>=<span class="code-string">"Admin"</span> <span class="code-attribute">asp-action</span>=<span class="code-string">"Users"</span>&gt;Users&lt;/<span class="code-tag">a</span>&gt;
+&lt;/<span class="code-tag">div</span>&gt;
+
+&lt;<span class="code-tag">div</span> <span class="code-attribute">class</span>=<span class="code-string">"admin-content"</span>&gt;
+    <span class="code-tag">@RenderBody</span>()
+&lt;/<span class="code-tag">div</span>&gt;</code></pre>
+
+                <h2>Complete InvenTrack Example</h2>
+
+                <div class="code-header">
+                    <span class="code-filename">Views/Shared/_Layout.cshtml</span>
+                    <span class="code-language">HTML</span>
+                </div>
+                <pre><code>&lt;!DOCTYPE html&gt;
+&lt;<span class="code-tag">html</span> <span class="code-attribute">lang</span>=<span class="code-string">"en"</span>&gt;
+&lt;<span class="code-tag">head</span>&gt;
+    &lt;<span class="code-tag">meta</span> <span class="code-attribute">charset</span>=<span class="code-string">"utf-8"</span>&gt;
+    &lt;<span class="code-tag">meta</span> <span class="code-attribute">name</span>=<span class="code-string">"viewport"</span> <span class="code-attribute">content</span>=<span class="code-string">"width=device-width, initial-scale=1.0"</span>&gt;
+    &lt;<span class="code-tag">title</span>&gt;<span class="code-tag">@ViewData</span>[<span class="code-string">"Title"</span>] - InvenTrack&lt;/<span class="code-tag">title</span>&gt;
+    &lt;<span class="code-tag">link</span> <span class="code-attribute">rel</span>=<span class="code-string">"stylesheet"</span> <span class="code-attribute">href</span>=<span class="code-string">"~/lib/bootstrap/dist/css/bootstrap.min.css"</span>&gt;
+    &lt;<span class="code-tag">link</span> <span class="code-attribute">rel</span>=<span class="code-string">"stylesheet"</span> <span class="code-attribute">href</span>=<span class="code-string">"~/css/site.css"</span>&gt;
+    <span class="code-tag">@await</span> <span class="code-method">RenderSectionAsync</span>(<span class="code-string">"Styles"</span>, <span class="code-variable">required</span>: <span class="code-keyword">false</span>)
+&lt;/<span class="code-tag">head</span>&gt;
+&lt;<span class="code-tag">body</span>&gt;
+    &lt;<span class="code-tag">header</span>&gt;
+        &lt;<span class="code-tag">nav</span> <span class="code-attribute">class</span>=<span class="code-string">"navbar navbar-expand-lg navbar-dark bg-dark"</span>&gt;
+            &lt;<span class="code-tag">div</span> <span class="code-attribute">class</span>=<span class="code-string">"container"</span>&gt;
+                &lt;<span class="code-tag">a</span> <span class="code-attribute">class</span>=<span class="code-string">"navbar-brand"</span> <span class="code-attribute">asp-controller</span>=<span class="code-string">"Home"</span> <span class="code-attribute">asp-action</span>=<span class="code-string">"Index"</span>&gt;InvenTrack&lt;/<span class="code-tag">a</span>&gt;
+                &lt;<span class="code-tag">ul</span> <span class="code-attribute">class</span>=<span class="code-string">"navbar-nav"</span>&gt;
+                    &lt;<span class="code-tag">li</span> <span class="code-attribute">class</span>=<span class="code-string">"nav-item"</span>&gt;
+                        &lt;<span class="code-tag">a</span> <span class="code-attribute">class</span>=<span class="code-string">"nav-link"</span> <span class="code-attribute">asp-controller</span>=<span class="code-string">"Products"</span> <span class="code-attribute">asp-action</span>=<span class="code-string">"Index"</span>&gt;Products&lt;/<span class="code-tag">a</span>&gt;
+                    &lt;/<span class="code-tag">li</span>&gt;
+                    &lt;<span class="code-tag">li</span> <span class="code-attribute">class</span>=<span class="code-string">"nav-item"</span>&gt;
+                        &lt;<span class="code-tag">a</span> <span class="code-attribute">class</span>=<span class="code-string">"nav-link"</span> <span class="code-attribute">asp-controller</span>=<span class="code-string">"Orders"</span> <span class="code-attribute">asp-action</span>=<span class="code-string">"Index"</span>&gt;Orders&lt;/<span class="code-tag">a</span>&gt;
+                    &lt;/<span class="code-tag">li</span>&gt;
+                &lt;/<span class="code-tag">ul</span>&gt;
+            &lt;/<span class="code-tag">div</span>&gt;
+        &lt;/<span class="code-tag">nav</span>&gt;
+    &lt;/<span class="code-tag">header</span>&gt;
+
+    &lt;<span class="code-tag">main</span> <span class="code-attribute">class</span>=<span class="code-string">"container mt-4"</span>&gt;
+        <span class="code-tag">@RenderBody</span>()
+    &lt;/<span class="code-tag">main</span>&gt;
+
+    &lt;<span class="code-tag">footer</span> <span class="code-attribute">class</span>=<span class="code-string">"footer mt-5 py-3 bg-light"</span>&gt;
+        &lt;<span class="code-tag">div</span> <span class="code-attribute">class</span>=<span class="code-string">"container text-center"</span>&gt;
+            &lt;<span class="code-tag">p</span>&gt;&amp;copy; <span class="code-tag">@DateTime</span>.<span class="code-variable">Now</span>.<span class="code-variable">Year</span> - InvenTrack. All rights reserved.&lt;/<span class="code-tag">p</span>&gt;
+        &lt;/<span class="code-tag">div</span>&gt;
+    &lt;/<span class="code-tag">footer</span>&gt;
+
+    &lt;<span class="code-tag">script</span> <span class="code-attribute">src</span>=<span class="code-string">"~/lib/jquery/dist/jquery.min.js"</span>&gt;&lt;/<span class="code-tag">script</span>&gt;
+    &lt;<span class="code-tag">script</span> <span class="code-attribute">src</span>=<span class="code-string">"~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"</span>&gt;&lt;/<span class="code-tag">script</span>&gt;
+    <span class="code-tag">@await</span> <span class="code-method">RenderSectionAsync</span>(<span class="code-string">"Scripts"</span>, <span class="code-variable">required</span>: <span class="code-keyword">false</span>)
+&lt;/<span class="code-tag">body</span>&gt;
+&lt;/<span class="code-tag">html</span>&gt;</code></pre>
+
+                <div class="code-header">
+                    <span class="code-filename">Views/Shared/_ProductSummary.cshtml</span>
+                    <span class="code-language">HTML</span>
+                </div>
+                <pre><code><span class="code-tag">@model</span> <span class="code-class">Product</span>
+
+&lt;<span class="code-tag">div</span> <span class="code-attribute">class</span>=<span class="code-string">"card mb-3"</span>&gt;
+    &lt;<span class="code-tag">div</span> <span class="code-attribute">class</span>=<span class="code-string">"card-body"</span>&gt;
+        &lt;<span class="code-tag">h5</span> <span class="code-attribute">class</span>=<span class="code-string">"card-title"</span>&gt;<span class="code-tag">@Model</span>.<span class="code-variable">Name</span>&lt;/<span class="code-tag">h5</span>&gt;
+        &lt;<span class="code-tag">p</span> <span class="code-attribute">class</span>=<span class="code-string">"card-text"</span>&gt;<span class="code-tag">@Model</span>.<span class="code-variable">Category</span>&lt;/<span class="code-tag">p</span>&gt;
+        &lt;<span class="code-tag">p</span> <span class="code-attribute">class</span>=<span class="code-string">"card-text"</span>&gt;
+            &lt;<span class="code-tag">strong</span>&gt;$<span class="code-tag">@Model</span>.<span class="code-variable">Price</span>.<span class="code-method">ToString</span>(<span class="code-string">"F2"</span>)&lt;/<span class="code-tag">strong</span>&gt;
+        &lt;/<span class="code-tag">p</span>&gt;
+        &lt;<span class="code-tag">a</span> <span class="code-attribute">asp-action</span>=<span class="code-string">"Details"</span> <span class="code-attribute">asp-route-id</span>=<span class="code-string">"@Model.Id"</span> <span class="code-attribute">class</span>=<span class="code-string">"btn btn-primary"</span>&gt;View Details&lt;/<span class="code-tag">a</span>&gt;
+    &lt;/<span class="code-tag">div</span>&gt;
+&lt;/<span class="code-tag">div</span>&gt;</code></pre>
+
+                <div class="code-header">
+                    <span class="code-filename">Views/Products/Index.cshtml</span>
+                    <span class="code-language">HTML</span>
+                </div>
+                <pre><code><span class="code-tag">@model</span> <span class="code-class">List</span>&lt;<span class="code-class">Product</span>&gt;
+
+<span class="code-tag">@</span>{
+    <span class="code-variable">ViewData</span>[<span class="code-string">"Title"</span>] = <span class="code-string">"Products"</span>;
+}
+
+&lt;<span class="code-tag">h1</span>&gt;Products&lt;/<span class="code-tag">h1</span>&gt;
+
+&lt;<span class="code-tag">div</span> <span class="code-attribute">class</span>=<span class="code-string">"row"</span>&gt;
+    <span class="code-tag">@foreach</span> (<span class="code-keyword">var</span> <span class="code-variable">product</span> <span class="code-keyword">in</span> <span class="code-variable">Model</span>)
+    {
+        &lt;<span class="code-tag">div</span> <span class="code-attribute">class</span>=<span class="code-string">"col-md-4"</span>&gt;
+            &lt;<span class="code-tag">partial</span> <span class="code-attribute">name</span>=<span class="code-string">"_ProductSummary"</span> <span class="code-attribute">model</span>=<span class="code-string">"product"</span> /&gt;
+        &lt;/<span class="code-tag">div</span>&gt;
+    }
+&lt;/<span class="code-tag">div</span>&gt;
+
+<span class="code-tag">@section</span> <span class="code-variable">Scripts</span> {
+    &lt;<span class="code-tag">script</span>&gt;
+        <span class="code-class">console</span>.<span class="code-method">log</span>(<span class="code-string">'Loaded </span><span class="code-tag">@Model</span>.<span class="code-variable">Count</span><span class="code-string"> products'</span>);
+    &lt;/<span class="code-tag">script</span>&gt;
+}</code></pre>
+
+                <h2>Best Practices</h2>
+
+                <ul>
+                    <li><strong>Use _ViewStart</strong>: Set default layout for all views</li>
+                    <li><strong>Use _ViewImports</strong>: Import common namespaces</li>
+                    <li><strong>Partial naming</strong>: Prefix partials with underscore (_ProductCard)</li>
+                    <li><strong>Async rendering</strong>: Use @await for partials and sections</li>
+                    <li><strong>Optional sections</strong>: Set required: false for optional sections</li>
+                    <li><strong>Reusable partials</strong>: Create partials for repeated UI components</li>
+                </ul>
+
+                <h2>Key Takeaways</h2>
+
+                <ul>
+                    <li><strong>Layouts</strong>: Master page templates</li>
+                    <li><strong>@RenderBody()</strong>: Renders child view content</li>
+                    <li><strong>@RenderSection()</strong>: Renders optional/required sections</li>
+                    <li><strong>_ViewStart.cshtml</strong>: Sets default layout</li>
+                    <li><strong>_ViewImports.cshtml</strong>: Imports namespaces and tag helpers</li>
+                    <li><strong>Partial views</strong>: Reusable UI components</li>
+                    <li><strong>&lt;partial&gt;</strong>: Tag helper for rendering partials</li>
+                    <li><strong>Nested layouts</strong>: Layouts can inherit from other layouts</li>
+                </ul>
+
+                <div class="callout callout-concept">
+                    <div class="callout-title">🎯 Next Steps</div>
+                    <p>
+                        You now understand layouts and partials! In the next section, we'll explore
+                        <strong>View Components</strong>—more powerful, reusable components with their
+                        own logic and data access.
+                    </p>
+                </div>
+
+                <nav class="page-nav">
+                    <a href="03-razor-syntax.html" class="prev">Razor Syntax</a>
+                    <a href="05-view-components.html" class="next">View Components</a>
+                </nav>
+
+            
+        <footer class="page-footer">
+          Built with 💜 by <a href="https://akwasi.dev" target="_blank" rel="noopener noreferrer">Akwasi Adu-Kyeremeh</a> for developers who want to truly understand what they're building.
+        </footer>
+
+      </div>
+        </main>
+    </div>
+</body>
+
+</html>

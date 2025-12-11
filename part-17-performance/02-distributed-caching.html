@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Distributed Caching | ASP.NET Core Mastery</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;500&family=Source+Serif+4:ital,wght@0,400;0,600;1,400&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="../assets/style.css">
+</head>
+
+<body>
+    <div class="page-wrapper">
+        <aside class="sidebar">
+            <a href="../index.html" class="sidebar-logo">ASP.NET Core Mastery</a>
+            <div class="sidebar-section">Part XVII: Performance</div>
+            <ul class="sidebar-nav">
+                <li><a href="01-in-memory-caching.html">In-Memory Caching</a></li>
+                <li><a href="02-distributed-caching.html" class="active">Distributed Caching</a></li>
+                <li><a href="03-response-caching.html">Response Caching</a></li>
+                <li><a href="04-async-best-practices.html">Async Best Practices</a></li>
+                <li><a href="05-ef-core-performance.html">EF Core Performance</a></li>
+                <li><a href="06-profiling-tools.html">Profiling Tools</a></li>
+            </ul>
+            <div class="sidebar-section">Resources</div>
+            <ul class="sidebar-nav">
+                <li><a href="../index.html">Full Roadmap</a></li>
+            </ul>
+        </aside>
+
+        <main class="main-content">
+            <div class="content-container">
+                <nav class="breadcrumb">
+                    <a href="../index.html">Home</a>
+                    <span>→</span>
+                    <a href="01-in-memory-caching.html">Part XVII: Performance</a>
+                    <span>→</span>
+                    Distributed Caching
+                </nav>
+
+                <div class="progress-indicator">
+                    <span>Section 2 of 6</span>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 33.33%"></div>
+                    </div>
+                </div>
+
+                <h1>Distributed Caching</h1>
+
+                <div class="learning-objectives">
+                    <h3>🎯 What You'll Learn</h3>
+                    <ul>
+                        <li>What is distributed caching</li>
+                        <li>IDistributedCache interface</li>
+                        <li>SQL Server cache</li>
+                        <li>Redis cache</li>
+                        <li>Serialization</li>
+                    </ul>
+                </div>
+
+                <h2>What is Distributed Caching?</h2>
+
+                <p>
+                    <strong>Distributed caching</strong> stores cache data in an external system (Redis, SQL Server)
+                    shared across multiple servers, enabling scalability and persistence.
+                </p>
+
+                <div class="section-divider"></div>
+
+                <h2>In-Memory vs Distributed</h2>
+
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Aspect</th>
+                            <th>In-Memory</th>
+                            <th>Distributed</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Storage</strong></td>
+                            <td>Local server memory</td>
+                            <td>External cache server</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Shared</strong></td>
+                            <td>No (per server)</td>
+                            <td>Yes (across servers)</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Persistence</strong></td>
+                            <td>Lost on restart</td>
+                            <td>Can persist</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Speed</strong></td>
+                            <td>Fastest</td>
+                            <td>Slower (network)</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Use Case</strong></td>
+                            <td>Single server</td>
+                            <td>Multiple servers</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="section-divider"></div>
+
+                <h2>IDistributedCache Interface</h2>
+
+                <div class="code-header">
+                    <span class="code-filename">Inject IDistributedCache</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">ProductsController</span> : <span class="code-class">Controller</span>
+{
+    <span class="code-keyword">private</span> <span class="code-keyword">readonly</span> <span class="code-class">IDistributedCache</span> <span class="code-variable">_cache</span>;
+
+    <span class="code-keyword">public</span> <span class="code-method">ProductsController</span>(<span class="code-class">IDistributedCache</span> <span class="code-variable">cache</span>)
+    {
+        <span class="code-variable">_cache</span> = <span class="code-variable">cache</span>;
+    }
+}</code></pre>
+
+                <div class="section-divider"></div>
+
+                <h2>SQL Server Distributed Cache</h2>
+
+                <div class="code-header">
+                    <span class="code-filename">Install Package</span>
+                    <span class="code-language">Bash</span>
+                </div>
+                <pre><code>dotnet add package Microsoft.Extensions.Caching.SqlServer</code></pre>
+
+                <div class="code-header">
+                    <span class="code-filename">Create Cache Table</span>
+                    <span class="code-language">Bash</span>
+                </div>
+                <pre><code>dotnet sql-cache create "Data Source=.;Initial Catalog=InvenTrack;Integrated Security=True" dbo CacheTable</code></pre>
+
+                <div class="code-header">
+                    <span class="code-filename">Program.cs</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-variable">builder</span>.<span class="code-variable">Services</span>.<span class="code-method">AddDistributedSqlServerCache</span>(<span class="code-variable">options</span> =>
+{
+    <span class="code-variable">options</span>.<span class="code-variable">ConnectionString</span> = <span class="code-variable">builder</span>.<span class="code-variable">Configuration</span>.<span class="code-method">GetConnectionString</span>(<span class="code-string">"DefaultConnection"</span>);
+    <span class="code-variable">options</span>.<span class="code-variable">SchemaName</span> = <span class="code-string">"dbo"</span>;
+    <span class="code-variable">options</span>.<span class="code-variable">TableName</span> = <span class="code-string">"CacheTable"</span>;
+});</code></pre>
+
+                <div class="section-divider"></div>
+
+                <h2>Redis Distributed Cache</h2>
+
+                <div class="code-header">
+                    <span class="code-filename">Install Package</span>
+                    <span class="code-language">Bash</span>
+                </div>
+                <pre><code>dotnet add package Microsoft.Extensions.Caching.StackExchangeRedis</code></pre>
+
+                <div class="code-header">
+                    <span class="code-filename">Program.cs</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-variable">builder</span>.<span class="code-variable">Services</span>.<span class="code-method">AddStackExchangeRedisCache</span>(<span class="code-variable">options</span> =>
+{
+    <span class="code-variable">options</span>.<span class="code-variable">Configuration</span> = <span class="code-string">"localhost:6379"</span>;
+    <span class="code-variable">options</span>.<span class="code-variable">InstanceName</span> = <span class="code-string">"InvenTrack_"</span>;
+});</code></pre>
+
+                <div class="section-divider"></div>
+
+                <h2>Using IDistributedCache</h2>
+
+                <p>IDistributedCache stores byte arrays, so you need to serialize objects.</p>
+
+                <div class="code-header">
+                    <span class="code-filename">Set and Get with Serialization</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-comment">// Set</span>
+<span class="code-keyword">var</span> <span class="code-variable">json</span> = <span class="code-class">JsonSerializer</span>.<span class="code-method">Serialize</span>(<span class="code-variable">products</span>);
+<span class="code-keyword">await</span> <span class="code-variable">_cache</span>.<span class="code-method">SetStringAsync</span>(<span class="code-string">"products"</span>, <span class="code-variable">json</span>, <span class="code-keyword">new</span> <span class="code-class">DistributedCacheEntryOptions</span>
+{
+    <span class="code-variable">AbsoluteExpirationRelativeToNow</span> = <span class="code-class">TimeSpan</span>.<span class="code-method">FromMinutes</span>(<span class="code-number">10</span>)
+});
+
+<span class="code-comment">// Get</span>
+<span class="code-keyword">var</span> <span class="code-variable">cachedJson</span> = <span class="code-keyword">await</span> <span class="code-variable">_cache</span>.<span class="code-method">GetStringAsync</span>(<span class="code-string">"products"</span>);
+<span class="code-keyword">if</span> (<span class="code-variable">cachedJson</span> != <span class="code-keyword">null</span>)
+{
+    <span class="code-keyword">var</span> <span class="code-variable">products</span> = <span class="code-class">JsonSerializer</span>.<span class="code-method">Deserialize</span>&lt;<span class="code-class">List</span>&lt;<span class="code-class">Product</span>&gt;&gt;(<span class="code-variable">cachedJson</span>);
+}</code></pre>
+
+                <h2>InvenTrack Example</h2>
+
+                <div class="code-header">
+                    <span class="code-filename">ProductsController.cs</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">ProductsController</span> : <span class="code-class">Controller</span>
+{
+    <span class="code-keyword">private</span> <span class="code-keyword">readonly</span> <span class="code-class">IDistributedCache</span> <span class="code-variable">_cache</span>;
+    <span class="code-keyword">private</span> <span class="code-keyword">readonly</span> <span class="code-class">InvenTrackDbContext</span> <span class="code-variable">_context</span>;
+
+    [<span class="code-class">HttpGet</span>]
+    <span class="code-keyword">public</span> <span class="code-keyword">async</span> <span class="code-class">Task</span>&lt;<span class="code-class">IActionResult</span>&gt; <span class="code-method">Index</span>()
+    {
+        <span class="code-keyword">const</span> <span class="code-type">string</span> <span class="code-variable">cacheKey</span> = <span class="code-string">"products_list"</span>;
+
+        <span class="code-comment">// Try get from cache</span>
+        <span class="code-keyword">var</span> <span class="code-variable">cachedJson</span> = <span class="code-keyword">await</span> <span class="code-variable">_cache</span>.<span class="code-method">GetStringAsync</span>(<span class="code-variable">cacheKey</span>);
+        
+        <span class="code-class">List</span>&lt;<span class="code-class">Product</span>&gt; <span class="code-variable">products</span>;
+        
+        <span class="code-keyword">if</span> (<span class="code-variable">cachedJson</span> != <span class="code-keyword">null</span>)
+        {
+            <span class="code-comment">// Deserialize from cache</span>
+            <span class="code-variable">products</span> = <span class="code-class">JsonSerializer</span>.<span class="code-method">Deserialize</span>&lt;<span class="code-class">List</span>&lt;<span class="code-class">Product</span>&gt;&gt;(<span class="code-variable">cachedJson</span>);
+        }
+        <span class="code-keyword">else</span>
+        {
+            <span class="code-comment">// Fetch from database</span>
+            <span class="code-variable">products</span> = <span class="code-keyword">await</span> <span class="code-variable">_context</span>.<span class="code-variable">Products</span>.<span class="code-method">ToListAsync</span>();
+
+            <span class="code-comment">// Serialize and cache</span>
+            <span class="code-keyword">var</span> <span class="code-variable">json</span> = <span class="code-class">JsonSerializer</span>.<span class="code-method">Serialize</span>(<span class="code-variable">products</span>);
+            <span class="code-keyword">await</span> <span class="code-variable">_cache</span>.<span class="code-method">SetStringAsync</span>(<span class="code-variable">cacheKey</span>, <span class="code-variable">json</span>, <span class="code-keyword">new</span> <span class="code-class">DistributedCacheEntryOptions</span>
+            {
+                <span class="code-variable">AbsoluteExpirationRelativeToNow</span> = <span class="code-class">TimeSpan</span>.<span class="code-method">FromMinutes</span>(<span class="code-number">10</span>)
+            });
+        }
+
+        <span class="code-keyword">return</span> <span class="code-method">View</span>(<span class="code-variable">products</span>);
+    }
+}</code></pre>
+
+                <h2>Key Takeaways</h2>
+
+                <ul>
+                    <li><strong>Distributed cache</strong>: Shared across servers</li>
+                    <li><strong>IDistributedCache</strong>: Interface for distributed caching</li>
+                    <li><strong>SQL Server</strong>: AddDistributedSqlServerCache()</li>
+                    <li><strong>Redis</strong>: AddStackExchangeRedisCache()</li>
+                    <li><strong>Serialization</strong>: Use JSON for objects</li>
+                    <li><strong>SetStringAsync/GetStringAsync</strong>: String methods</li>
+                </ul>
+
+                <nav class="page-nav">
+                    <a href="01-in-memory-caching.html" class="prev">In-Memory Caching</a>
+                    <a href="03-response-caching.html" class="next">Response Caching</a>
+                </nav>
+
+            
+        <footer class="page-footer">
+          Built with 💜 by <a href="https://akwasi.dev" target="_blank" rel="noopener noreferrer">Akwasi Adu-Kyeremeh</a> for developers who want to truly understand what they're building.
+        </footer>
+
+      </div>
+        </main>
+    </div>
+</body>
+
+</html>

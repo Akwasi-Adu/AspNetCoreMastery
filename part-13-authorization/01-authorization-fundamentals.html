@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Authorization Fundamentals | ASP.NET Core Mastery</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;500&family=Source+Serif+4:ital,wght@0,400;0,600;1,400&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="../assets/style.css">
+</head>
+
+<body>
+    <div class="page-wrapper">
+        <aside class="sidebar">
+            <a href="../index.html" class="sidebar-logo">ASP.NET Core Mastery</a>
+            <div class="sidebar-section">Part XIII: Authorization</div>
+            <ul class="sidebar-nav">
+                <li><a href="01-authorization-fundamentals.html" class="active">Authorization Fundamentals</a></li>
+                <li><a href="02-role-based-authorization.html">Role-Based Authorization</a></li>
+                <li><a href="03-claims-based-authorization.html">Claims-Based Authorization</a></li>
+                <li><a href="04-policy-based-authorization.html">Policy-Based Authorization</a></li>
+                <li><a href="05-resource-based-authorization.html">Resource-Based Authorization</a></li>
+                <li><a href="06-custom-authorization-handlers.html">Custom Authorization Handlers</a></li>
+            </ul>
+            <div class="sidebar-section">Resources</div>
+            <ul class="sidebar-nav">
+                <li><a href="../index.html">Full Roadmap</a></li>
+            </ul>
+        </aside>
+
+        <main class="main-content">
+            <div class="content-container">
+                <nav class="breadcrumb">
+                    <a href="../index.html">Home</a>
+                    <span>→</span>
+                    <a href="01-authorization-fundamentals.html">Part XIII: Authorization</a>
+                    <span>→</span>
+                    Authorization Fundamentals
+                </nav>
+
+                <div class="progress-indicator">
+                    <span>Section 1 of 6</span>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 16.67%"></div>
+                    </div>
+                </div>
+
+                <h1>Authorization Fundamentals</h1>
+
+                <div class="learning-objectives">
+                    <h3>🎯 What You'll Learn</h3>
+                    <ul>
+                        <li>What is authorization</li>
+                        <li>Authorization vs authentication</li>
+                        <li>[Authorize] attribute</li>
+                        <li>AllowAnonymous</li>
+                        <li>Authorization middleware</li>
+                    </ul>
+                </div>
+
+                <h2>What is Authorization?</h2>
+
+                <p>
+                    <strong>Authorization</strong> determines what an authenticated user is allowed to do.
+                    It controls access to resources based on user identity, roles, claims, or policies.
+                </p>
+
+                <div class="callout callout-concept">
+                    <div class="callout-title">💡 Remember</div>
+                    <p>
+                        <strong>Authentication</strong> = "Who are you?" (Identity)<br>
+                        <strong>Authorization</strong> = "What can you do?" (Permissions)
+                    </p>
+                </div>
+
+                <div class="section-divider"></div>
+
+                <h2>Authorization Middleware</h2>
+
+                <div class="code-header">
+                    <span class="code-filename">Program.cs</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-keyword">var</span> <span class="code-variable">app</span> = <span class="code-variable">builder</span>.<span class="code-method">Build</span>();
+
+<span class="code-comment">// Order matters!</span>
+<span class="code-variable">app</span>.<span class="code-method">UseAuthentication</span>(); <span class="code-comment">// First: Who are you?</span>
+<span class="code-variable">app</span>.<span class="code-method">UseAuthorization</span>();  <span class="code-comment">// Second: What can you do?</span>
+
+<span class="code-variable">app</span>.<span class="code-method">Run</span>();</code></pre>
+
+                <div class="section-divider"></div>
+
+                <h2>[Authorize] Attribute</h2>
+
+                <p>The <code>[Authorize]</code> attribute restricts access to authenticated users only.</p>
+
+                <h3>Controller Level</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">Protect Entire Controller</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code>[<span class="code-class">Authorize</span>]
+<span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">DashboardController</span> : <span class="code-class">Controller</span>
+{
+    <span class="code-keyword">public</span> <span class="code-class">IActionResult</span> <span class="code-method">Index</span>()
+    {
+        <span class="code-keyword">return</span> <span class="code-method">View</span>();
+    }
+}</code></pre>
+
+                <h3>Action Level</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">Protect Specific Action</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">HomeController</span> : <span class="code-class">Controller</span>
+{
+    <span class="code-keyword">public</span> <span class="code-class">IActionResult</span> <span class="code-method">Index</span>()
+    {
+        <span class="code-keyword">return</span> <span class="code-method">View</span>(); <span class="code-comment">// Public</span>
+    }
+
+    [<span class="code-class">Authorize</span>]
+    <span class="code-keyword">public</span> <span class="code-class">IActionResult</span> <span class="code-method">Profile</span>()
+    {
+        <span class="code-keyword">return</span> <span class="code-method">View</span>(); <span class="code-comment">// Requires authentication</span>
+    }
+}</code></pre>
+
+                <h3>Razor Pages</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">Protect Razor Page</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code>[<span class="code-class">Authorize</span>]
+<span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">ProfileModel</span> : <span class="code-class">PageModel</span>
+{
+    <span class="code-keyword">public</span> <span class="code-keyword">void</span> <span class="code-method">OnGet</span>() { }
+}</code></pre>
+
+                <div class="section-divider"></div>
+
+                <h2>[AllowAnonymous] Attribute</h2>
+
+                <p>Allows anonymous access to specific actions even when controller is protected.</p>
+
+                <div class="code-header">
+                    <span class="code-filename">Allow Anonymous Access</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code>[<span class="code-class">Authorize</span>]
+<span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">AccountController</span> : <span class="code-class">Controller</span>
+{
+    [<span class="code-class">AllowAnonymous</span>]
+    <span class="code-keyword">public</span> <span class="code-class">IActionResult</span> <span class="code-method">Login</span>()
+    {
+        <span class="code-keyword">return</span> <span class="code-method">View</span>(); <span class="code-comment">// Public access</span>
+    }
+
+    <span class="code-keyword">public</span> <span class="code-class">IActionResult</span> <span class="code-method">Profile</span>()
+    {
+        <span class="code-keyword">return</span> <span class="code-method">View</span>(); <span class="code-comment">// Requires authentication</span>
+    }
+}</code></pre>
+
+                <div class="section-divider"></div>
+
+                <h2>Global Authorization</h2>
+
+                <p>Require authentication for all endpoints by default.</p>
+
+                <div class="code-header">
+                    <span class="code-filename">Program.cs</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-variable">builder</span>.<span class="code-variable">Services</span>.<span class="code-method">AddControllersWithViews</span>(<span class="code-variable">options</span> =>
+{
+    <span class="code-keyword">var</span> <span class="code-variable">policy</span> = <span class="code-keyword">new</span> <span class="code-class">AuthorizationPolicyBuilder</span>()
+        .<span class="code-method">RequireAuthenticatedUser</span>()
+        .<span class="code-method">Build</span>();
+    <span class="code-variable">options</span>.<span class="code-variable">Filters</span>.<span class="code-method">Add</span>(<span class="code-keyword">new</span> <span class="code-class">AuthorizeFilter</span>(<span class="code-variable">policy</span>));
+});</code></pre>
+
+                <div class="section-divider"></div>
+
+                <h2>Authorization in Views</h2>
+
+                <div class="code-header">
+                    <span class="code-filename">Check Authorization in Razor</span>
+                    <span class="code-language">HTML</span>
+                </div>
+                <pre><code><span class="code-tag">@if</span> (<span class="code-variable">User</span>.<span class="code-variable">Identity</span>?.<span class="code-variable">IsAuthenticated</span> == <span class="code-keyword">true</span>)
+{
+    &lt;<span class="code-tag">a</span> <span class="code-attribute">href</span>=<span class="code-string">"/dashboard"</span>&gt;Dashboard&lt;/<span class="code-tag">a</span>&gt;
+}
+<span class="code-tag">@else</span>
+{
+    &lt;<span class="code-tag">a</span> <span class="code-attribute">href</span>=<span class="code-string">"/login"</span>&gt;Login&lt;/<span class="code-tag">a</span>&gt;
+}</code></pre>
+
+                <h2>InvenTrack Example</h2>
+
+                <div class="code-header">
+                    <span class="code-filename">ProductsController.cs</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code>[<span class="code-class">Authorize</span>]
+<span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">ProductsController</span> : <span class="code-class">Controller</span>
+{
+    <span class="code-comment">// All actions require authentication</span>
+    
+    <span class="code-keyword">public</span> <span class="code-class">IActionResult</span> <span class="code-method">Index</span>()
+    {
+        <span class="code-keyword">var</span> <span class="code-variable">products</span> = <span class="code-variable">_context</span>.<span class="code-variable">Products</span>.<span class="code-method">ToList</span>();
+        <span class="code-keyword">return</span> <span class="code-method">View</span>(<span class="code-variable">products</span>);
+    }
+
+    <span class="code-keyword">public</span> <span class="code-class">IActionResult</span> <span class="code-method">Create</span>()
+    {
+        <span class="code-keyword">return</span> <span class="code-method">View</span>();
+    }
+}</code></pre>
+
+                <h2>Key Takeaways</h2>
+
+                <ul>
+                    <li><strong>Authorization</strong>: Controls what users can do</li>
+                    <li><strong>[Authorize]</strong>: Requires authentication</li>
+                    <li><strong>[AllowAnonymous]</strong>: Allows public access</li>
+                    <li><strong>UseAuthorization()</strong>: Must come after UseAuthentication()</li>
+                    <li><strong>Global authorization</strong>: Require auth by default</li>
+                    <li><strong>View checks</strong>: User.Identity?.IsAuthenticated</li>
+                </ul>
+
+                <nav class="page-nav">
+                    <a href="../index.html" class="prev">Back to Roadmap</a>
+                    <a href="02-role-based-authorization.html" class="next">Role-Based Authorization</a>
+                </nav>
+
+            
+        <footer class="page-footer">
+          Built with 💜 by <a href="https://akwasi.dev" target="_blank" rel="noopener noreferrer">Akwasi Adu-Kyeremeh</a> for developers who want to truly understand what they're building.
+        </footer>
+
+      </div>
+        </main>
+    </div>
+</body>
+
+</html>

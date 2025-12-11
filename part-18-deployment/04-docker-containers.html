@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Docker Containers | ASP.NET Core Mastery</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;500&family=Source+Serif+4:ital,wght@0,400;0,600;1,400&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="../assets/style.css">
+</head>
+
+<body>
+    <div class="page-wrapper">
+        <aside class="sidebar">
+            <a href="../index.html" class="sidebar-logo">ASP.NET Core Mastery</a>
+            <div class="sidebar-section">Part XVIII: Deployment</div>
+            <ul class="sidebar-nav">
+                <li><a href="01-kestrel-reverse-proxies.html">Kestrel and Reverse Proxies</a></li>
+                <li><a href="02-iis-hosting.html">IIS Hosting</a></li>
+                <li><a href="03-linux-hosting.html">Linux Hosting</a></li>
+                <li><a href="04-docker-containers.html" class="active">Docker Containers</a></li>
+                <li><a href="05-azure-app-service.html">Azure App Service</a></li>
+                <li><a href="06-cicd-pipelines.html">CI/CD Pipelines</a></li>
+            </ul>
+            <div class="sidebar-section">Resources</div>
+            <ul class="sidebar-nav">
+                <li><a href="../index.html">Full Roadmap</a></li>
+            </ul>
+        </aside>
+
+        <main class="main-content">
+            <div class="content-container">
+                <nav class="breadcrumb">
+                    <a href="../index.html">Home</a>
+                    <span>→</span>
+                    <a href="01-kestrel-reverse-proxies.html">Part XVIII: Deployment</a>
+                    <span>→</span>
+                    Docker Containers
+                </nav>
+
+                <div class="progress-indicator">
+                    <span>Section 4 of 6</span>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 66.67%"></div>
+                    </div>
+                </div>
+
+                <h1>Docker Containers</h1>
+
+                <div class="learning-objectives">
+                    <h3>🎯 What You'll Learn</h3>
+                    <ul>
+                        <li>What is Docker</li>
+                        <li>Creating Dockerfile</li>
+                        <li>Building images</li>
+                        <li>Running containers</li>
+                        <li>Docker Compose</li>
+                    </ul>
+                </div>
+
+                <h2>What is Docker?</h2>
+
+                <p>
+                    <strong>Docker</strong> packages applications and dependencies into containers that run consistently
+                    across different environments.
+                </p>
+
+                <div class="section-divider"></div>
+
+                <h2>Dockerfile</h2>
+
+                <div class="code-header">
+                    <span class="code-filename">Dockerfile</span>
+                    <span class="code-language">Dockerfile</span>
+                </div>
+                <pre><code><span class="code-comment"># Build stage</span>
+FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
+WORKDIR /src
+COPY ["InvenTrack.csproj", "./"]
+RUN dotnet restore "InvenTrack.csproj"
+COPY . .
+RUN dotnet build "InvenTrack.csproj" -c Release -o /app/build
+
+<span class="code-comment"># Publish stage</span>
+FROM build AS publish
+RUN dotnet publish "InvenTrack.csproj" -c Release -o /app/publish
+
+<span class="code-comment"># Runtime stage</span>
+FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS final
+WORKDIR /app
+EXPOSE 80
+EXPOSE 443
+COPY --from=publish /app/publish .
+ENTRYPOINT ["dotnet", "InvenTrack.dll"]</code></pre>
+
+                <div class="section-divider"></div>
+
+                <h2>.dockerignore</h2>
+
+                <div class="code-header">
+                    <span class="code-filename">.dockerignore</span>
+                    <span class="code-language">Text</span>
+                </div>
+                <pre><code>bin/
+obj/
+out/
+.vs/
+.vscode/
+*.user
+*.suo</code></pre>
+
+                <div class="section-divider"></div>
+
+                <h2>Build and Run</h2>
+
+                <div class="code-header">
+                    <span class="code-filename">Build Image</span>
+                    <span class="code-language">Bash</span>
+                </div>
+                <pre><code>docker build -t inventtrack:latest .</code></pre>
+
+                <div class="code-header">
+                    <span class="code-filename">Run Container</span>
+                    <span class="code-language">Bash</span>
+                </div>
+                <pre><code>docker run -d -p 8080:80 --name inventtrack inventtrack:latest</code></pre>
+
+                <div class="code-header">
+                    <span class="code-filename">View Logs</span>
+                    <span class="code-language">Bash</span>
+                </div>
+                <pre><code>docker logs inventtrack -f</code></pre>
+
+                <div class="section-divider"></div>
+
+                <h2>Docker Compose</h2>
+
+                <p>Run multiple containers together.</p>
+
+                <div class="code-header">
+                    <span class="code-filename">docker-compose.yml</span>
+                    <span class="code-language">YAML</span>
+                </div>
+                <pre><code>version: '3.8'
+
+services:
+  web:
+    build: .
+    ports:
+      - "8080:80"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+      - ConnectionStrings__DefaultConnection=Server=db;Database=InvenTrack;User=sa;Password=YourPassword123!
+    depends_on:
+      - db
+
+  db:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    environment:
+      - ACCEPT_EULA=Y
+      - SA_PASSWORD=YourPassword123!
+    ports:
+      - "1433:1433"
+    volumes:
+      - sqldata:/var/opt/mssql
+
+volumes:
+  sqldata:</code></pre>
+
+                <div class="code-header">
+                    <span class="code-filename">Run with Docker Compose</span>
+                    <span class="code-language">Bash</span>
+                </div>
+                <pre><code><span class="code-comment"># Start services</span>
+docker-compose up -d
+
+<span class="code-comment"># View logs</span>
+docker-compose logs -f
+
+<span class="code-comment"># Stop services</span>
+docker-compose down</code></pre>
+
+                <h2>Useful Docker Commands</h2>
+
+                <div class="code-header">
+                    <span class="code-filename">Docker Commands</span>
+                    <span class="code-language">Bash</span>
+                </div>
+                <pre><code><span class="code-comment"># List running containers</span>
+docker ps
+
+<span class="code-comment"># List all containers</span>
+docker ps -a
+
+<span class="code-comment"># Stop container</span>
+docker stop inventtrack
+
+<span class="code-comment"># Remove container</span>
+docker rm inventtrack
+
+<span class="code-comment"># List images</span>
+docker images
+
+<span class="code-comment"># Remove image</span>
+docker rmi inventtrack:latest
+
+<span class="code-comment"># Execute command in container</span>
+docker exec -it inventtrack bash</code></pre>
+
+                <h2>Key Takeaways</h2>
+
+                <ul>
+                    <li><strong>Docker</strong>: Containerize applications</li>
+                    <li><strong>Dockerfile</strong>: Multi-stage build (SDK → publish → runtime)</li>
+                    <li><strong>docker build</strong>: Create image</li>
+                    <li><strong>docker run</strong>: Start container</li>
+                    <li><strong>Docker Compose</strong>: Multi-container applications</li>
+                    <li><strong>Volumes</strong>: Persist data</li>
+                </ul>
+
+                <nav class="page-nav">
+                    <a href="03-linux-hosting.html" class="prev">Linux Hosting</a>
+                    <a href="05-azure-app-service.html" class="next">Azure App Service</a>
+                </nav>
+
+            
+        <footer class="page-footer">
+          Built with 💜 by <a href="https://akwasi.dev" target="_blank" rel="noopener noreferrer">Akwasi Adu-Kyeremeh</a> for developers who want to truly understand what they're building.
+        </footer>
+
+      </div>
+        </main>
+    </div>
+</body>
+
+</html>

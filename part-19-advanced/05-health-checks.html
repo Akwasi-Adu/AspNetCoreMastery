@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Health Checks | ASP.NET Core Mastery</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;500&family=Source+Serif+4:ital,wght@0,400;0,600;1,400&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="../assets/style.css">
+</head>
+
+<body>
+    <div class="page-wrapper">
+        <aside class="sidebar">
+            <a href="../index.html" class="sidebar-logo">ASP.NET Core Mastery</a>
+            <div class="sidebar-section">Part XIX: Advanced</div>
+            <ul class="sidebar-nav">
+                <li><a href="01-signalr.html">SignalR</a></li>
+                <li><a href="02-grpc.html">gRPC</a></li>
+                <li><a href="03-background-services.html">Background Services</a></li>
+                <li><a href="04-microservices-patterns.html">Microservices Patterns</a></li>
+                <li><a href="05-health-checks.html" class="active">Health Checks</a></li>
+                <li><a href="06-distributed-tracing.html">Distributed Tracing</a></li>
+            </ul>
+            <div class="sidebar-section">Resources</div>
+            <ul class="sidebar-nav">
+                <li><a href="../index.html">Full Roadmap</a></li>
+            </ul>
+        </aside>
+
+        <main class="main-content">
+            <div class="content-container">
+                <nav class="breadcrumb">
+                    <a href="../index.html">Home</a>
+                    <span>→</span>
+                    <a href="01-signalr.html">Part XIX: Advanced Topics</a>
+                    <span>→</span>
+                    Health Checks
+                </nav>
+
+                <div class="progress-indicator">
+                    <span>Section 5 of 6</span>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 83.33%"></div>
+                    </div>
+                </div>
+
+                <h1>Health Checks</h1>
+
+                <div class="learning-objectives">
+                    <h3>🎯 What You'll Learn</h3>
+                    <ul>
+                        <li>What are health checks</li>
+                        <li>Basic health checks</li>
+                        <li>Database health checks</li>
+                        <li>Custom health checks</li>
+                        <li>Health check UI</li>
+                    </ul>
+                </div>
+
+                <h2>What are Health Checks?</h2>
+
+                <p>
+                    <strong>Health checks</strong> monitor the health of your application and its dependencies
+                    (database, external APIs, etc.) to ensure everything is working correctly.
+                </p>
+
+                <div class="section-divider"></div>
+
+                <h2>Basic Health Check</h2>
+
+                <div class="code-header">
+                    <span class="code-filename">Program.cs</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-variable">builder</span>.<span class="code-variable">Services</span>.<span class="code-method">AddHealthChecks</span>();
+
+<span class="code-keyword">var</span> <span class="code-variable">app</span> = <span class="code-variable">builder</span>.<span class="code-method">Build</span>();
+
+<span class="code-variable">app</span>.<span class="code-method">MapHealthChecks</span>(<span class="code-string">"/health"</span>);</code></pre>
+
+                <div class="code-header">
+                    <span class="code-filename">Test Health Check</span>
+                    <span class="code-language">Bash</span>
+                </div>
+                <pre><code>curl https://localhost:5001/health</code></pre>
+
+                <div class="section-divider"></div>
+
+                <h2>Database Health Check</h2>
+
+                <div class="code-header">
+                    <span class="code-filename">Install Package</span>
+                    <span class="code-language">Bash</span>
+                </div>
+                <pre><code>dotnet add package AspNetCore.HealthChecks.SqlServer</code></pre>
+
+                <div class="code-header">
+                    <span class="code-filename">Program.cs</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-variable">builder</span>.<span class="code-variable">Services</span>.<span class="code-method">AddHealthChecks</span>()
+    .<span class="code-method">AddSqlServer</span>(<span class="code-variable">builder</span>.<span class="code-variable">Configuration</span>.<span class="code-method">GetConnectionString</span>(<span class="code-string">"DefaultConnection"</span>));</code></pre>
+
+                <div class="section-divider"></div>
+
+                <h2>Custom Health Check</h2>
+
+                <div class="code-header">
+                    <span class="code-filename">StockHealthCheck.cs</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">StockHealthCheck</span> : <span class="code-class">IHealthCheck</span>
+{
+    <span class="code-keyword">private</span> <span class="code-keyword">readonly</span> <span class="code-class">InvenTrackDbContext</span> <span class="code-variable">_context</span>;
+
+    <span class="code-keyword">public</span> <span class="code-method">StockHealthCheck</span>(<span class="code-class">InvenTrackDbContext</span> <span class="code-variable">context</span>)
+    {
+        <span class="code-variable">_context</span> = <span class="code-variable">context</span>;
+    }
+
+    <span class="code-keyword">public</span> <span class="code-keyword">async</span> <span class="code-class">Task</span>&lt;<span class="code-class">HealthCheckResult</span>&gt; <span class="code-method">CheckHealthAsync</span>(
+        <span class="code-class">HealthCheckContext</span> <span class="code-variable">context</span>, 
+        <span class="code-class">CancellationToken</span> <span class="code-variable">cancellationToken</span> = <span class="code-keyword">default</span>)
+    {
+        <span class="code-keyword">try</span>
+        {
+            <span class="code-keyword">var</span> <span class="code-variable">lowStockCount</span> = <span class="code-keyword">await</span> <span class="code-variable">_context</span>.<span class="code-variable">Products</span>
+                .<span class="code-method">CountAsync</span>(<span class="code-variable">p</span> => <span class="code-variable">p</span>.<span class="code-variable">Quantity</span> &lt; <span class="code-variable">p</span>.<span class="code-variable">ReorderLevel</span>, <span class="code-variable">cancellationToken</span>);
+
+            <span class="code-keyword">if</span> (<span class="code-variable">lowStockCount</span> > <span class="code-number">10</span>)
+            {
+                <span class="code-keyword">return</span> <span class="code-class">HealthCheckResult</span>.<span class="code-method">Degraded</span>(
+                    <span class="code-string">$"</span><span class="code-variable">{lowStockCount}</span><span class="code-string"> products have low stock"</span>);
+            }
+
+            <span class="code-keyword">return</span> <span class="code-class">HealthCheckResult</span>.<span class="code-method">Healthy</span>(<span class="code-string">"Stock levels are good"</span>);
+        }
+        <span class="code-keyword">catch</span> (<span class="code-class">Exception</span> <span class="code-variable">ex</span>)
+        {
+            <span class="code-keyword">return</span> <span class="code-class">HealthCheckResult</span>.<span class="code-method">Unhealthy</span>(<span class="code-string">"Stock check failed"</span>, <span class="code-variable">ex</span>);
+        }
+    }
+}</code></pre>
+
+                <div class="code-header">
+                    <span class="code-filename">Register Custom Health Check</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-variable">builder</span>.<span class="code-variable">Services</span>.<span class="code-method">AddHealthChecks</span>()
+    .<span class="code-method">AddCheck</span>&lt;<span class="code-class">StockHealthCheck</span>&gt;(<span class="code-string">"stock_check"</span>);</code></pre>
+
+                <div class="section-divider"></div>
+
+                <h2>Health Check Response</h2>
+
+                <div class="code-header">
+                    <span class="code-filename">Custom Response Writer</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-keyword">using</span> <span class="code-variable">Microsoft</span>.<span class="code-variable">Extensions</span>.<span class="code-variable">Diagnostics</span>.<span class="code-variable">HealthChecks</span>;
+
+<span class="code-variable">app</span>.<span class="code-method">MapHealthChecks</span>(<span class="code-string">"/health"</span>, <span class="code-keyword">new</span> <span class="code-class">HealthCheckOptions</span>
+{
+    <span class="code-variable">ResponseWriter</span> = <span class="code-keyword">async</span> (<span class="code-variable">context</span>, <span class="code-variable">report</span>) =>
+    {
+        <span class="code-variable">context</span>.<span class="code-variable">Response</span>.<span class="code-variable">ContentType</span> = <span class="code-string">"application/json"</span>;
+        
+        <span class="code-keyword">var</span> <span class="code-variable">result</span> = <span class="code-class">JsonSerializer</span>.<span class="code-method">Serialize</span>(<span class="code-keyword">new</span>
+        {
+            <span class="code-variable">status</span> = <span class="code-variable">report</span>.<span class="code-variable">Status</span>.<span class="code-method">ToString</span>(),
+            <span class="code-variable">checks</span> = <span class="code-variable">report</span>.<span class="code-variable">Entries</span>.<span class="code-method">Select</span>(<span class="code-variable">e</span> => <span class="code-keyword">new</span>
+            {
+                <span class="code-variable">name</span> = <span class="code-variable">e</span>.<span class="code-variable">Key</span>,
+                <span class="code-variable">status</span> = <span class="code-variable">e</span>.<span class="code-variable">Value</span>.<span class="code-variable">Status</span>.<span class="code-method">ToString</span>(),
+                <span class="code-variable">description</span> = <span class="code-variable">e</span>.<span class="code-variable">Value</span>.<span class="code-variable">Description</span>
+            })
+        });
+        
+        <span class="code-keyword">await</span> <span class="code-variable">context</span>.<span class="code-variable">Response</span>.<span class="code-method">WriteAsync</span>(<span class="code-variable">result</span>);
+    }
+});</code></pre>
+
+                <div class="section-divider"></div>
+
+                <h2>Health Check UI</h2>
+
+                <div class="code-header">
+                    <span class="code-filename">Install Package</span>
+                    <span class="code-language">Bash</span>
+                </div>
+                <pre><code>dotnet add package AspNetCore.HealthChecks.UI
+dotnet add package AspNetCore.HealthChecks.UI.InMemory.Storage</code></pre>
+
+                <div class="code-header">
+                    <span class="code-filename">Program.cs</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-variable">builder</span>.<span class="code-variable">Services</span>.<span class="code-method">AddHealthChecksUI</span>().<span class="code-method">AddInMemoryStorage</span>();
+
+<span class="code-variable">app</span>.<span class="code-method">MapHealthChecksUI</span>();</code></pre>
+
+                <div class="code-header">
+                    <span class="code-filename">appsettings.json</span>
+                    <span class="code-language">JSON</span>
+                </div>
+                <pre><code>{
+  <span class="code-string">"HealthChecksUI"</span>: {
+    <span class="code-string">"HealthChecks"</span>: [
+      {
+        <span class="code-string">"Name"</span>: <span class="code-string">"InvenTrack"</span>,
+        <span class="code-string">"Uri"</span>: <span class="code-string">"https://localhost:5001/health"</span>
+      }
+    ],
+    <span class="code-string">"EvaluationTimeInSeconds"</span>: 10
+  }
+}</code></pre>
+
+                <p>Access UI at: <code>https://localhost:5001/healthchecks-ui</code></p>
+
+                <h2>Key Takeaways</h2>
+
+                <ul>
+                    <li><strong>Health checks</strong>: Monitor application health</li>
+                    <li><strong>AddHealthChecks()</strong>: Register service</li>
+                    <li><strong>MapHealthChecks()</strong>: Expose endpoint</li>
+                    <li><strong>Database checks</strong>: AddSqlServer()</li>
+                    <li><strong>Custom checks</strong>: Implement IHealthCheck</li>
+                    <li><strong>Health Check UI</strong>: Visual dashboard</li>
+                </ul>
+
+                <nav class="page-nav">
+                    <a href="04-microservices-patterns.html" class="prev">Microservices Patterns</a>
+                    <a href="06-distributed-tracing.html" class="next">Distributed Tracing</a>
+                </nav>
+
+            
+        <footer class="page-footer">
+          Built with 💜 by <a href="https://akwasi.dev" target="_blank" rel="noopener noreferrer">Akwasi Adu-Kyeremeh</a> for developers who want to truly understand what they're building.
+        </footer>
+
+      </div>
+        </main>
+    </div>
+</body>
+
+</html>

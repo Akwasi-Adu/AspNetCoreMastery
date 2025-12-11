@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Linux Hosting | ASP.NET Core Mastery</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;500&family=Source+Serif+4:ital,wght@0,400;0,600;1,400&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="../assets/style.css">
+</head>
+
+<body>
+    <div class="page-wrapper">
+        <aside class="sidebar">
+            <a href="../index.html" class="sidebar-logo">ASP.NET Core Mastery</a>
+            <div class="sidebar-section">Part XVIII: Deployment</div>
+            <ul class="sidebar-nav">
+                <li><a href="01-kestrel-reverse-proxies.html">Kestrel and Reverse Proxies</a></li>
+                <li><a href="02-iis-hosting.html">IIS Hosting</a></li>
+                <li><a href="03-linux-hosting.html" class="active">Linux Hosting</a></li>
+                <li><a href="04-docker-containers.html">Docker Containers</a></li>
+                <li><a href="05-azure-app-service.html">Azure App Service</a></li>
+                <li><a href="06-cicd-pipelines.html">CI/CD Pipelines</a></li>
+            </ul>
+            <div class="sidebar-section">Resources</div>
+            <ul class="sidebar-nav">
+                <li><a href="../index.html">Full Roadmap</a></li>
+            </ul>
+        </aside>
+
+        <main class="main-content">
+            <div class="content-container">
+                <nav class="breadcrumb">
+                    <a href="../index.html">Home</a>
+                    <span>→</span>
+                    <a href="01-kestrel-reverse-proxies.html">Part XVIII: Deployment</a>
+                    <span>→</span>
+                    Linux Hosting
+                </nav>
+
+                <div class="progress-indicator">
+                    <span>Section 3 of 6</span>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 50%"></div>
+                    </div>
+                </div>
+
+                <h1>Linux Hosting</h1>
+
+                <div class="learning-objectives">
+                    <h3>🎯 What You'll Learn</h3>
+                    <ul>
+                        <li>Installing .NET on Linux</li>
+                        <li>Publishing to Linux</li>
+                        <li>Systemd service</li>
+                        <li>Nginx configuration</li>
+                        <li>SSL with Let's Encrypt</li>
+                    </ul>
+                </div>
+
+                <h2>Install .NET on Ubuntu</h2>
+
+                <div class="code-header">
+                    <span class="code-filename">Install .NET SDK</span>
+                    <span class="code-language">Bash</span>
+                </div>
+                <pre><code>wget https://packages.microsoft.com/config/ubuntu/22.04/packages-microsoft-prod.deb
+sudo dpkg -i packages-microsoft-prod.deb
+sudo apt-get update
+sudo apt-get install -y dotnet-sdk-8.0</code></pre>
+
+                <div class="section-divider"></div>
+
+                <h2>Publish and Deploy</h2>
+
+                <div class="code-header">
+                    <span class="code-filename">Publish Locally</span>
+                    <span class="code-language">Bash</span>
+                </div>
+                <pre><code>dotnet publish -c Release -o ./publish</code></pre>
+
+                <div class="code-header">
+                    <span class="code-filename">Copy to Server</span>
+                    <span class="code-language">Bash</span>
+                </div>
+                <pre><code>scp -r ./publish/* user@server:/var/www/inventtrack</code></pre>
+
+                <div class="section-divider"></div>
+
+                <h2>Create Systemd Service</h2>
+
+                <div class="code-header">
+                    <span class="code-filename">/etc/systemd/system/inventtrack.service</span>
+                    <span class="code-language">INI</span>
+                </div>
+                <pre><code>[Unit]
+Description=InvenTrack ASP.NET Core App
+After=network.target
+
+[Service]
+WorkingDirectory=/var/www/inventtrack
+ExecStart=/usr/bin/dotnet /var/www/inventtrack/InvenTrack.dll
+Restart=always
+RestartSec=10
+KillSignal=SIGINT
+SyslogIdentifier=inventtrack
+User=www-data
+Environment=ASPNETCORE_ENVIRONMENT=Production
+Environment=DOTNET_PRINT_TELEMETRY_MESSAGE=false
+
+[Install]
+WantedBy=multi-user.target</code></pre>
+
+                <div class="code-header">
+                    <span class="code-filename">Enable and Start Service</span>
+                    <span class="code-language">Bash</span>
+                </div>
+                <pre><code>sudo systemctl enable inventtrack
+sudo systemctl start inventtrack
+sudo systemctl status inventtrack</code></pre>
+
+                <div class="section-divider"></div>
+
+                <h2>Configure Nginx</h2>
+
+                <div class="code-header">
+                    <span class="code-filename">/etc/nginx/sites-available/inventtrack</span>
+                    <span class="code-language">Nginx</span>
+                </div>
+                <pre><code>server {
+    listen 80;
+    server_name inventtrack.com www.inventtrack.com;
+
+    location / {
+        proxy_pass http://localhost:5000;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection keep-alive;
+        proxy_set_header Host $host;
+        proxy_cache_bypass $http_upgrade;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+}</code></pre>
+
+                <div class="code-header">
+                    <span class="code-filename">Enable Site</span>
+                    <span class="code-language">Bash</span>
+                </div>
+                <pre><code>sudo ln -s /etc/nginx/sites-available/inventtrack /etc/nginx/sites-enabled/
+sudo nginx -t
+sudo systemctl reload nginx</code></pre>
+
+                <div class="section-divider"></div>
+
+                <h2>SSL with Let's Encrypt</h2>
+
+                <div class="code-header">
+                    <span class="code-filename">Install Certbot</span>
+                    <span class="code-language">Bash</span>
+                </div>
+                <pre><code>sudo apt-get install certbot python3-certbot-nginx</code></pre>
+
+                <div class="code-header">
+                    <span class="code-filename">Obtain Certificate</span>
+                    <span class="code-language">Bash</span>
+                </div>
+                <pre><code>sudo certbot --nginx -d inventtrack.com -d www.inventtrack.com</code></pre>
+
+                <div class="code-header">
+                    <span class="code-filename">Auto-Renewal</span>
+                    <span class="code-language">Bash</span>
+                </div>
+                <pre><code><span class="code-comment"># Test renewal</span>
+sudo certbot renew --dry-run
+
+<span class="code-comment"># Certbot automatically sets up cron job for renewal</span></code></pre>
+
+                <h2>Useful Commands</h2>
+
+                <div class="code-header">
+                    <span class="code-filename">Service Management</span>
+                    <span class="code-language">Bash</span>
+                </div>
+                <pre><code><span class="code-comment"># View logs</span>
+sudo journalctl -u inventtrack -f
+
+<span class="code-comment"># Restart service</span>
+sudo systemctl restart inventtrack
+
+<span class="code-comment"># Stop service</span>
+sudo systemctl stop inventtrack
+
+<span class="code-comment"># Check status</span>
+sudo systemctl status inventtrack</code></pre>
+
+                <h2>Key Takeaways</h2>
+
+                <ul>
+                    <li><strong>Install .NET</strong>: Use Microsoft package repository</li>
+                    <li><strong>Systemd service</strong>: Run app as background service</li>
+                    <li><strong>Nginx</strong>: Reverse proxy to Kestrel</li>
+                    <li><strong>Let's Encrypt</strong>: Free SSL certificates</li>
+                    <li><strong>journalctl</strong>: View application logs</li>
+                    <li><strong>systemctl</strong>: Manage service</li>
+                </ul>
+
+                <nav class="page-nav">
+                    <a href="02-iis-hosting.html" class="prev">IIS Hosting</a>
+                    <a href="04-docker-containers.html" class="next">Docker Containers</a>
+                </nav>
+
+            
+        <footer class="page-footer">
+          Built with 💜 by <a href="https://akwasi.dev" target="_blank" rel="noopener noreferrer">Akwasi Adu-Kyeremeh</a> for developers who want to truly understand what they're building.
+        </footer>
+
+      </div>
+        </main>
+    </div>
+</body>
+
+</html>

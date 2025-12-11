@@ -1,0 +1,1093 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Control Flow | ASP.NET Core Mastery</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;500&family=Source+Serif+4:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../assets/style.css">
+</head>
+<body>
+  <div class="page-wrapper">
+    
+    <!-- Sidebar Navigation -->
+    <aside class="sidebar">
+      <a href="../index.html" class="sidebar-logo">ASP.NET Core Mastery</a>
+      
+      <div class="sidebar-section">Part I: Foundations</div>
+      <ul class="sidebar-nav">
+        <li><a href="01-what-is-programming.html">What is Programming?</a></li>
+        <li><a href="02-what-is-csharp-dotnet.html">What is C# and .NET?</a></li>
+        <li><a href="03-variables-and-data-types.html">Variables and Data Types</a></li>
+        <li><a href="04-operators-and-expressions.html">Operators and Expressions</a></li>
+        <li><a href="05-control-flow.html" class="active">Control Flow</a></li>
+        <li><a href="06-methods-and-functions.html">Methods and Functions</a></li>
+        <li><a href="07-oop-classes-objects.html">OOP: Classes &amp; Objects</a></li>
+        <li><a href="08-collections-and-generics.html">Collections and Generics</a></li>
+        <li><a href="09-linq.html">LINQ</a></li>
+        <li><a href="10-async-await.html">Async/Await</a></li>
+      </ul>
+      
+      <div class="sidebar-section">Resources</div>
+      <ul class="sidebar-nav">
+        <li><a href="../index.html">Full Roadmap</a></li>
+      </ul>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+      <div class="content-container">
+        
+        <!-- Breadcrumb -->
+        <nav class="breadcrumb">
+          <a href="../index.html">Home</a>
+          <span>→</span>
+          <a href="01-what-is-programming.html">Part I: Foundations</a>
+          <span>→</span>
+          Control Flow
+        </nav>
+
+        <!-- Progress Indicator -->
+        <div class="progress-indicator">
+          <span>Section 5 of 10</span>
+          <div class="progress-bar">
+            <div class="progress-fill" style="width: 50%"></div>
+          </div>
+        </div>
+
+        <!-- Page Title -->
+        <h1>Control Flow</h1>
+
+        <!-- Learning Objectives -->
+        <div class="learning-objectives">
+          <h3>🎯 What You'll Learn</h3>
+          <ul>
+            <li>How programs make decisions with <code>if</code>, <code>else if</code>, and <code>else</code></li>
+            <li>Choosing between multiple options with <code>switch</code> statements</li>
+            <li>Modern pattern matching with switch expressions (C# 8+)</li>
+            <li>Repeating actions with <code>for</code>, <code>while</code>, <code>do-while</code>, and <code>foreach</code> loops</li>
+            <li>Controlling loop execution with <code>break</code> and <code>continue</code></li>
+            <li>Nesting control structures for complex logic</li>
+            <li>Common patterns: input validation, menus, searching</li>
+          </ul>
+        </div>
+
+        <!-- Content Begins -->
+        <h2>What is Control Flow?</h2>
+
+        <p>
+          So far, our programs have been strictly linear—each line executes once, in order, 
+          from top to bottom. But real programs need to be smarter. They need to:
+        </p>
+
+        <ul>
+          <li><strong>Make decisions</strong>: "If the user is logged in, show their dashboard; otherwise, show the login page"</li>
+          <li><strong>Repeat actions</strong>: "For each product in the cart, calculate the line total"</li>
+          <li><strong>Skip or exit early</strong>: "If we found what we're looking for, stop searching"</li>
+        </ul>
+
+        <div class="callout callout-concept">
+          <div class="callout-title">💡 Key Concept</div>
+          <p>
+            <strong>Control flow</strong> refers to the order in which statements are executed 
+            in a program. Control flow statements let you change that order—branching to different 
+            code paths or repeating sections of code.
+          </p>
+        </div>
+
+        <div class="analogy">
+          Think of control flow like driving directions. Linear code is "go straight for 10 miles." 
+          But real directions include decisions ("if the road is closed, take the detour") and 
+          repetition ("circle the roundabout until you see Exit 3"). Control flow gives your 
+          programs the same flexibility.
+        </div>
+
+        <h2>Conditional Statements: Making Decisions</h2>
+
+        <p>
+          Conditional statements execute different code based on whether a condition is true or false. 
+          The most fundamental is the <code>if</code> statement.
+        </p>
+
+        <h3>The if Statement</h3>
+
+        <p>
+          The <code>if</code> statement executes a block of code only when a condition is true.
+        </p>
+
+        <div class="code-header">
+          <span class="code-filename">IfStatement.cs</span>
+          <span class="code-language">C#</span>
+        </div>
+        <pre><code><span class="code-type">int</span> <span class="code-variable">temperature</span> = <span class="code-number">35</span>;
+
+<span class="code-keyword">if</span> (<span class="code-variable">temperature</span> > <span class="code-number">30</span>)
+{
+    Console.<span class="code-method">WriteLine</span>(<span class="code-string">"It's hot outside!"</span>);
+}
+
+<span class="code-comment">// The condition must be a bool (true/false)</span>
+<span class="code-type">bool</span> <span class="code-variable">isLoggedIn</span> = <span class="code-keyword">true</span>;
+
+<span class="code-keyword">if</span> (<span class="code-variable">isLoggedIn</span>)
+{
+    Console.<span class="code-method">WriteLine</span>(<span class="code-string">"Welcome back!"</span>);
+}
+
+<span class="code-comment">// You can use any expression that evaluates to bool</span>
+<span class="code-type">string</span> <span class="code-variable">userRole</span> = <span class="code-string">"admin"</span>;
+
+<span class="code-keyword">if</span> (<span class="code-variable">userRole</span> == <span class="code-string">"admin"</span>)
+{
+    Console.<span class="code-method">WriteLine</span>(<span class="code-string">"You have full access."</span>);
+}</code></pre>
+
+        <p>
+          The code inside the curly braces <code>{ }</code> is called a <span class="term">block</span>. 
+          It only runs if the condition is true. If false, the entire block is skipped.
+        </p>
+
+        <h3>The if-else Statement</h3>
+
+        <p>
+          Often you want to do one thing if a condition is true, and something else if it's false. 
+          That's where <code>else</code> comes in.
+        </p>
+
+        <div class="code-header">
+          <span class="code-filename">IfElseStatement.cs</span>
+          <span class="code-language">C#</span>
+        </div>
+        <pre><code><span class="code-type">int</span> <span class="code-variable">age</span> = <span class="code-number">16</span>;
+
+<span class="code-keyword">if</span> (<span class="code-variable">age</span> >= <span class="code-number">18</span>)
+{
+    Console.<span class="code-method">WriteLine</span>(<span class="code-string">"You can vote."</span>);
+}
+<span class="code-keyword">else</span>
+{
+    Console.<span class="code-method">WriteLine</span>(<span class="code-string">"You're too young to vote."</span>);
+}
+
+<span class="code-comment">// Real-world example: checking stock</span>
+<span class="code-type">int</span> <span class="code-variable">quantityOnHand</span> = <span class="code-number">5</span>;
+<span class="code-type">int</span> <span class="code-variable">quantityOrdered</span> = <span class="code-number">10</span>;
+
+<span class="code-keyword">if</span> (<span class="code-variable">quantityOnHand</span> >= <span class="code-variable">quantityOrdered</span>)
+{
+    Console.<span class="code-method">WriteLine</span>(<span class="code-string">"Order can be fulfilled."</span>);
+    <span class="code-variable">quantityOnHand</span> -= <span class="code-variable">quantityOrdered</span>;
+}
+<span class="code-keyword">else</span>
+{
+    Console.<span class="code-method">WriteLine</span>(<span class="code-string">$"Insufficient stock. Only </span>{<span class="code-variable">quantityOnHand</span>}<span class="code-string"> available."</span>);
+}</code></pre>
+
+        <h3>The if-else if-else Chain</h3>
+
+        <p>
+          When you have multiple conditions to check, use <code>else if</code> to chain them together.
+        </p>
+
+        <div class="code-header">
+          <span class="code-filename">ElseIfChain.cs</span>
+          <span class="code-language">C#</span>
+        </div>
+        <pre><code><span class="code-type">int</span> <span class="code-variable">score</span> = <span class="code-number">85</span>;
+<span class="code-type">string</span> <span class="code-variable">grade</span>;
+
+<span class="code-keyword">if</span> (<span class="code-variable">score</span> >= <span class="code-number">90</span>)
+{
+    <span class="code-variable">grade</span> = <span class="code-string">"A"</span>;
+}
+<span class="code-keyword">else if</span> (<span class="code-variable">score</span> >= <span class="code-number">80</span>)
+{
+    <span class="code-variable">grade</span> = <span class="code-string">"B"</span>;
+}
+<span class="code-keyword">else if</span> (<span class="code-variable">score</span> >= <span class="code-number">70</span>)
+{
+    <span class="code-variable">grade</span> = <span class="code-string">"C"</span>;
+}
+<span class="code-keyword">else if</span> (<span class="code-variable">score</span> >= <span class="code-number">60</span>)
+{
+    <span class="code-variable">grade</span> = <span class="code-string">"D"</span>;
+}
+<span class="code-keyword">else</span>
+{
+    <span class="code-variable">grade</span> = <span class="code-string">"F"</span>;
+}
+
+Console.<span class="code-method">WriteLine</span>(<span class="code-string">$"Your grade: </span>{<span class="code-variable">grade</span>}<span class="code-string">"</span>);  <span class="code-comment">// "Your grade: B"</span></code></pre>
+
+        <div class="callout callout-info">
+          <div class="callout-title">ℹ️ How else-if Works</div>
+          <p>
+            Conditions are checked from top to bottom. As soon as one is true, its block executes 
+            and <em>all remaining conditions are skipped</em>. Order matters! Put more specific 
+            conditions before more general ones.
+          </p>
+        </div>
+
+        <h3>Nested if Statements</h3>
+
+        <p>
+          You can place <code>if</code> statements inside other <code>if</code> statements for 
+          more complex logic.
+        </p>
+
+        <div class="code-header">
+          <span class="code-filename">NestedIf.cs</span>
+          <span class="code-language">C#</span>
+        </div>
+        <pre><code><span class="code-type">bool</span> <span class="code-variable">isLoggedIn</span> = <span class="code-keyword">true</span>;
+<span class="code-type">string</span> <span class="code-variable">userRole</span> = <span class="code-string">"editor"</span>;
+<span class="code-type">bool</span> <span class="code-variable">hasPermission</span> = <span class="code-keyword">true</span>;
+
+<span class="code-keyword">if</span> (<span class="code-variable">isLoggedIn</span>)
+{
+    <span class="code-keyword">if</span> (<span class="code-variable">userRole</span> == <span class="code-string">"admin"</span>)
+    {
+        Console.<span class="code-method">WriteLine</span>(<span class="code-string">"Full access granted."</span>);
+    }
+    <span class="code-keyword">else if</span> (<span class="code-variable">userRole</span> == <span class="code-string">"editor"</span> && <span class="code-variable">hasPermission</span>)
+    {
+        Console.<span class="code-method">WriteLine</span>(<span class="code-string">"Editor access granted."</span>);
+    }
+    <span class="code-keyword">else</span>
+    {
+        Console.<span class="code-method">WriteLine</span>(<span class="code-string">"Read-only access."</span>);
+    }
+}
+<span class="code-keyword">else</span>
+{
+    Console.<span class="code-method">WriteLine</span>(<span class="code-string">"Please log in first."</span>);
+}</code></pre>
+
+        <div class="callout callout-tip">
+          <div class="callout-title">💡 Avoid Deep Nesting</div>
+          <p>
+            Deeply nested code (3+ levels) becomes hard to read. Consider combining conditions 
+            with <code>&&</code> or <code>||</code>, using early returns, or refactoring into 
+            separate methods (we'll cover this in the Methods section).
+          </p>
+        </div>
+
+        <h3>Single-Line if (No Braces)</h3>
+
+        <p>
+          For simple, single-statement blocks, you can omit the curly braces:
+        </p>
+
+        <div class="code-header">
+          <span class="code-filename">SingleLineIf.cs</span>
+          <span class="code-language">C#</span>
+        </div>
+        <pre><code><span class="code-type">int</span> <span class="code-variable">x</span> = <span class="code-number">10</span>;
+
+<span class="code-comment">// Without braces (single statement only)</span>
+<span class="code-keyword">if</span> (<span class="code-variable">x</span> > <span class="code-number">5</span>)
+    Console.<span class="code-method">WriteLine</span>(<span class="code-string">"x is greater than 5"</span>);
+
+<span class="code-comment">// With braces (always works, recommended)</span>
+<span class="code-keyword">if</span> (<span class="code-variable">x</span> > <span class="code-number">5</span>)
+{
+    Console.<span class="code-method">WriteLine</span>(<span class="code-string">"x is greater than 5"</span>);
+}</code></pre>
+
+        <div class="callout callout-warning">
+          <div class="callout-title">⚠️ Always Use Braces</div>
+          <p>
+            Many developers (and style guides) recommend <em>always</em> using braces, even for 
+            single statements. It prevents bugs when you later add more statements and forget 
+            to add braces. This is a common source of hard-to-find bugs.
+          </p>
+        </div>
+
+        <h2>The switch Statement</h2>
+
+        <p>
+          When you're comparing a single value against many possible options, a <code>switch</code> 
+          statement is often cleaner than a long if-else chain.
+        </p>
+
+        <h3>Basic switch Syntax</h3>
+
+        <div class="code-header">
+          <span class="code-filename">SwitchStatement.cs</span>
+          <span class="code-language">C#</span>
+        </div>
+        <pre><code><span class="code-type">int</span> <span class="code-variable">dayOfWeek</span> = <span class="code-number">3</span>;
+<span class="code-type">string</span> <span class="code-variable">dayName</span>;
+
+<span class="code-keyword">switch</span> (<span class="code-variable">dayOfWeek</span>)
+{
+    <span class="code-keyword">case</span> <span class="code-number">1</span>:
+        <span class="code-variable">dayName</span> = <span class="code-string">"Monday"</span>;
+        <span class="code-keyword">break</span>;
+    <span class="code-keyword">case</span> <span class="code-number">2</span>:
+        <span class="code-variable">dayName</span> = <span class="code-string">"Tuesday"</span>;
+        <span class="code-keyword">break</span>;
+    <span class="code-keyword">case</span> <span class="code-number">3</span>:
+        <span class="code-variable">dayName</span> = <span class="code-string">"Wednesday"</span>;
+        <span class="code-keyword">break</span>;
+    <span class="code-keyword">case</span> <span class="code-number">4</span>:
+        <span class="code-variable">dayName</span> = <span class="code-string">"Thursday"</span>;
+        <span class="code-keyword">break</span>;
+    <span class="code-keyword">case</span> <span class="code-number">5</span>:
+        <span class="code-variable">dayName</span> = <span class="code-string">"Friday"</span>;
+        <span class="code-keyword">break</span>;
+    <span class="code-keyword">case</span> <span class="code-number">6</span>:
+        <span class="code-variable">dayName</span> = <span class="code-string">"Saturday"</span>;
+        <span class="code-keyword">break</span>;
+    <span class="code-keyword">case</span> <span class="code-number">7</span>:
+        <span class="code-variable">dayName</span> = <span class="code-string">"Sunday"</span>;
+        <span class="code-keyword">break</span>;
+    <span class="code-keyword">default</span>:
+        <span class="code-variable">dayName</span> = <span class="code-string">"Invalid day"</span>;
+        <span class="code-keyword">break</span>;
+}
+
+Console.<span class="code-method">WriteLine</span>(<span class="code-variable">dayName</span>);  <span class="code-comment">// "Wednesday"</span></code></pre>
+
+        <p>
+          Key points about <code>switch</code>:
+        </p>
+
+        <ul>
+          <li>Each <code>case</code> must end with <code>break</code> (or <code>return</code>, <code>throw</code>, etc.)</li>
+          <li>The <code>default</code> case handles any value not matched by other cases</li>
+          <li>You can switch on: integers, strings, chars, enums, and some other types</li>
+        </ul>
+
+        <h3>Multiple Cases for Same Code</h3>
+
+        <p>
+          You can stack multiple <code>case</code> labels to run the same code:
+        </p>
+
+        <div class="code-header">
+          <span class="code-filename">SwitchMultipleCases.cs</span>
+          <span class="code-language">C#</span>
+        </div>
+        <pre><code><span class="code-type">int</span> <span class="code-variable">dayOfWeek</span> = <span class="code-number">6</span>;
+<span class="code-type">string</span> <span class="code-variable">dayType</span>;
+
+<span class="code-keyword">switch</span> (<span class="code-variable">dayOfWeek</span>)
+{
+    <span class="code-keyword">case</span> <span class="code-number">1</span>:
+    <span class="code-keyword">case</span> <span class="code-number">2</span>:
+    <span class="code-keyword">case</span> <span class="code-number">3</span>:
+    <span class="code-keyword">case</span> <span class="code-number">4</span>:
+    <span class="code-keyword">case</span> <span class="code-number">5</span>:
+        <span class="code-variable">dayType</span> = <span class="code-string">"Weekday"</span>;
+        <span class="code-keyword">break</span>;
+    <span class="code-keyword">case</span> <span class="code-number">6</span>:
+    <span class="code-keyword">case</span> <span class="code-number">7</span>:
+        <span class="code-variable">dayType</span> = <span class="code-string">"Weekend"</span>;
+        <span class="code-keyword">break</span>;
+    <span class="code-keyword">default</span>:
+        <span class="code-variable">dayType</span> = <span class="code-string">"Invalid"</span>;
+        <span class="code-keyword">break</span>;
+}
+
+Console.<span class="code-method">WriteLine</span>(<span class="code-variable">dayType</span>);  <span class="code-comment">// "Weekend"</span></code></pre>
+
+        <h3>Switching on Strings</h3>
+
+        <div class="code-header">
+          <span class="code-filename">SwitchOnString.cs</span>
+          <span class="code-language">C#</span>
+        </div>
+        <pre><code><span class="code-type">string</span> <span class="code-variable">command</span> = <span class="code-string">"start"</span>;
+
+<span class="code-keyword">switch</span> (<span class="code-variable">command</span>.<span class="code-method">ToLower</span>())  <span class="code-comment">// Convert to lowercase for case-insensitive matching</span>
+{
+    <span class="code-keyword">case</span> <span class="code-string">"start"</span>:
+        Console.<span class="code-method">WriteLine</span>(<span class="code-string">"Starting the process..."</span>);
+        <span class="code-keyword">break</span>;
+    <span class="code-keyword">case</span> <span class="code-string">"stop"</span>:
+        Console.<span class="code-method">WriteLine</span>(<span class="code-string">"Stopping the process..."</span>);
+        <span class="code-keyword">break</span>;
+    <span class="code-keyword">case</span> <span class="code-string">"restart"</span>:
+        Console.<span class="code-method">WriteLine</span>(<span class="code-string">"Restarting..."</span>);
+        <span class="code-keyword">break</span>;
+    <span class="code-keyword">case</span> <span class="code-string">"status"</span>:
+        Console.<span class="code-method">WriteLine</span>(<span class="code-string">"Checking status..."</span>);
+        <span class="code-keyword">break</span>;
+    <span class="code-keyword">default</span>:
+        Console.<span class="code-method">WriteLine</span>(<span class="code-string">$"Unknown command: </span>{<span class="code-variable">command</span>}<span class="code-string">"</span>);
+        <span class="code-keyword">break</span>;
+}</code></pre>
+
+        <h3>Switch with Pattern Matching (C# 7+)</h3>
+
+        <p>
+          Modern C# allows powerful pattern matching in switch statements:
+        </p>
+
+        <div class="code-header">
+          <span class="code-filename">SwitchPatternMatching.cs</span>
+          <span class="code-language">C#</span>
+        </div>
+        <pre><code><span class="code-comment">// Type pattern matching</span>
+<span class="code-type">object</span> <span class="code-variable">value</span> = <span class="code-number">42</span>;
+
+<span class="code-keyword">switch</span> (<span class="code-variable">value</span>)
+{
+    <span class="code-keyword">case</span> <span class="code-type">int</span> <span class="code-variable">n</span>:
+        Console.<span class="code-method">WriteLine</span>(<span class="code-string">$"It's an integer: </span>{<span class="code-variable">n</span>}<span class="code-string">"</span>);
+        <span class="code-keyword">break</span>;
+    <span class="code-keyword">case</span> <span class="code-type">string</span> <span class="code-variable">s</span>:
+        Console.<span class="code-method">WriteLine</span>(<span class="code-string">$"It's a string: </span>{<span class="code-variable">s</span>}<span class="code-string">"</span>);
+        <span class="code-keyword">break</span>;
+    <span class="code-keyword">case</span> <span class="code-keyword">null</span>:
+        Console.<span class="code-method">WriteLine</span>(<span class="code-string">"It's null"</span>);
+        <span class="code-keyword">break</span>;
+    <span class="code-keyword">default</span>:
+        Console.<span class="code-method">WriteLine</span>(<span class="code-string">"Unknown type"</span>);
+        <span class="code-keyword">break</span>;
+}
+
+<span class="code-comment">// Pattern matching with conditions (when clause)</span>
+<span class="code-type">int</span> <span class="code-variable">number</span> = <span class="code-number">15</span>;
+
+<span class="code-keyword">switch</span> (<span class="code-variable">number</span>)
+{
+    <span class="code-keyword">case</span> <span class="code-type">int</span> <span class="code-variable">n</span> <span class="code-keyword">when</span> <span class="code-variable">n</span> < <span class="code-number">0</span>:
+        Console.<span class="code-method">WriteLine</span>(<span class="code-string">"Negative"</span>);
+        <span class="code-keyword">break</span>;
+    <span class="code-keyword">case</span> <span class="code-type">int</span> <span class="code-variable">n</span> <span class="code-keyword">when</span> <span class="code-variable">n</span> == <span class="code-number">0</span>:
+        Console.<span class="code-method">WriteLine</span>(<span class="code-string">"Zero"</span>);
+        <span class="code-keyword">break</span>;
+    <span class="code-keyword">case</span> <span class="code-type">int</span> <span class="code-variable">n</span> <span class="code-keyword">when</span> <span class="code-variable">n</span> > <span class="code-number">0</span> && <span class="code-variable">n</span> <= <span class="code-number">10</span>:
+        Console.<span class="code-method">WriteLine</span>(<span class="code-string">"Small positive"</span>);
+        <span class="code-keyword">break</span>;
+    <span class="code-keyword">case</span> <span class="code-type">int</span> <span class="code-variable">n</span> <span class="code-keyword">when</span> <span class="code-variable">n</span> > <span class="code-number">10</span>:
+        Console.<span class="code-method">WriteLine</span>(<span class="code-string">"Large positive"</span>);
+        <span class="code-keyword">break</span>;
+}</code></pre>
+
+        <h3>Switch Expressions (C# 8+)</h3>
+
+        <p>
+          Switch expressions are a more concise way to write switches that return a value. 
+          This is modern C# at its best:
+        </p>
+
+        <div class="code-header">
+          <span class="code-filename">SwitchExpression.cs</span>
+          <span class="code-language">C#</span>
+        </div>
+        <pre><code><span class="code-type">int</span> <span class="code-variable">dayOfWeek</span> = <span class="code-number">3</span>;
+
+<span class="code-comment">// Switch expression - concise and returns a value</span>
+<span class="code-type">string</span> <span class="code-variable">dayName</span> = <span class="code-variable">dayOfWeek</span> <span class="code-keyword">switch</span>
+{
+    <span class="code-number">1</span> => <span class="code-string">"Monday"</span>,
+    <span class="code-number">2</span> => <span class="code-string">"Tuesday"</span>,
+    <span class="code-number">3</span> => <span class="code-string">"Wednesday"</span>,
+    <span class="code-number">4</span> => <span class="code-string">"Thursday"</span>,
+    <span class="code-number">5</span> => <span class="code-string">"Friday"</span>,
+    <span class="code-number">6</span> => <span class="code-string">"Saturday"</span>,
+    <span class="code-number">7</span> => <span class="code-string">"Sunday"</span>,
+    _ => <span class="code-string">"Invalid day"</span>  <span class="code-comment">// _ is the discard pattern (like default)</span>
+};
+
+<span class="code-comment">// With pattern matching</span>
+<span class="code-type">int</span> <span class="code-variable">score</span> = <span class="code-number">85</span>;
+
+<span class="code-type">string</span> <span class="code-variable">grade</span> = <span class="code-variable">score</span> <span class="code-keyword">switch</span>
+{
+    >= <span class="code-number">90</span> => <span class="code-string">"A"</span>,
+    >= <span class="code-number">80</span> => <span class="code-string">"B"</span>,
+    >= <span class="code-number">70</span> => <span class="code-string">"C"</span>,
+    >= <span class="code-number">60</span> => <span class="code-string">"D"</span>,
+    _ => <span class="code-string">"F"</span>
+};
+
+<span class="code-comment">// Multiple values with or pattern</span>
+<span class="code-type">string</span> <span class="code-variable">dayType</span> = <span class="code-variable">dayOfWeek</span> <span class="code-keyword">switch</span>
+{
+    <span class="code-number">1</span> <span class="code-keyword">or</span> <span class="code-number">2</span> <span class="code-keyword">or</span> <span class="code-number">3</span> <span class="code-keyword">or</span> <span class="code-number">4</span> <span class="code-keyword">or</span> <span class="code-number">5</span> => <span class="code-string">"Weekday"</span>,
+    <span class="code-number">6</span> <span class="code-keyword">or</span> <span class="code-number">7</span> => <span class="code-string">"Weekend"</span>,
+    _ => <span class="code-string">"Invalid"</span>
+};
+
+<span class="code-comment">// With range pattern</span>
+<span class="code-type">string</span> <span class="code-variable">ageGroup</span> = <span class="code-variable">age</span> <span class="code-keyword">switch</span>
+{
+    < <span class="code-number">0</span> => <span class="code-string">"Invalid"</span>,
+    < <span class="code-number">13</span> => <span class="code-string">"Child"</span>,
+    < <span class="code-number">20</span> => <span class="code-string">"Teenager"</span>,
+    < <span class="code-number">65</span> => <span class="code-string">"Adult"</span>,
+    _ => <span class="code-string">"Senior"</span>
+};</code></pre>
+
+        <div class="callout callout-tip">
+          <div class="callout-title">💡 Prefer Switch Expressions</div>
+          <p>
+            When you need to assign a value based on a condition, switch expressions are cleaner 
+            and more concise than traditional switch statements. They're also harder to mess up 
+            because the compiler ensures all cases return a value.
+          </p>
+        </div>
+
+        <h2>Loops: Repeating Actions</h2>
+
+        <p>
+          Loops let you execute a block of code multiple times. C# provides four types of loops, 
+          each suited for different scenarios.
+        </p>
+
+        <h3>The for Loop</h3>
+
+        <p>
+          The <code>for</code> loop is best when you know <em>exactly how many times</em> you 
+          want to repeat something.
+        </p>
+
+        <div class="code-header">
+          <span class="code-filename">ForLoop.cs</span>
+          <span class="code-language">C#</span>
+        </div>
+        <pre><code><span class="code-comment">// Basic for loop: count from 0 to 4</span>
+<span class="code-keyword">for</span> (<span class="code-type">int</span> <span class="code-variable">i</span> = <span class="code-number">0</span>; <span class="code-variable">i</span> < <span class="code-number">5</span>; <span class="code-variable">i</span>++)
+{
+    Console.<span class="code-method">WriteLine</span>(<span class="code-string">$"Iteration </span>{<span class="code-variable">i</span>}<span class="code-string">"</span>);
+}
+<span class="code-comment">// Output: Iteration 0, Iteration 1, Iteration 2, Iteration 3, Iteration 4</span>
+
+<span class="code-comment">// Anatomy of a for loop:</span>
+<span class="code-comment">// for (initialization; condition; update)</span>
+<span class="code-comment">//   initialization: runs once before the loop starts (int i = 0)</span>
+<span class="code-comment">//   condition: checked before each iteration (i < 5)</span>
+<span class="code-comment">//   update: runs after each iteration (i++)</span>
+
+<span class="code-comment">// Count from 1 to 10</span>
+<span class="code-keyword">for</span> (<span class="code-type">int</span> <span class="code-variable">i</span> = <span class="code-number">1</span>; <span class="code-variable">i</span> <= <span class="code-number">10</span>; <span class="code-variable">i</span>++)
+{
+    Console.<span class="code-method">WriteLine</span>(<span class="code-variable">i</span>);
+}
+
+<span class="code-comment">// Count backwards</span>
+<span class="code-keyword">for</span> (<span class="code-type">int</span> <span class="code-variable">i</span> = <span class="code-number">10</span>; <span class="code-variable">i</span> >= <span class="code-number">1</span>; <span class="code-variable">i</span>--)
+{
+    Console.<span class="code-method">WriteLine</span>(<span class="code-variable">i</span>);
+}
+
+<span class="code-comment">// Count by twos</span>
+<span class="code-keyword">for</span> (<span class="code-type">int</span> <span class="code-variable">i</span> = <span class="code-number">0</span>; <span class="code-variable">i</span> <= <span class="code-number">20</span>; <span class="code-variable">i</span> += <span class="code-number">2</span>)
+{
+    Console.<span class="code-method">WriteLine</span>(<span class="code-variable">i</span>);  <span class="code-comment">// 0, 2, 4, 6, ..., 20</span>
+}
+
+<span class="code-comment">// Real example: calculate sum of 1 to 100</span>
+<span class="code-type">int</span> <span class="code-variable">sum</span> = <span class="code-number">0</span>;
+<span class="code-keyword">for</span> (<span class="code-type">int</span> <span class="code-variable">i</span> = <span class="code-number">1</span>; <span class="code-variable">i</span> <= <span class="code-number">100</span>; <span class="code-variable">i</span>++)
+{
+    <span class="code-variable">sum</span> += <span class="code-variable">i</span>;
+}
+Console.<span class="code-method">WriteLine</span>(<span class="code-string">$"Sum: </span>{<span class="code-variable">sum</span>}<span class="code-string">"</span>);  <span class="code-comment">// Sum: 5050</span></code></pre>
+
+        <h3>The while Loop</h3>
+
+        <p>
+          The <code>while</code> loop repeats as long as a condition is true. Use it when you 
+          don't know in advance how many iterations you'll need.
+        </p>
+
+        <div class="code-header">
+          <span class="code-filename">WhileLoop.cs</span>
+          <span class="code-language">C#</span>
+        </div>
+        <pre><code><span class="code-comment">// Basic while loop</span>
+<span class="code-type">int</span> <span class="code-variable">count</span> = <span class="code-number">0</span>;
+
+<span class="code-keyword">while</span> (<span class="code-variable">count</span> < <span class="code-number">5</span>)
+{
+    Console.<span class="code-method">WriteLine</span>(<span class="code-string">$"Count: </span>{<span class="code-variable">count</span>}<span class="code-string">"</span>);
+    <span class="code-variable">count</span>++;
+}
+
+<span class="code-comment">// Real example: input validation</span>
+<span class="code-type">string</span> <span class="code-variable">input</span> = <span class="code-string">""</span>;
+
+<span class="code-keyword">while</span> (<span class="code-type">string</span>.<span class="code-method">IsNullOrWhiteSpace</span>(<span class="code-variable">input</span>))
+{
+    Console.<span class="code-method">Write</span>(<span class="code-string">"Enter your name: "</span>);
+    <span class="code-variable">input</span> = Console.<span class="code-method">ReadLine</span>() ?? <span class="code-string">""</span>;
+}
+Console.<span class="code-method">WriteLine</span>(<span class="code-string">$"Hello, </span>{<span class="code-variable">input</span>}<span class="code-string">!"</span>);
+
+<span class="code-comment">// Example: keep halving until less than 1</span>
+<span class="code-type">double</span> <span class="code-variable">value</span> = <span class="code-number">100.0</span>;
+<span class="code-type">int</span> <span class="code-variable">iterations</span> = <span class="code-number">0</span>;
+
+<span class="code-keyword">while</span> (<span class="code-variable">value</span> >= <span class="code-number">1</span>)
+{
+    <span class="code-variable">value</span> /= <span class="code-number">2</span>;
+    <span class="code-variable">iterations</span>++;
+}
+Console.<span class="code-method">WriteLine</span>(<span class="code-string">$"Took </span>{<span class="code-variable">iterations</span>}<span class="code-string"> iterations"</span>);  <span class="code-comment">// 7 iterations</span></code></pre>
+
+        <div class="callout callout-warning">
+          <div class="callout-title">⚠️ Infinite Loop Danger</div>
+          <p>
+            A <code>while</code> loop runs forever if its condition never becomes false. Always 
+            ensure something inside the loop eventually makes the condition false. If your program 
+            seems to hang, you might have an infinite loop (press Ctrl+C to stop it).
+          </p>
+        </div>
+
+        <h3>The do-while Loop</h3>
+
+        <p>
+          The <code>do-while</code> loop is like <code>while</code>, but it checks the condition 
+          <em>after</em> each iteration. This guarantees at least one execution.
+        </p>
+
+        <div class="code-header">
+          <span class="code-filename">DoWhileLoop.cs</span>
+          <span class="code-language">C#</span>
+        </div>
+        <pre><code><span class="code-comment">// do-while always executes at least once</span>
+<span class="code-type">int</span> <span class="code-variable">number</span> = <span class="code-number">10</span>;
+
+<span class="code-keyword">do</span>
+{
+    Console.<span class="code-method">WriteLine</span>(<span class="code-string">$"Number: </span>{<span class="code-variable">number</span>}<span class="code-string">"</span>);
+    <span class="code-variable">number</span>--;
+} <span class="code-keyword">while</span> (<span class="code-variable">number</span> > <span class="code-number">0</span>);
+
+<span class="code-comment">// Perfect for menu systems!</span>
+<span class="code-type">int</span> <span class="code-variable">choice</span>;
+
+<span class="code-keyword">do</span>
+{
+    Console.<span class="code-method">WriteLine</span>(<span class="code-string">"\n=== InvenTrack Menu ==="</span>);
+    Console.<span class="code-method">WriteLine</span>(<span class="code-string">"1. View Products"</span>);
+    Console.<span class="code-method">WriteLine</span>(<span class="code-string">"2. Add Product"</span>);
+    Console.<span class="code-method">WriteLine</span>(<span class="code-string">"3. Update Stock"</span>);
+    Console.<span class="code-method">WriteLine</span>(<span class="code-string">"4. Exit"</span>);
+    Console.<span class="code-method">Write</span>(<span class="code-string">"Enter choice: "</span>);
+    
+    <span class="code-keyword">if</span> (<span class="code-type">int</span>.<span class="code-method">TryParse</span>(Console.<span class="code-method">ReadLine</span>(), <span class="code-keyword">out</span> <span class="code-variable">choice</span>))
+    {
+        <span class="code-keyword">switch</span> (<span class="code-variable">choice</span>)
+        {
+            <span class="code-keyword">case</span> <span class="code-number">1</span>:
+                Console.<span class="code-method">WriteLine</span>(<span class="code-string">"Showing products..."</span>);
+                <span class="code-keyword">break</span>;
+            <span class="code-keyword">case</span> <span class="code-number">2</span>:
+                Console.<span class="code-method">WriteLine</span>(<span class="code-string">"Adding product..."</span>);
+                <span class="code-keyword">break</span>;
+            <span class="code-keyword">case</span> <span class="code-number">3</span>:
+                Console.<span class="code-method">WriteLine</span>(<span class="code-string">"Updating stock..."</span>);
+                <span class="code-keyword">break</span>;
+            <span class="code-keyword">case</span> <span class="code-number">4</span>:
+                Console.<span class="code-method">WriteLine</span>(<span class="code-string">"Goodbye!"</span>);
+                <span class="code-keyword">break</span>;
+            <span class="code-keyword">default</span>:
+                Console.<span class="code-method">WriteLine</span>(<span class="code-string">"Invalid choice."</span>);
+                <span class="code-keyword">break</span>;
+        }
+    }
+    <span class="code-keyword">else</span>
+    {
+        Console.<span class="code-method">WriteLine</span>(<span class="code-string">"Please enter a number."</span>);
+        <span class="code-variable">choice</span> = <span class="code-number">0</span>;  <span class="code-comment">// Reset to continue loop</span>
+    }
+    
+} <span class="code-keyword">while</span> (<span class="code-variable">choice</span> != <span class="code-number">4</span>);</code></pre>
+
+        <h3>The foreach Loop</h3>
+
+        <p>
+          The <code>foreach</code> loop iterates over every element in a collection. It's the 
+          cleanest way to process arrays, lists, and other collections.
+        </p>
+
+        <div class="code-header">
+          <span class="code-filename">ForeachLoop.cs</span>
+          <span class="code-language">C#</span>
+        </div>
+        <pre><code><span class="code-comment">// Iterating over an array</span>
+<span class="code-type">string</span>[] <span class="code-variable">fruits</span> = { <span class="code-string">"Apple"</span>, <span class="code-string">"Banana"</span>, <span class="code-string">"Cherry"</span>, <span class="code-string">"Date"</span> };
+
+<span class="code-keyword">foreach</span> (<span class="code-type">string</span> <span class="code-variable">fruit</span> <span class="code-keyword">in</span> <span class="code-variable">fruits</span>)
+{
+    Console.<span class="code-method">WriteLine</span>(<span class="code-variable">fruit</span>);
+}
+
+<span class="code-comment">// Iterating over a string (characters)</span>
+<span class="code-type">string</span> <span class="code-variable">word</span> = <span class="code-string">"Hello"</span>;
+
+<span class="code-keyword">foreach</span> (<span class="code-type">char</span> <span class="code-variable">letter</span> <span class="code-keyword">in</span> <span class="code-variable">word</span>)
+{
+    Console.<span class="code-method">WriteLine</span>(<span class="code-variable">letter</span>);  <span class="code-comment">// H, e, l, l, o</span>
+}
+
+<span class="code-comment">// Real example: calculating cart total</span>
+<span class="code-type">decimal</span>[] <span class="code-variable">prices</span> = { <span class="code-number">19.99m</span>, <span class="code-number">29.99m</span>, <span class="code-number">9.99m</span>, <span class="code-number">49.99m</span> };
+<span class="code-type">decimal</span> <span class="code-variable">total</span> = <span class="code-number">0m</span>;
+
+<span class="code-keyword">foreach</span> (<span class="code-type">decimal</span> <span class="code-variable">price</span> <span class="code-keyword">in</span> <span class="code-variable">prices</span>)
+{
+    <span class="code-variable">total</span> += <span class="code-variable">price</span>;
+}
+
+Console.<span class="code-method">WriteLine</span>(<span class="code-string">$"Total: </span>{<span class="code-variable">total</span>:C}<span class="code-string">"</span>);  <span class="code-comment">// Total: $109.96</span>
+
+<span class="code-comment">// Using var for type inference</span>
+<span class="code-keyword">foreach</span> (<span class="code-keyword">var</span> <span class="code-variable">price</span> <span class="code-keyword">in</span> <span class="code-variable">prices</span>)
+{
+    Console.<span class="code-method">WriteLine</span>(<span class="code-variable">price</span>);
+}</code></pre>
+
+        <div class="callout callout-info">
+          <div class="callout-title">ℹ️ foreach is Read-Only</div>
+          <p>
+            You cannot modify the collection while iterating with <code>foreach</code>. The loop 
+            variable (<code>fruit</code>, <code>price</code>) is read-only. If you need to modify 
+            elements, use a regular <code>for</code> loop with index access.
+          </p>
+        </div>
+
+        <h3>Choosing the Right Loop</h3>
+
+        <table>
+          <thead>
+            <tr>
+              <th>Loop Type</th>
+              <th>Best For</th>
+              <th>Example Use Case</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>for</code></td>
+              <td>Known number of iterations, need index</td>
+              <td>Process items 0-99, access array by index</td>
+            </tr>
+            <tr>
+              <td><code>while</code></td>
+              <td>Unknown iterations, condition-based</td>
+              <td>Read until end of file, wait for user input</td>
+            </tr>
+            <tr>
+              <td><code>do-while</code></td>
+              <td>Must run at least once</td>
+              <td>Menu systems, input validation</td>
+            </tr>
+            <tr>
+              <td><code>foreach</code></td>
+              <td>Process every item in a collection</td>
+              <td>Sum prices, display all items, search</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <h2>Loop Control: break and continue</h2>
+
+        <p>
+          Sometimes you need to interrupt a loop's normal flow—exit early or skip to the next 
+          iteration. That's where <code>break</code> and <code>continue</code> come in.
+        </p>
+
+        <h3>break: Exit the Loop Immediately</h3>
+
+        <div class="code-header">
+          <span class="code-filename">BreakStatement.cs</span>
+          <span class="code-language">C#</span>
+        </div>
+        <pre><code><span class="code-comment">// Search for a value - stop when found</span>
+<span class="code-type">int</span>[] <span class="code-variable">numbers</span> = { <span class="code-number">4</span>, <span class="code-number">8</span>, <span class="code-number">15</span>, <span class="code-number">16</span>, <span class="code-number">23</span>, <span class="code-number">42</span> };
+<span class="code-type">int</span> <span class="code-variable">searchFor</span> = <span class="code-number">16</span>;
+<span class="code-type">bool</span> <span class="code-variable">found</span> = <span class="code-keyword">false</span>;
+
+<span class="code-keyword">foreach</span> (<span class="code-type">int</span> <span class="code-variable">number</span> <span class="code-keyword">in</span> <span class="code-variable">numbers</span>)
+{
+    <span class="code-keyword">if</span> (<span class="code-variable">number</span> == <span class="code-variable">searchFor</span>)
+    {
+        <span class="code-variable">found</span> = <span class="code-keyword">true</span>;
+        <span class="code-keyword">break</span>;  <span class="code-comment">// Exit loop immediately</span>
+    }
+    Console.<span class="code-method">WriteLine</span>(<span class="code-string">$"Checked </span>{<span class="code-variable">number</span>}<span class="code-string">"</span>);
+}
+
+Console.<span class="code-method">WriteLine</span>(<span class="code-variable">found</span> ? <span class="code-string">"Found!"</span> : <span class="code-string">"Not found"</span>);
+<span class="code-comment">// Output: Checked 4, Checked 8, Checked 15, Found!</span>
+
+<span class="code-comment">// Breaking out of a while loop</span>
+<span class="code-type">int</span> <span class="code-variable">attempts</span> = <span class="code-number">0</span>;
+<span class="code-keyword">const</span> <span class="code-type">int</span> <span class="code-variable">MaxAttempts</span> = <span class="code-number">3</span>;
+
+<span class="code-keyword">while</span> (<span class="code-keyword">true</span>)  <span class="code-comment">// Infinite loop - we'll break out manually</span>
+{
+    Console.<span class="code-method">Write</span>(<span class="code-string">"Enter password: "</span>);
+    <span class="code-type">string</span> <span class="code-variable">password</span> = Console.<span class="code-method">ReadLine</span>() ?? <span class="code-string">""</span>;
+    
+    <span class="code-keyword">if</span> (<span class="code-variable">password</span> == <span class="code-string">"secret123"</span>)
+    {
+        Console.<span class="code-method">WriteLine</span>(<span class="code-string">"Access granted!"</span>);
+        <span class="code-keyword">break</span>;  <span class="code-comment">// Correct password - exit loop</span>
+    }
+    
+    <span class="code-variable">attempts</span>++;
+    
+    <span class="code-keyword">if</span> (<span class="code-variable">attempts</span> >= <span class="code-variable">MaxAttempts</span>)
+    {
+        Console.<span class="code-method">WriteLine</span>(<span class="code-string">"Too many attempts. Account locked."</span>);
+        <span class="code-keyword">break</span>;  <span class="code-comment">// Too many attempts - exit loop</span>
+    }
+    
+    Console.<span class="code-method">WriteLine</span>(<span class="code-string">$"Wrong password. </span>{<span class="code-variable">MaxAttempts</span> - <span class="code-variable">attempts</span>}<span class="code-string"> attempts remaining."</span>);
+}</code></pre>
+
+        <h3>continue: Skip to the Next Iteration</h3>
+
+        <div class="code-header">
+          <span class="code-filename">ContinueStatement.cs</span>
+          <span class="code-language">C#</span>
+        </div>
+        <pre><code><span class="code-comment">// Skip negative numbers</span>
+<span class="code-type">int</span>[] <span class="code-variable">numbers</span> = { <span class="code-number">1</span>, <span class="code-number">-2</span>, <span class="code-number">3</span>, <span class="code-number">-4</span>, <span class="code-number">5</span>, <span class="code-number">-6</span>, <span class="code-number">7</span> };
+<span class="code-type">int</span> <span class="code-variable">sum</span> = <span class="code-number">0</span>;
+
+<span class="code-keyword">foreach</span> (<span class="code-type">int</span> <span class="code-variable">number</span> <span class="code-keyword">in</span> <span class="code-variable">numbers</span>)
+{
+    <span class="code-keyword">if</span> (<span class="code-variable">number</span> < <span class="code-number">0</span>)
+    {
+        <span class="code-keyword">continue</span>;  <span class="code-comment">// Skip this iteration, go to next number</span>
+    }
+    <span class="code-variable">sum</span> += <span class="code-variable">number</span>;
+}
+
+Console.<span class="code-method">WriteLine</span>(<span class="code-string">$"Sum of positives: </span>{<span class="code-variable">sum</span>}<span class="code-string">"</span>);  <span class="code-comment">// 16</span>
+
+<span class="code-comment">// Skip empty lines when processing</span>
+<span class="code-type">string</span>[] <span class="code-variable">lines</span> = { <span class="code-string">"Hello"</span>, <span class="code-string">""</span>, <span class="code-string">"World"</span>, <span class="code-string">"   "</span>, <span class="code-string">"!"</span> };
+
+<span class="code-keyword">foreach</span> (<span class="code-type">string</span> <span class="code-variable">line</span> <span class="code-keyword">in</span> <span class="code-variable">lines</span>)
+{
+    <span class="code-keyword">if</span> (<span class="code-type">string</span>.<span class="code-method">IsNullOrWhiteSpace</span>(<span class="code-variable">line</span>))
+    {
+        <span class="code-keyword">continue</span>;  <span class="code-comment">// Skip blank lines</span>
+    }
+    Console.<span class="code-method">WriteLine</span>(<span class="code-string">$"Processing: </span>{<span class="code-variable">line</span>}<span class="code-string">"</span>);
+}
+<span class="code-comment">// Output: Processing: Hello, Processing: World, Processing: !</span>
+
+<span class="code-comment">// Real example: process only active products</span>
+<span class="code-keyword">foreach</span> (<span class="code-keyword">var</span> <span class="code-variable">product</span> <span class="code-keyword">in</span> <span class="code-variable">products</span>)
+{
+    <span class="code-keyword">if</span> (!<span class="code-variable">product</span>.<span class="code-variable">IsActive</span>)
+    {
+        <span class="code-keyword">continue</span>;  <span class="code-comment">// Skip inactive products</span>
+    }
+    
+    <span class="code-comment">// Process active product...</span>
+    Console.<span class="code-method">WriteLine</span>(<span class="code-string">$"Processing </span>{<span class="code-variable">product</span>.<span class="code-variable">Name</span>}<span class="code-string">"</span>);
+}</code></pre>
+
+        <div class="callout callout-concept">
+          <div class="callout-title">💡 break vs continue</div>
+          <p>
+            <code>break</code> — Exits the loop completely. Code after the loop runs next.<br>
+            <code>continue</code> — Skips the rest of the current iteration. The loop continues with the next iteration.
+          </p>
+        </div>
+
+        <h2>Nested Loops</h2>
+
+        <p>
+          You can place loops inside other loops. This is useful for working with multi-dimensional 
+          data like grids, tables, or matrices.
+        </p>
+
+        <div class="code-header">
+          <span class="code-filename">NestedLoops.cs</span>
+          <span class="code-language">C#</span>
+        </div>
+        <pre><code><span class="code-comment">// Multiplication table</span>
+<span class="code-keyword">for</span> (<span class="code-type">int</span> <span class="code-variable">row</span> = <span class="code-number">1</span>; <span class="code-variable">row</span> <= <span class="code-number">5</span>; <span class="code-variable">row</span>++)
+{
+    <span class="code-keyword">for</span> (<span class="code-type">int</span> <span class="code-variable">col</span> = <span class="code-number">1</span>; <span class="code-variable">col</span> <= <span class="code-number">5</span>; <span class="code-variable">col</span>++)
+    {
+        Console.<span class="code-method">Write</span>(<span class="code-string">$"</span>{<span class="code-variable">row</span> * <span class="code-variable">col</span>,<span class="code-number">4</span>}<span class="code-string">"</span>);  <span class="code-comment">// Right-align in 4 characters</span>
+    }
+    Console.<span class="code-method">WriteLine</span>();  <span class="code-comment">// New line after each row</span>
+}
+
+<span class="code-comment">/*
+Output:
+   1   2   3   4   5
+   2   4   6   8  10
+   3   6   9  12  15
+   4   8  12  16  20
+   5  10  15  20  25
+*/</span>
+
+<span class="code-comment">// Breaking out of nested loops (using a flag)</span>
+<span class="code-type">bool</span> <span class="code-variable">found</span> = <span class="code-keyword">false</span>;
+
+<span class="code-keyword">for</span> (<span class="code-type">int</span> <span class="code-variable">i</span> = <span class="code-number">0</span>; <span class="code-variable">i</span> < <span class="code-number">10</span> && !<span class="code-variable">found</span>; <span class="code-variable">i</span>++)
+{
+    <span class="code-keyword">for</span> (<span class="code-type">int</span> <span class="code-variable">j</span> = <span class="code-number">0</span>; <span class="code-variable">j</span> < <span class="code-number">10</span> && !<span class="code-variable">found</span>; <span class="code-variable">j</span>++)
+    {
+        <span class="code-keyword">if</span> (<span class="code-variable">grid</span>[<span class="code-variable">i</span>, <span class="code-variable">j</span>] == <span class="code-variable">target</span>)
+        {
+            Console.<span class="code-method">WriteLine</span>(<span class="code-string">$"Found at [</span>{<span class="code-variable">i</span>}<span class="code-string">,</span>{<span class="code-variable">j</span>}<span class="code-string">]"</span>);
+            <span class="code-variable">found</span> = <span class="code-keyword">true</span>;
+        }
+    }
+}</code></pre>
+
+        <div class="section-divider"></div>
+
+        <h2>Putting It All Together: InvenTrack Stock Checker</h2>
+
+        <p>
+          Let's apply everything we've learned to a practical scenario—checking inventory 
+          and making decisions about stock levels:
+        </p>
+
+        <div class="code-header">
+          <span class="code-filename">InvenTrackStockChecker.cs</span>
+          <span class="code-language">C#</span>
+        </div>
+        <pre><code><span class="code-comment">// Product data (we'll use proper classes later)</span>
+<span class="code-type">string</span>[] <span class="code-variable">productNames</span> = { <span class="code-string">"Widget A"</span>, <span class="code-string">"Widget B"</span>, <span class="code-string">"Gadget X"</span>, <span class="code-string">"Gadget Y"</span>, <span class="code-string">"Tool Z"</span> };
+<span class="code-type">int</span>[] <span class="code-variable">quantities</span> = { <span class="code-number">150</span>, <span class="code-number">8</span>, <span class="code-number">0</span>, <span class="code-number">45</span>, <span class="code-number">12</span> };
+<span class="code-type">int</span>[] <span class="code-variable">reorderLevels</span> = { <span class="code-number">25</span>, <span class="code-number">10</span>, <span class="code-number">5</span>, <span class="code-number">20</span>, <span class="code-number">15</span> };
+<span class="code-type">decimal</span>[] <span class="code-variable">prices</span> = { <span class="code-number">19.99m</span>, <span class="code-number">29.99m</span>, <span class="code-number">49.99m</span>, <span class="code-number">39.99m</span>, <span class="code-number">89.99m</span> };
+<span class="code-type">bool</span>[] <span class="code-variable">isActive</span> = { <span class="code-keyword">true</span>, <span class="code-keyword">true</span>, <span class="code-keyword">false</span>, <span class="code-keyword">true</span>, <span class="code-keyword">true</span> };
+
+<span class="code-comment">// Counters for summary</span>
+<span class="code-type">int</span> <span class="code-variable">outOfStockCount</span> = <span class="code-number">0</span>;
+<span class="code-type">int</span> <span class="code-variable">lowStockCount</span> = <span class="code-number">0</span>;
+<span class="code-type">int</span> <span class="code-variable">healthyStockCount</span> = <span class="code-number">0</span>;
+<span class="code-type">decimal</span> <span class="code-variable">totalInventoryValue</span> = <span class="code-number">0m</span>;
+
+Console.<span class="code-method">WriteLine</span>(<span class="code-string">"╔══════════════════════════════════════════════════════════════╗"</span>);
+Console.<span class="code-method">WriteLine</span>(<span class="code-string">"║            INVENTRAK STOCK STATUS REPORT                     ║"</span>);
+Console.<span class="code-method">WriteLine</span>(<span class="code-string">"╚══════════════════════════════════════════════════════════════╝"</span>);
+Console.<span class="code-method">WriteLine</span>();
+
+<span class="code-comment">// Process each product</span>
+<span class="code-keyword">for</span> (<span class="code-type">int</span> <span class="code-variable">i</span> = <span class="code-number">0</span>; <span class="code-variable">i</span> < <span class="code-variable">productNames</span>.Length; <span class="code-variable">i</span>++)
+{
+    <span class="code-comment">// Skip inactive products</span>
+    <span class="code-keyword">if</span> (!<span class="code-variable">isActive</span>[<span class="code-variable">i</span>])
+    {
+        Console.<span class="code-method">WriteLine</span>(<span class="code-string">$"[INACTIVE] </span>{<span class="code-variable">productNames</span>[<span class="code-variable">i</span>]}<span class="code-string"> - Skipped"</span>);
+        <span class="code-keyword">continue</span>;
+    }
+    
+    <span class="code-comment">// Determine stock status</span>
+    <span class="code-type">string</span> <span class="code-variable">status</span>;
+    <span class="code-type">string</span> <span class="code-variable">action</span>;
+    
+    <span class="code-keyword">if</span> (<span class="code-variable">quantities</span>[<span class="code-variable">i</span>] == <span class="code-number">0</span>)
+    {
+        <span class="code-variable">status</span> = <span class="code-string">"🔴 OUT OF STOCK"</span>;
+        <span class="code-variable">action</span> = <span class="code-string">"URGENT: Order immediately!"</span>;
+        <span class="code-variable">outOfStockCount</span>++;
+    }
+    <span class="code-keyword">else if</span> (<span class="code-variable">quantities</span>[<span class="code-variable">i</span>] <= <span class="code-variable">reorderLevels</span>[<span class="code-variable">i</span>])
+    {
+        <span class="code-variable">status</span> = <span class="code-string">"🟡 LOW STOCK"</span>;
+        <span class="code-variable">action</span> = <span class="code-string">"Reorder soon"</span>;
+        <span class="code-variable">lowStockCount</span>++;
+    }
+    <span class="code-keyword">else</span>
+    {
+        <span class="code-variable">status</span> = <span class="code-string">"🟢 IN STOCK"</span>;
+        <span class="code-variable">action</span> = <span class="code-string">"No action needed"</span>;
+        <span class="code-variable">healthyStockCount</span>++;
+    }
+    
+    <span class="code-comment">// Calculate inventory value</span>
+    <span class="code-type">decimal</span> <span class="code-variable">productValue</span> = <span class="code-variable">quantities</span>[<span class="code-variable">i</span>] * <span class="code-variable">prices</span>[<span class="code-variable">i</span>];
+    <span class="code-variable">totalInventoryValue</span> += <span class="code-variable">productValue</span>;
+    
+    <span class="code-comment">// Display product info</span>
+    Console.<span class="code-method">WriteLine</span>(<span class="code-string">$"Product: </span>{<span class="code-variable">productNames</span>[<span class="code-variable">i</span>]}<span class="code-string">"</span>);
+    Console.<span class="code-method">WriteLine</span>(<span class="code-string">$"  Quantity: </span>{<span class="code-variable">quantities</span>[<span class="code-variable">i</span>]}<span class="code-string"> (Reorder at: </span>{<span class="code-variable">reorderLevels</span>[<span class="code-variable">i</span>]}<span class="code-string">)"</span>);
+    Console.<span class="code-method">WriteLine</span>(<span class="code-string">$"  Value: </span>{<span class="code-variable">productValue</span>:C}<span class="code-string">"</span>);
+    Console.<span class="code-method">WriteLine</span>(<span class="code-string">$"  Status: </span>{<span class="code-variable">status</span>}<span class="code-string">"</span>);
+    Console.<span class="code-method">WriteLine</span>(<span class="code-string">$"  Action: </span>{<span class="code-variable">action</span>}<span class="code-string">"</span>);
+    Console.<span class="code-method">WriteLine</span>();
+}
+
+<span class="code-comment">// Summary using switch expression</span>
+<span class="code-type">string</span> <span class="code-variable">overallStatus</span> = <span class="code-variable">outOfStockCount</span> <span class="code-keyword">switch</span>
+{
+    > <span class="code-number">2</span> => <span class="code-string">"CRITICAL - Multiple products out of stock!"</span>,
+    > <span class="code-number">0</span> => <span class="code-string">"WARNING - Some products need attention"</span>,
+    _ <span class="code-keyword">when</span> <span class="code-variable">lowStockCount</span> > <span class="code-number">0</span> => <span class="code-string">"CAUTION - Low stock items present"</span>,
+    _ => <span class="code-string">"HEALTHY - All products well stocked"</span>
+};
+
+Console.<span class="code-method">WriteLine</span>(<span class="code-string">"════════════════════════════════════════════════════════════════"</span>);
+Console.<span class="code-method">WriteLine</span>(<span class="code-string">"SUMMARY"</span>);
+Console.<span class="code-method">WriteLine</span>(<span class="code-string">"════════════════════════════════════════════════════════════════"</span>);
+Console.<span class="code-method">WriteLine</span>(<span class="code-string">$"  🟢 Healthy Stock: </span>{<span class="code-variable">healthyStockCount</span>}<span class="code-string"> products"</span>);
+Console.<span class="code-method">WriteLine</span>(<span class="code-string">$"  🟡 Low Stock:     </span>{<span class="code-variable">lowStockCount</span>}<span class="code-string"> products"</span>);
+Console.<span class="code-method">WriteLine</span>(<span class="code-string">$"  🔴 Out of Stock:  </span>{<span class="code-variable">outOfStockCount</span>}<span class="code-string"> products"</span>);
+Console.<span class="code-method">WriteLine</span>(<span class="code-string">$"  💰 Total Value:   </span>{<span class="code-variable">totalInventoryValue</span>:C}<span class="code-string">"</span>);
+Console.<span class="code-method">WriteLine</span>();
+Console.<span class="code-method">WriteLine</span>(<span class="code-string">$"  Overall: </span>{<span class="code-variable">overallStatus</span>}<span class="code-string">"</span>);</code></pre>
+
+        <div class="section-divider"></div>
+
+        <h2>Key Takeaways</h2>
+
+        <ul>
+          <li><strong>if/else if/else</strong> executes code based on boolean conditions</li>
+          <li><strong>switch statements</strong> are cleaner than long if-else chains when comparing one value to many options</li>
+          <li><strong>Switch expressions</strong> (C# 8+) are concise when you need to return a value based on a condition</li>
+          <li><strong>for loops</strong> are best when you know how many iterations you need</li>
+          <li><strong>while loops</strong> repeat as long as a condition is true (check first)</li>
+          <li><strong>do-while loops</strong> guarantee at least one execution (check after)</li>
+          <li><strong>foreach loops</strong> iterate over every item in a collection</li>
+          <li><strong>break</strong> exits a loop immediately; <strong>continue</strong> skips to the next iteration</li>
+          <li>Always use braces <code>{ }</code> even for single-statement blocks</li>
+          <li>Avoid deep nesting—consider combining conditions or refactoring</li>
+        </ul>
+
+        <div class="callout callout-tip">
+          <div class="callout-title">🚀 Ready for Methods!</div>
+          <p>
+            You can now make decisions and repeat actions. In the next section, we'll learn 
+            how to organize code into reusable <strong>methods</strong>—the building blocks 
+            of well-structured programs.
+          </p>
+        </div>
+
+        <h2>What's Next?</h2>
+
+        <p>
+          In the next section, <strong>Methods and Functions</strong>, we'll learn how to 
+          break our code into reusable pieces. You'll understand parameters, return values, 
+          method overloading, and how methods make code more organized and maintainable.
+        </p>
+
+        <!-- Page Navigation -->
+        <nav class="page-nav">
+          <a href="04-operators-and-expressions.html" class="prev">Operators and Expressions</a>
+          <a href="06-methods-and-functions.html" class="next">Methods and Functions</a>
+        </nav>
+
+      
+        <footer class="page-footer">
+          Built with 💜 by <a href="https://akwasi.dev" target="_blank" rel="noopener noreferrer">Akwasi Adu-Kyeremeh</a> for developers who want to truly understand what they're building.
+        </footer>
+
+      </div>
+    </main>
+  </div>
+</body>
+</html>

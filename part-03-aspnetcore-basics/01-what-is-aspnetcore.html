@@ -1,0 +1,574 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>What is ASP.NET Core? | ASP.NET Core Mastery</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;500&family=Source+Serif+4:ital,wght@0,400;0,600;1,400&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="../assets/style.css">
+</head>
+
+<body>
+    <div class="page-wrapper">
+        <aside class="sidebar">
+            <a href="../index.html" class="sidebar-logo">ASP.NET Core Mastery</a>
+            <div class="sidebar-section">Part III: ASP.NET Core Basics</div>
+            <ul class="sidebar-nav">
+                <li><a href="01-what-is-aspnetcore.html" class="active">What is ASP.NET Core?</a></li>
+                <li><a href="02-first-web-app.html">Your First Web Application</a></li>
+                <li><a href="03-program-cs-deep-dive.html">Program.cs Deep Dive</a></li>
+                <li><a href="04-configuration.html">Configuration & appsettings.json</a></li>
+                <li><a href="05-options-pattern.html">The Options Pattern</a></li>
+                <li><a href="06-environments.html">Environments</a></li>
+            </ul>
+            <div class="sidebar-section">Resources</div>
+            <ul class="sidebar-nav">
+                <li><a href="../index.html">Full Roadmap</a></li>
+            </ul>
+        </aside>
+
+        <main class="main-content">
+            <div class="content-container">
+                <nav class="breadcrumb">
+                    <a href="../index.html">Home</a>
+                    <span>→</span>
+                    <a href="01-what-is-aspnetcore.html">Part III: ASP.NET Core Basics</a>
+                    <span>→</span>
+                    What is ASP.NET Core?
+                </nav>
+
+                <div class="progress-indicator">
+                    <span>Section 1 of 6</span>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 16.67%"></div>
+                    </div>
+                </div>
+
+                <h1>What is ASP.NET Core?</h1>
+
+                <div class="learning-objectives">
+                    <h3>🎯 What You'll Learn</h3>
+                    <ul>
+                        <li>What ASP.NET Core is and its purpose</li>
+                        <li>The evolution from ASP.NET Framework to ASP.NET Core</li>
+                        <li>Key features and benefits</li>
+                        <li>Different application types you can build</li>
+                        <li>How ASP.NET Core fits into the .NET ecosystem</li>
+                        <li>Why ASP.NET Core is perfect for InvenTrack</li>
+                        <li>Performance and scalability advantages</li>
+                    </ul>
+                </div>
+
+                <h2>What is ASP.NET Core?</h2>
+
+                <p>
+                    <strong>ASP.NET Core</strong> is a free, open-source, cross-platform framework for building
+                    modern, cloud-based, internet-connected applications. It's the web framework built on top
+                    of .NET that powers everything from simple websites to complex enterprise applications.
+                </p>
+
+                <div class="callout callout-concept">
+                    <div class="callout-title">💡 Key Concept</div>
+                    <p>
+                        Think of ASP.NET Core as a complete toolkit for building web applications. While .NET
+                        provides the foundation (runtime, libraries, language), ASP.NET Core adds everything
+                        specific to web development: handling HTTP requests, routing URLs, rendering HTML,
+                        serving APIs, managing sessions, and much more.
+                    </p>
+                </div>
+
+                <h3>What Can You Build?</h3>
+
+                <ul>
+                    <li><strong>Web APIs</strong>: RESTful services for mobile apps, SPAs, and microservices</li>
+                    <li><strong>MVC Web Apps</strong>: Traditional server-rendered web applications</li>
+                    <li><strong>Razor Pages</strong>: Page-focused web apps (simpler than MVC)</li>
+                    <li><strong>Blazor Apps</strong>: Interactive web UIs using C# instead of JavaScript</li>
+                    <li><strong>Real-Time Apps</strong>: SignalR for WebSockets and real-time communication</li>
+                    <li><strong>gRPC Services</strong>: High-performance RPC framework</li>
+                    <li><strong>Microservices</strong>: Distributed, containerized services</li>
+                </ul>
+
+                <div class="callout callout-tip">
+                    <div class="callout-title">🚀 For InvenTrack</div>
+                    <p>
+                        We'll build InvenTrack as a <strong>Web API</strong> using ASP.NET Core. This gives us
+                        maximum flexibility—we can consume the API from web frontends, mobile apps, desktop
+                        applications, or even other services.
+                    </p>
+                </div>
+
+                <div class="section-divider"></div>
+
+                <h2>A Brief History</h2>
+
+                <h3>ASP.NET Framework (2002-2016)</h3>
+
+                <p>
+                    The original <strong>ASP.NET</strong> was released in 2002 as part of the .NET Framework.
+                    It was revolutionary for its time but had limitations:
+                </p>
+
+                <ul>
+                    <li>Windows-only (tied to IIS)</li>
+                    <li>Monolithic architecture</li>
+                    <li>Slow release cycles</li>
+                    <li>Heavy memory footprint</li>
+                    <li>Tightly coupled to System.Web.dll</li>
+                </ul>
+
+                <h3>ASP.NET Core (2016-Present)</h3>
+
+                <p>
+                    In 2016, Microsoft released <strong>ASP.NET Core</strong>—a complete rewrite from the
+                    ground up. It addressed all the limitations of the old framework:
+                </p>
+
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ASP.NET Framework</th>
+                            <th>ASP.NET Core</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Windows-only</td>
+                            <td>Cross-platform (Windows, macOS, Linux)</td>
+                        </tr>
+                        <tr>
+                            <td>IIS-dependent</td>
+                            <td>Self-hosted or IIS/Nginx/Apache</td>
+                        </tr>
+                        <tr>
+                            <td>Monolithic</td>
+                            <td>Modular (install only what you need)</td>
+                        </tr>
+                        <tr>
+                            <td>Slow</td>
+                            <td>Extremely fast (top TechEmpower benchmarks)</td>
+                        </tr>
+                        <tr>
+                            <td>Closed source</td>
+                            <td>Open source (GitHub)</td>
+                        </tr>
+                        <tr>
+                            <td>Infrequent updates</td>
+                            <td>Regular releases (yearly LTS)</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="callout callout-info">
+                    <div class="callout-title">ℹ️ Naming Note</div>
+                    <p>
+                        <strong>ASP.NET Core 1.0-3.1</strong>: Named "ASP.NET Core"<br>
+                        <strong>ASP.NET Core 5.0+</strong>: Just called ".NET" (unified with .NET Core)<br>
+                        <strong>Common usage</strong>: Still referred to as "ASP.NET Core" for clarity
+                    </p>
+                </div>
+
+                <div class="section-divider"></div>
+
+                <h2>Key Features and Benefits</h2>
+
+                <h3>1. Cross-Platform</h3>
+
+                <p>
+                    Develop on Windows, macOS, or Linux. Deploy to Windows Server, Linux, Docker containers,
+                    or cloud platforms (Azure, AWS, Google Cloud).
+                </p>
+
+                <div class="code-header">
+                    <span class="code-filename">Cross-Platform Example</span>
+                    <span class="code-language">Shell</span>
+                </div>
+                <pre><code><span class="code-comment"># Develop on Windows</span>
+dotnet new webapi -n InvenTrack.Api
+dotnet run
+
+<span class="code-comment"># Deploy to Linux Docker container</span>
+docker build -t inventtrack-api .
+docker run -p 8080:80 inventtrack-api</code></pre>
+
+                <h3>2. High Performance</h3>
+
+                <p>
+                    ASP.NET Core consistently ranks among the fastest web frameworks in the world. It's
+                    optimized for:
+                </p>
+
+                <ul>
+                    <li>Minimal memory allocation</li>
+                    <li>Efficient HTTP parsing</li>
+                    <li>Asynchronous I/O by default</li>
+                    <li>Response caching and compression</li>
+                    <li>Kestrel web server (extremely fast)</li>
+                </ul>
+
+                <div class="callout callout-tip">
+                    <div class="callout-title">🚀 Performance Numbers</div>
+                    <p>
+                        In TechEmpower benchmarks, ASP.NET Core handles <strong>7+ million requests/second</strong>
+                        on a single server—faster than Node.js, Go, and most other frameworks.
+                    </p>
+                </div>
+
+                <h3>3. Built-in Dependency Injection</h3>
+
+                <p>
+                    ASP.NET Core has dependency injection (DI) built into its core. This makes your code:
+                </p>
+
+                <ul>
+                    <li>More testable</li>
+                    <li>More maintainable</li>
+                    <li>Loosely coupled</li>
+                    <li>Following SOLID principles</li>
+                </ul>
+
+                <div class="code-header">
+                    <span class="code-filename">Dependency Injection Example</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-comment">// Register service</span>
+<span class="code-variable">builder</span>.<span class="code-variable">Services</span>.<span class="code-method">AddScoped</span>&lt;<span class="code-class">IProductService</span>, <span class="code-class">ProductService</span>&gt;();
+
+<span class="code-comment">// Inject into controller</span>
+<span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">ProductsController</span> : <span class="code-class">ControllerBase</span>
+{
+    <span class="code-keyword">private</span> <span class="code-keyword">readonly</span> <span class="code-class">IProductService</span> <span class="code-variable">_productService</span>;
+    
+    <span class="code-keyword">public</span> <span class="code-method">ProductsController</span>(<span class="code-class">IProductService</span> <span class="code-variable">productService</span>)
+    {
+        <span class="code-variable">_productService</span> = <span class="code-variable">productService</span>;
+    }
+}</code></pre>
+
+                <h3>4. Middleware Pipeline</h3>
+
+                <p>
+                    ASP.NET Core uses a <strong>middleware pipeline</strong> to process HTTP requests. Each
+                    middleware component can:
+                </p>
+
+                <ul>
+                    <li>Handle the request and return a response</li>
+                    <li>Process the request and pass it to the next middleware</li>
+                    <li>Process the response on the way back</li>
+                </ul>
+
+                <div class="code-header">
+                    <span class="code-filename">Middleware Pipeline</span>
+                    <span class="code-language">Text</span>
+                </div>
+                <pre><code>Request → [Authentication] → [Routing] → [Authorization] → [Endpoint] → Response
+          ↓              ↓             ↓              ↓            ↓
+       Logging      CORS Check    Rate Limit    Controller   JSON Result</code></pre>
+
+                <h3>5. Unified Programming Model</h3>
+
+                <p>
+                    Whether you're building a Web API, MVC app, or Razor Pages site, you use the same:
+                </p>
+
+                <ul>
+                    <li>Configuration system</li>
+                    <li>Dependency injection</li>
+                    <li>Middleware pipeline</li>
+                    <li>Logging framework</li>
+                    <li>Hosting model</li>
+                </ul>
+
+                <h3>6. Cloud-Ready</h3>
+
+                <p>
+                    ASP.NET Core is designed for cloud deployment:
+                </p>
+
+                <ul>
+                    <li>Environment-based configuration</li>
+                    <li>Health checks</li>
+                    <li>Distributed caching</li>
+                    <li>Containerization support (Docker)</li>
+                    <li>Azure integration (App Service, Functions, etc.)</li>
+                </ul>
+
+                <div class="section-divider"></div>
+
+                <h2>ASP.NET Core Architecture</h2>
+
+                <h3>The Request Pipeline</h3>
+
+                <p>
+                    Every HTTP request flows through ASP.NET Core like this:
+                </p>
+
+                <div class="code-header">
+                    <span class="code-filename">Request Flow</span>
+                    <span class="code-language">Text</span>
+                </div>
+                <pre><code>1. HTTP Request arrives
+   ↓
+2. Kestrel web server receives it
+   ↓
+3. Middleware pipeline processes it
+   ↓
+4. Routing determines which endpoint to call
+   ↓
+5. Controller/Endpoint executes
+   ↓
+6. Response is generated
+   ↓
+7. Middleware processes response (reverse order)
+   ↓
+8. HTTP Response sent back to client</code></pre>
+
+                <h3>Key Components</h3>
+
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Component</th>
+                            <th>Purpose</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Kestrel</strong></td>
+                            <td>Cross-platform web server</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Middleware</strong></td>
+                            <td>Request/response processing pipeline</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Routing</strong></td>
+                            <td>Maps URLs to endpoints</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Controllers</strong></td>
+                            <td>Handle requests and return responses</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Model Binding</strong></td>
+                            <td>Maps request data to C# objects</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Validation</strong></td>
+                            <td>Validates input data</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Filters</strong></td>
+                            <td>Cross-cutting concerns (auth, logging, etc.)</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="section-divider"></div>
+
+                <h2>Application Types in Detail</h2>
+
+                <h3>Web API (RESTful Services)</h3>
+
+                <p>
+                    Perfect for building backend services that serve JSON/XML data to clients.
+                </p>
+
+                <div class="code-header">
+                    <span class="code-filename">Web API Example</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code>[<span class="code-class">ApiController</span>]
+[<span class="code-method">Route</span>(<span class="code-string">"api/[controller]"</span>)]
+<span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">ProductsController</span> : <span class="code-class">ControllerBase</span>
+{
+    [<span class="code-class">HttpGet</span>]
+    <span class="code-keyword">public</span> <span class="code-class">ActionResult</span>&lt;<span class="code-class">IEnumerable</span>&lt;<span class="code-class">Product</span>&gt;&gt; <span class="code-method">GetProducts</span>()
+    {
+        <span class="code-keyword">return</span> <span class="code-method">Ok</span>(<span class="code-variable">products</span>);
+    }
+}</code></pre>
+
+                <p><strong>Use for</strong>: InvenTrack API, mobile backends, microservices</p>
+
+                <h3>MVC (Model-View-Controller)</h3>
+
+                <p>
+                    Traditional server-rendered web applications with separation of concerns.
+                </p>
+
+                <p><strong>Use for</strong>: Admin dashboards, content management systems</p>
+
+                <h3>Razor Pages</h3>
+
+                <p>
+                    Page-focused model, simpler than MVC for page-centric scenarios.
+                </p>
+
+                <p><strong>Use for</strong>: Simple websites, forms, CRUD operations</p>
+
+                <h3>Blazor</h3>
+
+                <p>
+                    Build interactive web UIs using C# instead of JavaScript. Runs in the browser via WebAssembly
+                    or on the server.
+                </p>
+
+                <p><strong>Use for</strong>: Rich, interactive web applications without JavaScript</p>
+
+                <div class="section-divider"></div>
+
+                <h2>Why ASP.NET Core for InvenTrack?</h2>
+
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Requirement</th>
+                            <th>How ASP.NET Core Delivers</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>RESTful API</strong></td>
+                            <td>Built-in Web API support with automatic JSON serialization</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Database Access</strong></td>
+                            <td>Entity Framework Core integration</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Authentication</strong></td>
+                            <td>ASP.NET Core Identity + JWT support</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Validation</strong></td>
+                            <td>Model validation with Data Annotations or FluentValidation</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Logging</strong></td>
+                            <td>Built-in logging framework, Serilog integration</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Performance</strong></td>
+                            <td>Handle thousands of concurrent users</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Scalability</strong></td>
+                            <td>Stateless design, easy to scale horizontally</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Deployment</strong></td>
+                            <td>Docker, Azure, AWS, on-premises—deploy anywhere</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="callout callout-tip">
+                    <div class="callout-title">🎯 Real-World Success</div>
+                    <p>
+                        ASP.NET Core powers applications at <strong>Stack Overflow</strong>, <strong>Bing</strong>,
+                        <strong>GoDaddy</strong>, and thousands of enterprise systems. It's proven at massive scale.
+                    </p>
+                </div>
+
+                <div class="section-divider"></div>
+
+                <h2>Comparison with Other Frameworks</h2>
+
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Framework</th>
+                            <th>Language</th>
+                            <th>Performance</th>
+                            <th>Type Safety</th>
+                            <th>Ecosystem</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>ASP.NET Core</strong></td>
+                            <td>C#</td>
+                            <td>⭐⭐⭐⭐⭐</td>
+                            <td>Strong</td>
+                            <td>Excellent</td>
+                        </tr>
+                        <tr>
+                            <td>Node.js/Express</td>
+                            <td>JavaScript</td>
+                            <td>⭐⭐⭐</td>
+                            <td>Weak (TypeScript helps)</td>
+                            <td>Massive</td>
+                        </tr>
+                        <tr>
+                            <td>Spring Boot</td>
+                            <td>Java</td>
+                            <td>⭐⭐⭐⭐</td>
+                            <td>Strong</td>
+                            <td>Excellent</td>
+                        </tr>
+                        <tr>
+                            <td>Django</td>
+                            <td>Python</td>
+                            <td>⭐⭐⭐</td>
+                            <td>Weak</td>
+                            <td>Good</td>
+                        </tr>
+                        <tr>
+                            <td>Ruby on Rails</td>
+                            <td>Ruby</td>
+                            <td>⭐⭐</td>
+                            <td>Weak</td>
+                            <td>Good</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h2>Key Takeaways</h2>
+
+                <ul>
+                    <li><strong>ASP.NET Core</strong> is a cross-platform web framework built on .NET</li>
+                    <li>It's a complete rewrite of the old ASP.NET Framework</li>
+                    <li><strong>Cross-platform</strong>: Windows, macOS, Linux</li>
+                    <li><strong>High performance</strong>: Top-tier in benchmarks</li>
+                    <li><strong>Open source</strong>: Community-driven on GitHub</li>
+                    <li>Build <strong>Web APIs, MVC apps, Razor Pages, Blazor, and more</strong></li>
+                    <li><strong>Built-in DI</strong>: Dependency injection out of the box</li>
+                    <li><strong>Middleware pipeline</strong>: Flexible request processing</li>
+                    <li><strong>Cloud-ready</strong>: Designed for modern deployment</li>
+                    <li>Perfect for <strong>InvenTrack</strong>: RESTful API with EF Core, Identity, and more</li>
+                    <li>Powers <strong>enterprise applications</strong> at massive scale</li>
+                </ul>
+
+                <div class="callout callout-concept">
+                    <div class="callout-title">🎯 Next Steps</div>
+                    <p>
+                        Now that you understand what ASP.NET Core is and why it's powerful, it's time to get
+                        hands-on! In the next section, we'll create <strong>your first web application</strong>—
+                        a simple API that responds to HTTP requests. You'll see the entire development workflow
+                        from creation to running your first web service!
+                    </p>
+                </div>
+
+                <nav class="page-nav">
+                    <a href="../index.html" class="prev">Back to Roadmap</a>
+                    <a href="02-first-web-app.html" class="next">Your First Web Application</a>
+                </nav>
+
+            
+        <footer class="page-footer">
+          Built with 💜 by <a href="https://akwasi.dev" target="_blank" rel="noopener noreferrer">Akwasi Adu-Kyeremeh</a> for developers who want to truly understand what they're building.
+        </footer>
+
+      </div>
+        </main>
+    </div>
+</body>
+
+</html>

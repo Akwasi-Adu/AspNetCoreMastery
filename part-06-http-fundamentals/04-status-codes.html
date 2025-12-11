@@ -1,0 +1,505 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HTTP Status Codes | ASP.NET Core Mastery</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;500&family=Source+Serif+4:ital,wght@0,400;0,600;1,400&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="../assets/style.css">
+</head>
+
+<body>
+    <div class="page-wrapper">
+        <aside class="sidebar">
+            <a href="../index.html" class="sidebar-logo">ASP.NET Core Mastery</a>
+            <div class="sidebar-section">Part VI: HTTP & Web Fundamentals</div>
+            <ul class="sidebar-nav">
+                <li><a href="01-http-basics.html">HTTP Protocol Basics</a></li>
+                <li><a href="02-request-response.html">Request/Response Cycle</a></li>
+                <li><a href="03-http-methods.html">HTTP Methods</a></li>
+                <li><a href="04-status-codes.html" class="active">Status Codes</a></li>
+                <li><a href="05-headers-content-types.html">Headers and Content Types</a></li>
+                <li><a href="06-cookies-sessions.html">Cookies and Sessions</a></li>
+            </ul>
+            <div class="sidebar-section">Resources</div>
+            <ul class="sidebar-nav">
+                <li><a href="../index.html">Full Roadmap</a></li>
+            </ul>
+        </aside>
+
+        <main class="main-content">
+            <div class="content-container">
+                <nav class="breadcrumb">
+                    <a href="../index.html">Home</a>
+                    <span>→</span>
+                    <a href="01-http-basics.html">Part VI: HTTP & Web Fundamentals</a>
+                    <span>→</span>
+                    HTTP Status Codes
+                </nav>
+
+                <div class="progress-indicator">
+                    <span>Section 4 of 6</span>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 66.67%"></div>
+                    </div>
+                </div>
+
+                <h1>HTTP Status Codes</h1>
+
+                <div class="learning-objectives">
+                    <h3>🎯 What You'll Learn</h3>
+                    <ul>
+                        <li>HTTP status code categories (1xx-5xx)</li>
+                        <li>Common status codes and their meanings</li>
+                        <li>When to use each status code</li>
+                        <li>How to return status codes in ASP.NET Core</li>
+                        <li>Best practices for API responses</li>
+                        <li>Complete InvenTrack examples</li>
+                    </ul>
+                </div>
+
+                <h2>Status Code Categories</h2>
+
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Range</th>
+                            <th>Category</th>
+                            <th>Meaning</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>1xx</strong></td>
+                            <td>Informational</td>
+                            <td>Request received, continuing process</td>
+                        </tr>
+                        <tr>
+                            <td><strong>2xx</strong></td>
+                            <td>Success</td>
+                            <td>Request successfully received and processed</td>
+                        </tr>
+                        <tr>
+                            <td><strong>3xx</strong></td>
+                            <td>Redirection</td>
+                            <td>Further action needed to complete request</td>
+                        </tr>
+                        <tr>
+                            <td><strong>4xx</strong></td>
+                            <td>Client Error</td>
+                            <td>Request contains bad syntax or cannot be fulfilled</td>
+                        </tr>
+                        <tr>
+                            <td><strong>5xx</strong></td>
+                            <td>Server Error</td>
+                            <td>Server failed to fulfill a valid request</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="section-divider"></div>
+
+                <h2>2xx Success Codes</h2>
+
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Code</th>
+                            <th>Name</th>
+                            <th>When to Use</th>
+                            <th>ASP.NET Core Method</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>200</strong></td>
+                            <td>OK</td>
+                            <td>Successful GET, PUT, PATCH</td>
+                            <td><code>Ok(data)</code></td>
+                        </tr>
+                        <tr>
+                            <td><strong>201</strong></td>
+                            <td>Created</td>
+                            <td>Resource successfully created (POST)</td>
+                            <td><code>Created(uri, data)</code></td>
+                        </tr>
+                        <tr>
+                            <td><strong>204</strong></td>
+                            <td>No Content</td>
+                            <td>Successful DELETE, PUT (no response body)</td>
+                            <td><code>NoContent()</code></td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h3>Examples</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">200 OK</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code>[<span class="code-class">HttpGet</span>(<span class="code-string">"{id}"</span>)]
+<span class="code-keyword">public</span> <span class="code-keyword">async</span> <span class="code-class">Task</span>&lt;<span class="code-class">IActionResult</span>&gt; <span class="code-method">GetProduct</span>(<span class="code-type">int</span> <span class="code-variable">id</span>)
+{
+    <span class="code-keyword">var</span> <span class="code-variable">product</span> = <span class="code-keyword">await</span> <span class="code-variable">_productService</span>.<span class="code-method">GetByIdAsync</span>(<span class="code-variable">id</span>);
+    <span class="code-keyword">return</span> <span class="code-method">Ok</span>(<span class="code-variable">product</span>); <span class="code-comment">// 200 OK</span>
+}</code></pre>
+
+                <div class="code-header">
+                    <span class="code-filename">201 Created</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code>[<span class="code-class">HttpPost</span>]
+<span class="code-keyword">public</span> <span class="code-keyword">async</span> <span class="code-class">Task</span>&lt;<span class="code-class">IActionResult</span>&gt; <span class="code-method">CreateProduct</span>([<span class="code-class">FromBody</span>] <span class="code-class">CreateProductDto</span> <span class="code-variable">dto</span>)
+{
+    <span class="code-keyword">var</span> <span class="code-variable">product</span> = <span class="code-keyword">await</span> <span class="code-variable">_productService</span>.<span class="code-method">CreateAsync</span>(<span class="code-variable">dto</span>);
+    
+    <span class="code-keyword">return</span> <span class="code-method">CreatedAtAction</span>(
+        <span class="code-keyword">nameof</span>(<span class="code-method">GetProduct</span>),
+        <span class="code-keyword">new</span> { <span class="code-variable">id</span> = <span class="code-variable">product</span>.<span class="code-variable">Id</span> },
+        <span class="code-variable">product</span>); <span class="code-comment">// 201 Created + Location header</span>
+}</code></pre>
+
+                <div class="code-header">
+                    <span class="code-filename">204 No Content</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code>[<span class="code-class">HttpDelete</span>(<span class="code-string">"{id}"</span>)]
+<span class="code-keyword">public</span> <span class="code-keyword">async</span> <span class="code-class">Task</span>&lt;<span class="code-class">IActionResult</span>&gt; <span class="code-method">DeleteProduct</span>(<span class="code-type">int</span> <span class="code-variable">id</span>)
+{
+    <span class="code-keyword">await</span> <span class="code-variable">_productService</span>.<span class="code-method">DeleteAsync</span>(<span class="code-variable">id</span>);
+    <span class="code-keyword">return</span> <span class="code-method">NoContent</span>(); <span class="code-comment">// 204 No Content</span>
+}</code></pre>
+
+                <div class="section-divider"></div>
+
+                <h2>4xx Client Error Codes</h2>
+
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Code</th>
+                            <th>Name</th>
+                            <th>When to Use</th>
+                            <th>ASP.NET Core Method</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>400</strong></td>
+                            <td>Bad Request</td>
+                            <td>Invalid request data/validation failed</td>
+                            <td><code>BadRequest()</code></td>
+                        </tr>
+                        <tr>
+                            <td><strong>401</strong></td>
+                            <td>Unauthorized</td>
+                            <td>Not authenticated (missing/invalid token)</td>
+                            <td><code>Unauthorized()</code></td>
+                        </tr>
+                        <tr>
+                            <td><strong>403</strong></td>
+                            <td>Forbidden</td>
+                            <td>Authenticated but not authorized</td>
+                            <td><code>Forbid()</code></td>
+                        </tr>
+                        <tr>
+                            <td><strong>404</strong></td>
+                            <td>Not Found</td>
+                            <td>Resource doesn't exist</td>
+                            <td><code>NotFound()</code></td>
+                        </tr>
+                        <tr>
+                            <td><strong>409</strong></td>
+                            <td>Conflict</td>
+                            <td>Resource conflict (duplicate, version mismatch)</td>
+                            <td><code>Conflict()</code></td>
+                        </tr>
+                        <tr>
+                            <td><strong>422</strong></td>
+                            <td>Unprocessable Entity</td>
+                            <td>Validation error (semantic issues)</td>
+                            <td><code>UnprocessableEntity()</code></td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h3>Examples</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">400 Bad Request</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code>[<span class="code-class">HttpPost</span>]
+<span class="code-keyword">public</span> <span class="code-keyword">async</span> <span class="code-class">Task</span>&lt;<span class="code-class">IActionResult</span>&gt; <span class="code-method">CreateProduct</span>([<span class="code-class">FromBody</span>] <span class="code-class">CreateProductDto</span> <span class="code-variable">dto</span>)
+{
+    <span class="code-keyword">if</span> (!<span class="code-class">ModelState</span>.<span class="code-variable">IsValid</span>)
+        <span class="code-keyword">return</span> <span class="code-method">BadRequest</span>(<span class="code-class">ModelState</span>); <span class="code-comment">// 400 Bad Request</span>
+    
+    <span class="code-comment">// ...</span>
+}</code></pre>
+
+                <div class="code-header">
+                    <span class="code-filename">401 Unauthorized vs 403 Forbidden</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code>[<span class="code-class">HttpGet</span>(<span class="code-string">"admin"</span>)]
+<span class="code-keyword">public</span> <span class="code-class">IActionResult</span> <span class="code-method">GetAdminData</span>()
+{
+    <span class="code-comment">// 401: User not logged in</span>
+    <span class="code-keyword">if</span> (!<span class="code-class">User</span>.<span class="code-variable">Identity</span>.<span class="code-variable">IsAuthenticated</span>)
+        <span class="code-keyword">return</span> <span class="code-method">Unauthorized</span>(); <span class="code-comment">// 401</span>
+    
+    <span class="code-comment">// 403: User logged in but not an admin</span>
+    <span class="code-keyword">if</span> (!<span class="code-class">User</span>.<span class="code-method">IsInRole</span>(<span class="code-string">"Admin"</span>))
+        <span class="code-keyword">return</span> <span class="code-method">Forbid</span>(); <span class="code-comment">// 403</span>
+    
+    <span class="code-keyword">return</span> <span class="code-method">Ok</span>(<span class="code-string">"Admin data"</span>);
+}</code></pre>
+
+                <div class="code-header">
+                    <span class="code-filename">404 Not Found</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code>[<span class="code-class">HttpGet</span>(<span class="code-string">"{id}"</span>)]
+<span class="code-keyword">public</span> <span class="code-keyword">async</span> <span class="code-class">Task</span>&lt;<span class="code-class">IActionResult</span>&gt; <span class="code-method">GetProduct</span>(<span class="code-type">int</span> <span class="code-variable">id</span>)
+{
+    <span class="code-keyword">var</span> <span class="code-variable">product</span> = <span class="code-keyword">await</span> <span class="code-variable">_productService</span>.<span class="code-method">GetByIdAsync</span>(<span class="code-variable">id</span>);
+    
+    <span class="code-keyword">if</span> (<span class="code-variable">product</span> == <span class="code-keyword">null</span>)
+        <span class="code-keyword">return</span> <span class="code-method">NotFound</span>(); <span class="code-comment">// 404 Not Found</span>
+    
+    <span class="code-keyword">return</span> <span class="code-method">Ok</span>(<span class="code-variable">product</span>);
+}</code></pre>
+
+                <div class="code-header">
+                    <span class="code-filename">409 Conflict</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code>[<span class="code-class">HttpPost</span>]
+<span class="code-keyword">public</span> <span class="code-keyword">async</span> <span class="code-class">Task</span>&lt;<span class="code-class">IActionResult</span>&gt; <span class="code-method">CreateProduct</span>([<span class="code-class">FromBody</span>] <span class="code-class">CreateProductDto</span> <span class="code-variable">dto</span>)
+{
+    <span class="code-keyword">var</span> <span class="code-variable">exists</span> = <span class="code-keyword">await</span> <span class="code-variable">_productService</span>.<span class="code-method">ExistsAsync</span>(<span class="code-variable">dto</span>.<span class="code-variable">Sku</span>);
+    
+    <span class="code-keyword">if</span> (<span class="code-variable">exists</span>)
+        <span class="code-keyword">return</span> <span class="code-method">Conflict</span>(<span class="code-keyword">new</span> { <span class="code-variable">message</span> = <span class="code-string">"Product with this SKU already exists"</span> }); <span class="code-comment">// 409</span>
+    
+    <span class="code-comment">// ...</span>
+}</code></pre>
+
+                <div class="callout callout-info">
+                    <div class="callout-title">ℹ️ 401 vs 403</div>
+                    <p>
+                        <strong>401 Unauthorized</strong>: "Who are you?" (not logged in)<br>
+                        <strong>403 Forbidden</strong>: "I know who you are, but you can't do this" (insufficient
+                        permissions)
+                    </p>
+                </div>
+
+                <div class="section-divider"></div>
+
+                <h2>5xx Server Error Codes</h2>
+
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Code</th>
+                            <th>Name</th>
+                            <th>When to Use</th>
+                            <th>ASP.NET Core Method</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>500</strong></td>
+                            <td>Internal Server Error</td>
+                            <td>Unhandled exception</td>
+                            <td><code>StatusCode(500)</code></td>
+                        </tr>
+                        <tr>
+                            <td><strong>502</strong></td>
+                            <td>Bad Gateway</td>
+                            <td>Invalid response from upstream server</td>
+                            <td><code>StatusCode(502)</code></td>
+                        </tr>
+                        <tr>
+                            <td><strong>503</strong></td>
+                            <td>Service Unavailable</td>
+                            <td>Server temporarily unavailable</td>
+                            <td><code>StatusCode(503)</code></td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="callout callout-warning">
+                    <div class="callout-title">⚠️ 5xx Errors</div>
+                    <p>
+                        5xx errors indicate server problems, not client problems. These should be logged
+                        and monitored. Use exception handling middleware to catch and return 500 errors.
+                    </p>
+                </div>
+
+                <div class="section-divider"></div>
+
+                <h2>Complete InvenTrack Example</h2>
+
+                <div class="code-header">
+                    <span class="code-filename">Controllers/ProductsController.cs</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code>[<span class="code-class">ApiController</span>]
+[<span class="code-class">Route</span>(<span class="code-string">"api/[controller]"</span>)]
+<span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">ProductsController</span> : <span class="code-class">ControllerBase</span>
+{
+    <span class="code-keyword">private</span> <span class="code-keyword">readonly</span> <span class="code-class">IProductService</span> <span class="code-variable">_productService</span>;
+
+    <span class="code-keyword">public</span> <span class="code-method">ProductsController</span>(<span class="code-class">IProductService</span> <span class="code-variable">productService</span>)
+    {
+        <span class="code-variable">_productService</span> = <span class="code-variable">productService</span>;
+    }
+
+    <span class="code-comment">// 200 OK</span>
+    [<span class="code-class">HttpGet</span>]
+    <span class="code-keyword">public</span> <span class="code-keyword">async</span> <span class="code-class">Task</span>&lt;<span class="code-class">IActionResult</span>&gt; <span class="code-method">GetProducts</span>()
+    {
+        <span class="code-keyword">var</span> <span class="code-variable">products</span> = <span class="code-keyword">await</span> <span class="code-variable">_productService</span>.<span class="code-method">GetAllAsync</span>();
+        <span class="code-keyword">return</span> <span class="code-method">Ok</span>(<span class="code-variable">products</span>); <span class="code-comment">// 200</span>
+    }
+
+    <span class="code-comment">// 200 OK or 404 Not Found</span>
+    [<span class="code-class">HttpGet</span>(<span class="code-string">"{id}"</span>)]
+    <span class="code-keyword">public</span> <span class="code-keyword">async</span> <span class="code-class">Task</span>&lt;<span class="code-class">IActionResult</span>&gt; <span class="code-method">GetProduct</span>(<span class="code-type">int</span> <span class="code-variable">id</span>)
+    {
+        <span class="code-keyword">var</span> <span class="code-variable">product</span> = <span class="code-keyword">await</span> <span class="code-variable">_productService</span>.<span class="code-method">GetByIdAsync</span>(<span class="code-variable">id</span>);
+        
+        <span class="code-keyword">if</span> (<span class="code-variable">product</span> == <span class="code-keyword">null</span>)
+            <span class="code-keyword">return</span> <span class="code-method">NotFound</span>(<span class="code-keyword">new</span> { <span class="code-variable">message</span> = <span class="code-string">$"Product with ID </span>{<span class="code-variable">id</span>}<span class="code-string"> not found"</span> }); <span class="code-comment">// 404</span>
+        
+        <span class="code-keyword">return</span> <span class="code-method">Ok</span>(<span class="code-variable">product</span>); <span class="code-comment">// 200</span>
+    }
+
+    <span class="code-comment">// 201 Created, 400 Bad Request, or 409 Conflict</span>
+    [<span class="code-class">HttpPost</span>]
+    <span class="code-keyword">public</span> <span class="code-keyword">async</span> <span class="code-class">Task</span>&lt;<span class="code-class">IActionResult</span>&gt; <span class="code-method">CreateProduct</span>([<span class="code-class">FromBody</span>] <span class="code-class">CreateProductDto</span> <span class="code-variable">dto</span>)
+    {
+        <span class="code-comment">// 400: Validation failed</span>
+        <span class="code-keyword">if</span> (!<span class="code-class">ModelState</span>.<span class="code-variable">IsValid</span>)
+            <span class="code-keyword">return</span> <span class="code-method">BadRequest</span>(<span class="code-class">ModelState</span>); <span class="code-comment">// 400</span>
+        
+        <span class="code-comment">// 409: Duplicate SKU</span>
+        <span class="code-keyword">var</span> <span class="code-variable">exists</span> = <span class="code-keyword">await</span> <span class="code-variable">_productService</span>.<span class="code-method">ExistsAsync</span>(<span class="code-variable">dto</span>.<span class="code-variable">Sku</span>);
+        <span class="code-keyword">if</span> (<span class="code-variable">exists</span>)
+            <span class="code-keyword">return</span> <span class="code-method">Conflict</span>(<span class="code-keyword">new</span> { <span class="code-variable">message</span> = <span class="code-string">"Product with this SKU already exists"</span> }); <span class="code-comment">// 409</span>
+        
+        <span class="code-comment">// 201: Success</span>
+        <span class="code-keyword">var</span> <span class="code-variable">product</span> = <span class="code-keyword">await</span> <span class="code-variable">_productService</span>.<span class="code-method">CreateAsync</span>(<span class="code-variable">dto</span>);
+        
+        <span class="code-keyword">return</span> <span class="code-method">CreatedAtAction</span>(
+            <span class="code-keyword">nameof</span>(<span class="code-method">GetProduct</span>),
+            <span class="code-keyword">new</span> { <span class="code-variable">id</span> = <span class="code-variable">product</span>.<span class="code-variable">Id</span> },
+            <span class="code-variable">product</span>); <span class="code-comment">// 201</span>
+    }
+
+    <span class="code-comment">// 204 No Content, 400 Bad Request, or 404 Not Found</span>
+    [<span class="code-class">HttpPut</span>(<span class="code-string">"{id}"</span>)]
+    <span class="code-keyword">public</span> <span class="code-keyword">async</span> <span class="code-class">Task</span>&lt;<span class="code-class">IActionResult</span>&gt; <span class="code-method">UpdateProduct</span>(
+        <span class="code-type">int</span> <span class="code-variable">id</span>,
+        [<span class="code-class">FromBody</span>] <span class="code-class">UpdateProductDto</span> <span class="code-variable">dto</span>)
+    {
+        <span class="code-comment">// 400: Validation failed</span>
+        <span class="code-keyword">if</span> (!<span class="code-class">ModelState</span>.<span class="code-variable">IsValid</span>)
+            <span class="code-keyword">return</span> <span class="code-method">BadRequest</span>(<span class="code-class">ModelState</span>); <span class="code-comment">// 400</span>
+        
+        <span class="code-comment">// 404: Product not found</span>
+        <span class="code-keyword">var</span> <span class="code-variable">success</span> = <span class="code-keyword">await</span> <span class="code-variable">_productService</span>.<span class="code-method">UpdateAsync</span>(<span class="code-variable">id</span>, <span class="code-variable">dto</span>);
+        <span class="code-keyword">if</span> (!<span class="code-variable">success</span>)
+            <span class="code-keyword">return</span> <span class="code-method">NotFound</span>(); <span class="code-comment">// 404</span>
+        
+        <span class="code-comment">// 204: Success</span>
+        <span class="code-keyword">return</span> <span class="code-method">NoContent</span>(); <span class="code-comment">// 204</span>
+    }
+
+    <span class="code-comment">// 204 No Content or 404 Not Found</span>
+    [<span class="code-class">HttpDelete</span>(<span class="code-string">"{id}"</span>)]
+    <span class="code-keyword">public</span> <span class="code-keyword">async</span> <span class="code-class">Task</span>&lt;<span class="code-class">IActionResult</span>&gt; <span class="code-method">DeleteProduct</span>(<span class="code-type">int</span> <span class="code-variable">id</span>)
+    {
+        <span class="code-keyword">var</span> <span class="code-variable">success</span> = <span class="code-keyword">await</span> <span class="code-variable">_productService</span>.<span class="code-method">DeleteAsync</span>(<span class="code-variable">id</span>);
+        
+        <span class="code-keyword">if</span> (!<span class="code-variable">success</span>)
+            <span class="code-keyword">return</span> <span class="code-method">NotFound</span>(); <span class="code-comment">// 404</span>
+        
+        <span class="code-keyword">return</span> <span class="code-method">NoContent</span>(); <span class="code-comment">// 204</span>
+    }
+
+    <span class="code-comment">// 401 Unauthorized or 403 Forbidden</span>
+    [<span class="code-class">HttpGet</span>(<span class="code-string">"admin/stats"</span>)]
+    [<span class="code-class">Authorize</span>(<span class="code-variable">Roles</span> = <span class="code-string">"Admin"</span>)]
+    <span class="code-keyword">public</span> <span class="code-keyword">async</span> <span class="code-class">Task</span>&lt;<span class="code-class">IActionResult</span>&gt; <span class="code-method">GetAdminStats</span>()
+    {
+        <span class="code-comment">// [Authorize] handles 401/403 automatically</span>
+        <span class="code-keyword">var</span> <span class="code-variable">stats</span> = <span class="code-keyword">await</span> <span class="code-variable">_productService</span>.<span class="code-method">GetStatsAsync</span>();
+        <span class="code-keyword">return</span> <span class="code-method">Ok</span>(<span class="code-variable">stats</span>);
+    }
+}</code></pre>
+
+                <h2>Best Practices</h2>
+
+                <ul>
+                    <li><strong>Use the right code</strong>: Don't return 200 for errors</li>
+                    <li><strong>Be consistent</strong>: Use the same codes for similar scenarios</li>
+                    <li><strong>Include error details</strong>: Return helpful error messages</li>
+                    <li><strong>201 Created</strong>: Always include <code>Location</code> header</li>
+                    <li><strong>204 No Content</strong>: Don't return a body</li>
+                    <li><strong>400 vs 422</strong>: 400 for syntax errors, 422 for semantic errors</li>
+                    <li><strong>401 vs 403</strong>: 401 for authentication, 403 for authorization</li>
+                    <li><strong>Log 5xx errors</strong>: Server errors should be monitored</li>
+                    <li><strong>Don't expose internals</strong>: Generic 500 messages in production</li>
+                </ul>
+
+                <h2>Key Takeaways</h2>
+
+                <ul>
+                    <li><strong>2xx</strong>: Success (200 OK, 201 Created, 204 No Content)</li>
+                    <li><strong>4xx</strong>: Client error (400, 401, 403, 404, 409)</li>
+                    <li><strong>5xx</strong>: Server error (500, 502, 503)</li>
+                    <li><strong>200 OK</strong>: Successful GET, PUT, PATCH</li>
+                    <li><strong>201 Created</strong>: Successful POST (with Location header)</li>
+                    <li><strong>204 No Content</strong>: Successful DELETE, PUT (no body)</li>
+                    <li><strong>400 Bad Request</strong>: Validation failed</li>
+                    <li><strong>401 Unauthorized</strong>: Not authenticated</li>
+                    <li><strong>403 Forbidden</strong>: Not authorized</li>
+                    <li><strong>404 Not Found</strong>: Resource doesn't exist</li>
+                    <li><strong>409 Conflict</strong>: Resource conflict</li>
+                    <li><strong>500 Internal Server Error</strong>: Unhandled exception</li>
+                </ul>
+
+                <div class="callout callout-concept">
+                    <div class="callout-title">🎯 Next Steps</div>
+                    <p>
+                        You now understand HTTP status codes! In the next section, we'll explore
+                        <strong>Headers and Content Types</strong>—how to send and receive different data
+                        formats, custom headers, and content negotiation.
+                    </p>
+                </div>
+
+                <nav class="page-nav">
+                    <a href="03-http-methods.html" class="prev">HTTP Methods</a>
+                    <a href="05-headers-content-types.html" class="next">Headers and Content Types</a>
+                </nav>
+
+            
+        <footer class="page-footer">
+          Built with 💜 by <a href="https://akwasi.dev" target="_blank" rel="noopener noreferrer">Akwasi Adu-Kyeremeh</a> for developers who want to truly understand what they're building.
+        </footer>
+
+      </div>
+        </main>
+    </div>
+</body>
+
+</html>

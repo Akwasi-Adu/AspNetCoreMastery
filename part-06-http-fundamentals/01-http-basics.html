@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HTTP Protocol Basics | ASP.NET Core Mastery</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;500&family=Source+Serif+4:ital,wght@0,400;0,600;1,400&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="../assets/style.css">
+</head>
+
+<body>
+    <div class="page-wrapper">
+        <aside class="sidebar">
+            <a href="../index.html" class="sidebar-logo">ASP.NET Core Mastery</a>
+            <div class="sidebar-section">Part VI: HTTP & Web Fundamentals</div>
+            <ul class="sidebar-nav">
+                <li><a href="01-http-basics.html" class="active">HTTP Protocol Basics</a></li>
+                <li><a href="02-request-response.html">Request/Response Cycle</a></li>
+                <li><a href="03-http-methods.html">HTTP Methods</a></li>
+                <li><a href="04-status-codes.html">Status Codes</a></li>
+                <li><a href="05-headers-content-types.html">Headers and Content Types</a></li>
+                <li><a href="06-cookies-sessions.html">Cookies and Sessions</a></li>
+            </ul>
+            <div class="sidebar-section">Resources</div>
+            <ul class="sidebar-nav">
+                <li><a href="../index.html">Full Roadmap</a></li>
+            </ul>
+        </aside>
+
+        <main class="main-content">
+            <div class="content-container">
+                <nav class="breadcrumb">
+                    <a href="../index.html">Home</a>
+                    <span>→</span>
+                    <a href="01-http-basics.html">Part VI: HTTP & Web Fundamentals</a>
+                    <span>→</span>
+                    HTTP Protocol Basics
+                </nav>
+
+                <div class="progress-indicator">
+                    <span>Section 1 of 6</span>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 16.67%"></div>
+                    </div>
+                </div>
+
+                <h1>HTTP Protocol Basics</h1>
+
+                <div class="learning-objectives">
+                    <h3>🎯 What You'll Learn</h3>
+                    <ul>
+                        <li>What HTTP is and how it works</li>
+                        <li>Client-server architecture</li>
+                        <li>HTTP versions (HTTP/1.1, HTTP/2, HTTP/3)</li>
+                        <li>Request and response structure</li>
+                        <li>Stateless nature of HTTP</li>
+                        <li>HTTPS and security</li>
+                        <li>How ASP.NET Core uses HTTP</li>
+                    </ul>
+                </div>
+
+                <h2>What is HTTP?</h2>
+
+                <p>
+                    <strong>HTTP</strong> (Hypertext Transfer Protocol) is the foundation of data communication
+                    on the web. It's a <strong>protocol</strong> that defines how messages are formatted and
+                    transmitted between clients (browsers, mobile apps) and servers.
+                </p>
+
+                <div class="callout callout-concept">
+                    <div class="callout-title">💡 Key Concept</div>
+                    <p>
+                        HTTP is a <strong>request-response protocol</strong>:
+                    </p>
+                    <ol>
+                        <li>Client sends a <strong>request</strong> to the server</li>
+                        <li>Server processes the request</li>
+                        <li>Server sends back a <strong>response</strong></li>
+                    </ol>
+                </div>
+
+                <div class="section-divider"></div>
+
+                <h2>Client-Server Architecture</h2>
+
+                <div class="code-header">
+                    <span class="code-filename">HTTP Communication</span>
+                    <span class="code-language">Text</span>
+                </div>
+                <pre><code>┌─────────────┐                    ┌─────────────┐
+│   Client    │                    │   Server    │
+│  (Browser)  │                    │ (ASP.NET)   │
+└─────────────┘                    └─────────────┘
+       │                                  │
+       │  1. HTTP Request                 │
+       │  GET /api/products               │
+       │─────────────────────────────────→│
+       │                                  │
+       │                                  │  2. Process
+       │                                  │     Request
+       │                                  │
+       │  3. HTTP Response                │
+       │  200 OK + JSON Data              │
+       │←─────────────────────────────────│
+       │                                  │</code></pre>
+
+                <h3>Roles</h3>
+
+                <ul>
+                    <li><strong>Client</strong>: Initiates requests (browser, mobile app, Postman)</li>
+                    <li><strong>Server</strong>: Responds to requests (ASP.NET Core application)</li>
+                </ul>
+
+                <div class="section-divider"></div>
+
+                <h2>HTTP Versions</h2>
+
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Version</th>
+                            <th>Year</th>
+                            <th>Key Features</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>HTTP/1.1</strong></td>
+                            <td>1997</td>
+                            <td>Persistent connections, chunked transfer, host header</td>
+                        </tr>
+                        <tr>
+                            <td><strong>HTTP/2</strong></td>
+                            <td>2015</td>
+                            <td>Multiplexing, header compression, server push</td>
+                        </tr>
+                        <tr>
+                            <td><strong>HTTP/3</strong></td>
+                            <td>2022</td>
+                            <td>QUIC protocol (UDP-based), faster, more reliable</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h3>HTTP/1.1 vs HTTP/2</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">HTTP/1.1 (One request at a time)</span>
+                    <span class="code-language">Text</span>
+                </div>
+                <pre><code>Request 1 ────────→ Response 1
+                   Request 2 ────────→ Response 2
+                                      Request 3 ────────→ Response 3</code></pre>
+
+                <div class="code-header">
+                    <span class="code-filename">HTTP/2 (Multiplexing - multiple requests simultaneously)</span>
+                    <span class="code-language">Text</span>
+                </div>
+                <pre><code>Request 1 ────────→ Response 1
+Request 2 ────────→ Response 2
+Request 3 ────────→ Response 3</code></pre>
+
+                <div class="callout callout-info">
+                    <div class="callout-title">ℹ️ ASP.NET Core Support</div>
+                    <p>
+                        ASP.NET Core supports HTTP/1.1, HTTP/2, and HTTP/3. HTTP/2 is enabled by default
+                        when using HTTPS.
+                    </p>
+                </div>
+
+                <div class="section-divider"></div>
+
+                <h2>HTTP Request Structure</h2>
+
+                <div class="code-header">
+                    <span class="code-filename">Example HTTP Request</span>
+                    <span class="code-language">HTTP</span>
+                </div>
+                <pre><code>GET /api/products/123 HTTP/1.1
+Host: inventrackapp.com
+User-Agent: Mozilla/5.0
+Accept: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+
+(optional request body)</code></pre>
+
+                <h3>Request Components</h3>
+
+                <ol>
+                    <li><strong>Request Line</strong>: <code>GET /api/products/123 HTTP/1.1</code>
+                        <ul>
+                            <li>Method: <code>GET</code></li>
+                            <li>Path: <code>/api/products/123</code></li>
+                            <li>Version: <code>HTTP/1.1</code></li>
+                        </ul>
+                    </li>
+                    <li><strong>Headers</strong>: Metadata about the request
+                        <ul>
+                            <li><code>Host</code>: Target server</li>
+                            <li><code>User-Agent</code>: Client information</li>
+                            <li><code>Accept</code>: Expected response format</li>
+                            <li><code>Authorization</code>: Authentication credentials</li>
+                        </ul>
+                    </li>
+                    <li><strong>Body</strong> (optional): Data sent to server (POST, PUT, PATCH)</li>
+                </ol>
+
+                <div class="section-divider"></div>
+
+                <h2>HTTP Response Structure</h2>
+
+                <div class="code-header">
+                    <span class="code-filename">Example HTTP Response</span>
+                    <span class="code-language">HTTP</span>
+                </div>
+                <pre><code>HTTP/1.1 200 OK
+Content-Type: application/json
+Content-Length: 145
+Date: Mon, 10 Dec 2025 12:00:00 GMT
+
+{
+  "id": 123,
+  "name": "Laptop",
+  "price": 999.99,
+  "quantityInStock": 50
+}</code></pre>
+
+                <h3>Response Components</h3>
+
+                <ol>
+                    <li><strong>Status Line</strong>: <code>HTTP/1.1 200 OK</code>
+                        <ul>
+                            <li>Version: <code>HTTP/1.1</code></li>
+                            <li>Status Code: <code>200</code></li>
+                            <li>Status Text: <code>OK</code></li>
+                        </ul>
+                    </li>
+                    <li><strong>Headers</strong>: Metadata about the response
+                        <ul>
+                            <li><code>Content-Type</code>: Format of response body</li>
+                            <li><code>Content-Length</code>: Size of response body</li>
+                            <li><code>Date</code>: When response was generated</li>
+                        </ul>
+                    </li>
+                    <li><strong>Body</strong>: The actual data (JSON, HTML, XML, etc.)</li>
+                </ol>
+
+                <div class="section-divider"></div>
+
+                <h2>Stateless Protocol</h2>
+
+                <p>
+                    HTTP is <strong>stateless</strong>: each request is independent and the server doesn't
+                    remember previous requests.
+                </p>
+
+                <div class="code-header">
+                    <span class="code-filename">Stateless Example</span>
+                    <span class="code-language">Text</span>
+                </div>
+                <pre><code>Request 1: GET /api/products
+Response 1: [list of products]
+
+Request 2: GET /api/products/123
+Response 2: {product details}
+
+<span class="code-comment">// Server doesn't remember Request 1!</span></code></pre>
+
+                <h3>How to Maintain State</h3>
+
+                <p>
+                    Since HTTP is stateless, we use these mechanisms to maintain state:
+                </p>
+
+                <ul>
+                    <li><strong>Cookies</strong>: Small data stored in the browser</li>
+                    <li><strong>Sessions</strong>: Server-side storage linked to a session ID</li>
+                    <li><strong>Tokens</strong>: JWT tokens for authentication</li>
+                    <li><strong>Query strings</strong>: Data in the URL</li>
+                </ul>
+
+                <div class="section-divider"></div>
+
+                <h2>HTTPS (HTTP Secure)</h2>
+
+                <p>
+                    <strong>HTTPS</strong> is HTTP over TLS/SSL encryption. It provides:
+                </p>
+
+                <ul>
+                    <li><strong>Encryption</strong>: Data is encrypted in transit</li>
+                    <li><strong>Authentication</strong>: Verify server identity</li>
+                    <li><strong>Integrity</strong>: Data can't be tampered with</li>
+                </ul>
+
+                <div class="code-header">
+                    <span class="code-filename">HTTP vs HTTPS</span>
+                    <span class="code-language">Text</span>
+                </div>
+                <pre><code><span class="code-comment">// HTTP (Insecure - plain text)</span>
+http://inventrackapp.com/api/login
+POST: { "username": "john", "password": "secret123" }
+<span class="code-comment">// ⚠️ Anyone can read this!</span>
+
+<span class="code-comment">// HTTPS (Secure - encrypted)</span>
+https://inventrackapp.com/api/login
+POST: { "username": "john", "password": "secret123" }
+<span class="code-comment">// ✅ Encrypted - safe from eavesdropping</span></code></pre>
+
+                <div class="callout callout-warning">
+                    <div class="callout-title">⚠️ Always Use HTTPS in Production</div>
+                    <p>
+                        Never send sensitive data (passwords, credit cards, personal info) over HTTP.
+                        Always use HTTPS in production.
+                    </p>
+                </div>
+
+                <div class="section-divider"></div>
+
+                <h2>HTTP in ASP.NET Core</h2>
+
+                <h3>Accessing HTTP Context</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">Controllers/ProductsController.cs</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code>[<span class="code-class">ApiController</span>]
+[<span class="code-class">Route</span>(<span class="code-string">"api/[controller]"</span>)]
+<span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">ProductsController</span> : <span class="code-class">ControllerBase</span>
+{
+    [<span class="code-class">HttpGet</span>]
+    <span class="code-keyword">public</span> <span class="code-class">IActionResult</span> <span class="code-method">GetProducts</span>()
+    {
+        <span class="code-comment">// Access HTTP context</span>
+        <span class="code-keyword">var</span> <span class="code-variable">method</span> = <span class="code-class">HttpContext</span>.<span class="code-variable">Request</span>.<span class="code-variable">Method</span>; <span class="code-comment">// "GET"</span>
+        <span class="code-keyword">var</span> <span class="code-variable">path</span> = <span class="code-class">HttpContext</span>.<span class="code-variable">Request</span>.<span class="code-variable">Path</span>; <span class="code-comment">// "/api/products"</span>
+        <span class="code-keyword">var</span> <span class="code-variable">scheme</span> = <span class="code-class">HttpContext</span>.<span class="code-variable">Request</span>.<span class="code-variable">Scheme</span>; <span class="code-comment">// "https"</span>
+        <span class="code-keyword">var</span> <span class="code-variable">host</span> = <span class="code-class">HttpContext</span>.<span class="code-variable">Request</span>.<span class="code-variable">Host</span>; <span class="code-comment">// "inventrackapp.com"</span>
+        
+        <span class="code-keyword">return</span> <span class="code-method">Ok</span>(<span class="code-keyword">new</span> { <span class="code-variable">method</span>, <span class="code-variable">path</span>, <span class="code-variable">scheme</span>, <span class="code-variable">host</span> });
+    }
+}</code></pre>
+
+                <h3>Reading Request Headers</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">Reading Headers</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code>[<span class="code-class">HttpGet</span>]
+<span class="code-keyword">public</span> <span class="code-class">IActionResult</span> <span class="code-method">GetProducts</span>()
+{
+    <span class="code-comment">// Read specific header</span>
+    <span class="code-keyword">var</span> <span class="code-variable">userAgent</span> = <span class="code-class">Request</span>.<span class="code-variable">Headers</span>[<span class="code-string">"User-Agent"</span>].<span class="code-method">ToString</span>();
+    
+    <span class="code-comment">// Read authorization header</span>
+    <span class="code-keyword">var</span> <span class="code-variable">authHeader</span> = <span class="code-class">Request</span>.<span class="code-variable">Headers</span>[<span class="code-string">"Authorization"</span>].<span class="code-method">ToString</span>();
+    
+    <span class="code-comment">// Check if header exists</span>
+    <span class="code-keyword">if</span> (<span class="code-class">Request</span>.<span class="code-variable">Headers</span>.<span class="code-method">ContainsKey</span>(<span class="code-string">"X-API-Key"</span>))
+    {
+        <span class="code-keyword">var</span> <span class="code-variable">apiKey</span> = <span class="code-class">Request</span>.<span class="code-variable">Headers</span>[<span class="code-string">"X-API-Key"</span>].<span class="code-method">ToString</span>();
+    }
+    
+    <span class="code-keyword">return</span> <span class="code-method">Ok</span>();
+}</code></pre>
+
+                <h3>Setting Response Headers</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">Setting Headers</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code>[<span class="code-class">HttpGet</span>]
+<span class="code-keyword">public</span> <span class="code-class">IActionResult</span> <span class="code-method">GetProducts</span>()
+{
+    <span class="code-comment">// Set custom header</span>
+    <span class="code-class">Response</span>.<span class="code-variable">Headers</span>[<span class="code-string">"X-Total-Count"</span>] = <span class="code-string">"100"</span>;
+    <span class="code-class">Response</span>.<span class="code-variable">Headers</span>[<span class="code-string">"X-API-Version"</span>] = <span class="code-string">"1.0"</span>;
+    
+    <span class="code-keyword">return</span> <span class="code-method">Ok</span>(<span class="code-keyword">new</span> <span class="code-type">List</span>&lt;<span class="code-class">Product</span>&gt;());
+}</code></pre>
+
+                <h2>Key Takeaways</h2>
+
+                <ul>
+                    <li><strong>HTTP</strong> is a request-response protocol for web communication</li>
+                    <li><strong>Client-server</strong> architecture: client requests, server responds</li>
+                    <li><strong>HTTP versions</strong>: HTTP/1.1 (sequential), HTTP/2 (multiplexing), HTTP/3 (QUIC)</li>
+                    <li><strong>Request structure</strong>: Request line + headers + optional body</li>
+                    <li><strong>Response structure</strong>: Status line + headers + body</li>
+                    <li><strong>Stateless</strong>: Each request is independent</li>
+                    <li><strong>HTTPS</strong>: Encrypted HTTP for security (always use in production)</li>
+                    <li>ASP.NET Core provides <code>HttpContext</code> to access request/response</li>
+                    <li>Read headers with <code>Request.Headers</code></li>
+                    <li>Set headers with <code>Response.Headers</code></li>
+                </ul>
+
+                <div class="callout callout-concept">
+                    <div class="callout-title">🎯 Next Steps</div>
+                    <p>
+                        You now understand HTTP basics! In the next section, we'll dive deeper into the
+                        <strong>Request/Response Cycle</strong>—how ASP.NET Core processes HTTP requests from
+                        start to finish, including routing, model binding, and response generation.
+                    </p>
+                </div>
+
+                <nav class="page-nav">
+                    <a href="../index.html" class="prev">Back to Roadmap</a>
+                    <a href="02-request-response.html" class="next">Request/Response Cycle</a>
+                </nav>
+
+            
+        <footer class="page-footer">
+          Built with 💜 by <a href="https://akwasi.dev" target="_blank" rel="noopener noreferrer">Akwasi Adu-Kyeremeh</a> for developers who want to truly understand what they're building.
+        </footer>
+
+      </div>
+        </main>
+    </div>
+</body>
+
+</html>

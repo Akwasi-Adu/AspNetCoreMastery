@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OAuth 2.0 & OpenID Connect | ASP.NET Core Mastery</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;500&family=Source+Serif+4:ital,wght@0,400;0,600;1,400&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="../assets/style.css">
+</head>
+
+<body>
+    <div class="page-wrapper">
+        <aside class="sidebar">
+            <a href="../index.html" class="sidebar-logo">ASP.NET Core Mastery</a>
+            <div class="sidebar-section">Part XII: Authentication</div>
+            <ul class="sidebar-nav">
+                <li><a href="01-authentication-fundamentals.html">Authentication Fundamentals</a></li>
+                <li><a href="02-aspnet-core-identity.html">ASP.NET Core Identity</a></li>
+                <li><a href="03-cookie-authentication.html">Cookie Authentication</a></li>
+                <li><a href="04-jwt-bearer-authentication.html">JWT Bearer Authentication</a></li>
+                <li><a href="05-oauth-openid-connect.html" class="active">OAuth 2.0 & OpenID Connect</a></li>
+                <li><a href="06-external-login-providers.html">External Login Providers</a></li>
+            </ul>
+            <div class="sidebar-section">Resources</div>
+            <ul class="sidebar-nav">
+                <li><a href="../index.html">Full Roadmap</a></li>
+            </ul>
+        </aside>
+
+        <main class="main-content">
+            <div class="content-container">
+                <nav class="breadcrumb">
+                    <a href="../index.html">Home</a>
+                    <span>→</span>
+                    <a href="01-authentication-fundamentals.html">Part XII: Authentication</a>
+                    <span>→</span>
+                    OAuth 2.0 & OpenID Connect
+                </nav>
+
+                <div class="progress-indicator">
+                    <span>Section 5 of 6</span>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 83.33%"></div>
+                    </div>
+                </div>
+
+                <h1>OAuth 2.0 & OpenID Connect</h1>
+
+                <div class="learning-objectives">
+                    <h3>🎯 What You'll Learn</h3>
+                    <ul>
+                        <li>What is OAuth 2.0</li>
+                        <li>What is OpenID Connect</li>
+                        <li>OAuth vs OpenID Connect</li>
+                        <li>OAuth flows</li>
+                        <li>Using OpenID Connect</li>
+                    </ul>
+                </div>
+
+                <h2>What is OAuth 2.0?</h2>
+
+                <p>
+                    <strong>OAuth 2.0</strong> is an authorization framework that allows third-party applications
+                    to access user resources without sharing passwords.
+                </p>
+
+                <div class="callout callout-concept">
+                    <div class="callout-title">💡 Key Concept</div>
+                    <p>
+                        <strong>OAuth 2.0</strong> = Authorization (what you can access)<br>
+                        <strong>OpenID Connect</strong> = Authentication (who you are) built on OAuth 2.0
+                    </p>
+                </div>
+
+                <div class="section-divider"></div>
+
+                <h2>What is OpenID Connect?</h2>
+
+                <p>
+                    <strong>OpenID Connect (OIDC)</strong> is an identity layer built on top of OAuth 2.0.
+                    It adds authentication to OAuth's authorization.
+                </p>
+
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Aspect</th>
+                            <th>OAuth 2.0</th>
+                            <th>OpenID Connect</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Purpose</strong></td>
+                            <td>Authorization</td>
+                            <td>Authentication + Authorization</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Question</strong></td>
+                            <td>What can I access?</td>
+                            <td>Who am I?</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Token</strong></td>
+                            <td>Access Token</td>
+                            <td>ID Token + Access Token</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Use Case</strong></td>
+                            <td>API access</td>
+                            <td>Single Sign-On (SSO)</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="section-divider"></div>
+
+                <h2>OAuth 2.0 Flows</h2>
+
+                <h3>1. Authorization Code Flow</h3>
+                <p>Most secure flow for web applications.</p>
+
+                <ol>
+                    <li>User clicks "Login with Google"</li>
+                    <li>Redirected to Google login</li>
+                    <li>User authenticates</li>
+                    <li>Google redirects back with authorization code</li>
+                    <li>App exchanges code for access token</li>
+                </ol>
+
+                <h3>2. Client Credentials Flow</h3>
+                <p>For server-to-server authentication (no user involved).</p>
+
+                <h3>3. Implicit Flow</h3>
+                <p>Legacy flow for SPAs (not recommended, use Authorization Code + PKCE instead).</p>
+
+                <div class="section-divider"></div>
+
+                <h2>Using OpenID Connect</h2>
+
+                <h3>1. Install Package</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">Install NuGet Package</span>
+                    <span class="code-language">Bash</span>
+                </div>
+                <pre><code>dotnet add package Microsoft.AspNetCore.Authentication.OpenIdConnect</code></pre>
+
+                <h3>2. Configure OpenID Connect</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">Program.cs</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-variable">builder</span>.<span class="code-variable">Services</span>.<span class="code-method">AddAuthentication</span>(<span class="code-variable">options</span> =>
+{
+    <span class="code-variable">options</span>.<span class="code-variable">DefaultScheme</span> = <span class="code-class">CookieAuthenticationDefaults</span>.<span class="code-variable">AuthenticationScheme</span>;
+    <span class="code-variable">options</span>.<span class="code-variable">DefaultChallengeScheme</span> = <span class="code-class">OpenIdConnectDefaults</span>.<span class="code-variable">AuthenticationScheme</span>;
+})
+.<span class="code-method">AddCookie</span>()
+.<span class="code-method">AddOpenIdConnect</span>(<span class="code-variable">options</span> =>
+{
+    <span class="code-variable">options</span>.<span class="code-variable">Authority</span> = <span class="code-string">"https://accounts.google.com"</span>;
+    <span class="code-variable">options</span>.<span class="code-variable">ClientId</span> = <span class="code-variable">builder</span>.<span class="code-variable">Configuration</span>[<span class="code-string">"Google:ClientId"</span>];
+    <span class="code-variable">options</span>.<span class="code-variable">ClientSecret</span> = <span class="code-variable">builder</span>.<span class="code-variable">Configuration</span>[<span class="code-string">"Google:ClientSecret"</span>];
+    <span class="code-variable">options</span>.<span class="code-variable">ResponseType</span> = <span class="code-string">"code"</span>;
+    <span class="code-variable">options</span>.<span class="code-variable">SaveTokens</span> = <span class="code-keyword">true</span>;
+    <span class="code-variable">options</span>.<span class="code-variable">Scope</span>.<span class="code-method">Add</span>(<span class="code-string">"openid"</span>);
+    <span class="code-variable">options</span>.<span class="code-variable">Scope</span>.<span class="code-method">Add</span>(<span class="code-string">"profile"</span>);
+    <span class="code-variable">options</span>.<span class="code-variable">Scope</span>.<span class="code-method">Add</span>(<span class="code-string">"email"</span>);
+});</code></pre>
+
+                <h2>Key Takeaways</h2>
+
+                <ul>
+                    <li><strong>OAuth 2.0</strong>: Authorization framework</li>
+                    <li><strong>OpenID Connect</strong>: Authentication layer on OAuth 2.0</li>
+                    <li><strong>Authorization Code Flow</strong>: Most secure for web apps</li>
+                    <li><strong>ID Token</strong>: Contains user identity information</li>
+                    <li><strong>Access Token</strong>: Used to access protected resources</li>
+                    <li><strong>Use cases</strong>: SSO, social login, API access</li>
+                </ul>
+
+                <nav class="page-nav">
+                    <a href="04-jwt-bearer-authentication.html" class="prev">JWT Bearer Authentication</a>
+                    <a href="06-external-login-providers.html" class="next">External Login Providers</a>
+                </nav>
+
+            
+        <footer class="page-footer">
+          Built with 💜 by <a href="https://akwasi.dev" target="_blank" rel="noopener noreferrer">Akwasi Adu-Kyeremeh</a> for developers who want to truly understand what they're building.
+        </footer>
+
+      </div>
+        </main>
+    </div>
+</body>
+
+</html>

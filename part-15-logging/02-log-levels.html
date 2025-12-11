@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Log Levels | ASP.NET Core Mastery</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;500&family=Source+Serif+4:ital,wght@0,400;0,600;1,400&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="../assets/style.css">
+</head>
+
+<body>
+    <div class="page-wrapper">
+        <aside class="sidebar">
+            <a href="../index.html" class="sidebar-logo">ASP.NET Core Mastery</a>
+            <div class="sidebar-section">Part XV: Logging</div>
+            <ul class="sidebar-nav">
+                <li><a href="01-ilogger-interface.html">ILogger Interface</a></li>
+                <li><a href="02-log-levels.html" class="active">Log Levels</a></li>
+                <li><a href="03-built-in-providers.html">Built-in Providers</a></li>
+                <li><a href="04-structured-logging.html">Structured Logging</a></li>
+                <li><a href="05-serilog-integration.html">Serilog Integration</a></li>
+                <li><a href="06-logging-best-practices.html">Logging Best Practices</a></li>
+            </ul>
+            <div class="sidebar-section">Resources</div>
+            <ul class="sidebar-nav">
+                <li><a href="../index.html">Full Roadmap</a></li>
+            </ul>
+        </aside>
+
+        <main class="main-content">
+            <div class="content-container">
+                <nav class="breadcrumb">
+                    <a href="../index.html">Home</a>
+                    <span>→</span>
+                    <a href="01-ilogger-interface.html">Part XV: Logging</a>
+                    <span>→</span>
+                    Log Levels
+                </nav>
+
+                <div class="progress-indicator">
+                    <span>Section 2 of 6</span>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 33.33%"></div>
+                    </div>
+                </div>
+
+                <h1>Log Levels</h1>
+
+                <div class="learning-objectives">
+                    <h3>🎯 What You'll Learn</h3>
+                    <ul>
+                        <li>What are log levels</li>
+                        <li>Six log levels</li>
+                        <li>When to use each level</li>
+                        <li>Configuring log levels</li>
+                        <li>Filtering logs</li>
+                    </ul>
+                </div>
+
+                <h2>What are Log Levels?</h2>
+
+                <p>
+                    <strong>Log levels</strong> indicate the severity or importance of a log message.
+                    They help filter logs and focus on what matters.
+                </p>
+
+                <div class="section-divider"></div>
+
+                <h2>Six Log Levels</h2>
+
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Level</th>
+                            <th>Value</th>
+                            <th>Description</th>
+                            <th>When to Use</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Trace</strong></td>
+                            <td>0</td>
+                            <td>Most detailed</td>
+                            <td>Detailed debugging, rarely used</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Debug</strong></td>
+                            <td>1</td>
+                            <td>Debugging info</td>
+                            <td>Development debugging</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Information</strong></td>
+                            <td>2</td>
+                            <td>General info</td>
+                            <td>Normal application flow</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Warning</strong></td>
+                            <td>3</td>
+                            <td>Unexpected events</td>
+                            <td>Recoverable issues</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Error</strong></td>
+                            <td>4</td>
+                            <td>Errors/exceptions</td>
+                            <td>Operation failures</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Critical</strong></td>
+                            <td>5</td>
+                            <td>Critical failures</td>
+                            <td>Application crashes</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="section-divider"></div>
+
+                <h2>When to Use Each Level</h2>
+
+                <h3>Trace</h3>
+                <p>Very detailed information, typically only enabled during development.</p>
+                <div class="code-header">
+                    <span class="code-filename">Example</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-variable">_logger</span>.<span class="code-method">LogTrace</span>(<span class="code-string">"Entering method {MethodName}"</span>, <span class="code-variable">nameof</span>(<span class="code-variable">GetProducts</span>));</code></pre>
+
+                <h3>Debug</h3>
+                <p>Information useful for debugging.</p>
+                <div class="code-header">
+                    <span class="code-filename">Example</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-variable">_logger</span>.<span class="code-method">LogDebug</span>(<span class="code-string">"Query returned {Count} products"</span>, <span class="code-variable">products</span>.<span class="code-variable">Count</span>);</code></pre>
+
+                <h3>Information</h3>
+                <p>General application flow events.</p>
+                <div class="code-header">
+                    <span class="code-filename">Example</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-variable">_logger</span>.<span class="code-method">LogInformation</span>(<span class="code-string">"User {UserId} logged in"</span>, <span class="code-variable">userId</span>);</code></pre>
+
+                <h3>Warning</h3>
+                <p>Unexpected but recoverable events.</p>
+                <div class="code-header">
+                    <span class="code-filename">Example</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-variable">_logger</span>.<span class="code-method">LogWarning</span>(<span class="code-string">"Product {ProductId} stock is low: {Stock}"</span>, <span class="code-variable">id</span>, <span class="code-variable">stock</span>);</code></pre>
+
+                <h3>Error</h3>
+                <p>Errors and exceptions that stop the current operation.</p>
+                <div class="code-header">
+                    <span class="code-filename">Example</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-variable">_logger</span>.<span class="code-method">LogError</span>(<span class="code-variable">ex</span>, <span class="code-string">"Failed to save product {ProductId}"</span>, <span class="code-variable">productId</span>);</code></pre>
+
+                <h3>Critical</h3>
+                <p>Critical failures requiring immediate attention.</p>
+                <div class="code-header">
+                    <span class="code-filename">Example</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-variable">_logger</span>.<span class="code-method">LogCritical</span>(<span class="code-string">"Database connection failed"</span>);</code></pre>
+
+                <div class="section-divider"></div>
+
+                <h2>Configuring Log Levels</h2>
+
+                <div class="code-header">
+                    <span class="code-filename">appsettings.json</span>
+                    <span class="code-language">JSON</span>
+                </div>
+                <pre><code>{
+  <span class="code-string">"Logging"</span>: {
+    <span class="code-string">"LogLevel"</span>: {
+      <span class="code-string">"Default"</span>: <span class="code-string">"Information"</span>,
+      <span class="code-string">"Microsoft.AspNetCore"</span>: <span class="code-string">"Warning"</span>,
+      <span class="code-string">"InvenTrack.Controllers"</span>: <span class="code-string">"Debug"</span>
+    }
+  }
+}</code></pre>
+
+                <div class="code-header">
+                    <span class="code-filename">appsettings.Development.json</span>
+                    <span class="code-language">JSON</span>
+                </div>
+                <pre><code>{
+  <span class="code-string">"Logging"</span>: {
+    <span class="code-string">"LogLevel"</span>: {
+      <span class="code-string">"Default"</span>: <span class="code-string">"Debug"</span>
+    }
+  }
+}</code></pre>
+
+                <h2>Key Takeaways</h2>
+
+                <ul>
+                    <li><strong>Six levels</strong>: Trace, Debug, Information, Warning, Error, Critical</li>
+                    <li><strong>Trace/Debug</strong>: Development only</li>
+                    <li><strong>Information</strong>: Normal flow</li>
+                    <li><strong>Warning</strong>: Unexpected but recoverable</li>
+                    <li><strong>Error</strong>: Operation failures</li>
+                    <li><strong>Critical</strong>: Application crashes</li>
+                    <li><strong>Configure</strong>: appsettings.json per environment</li>
+                </ul>
+
+                <nav class="page-nav">
+                    <a href="01-ilogger-interface.html" class="prev">ILogger Interface</a>
+                    <a href="03-built-in-providers.html" class="next">Built-in Providers</a>
+                </nav>
+
+            
+        <footer class="page-footer">
+          Built with 💜 by <a href="https://akwasi.dev" target="_blank" rel="noopener noreferrer">Akwasi Adu-Kyeremeh</a> for developers who want to truly understand what they're building.
+        </footer>
+
+      </div>
+        </main>
+    </div>
+</body>
+
+</html>

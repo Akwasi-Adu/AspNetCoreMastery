@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profiling Tools | ASP.NET Core Mastery</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;500&family=Source+Serif+4:ital,wght@0,400;0,600;1,400&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="../assets/style.css">
+</head>
+
+<body>
+    <div class="page-wrapper">
+        <aside class="sidebar">
+            <a href="../index.html" class="sidebar-logo">ASP.NET Core Mastery</a>
+            <div class="sidebar-section">Part XVII: Performance</div>
+            <ul class="sidebar-nav">
+                <li><a href="01-in-memory-caching.html">In-Memory Caching</a></li>
+                <li><a href="02-distributed-caching.html">Distributed Caching</a></li>
+                <li><a href="03-response-caching.html">Response Caching</a></li>
+                <li><a href="04-async-best-practices.html">Async Best Practices</a></li>
+                <li><a href="05-ef-core-performance.html">EF Core Performance</a></li>
+                <li><a href="06-profiling-tools.html" class="active">Profiling Tools</a></li>
+            </ul>
+            <div class="sidebar-section">Resources</div>
+            <ul class="sidebar-nav">
+                <li><a href="../index.html">Full Roadmap</a></li>
+            </ul>
+        </aside>
+
+        <main class="main-content">
+            <div class="content-container">
+                <nav class="breadcrumb">
+                    <a href="../index.html">Home</a>
+                    <span>→</span>
+                    <a href="01-in-memory-caching.html">Part XVII: Performance</a>
+                    <span>→</span>
+                    Profiling Tools
+                </nav>
+
+                <div class="progress-indicator">
+                    <span>Section 6 of 6</span>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 100%"></div>
+                    </div>
+                </div>
+
+                <h1>Profiling Tools</h1>
+
+                <div class="learning-objectives">
+                    <h3>🎯 What You'll Learn</h3>
+                    <ul>
+                        <li>MiniProfiler</li>
+                        <li>Application Insights</li>
+                        <li>dotnet-trace</li>
+                        <li>BenchmarkDotNet</li>
+                        <li>SQL Server Profiler</li>
+                    </ul>
+                </div>
+
+                <h2>MiniProfiler</h2>
+
+                <p>Lightweight profiler for ASP.NET Core applications.</p>
+
+                <div class="code-header">
+                    <span class="code-filename">Install Package</span>
+                    <span class="code-language">Bash</span>
+                </div>
+                <pre><code>dotnet add package MiniProfiler.AspNetCore.Mvc
+dotnet add package MiniProfiler.EntityFrameworkCore</code></pre>
+
+                <div class="code-header">
+                    <span class="code-filename">Program.cs</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-variable">builder</span>.<span class="code-variable">Services</span>.<span class="code-method">AddMiniProfiler</span>(<span class="code-variable">options</span> =>
+{
+    <span class="code-variable">options</span>.<span class="code-variable">RouteBasePath</span> = <span class="code-string">"/profiler"</span>;
+}).<span class="code-method">AddEntityFramework</span>();
+
+<span class="code-keyword">var</span> <span class="code-variable">app</span> = <span class="code-variable">builder</span>.<span class="code-method">Build</span>();
+
+<span class="code-variable">app</span>.<span class="code-method">UseMiniProfiler</span>();</code></pre>
+
+                <div class="code-header">
+                    <span class="code-filename">_Layout.cshtml</span>
+                    <span class="code-language">HTML</span>
+                </div>
+                <pre><code><span class="code-tag">&lt;head&gt;</span>
+    <span class="code-tag">&lt;mini-profiler /&gt;</span>
+<span class="code-tag">&lt;/head&gt;</span></code></pre>
+
+                <div class="section-divider"></div>
+
+                <h2>Application Insights</h2>
+
+                <p>Azure's application performance management service.</p>
+
+                <div class="code-header">
+                    <span class="code-filename">Install Package</span>
+                    <span class="code-language">Bash</span>
+                </div>
+                <pre><code>dotnet add package Microsoft.ApplicationInsights.AspNetCore</code></pre>
+
+                <div class="code-header">
+                    <span class="code-filename">Program.cs</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-variable">builder</span>.<span class="code-variable">Services</span>.<span class="code-method">AddApplicationInsightsTelemetry</span>();</code></pre>
+
+                <div class="code-header">
+                    <span class="code-filename">appsettings.json</span>
+                    <span class="code-language">JSON</span>
+                </div>
+                <pre><code>{
+  <span class="code-string">"ApplicationInsights"</span>: {
+    <span class="code-string">"InstrumentationKey"</span>: <span class="code-string">"your-key-here"</span>
+  }
+}</code></pre>
+
+                <div class="section-divider"></div>
+
+                <h2>dotnet-trace</h2>
+
+                <p>Command-line tool for collecting performance traces.</p>
+
+                <div class="code-header">
+                    <span class="code-filename">Install Tool</span>
+                    <span class="code-language">Bash</span>
+                </div>
+                <pre><code>dotnet tool install --global dotnet-trace</code></pre>
+
+                <div class="code-header">
+                    <span class="code-filename">Collect Trace</span>
+                    <span class="code-language">Bash</span>
+                </div>
+                <pre><code><span class="code-comment"># List processes</span>
+dotnet-trace ps
+
+<span class="code-comment"># Collect trace</span>
+dotnet-trace collect --process-id &lt;PID&gt;</code></pre>
+
+                <div class="section-divider"></div>
+
+                <h2>BenchmarkDotNet</h2>
+
+                <p>Powerful benchmarking library for .NET.</p>
+
+                <div class="code-header">
+                    <span class="code-filename">Install Package</span>
+                    <span class="code-language">Bash</span>
+                </div>
+                <pre><code>dotnet add package BenchmarkDotNet</code></pre>
+
+                <div class="code-header">
+                    <span class="code-filename">Benchmark Example</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-keyword">using</span> <span class="code-variable">BenchmarkDotNet</span>.<span class="code-variable">Attributes</span>;
+<span class="code-keyword">using</span> <span class="code-variable">BenchmarkDotNet</span>.<span class="code-variable">Running</span>;
+
+[<span class="code-class">MemoryDiagnoser</span>]
+<span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">ProductBenchmarks</span>
+{
+    <span class="code-keyword">private</span> <span class="code-class">List</span>&lt;<span class="code-class">Product</span>&gt; <span class="code-variable">_products</span>;
+
+    [<span class="code-class">GlobalSetup</span>]
+    <span class="code-keyword">public</span> <span class="code-keyword">void</span> <span class="code-method">Setup</span>()
+    {
+        <span class="code-variable">_products</span> = <span class="code-class">Enumerable</span>.<span class="code-method">Range</span>(<span class="code-number">1</span>, <span class="code-number">1000</span>)
+            .<span class="code-method">Select</span>(<span class="code-variable">i</span> => <span class="code-keyword">new</span> <span class="code-class">Product</span> { <span class="code-variable">Id</span> = <span class="code-variable">i</span>, <span class="code-variable">Name</span> = <span class="code-string">$"Product {i}"</span> })
+            .<span class="code-method">ToList</span>();
+    }
+
+    [<span class="code-class">Benchmark</span>]
+    <span class="code-keyword">public</span> <span class="code-class">List</span>&lt;<span class="code-class">Product</span>&gt; <span class="code-method">FilterWithWhere</span>()
+    {
+        <span class="code-keyword">return</span> <span class="code-variable">_products</span>.<span class="code-method">Where</span>(<span class="code-variable">p</span> => <span class="code-variable">p</span>.<span class="code-variable">Id</span> > <span class="code-number">500</span>).<span class="code-method">ToList</span>();
+    }
+
+    [<span class="code-class">Benchmark</span>]
+    <span class="code-keyword">public</span> <span class="code-class">List</span>&lt;<span class="code-class">Product</span>&gt; <span class="code-method">FilterWithFor</span>()
+    {
+        <span class="code-keyword">var</span> <span class="code-variable">result</span> = <span class="code-keyword">new</span> <span class="code-class">List</span>&lt;<span class="code-class">Product</span>&gt;();
+        <span class="code-keyword">for</span> (<span class="code-type">int</span> <span class="code-variable">i</span> = <span class="code-number">0</span>; <span class="code-variable">i</span> &lt; <span class="code-variable">_products</span>.<span class="code-variable">Count</span>; <span class="code-variable">i</span>++)
+        {
+            <span class="code-keyword">if</span> (<span class="code-variable">_products</span>[<span class="code-variable">i</span>].<span class="code-variable">Id</span> > <span class="code-number">500</span>)
+                <span class="code-variable">result</span>.<span class="code-method">Add</span>(<span class="code-variable">_products</span>[<span class="code-variable">i</span>]);
+        }
+        <span class="code-keyword">return</span> <span class="code-variable">result</span>;
+    }
+}
+
+<span class="code-comment">// Run benchmarks</span>
+<span class="code-class">BenchmarkRunner</span>.<span class="code-method">Run</span>&lt;<span class="code-class">ProductBenchmarks</span>&gt;();</code></pre>
+
+                <div class="section-divider"></div>
+
+                <h2>SQL Server Profiler</h2>
+
+                <p>Monitor SQL queries generated by EF Core.</p>
+
+                <div class="code-header">
+                    <span class="code-filename">Enable Sensitive Data Logging</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-variable">builder</span>.<span class="code-variable">Services</span>.<span class="code-method">AddDbContext</span>&lt;<span class="code-class">InvenTrackDbContext</span>&gt;(<span class="code-variable">options</span> =>
+{
+    <span class="code-variable">options</span>.<span class="code-method">UseSqlServer</span>(<span class="code-variable">connectionString</span>)
+        .<span class="code-method">EnableSensitiveDataLogging</span>() <span class="code-comment">// Development only!</span>
+        .<span class="code-method">LogTo</span>(<span class="code-class">Console</span>.<span class="code-variable">WriteLine</span>, <span class="code-class">LogLevel</span>.<span class="code-variable">Information</span>);
+});</code></pre>
+
+                <h2>Performance Checklist</h2>
+
+                <ul>
+                    <li><strong>Cache frequently accessed data</strong>: Use in-memory or distributed caching</li>
+                    <li><strong>Use async/await</strong>: For I/O operations</li>
+                    <li><strong>Optimize queries</strong>: Use Include, AsNoTracking, projections</li>
+                    <li><strong>Enable response caching</strong>: For static content</li>
+                    <li><strong>Profile regularly</strong>: Use MiniProfiler or Application Insights</li>
+                    <li><strong>Monitor SQL</strong>: Check generated queries</li>
+                    <li><strong>Benchmark critical paths</strong>: Use BenchmarkDotNet</li>
+                </ul>
+
+                <h2>Key Takeaways</h2>
+
+                <ul>
+                    <li><strong>MiniProfiler</strong>: Lightweight profiling for dev</li>
+                    <li><strong>Application Insights</strong>: Production monitoring</li>
+                    <li><strong>dotnet-trace</strong>: Performance trace collection</li>
+                    <li><strong>BenchmarkDotNet</strong>: Micro-benchmarking</li>
+                    <li><strong>SQL logging</strong>: Monitor EF Core queries</li>
+                    <li><strong>Profile early</strong>: Find bottlenecks before production</li>
+                </ul>
+
+                <div class="callout callout-concept">
+                    <div class="callout-title">🎉 Part XVII Complete!</div>
+                    <p>
+                        Congratulations! You've completed <strong>Part XVII: Performance & Caching</strong>. You now
+                        understand:
+                    </p>
+                    <ul>
+                        <li>✅ In-memory caching (IMemoryCache, expiration, eviction)</li>
+                        <li>✅ Distributed caching (Redis, SQL Server, serialization)</li>
+                        <li>✅ Response caching ([ResponseCache], cache profiles)</li>
+                        <li>✅ Async best practices (async all the way, avoid blocking)</li>
+                        <li>✅ EF Core performance (Include, AsNoTracking, projections)</li>
+                        <li>✅ Profiling tools (MiniProfiler, Application Insights, BenchmarkDotNet)</li>
+                    </ul>
+                    <p>
+                        Your applications are now fast and scalable! ⚡
+                    </p>
+                </div>
+
+                <nav class="page-nav">
+                    <a href="05-ef-core-performance.html" class="prev">EF Core Performance</a>
+                    <a href="../index.html" class="next">Back to Roadmap</a>
+                </nav>
+
+            
+        <footer class="page-footer">
+          Built with 💜 by <a href="https://akwasi.dev" target="_blank" rel="noopener noreferrer">Akwasi Adu-Kyeremeh</a> for developers who want to truly understand what they're building.
+        </footer>
+
+      </div>
+        </main>
+    </div>
+</body>
+
+</html>

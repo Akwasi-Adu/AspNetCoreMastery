@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IIS Hosting | ASP.NET Core Mastery</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;500&family=Source+Serif+4:ital,wght@0,400;0,600;1,400&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="../assets/style.css">
+</head>
+
+<body>
+    <div class="page-wrapper">
+        <aside class="sidebar">
+            <a href="../index.html" class="sidebar-logo">ASP.NET Core Mastery</a>
+            <div class="sidebar-section">Part XVIII: Deployment</div>
+            <ul class="sidebar-nav">
+                <li><a href="01-kestrel-reverse-proxies.html">Kestrel and Reverse Proxies</a></li>
+                <li><a href="02-iis-hosting.html" class="active">IIS Hosting</a></li>
+                <li><a href="03-linux-hosting.html">Linux Hosting</a></li>
+                <li><a href="04-docker-containers.html">Docker Containers</a></li>
+                <li><a href="05-azure-app-service.html">Azure App Service</a></li>
+                <li><a href="06-cicd-pipelines.html">CI/CD Pipelines</a></li>
+            </ul>
+            <div class="sidebar-section">Resources</div>
+            <ul class="sidebar-nav">
+                <li><a href="../index.html">Full Roadmap</a></li>
+            </ul>
+        </aside>
+
+        <main class="main-content">
+            <div class="content-container">
+                <nav class="breadcrumb">
+                    <a href="../index.html">Home</a>
+                    <span>→</span>
+                    <a href="01-kestrel-reverse-proxies.html">Part XVIII: Deployment</a>
+                    <span>→</span>
+                    IIS Hosting
+                </nav>
+
+                <div class="progress-indicator">
+                    <span>Section 2 of 6</span>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 33.33%"></div>
+                    </div>
+                </div>
+
+                <h1>IIS Hosting</h1>
+
+                <div class="learning-objectives">
+                    <h3>🎯 What You'll Learn</h3>
+                    <ul>
+                        <li>ASP.NET Core Module</li>
+                        <li>Installing .NET Hosting Bundle</li>
+                        <li>Publishing for IIS</li>
+                        <li>Creating IIS site</li>
+                        <li>web.config</li>
+                    </ul>
+                </div>
+
+                <h2>ASP.NET Core Module</h2>
+
+                <p>
+                    The <strong>ASP.NET Core Module</strong> is an IIS module that allows IIS to host ASP.NET Core
+                    applications
+                    by forwarding requests to Kestrel.
+                </p>
+
+                <div class="section-divider"></div>
+
+                <h2>Install .NET Hosting Bundle</h2>
+
+                <div class="code-header">
+                    <span class="code-filename">Download and Install</span>
+                    <span class="code-language">PowerShell</span>
+                </div>
+                <pre><code><span class="code-comment"># Download from: https://dotnet.microsoft.com/download/dotnet</span>
+<span class="code-comment"># Install .NET Hosting Bundle</span>
+<span class="code-comment"># Restart IIS</span>
+net stop was /y
+net start w3svc</code></pre>
+
+                <div class="section-divider"></div>
+
+                <h2>Publish Application</h2>
+
+                <div class="code-header">
+                    <span class="code-filename">Publish</span>
+                    <span class="code-language">Bash</span>
+                </div>
+                <pre><code>dotnet publish -c Release -o C:\inetpub\wwwroot\InvenTrack</code></pre>
+
+                <div class="section-divider"></div>
+
+                <h2>Create IIS Site</h2>
+
+                <ol>
+                    <li>Open <strong>IIS Manager</strong></li>
+                    <li>Right-click <strong>Sites</strong> → <strong>Add Website</strong></li>
+                    <li>Set <strong>Site name</strong>: InvenTrack</li>
+                    <li>Set <strong>Physical path</strong>: C:\inetpub\wwwroot\InvenTrack</li>
+                    <li>Set <strong>Binding</strong>: http, port 80</li>
+                    <li>Click <strong>OK</strong></li>
+                </ol>
+
+                <div class="section-divider"></div>
+
+                <h2>Application Pool Configuration</h2>
+
+                <ol>
+                    <li>Select <strong>Application Pools</strong></li>
+                    <li>Right-click your app pool → <strong>Basic Settings</strong></li>
+                    <li>Set <strong>.NET CLR version</strong>: <strong>No Managed Code</strong></li>
+                    <li>Click <strong>OK</strong></li>
+                </ol>
+
+                <div class="callout callout-info">
+                    <div class="callout-title">Important</div>
+                    <p>
+                        ASP.NET Core apps run in a separate process, so set .NET CLR version to <strong>No Managed
+                            Code</strong>.
+                    </p>
+                </div>
+
+                <div class="section-divider"></div>
+
+                <h2>web.config</h2>
+
+                <p>The publish process creates a web.config file automatically.</p>
+
+                <div class="code-header">
+                    <span class="code-filename">web.config</span>
+                    <span class="code-language">XML</span>
+                </div>
+                <pre><code>&lt;?xml version="1.0" encoding="utf-8"?&gt;
+&lt;configuration&gt;
+  &lt;location path="." inheritInChildApplications="false"&gt;
+    &lt;system.webServer&gt;
+      &lt;handlers&gt;
+        &lt;add name="aspNetCore" path="*" verb="*" 
+             modules="AspNetCoreModuleV2" 
+             resourceType="Unspecified" /&gt;
+      &lt;/handlers&gt;
+      &lt;aspNetCore processPath="dotnet" 
+                  arguments=".\InvenTrack.dll" 
+                  stdoutLogEnabled="false" 
+                  stdoutLogFile=".\logs\stdout" 
+                  hostingModel="inprocess" /&gt;
+    &lt;/system.webServer&gt;
+  &lt;/location&gt;
+&lt;/configuration&gt;</code></pre>
+
+                <h3>Hosting Models</h3>
+
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Model</th>
+                            <th>Description</th>
+                            <th>Performance</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>In-process</strong></td>
+                            <td>Runs inside IIS worker process</td>
+                            <td>Faster</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Out-of-process</strong></td>
+                            <td>IIS forwards to Kestrel</td>
+                            <td>Slower</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="section-divider"></div>
+
+                <h2>Enable Logging</h2>
+
+                <div class="code-header">
+                    <span class="code-filename">web.config (Enable Logs)</span>
+                    <span class="code-language">XML</span>
+                </div>
+                <pre><code>&lt;aspNetCore processPath="dotnet" 
+            arguments=".\InvenTrack.dll" 
+            stdoutLogEnabled="true" 
+            stdoutLogFile=".\logs\stdout" 
+            hostingModel="inprocess"&gt;
+  &lt;environmentVariables&gt;
+    &lt;environmentVariable name="ASPNETCORE_ENVIRONMENT" value="Production" /&gt;
+  &lt;/environmentVariables&gt;
+&lt;/aspNetCore&gt;</code></pre>
+
+                <h2>Troubleshooting</h2>
+
+                <ul>
+                    <li><strong>500.19 Error</strong>: Check web.config syntax</li>
+                    <li><strong>500.30 Error</strong>: Application failed to start, check logs</li>
+                    <li><strong>502.5 Error</strong>: Process failure, check .NET version</li>
+                    <li><strong>Enable logs</strong>: Set stdoutLogEnabled="true"</li>
+                    <li><strong>Check Event Viewer</strong>: Application logs</li>
+                </ul>
+
+                <h2>Key Takeaways</h2>
+
+                <ul>
+                    <li><strong>ASP.NET Core Module</strong>: IIS module for hosting</li>
+                    <li><strong>Hosting Bundle</strong>: Install on server</li>
+                    <li><strong>dotnet publish</strong>: Publish to IIS directory</li>
+                    <li><strong>No Managed Code</strong>: Set in Application Pool</li>
+                    <li><strong>web.config</strong>: Auto-generated configuration</li>
+                    <li><strong>In-process</strong>: Faster hosting model</li>
+                </ul>
+
+                <nav class="page-nav">
+                    <a href="01-kestrel-reverse-proxies.html" class="prev">Kestrel and Reverse Proxies</a>
+                    <a href="03-linux-hosting.html" class="next">Linux Hosting</a>
+                </nav>
+
+            
+        <footer class="page-footer">
+          Built with 💜 by <a href="https://akwasi.dev" target="_blank" rel="noopener noreferrer">Akwasi Adu-Kyeremeh</a> for developers who want to truly understand what they're building.
+        </footer>
+
+      </div>
+        </main>
+    </div>
+</body>
+
+</html>

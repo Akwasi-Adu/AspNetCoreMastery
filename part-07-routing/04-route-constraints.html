@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Route Constraints | ASP.NET Core Mastery</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;500&family=Source+Serif+4:ital,wght@0,400;0,600;1,400&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="../assets/style.css">
+</head>
+
+<body>
+    <div class="page-wrapper">
+        <aside class="sidebar">
+            <a href="../index.html" class="sidebar-logo">ASP.NET Core Mastery</a>
+            <div class="sidebar-section">Part VII: Routing</div>
+            <ul class="sidebar-nav">
+                <li><a href="01-endpoint-routing.html">Endpoint Routing Basics</a></li>
+                <li><a href="02-conventional-vs-attribute.html">Conventional vs Attribute Routing</a></li>
+                <li><a href="03-route-parameters.html">Route Parameters</a></li>
+                <li><a href="04-route-constraints.html" class="active">Route Constraints</a></li>
+                <li><a href="05-url-generation.html">URL Generation</a></li>
+                <li><a href="06-areas.html">Areas</a></li>
+            </ul>
+            <div class="sidebar-section">Resources</div>
+            <ul class="sidebar-nav">
+                <li><a href="../index.html">Full Roadmap</a></li>
+            </ul>
+        </aside>
+
+        <main class="main-content">
+            <div class="content-container">
+                <nav class="breadcrumb">
+                    <a href="../index.html">Home</a>
+                    <span>→</span>
+                    <a href="01-endpoint-routing.html">Part VII: Routing</a>
+                    <span>→</span>
+                    Route Constraints
+                </nav>
+
+                <div class="progress-indicator">
+                    <span>Section 4 of 6</span>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 66.67%"></div>
+                    </div>
+                </div>
+
+                <h1>Route Constraints</h1>
+
+                <div class="learning-objectives">
+                    <h3>🎯 What You'll Learn</h3>
+                    <ul>
+                        <li>What route constraints are</li>
+                        <li>Built-in constraints (int, guid, regex, etc.)</li>
+                        <li>Multiple constraints</li>
+                        <li>Custom constraints</li>
+                        <li>When to use constraints</li>
+                        <li>Best practices</li>
+                    </ul>
+                </div>
+
+                <h2>What are Route Constraints?</h2>
+
+                <p>
+                    <strong>Route constraints</strong> restrict parameter values to ensure only valid URLs match your
+                    routes.
+                </p>
+
+                <div class="code-header">
+                    <span class="code-filename">Without Constraint</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code>[<span class="code-class">HttpGet</span>(<span class="code-string">"{id}"</span>)]
+<span class="code-keyword">public</span> <span class="code-class">IActionResult</span> <span class="code-method">GetProduct</span>(<span class="code-type">int</span> <span class="code-variable">id</span>) { }
+
+<span class="code-comment">// ✅ /api/products/123 → works</span>
+<span class="code-comment">// ❌ /api/products/abc → 400 Bad Request (binding fails)</span></code></pre>
+
+                <div class="code-header">
+                    <span class="code-filename">With Constraint</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code>[<span class="code-class">HttpGet</span>(<span class="code-string">"{id:int}"</span>)]
+<span class="code-keyword">public</span> <span class="code-class">IActionResult</span> <span class="code-method">GetProduct</span>(<span class="code-type">int</span> <span class="code-variable">id</span>) { }
+
+<span class="code-comment">// ✅ /api/products/123 → works</span>
+<span class="code-comment">// ❌ /api/products/abc → 404 Not Found (route doesn't match)</span></code></pre>
+
+                <div class="callout callout-concept">
+                    <div class="callout-title">💡 Key Difference</div>
+                    <p>
+                        <strong>Without constraint</strong>: Route matches, binding fails → 400 Bad Request<br>
+                        <strong>With constraint</strong>: Route doesn't match → 404 Not Found
+                    </p>
+                </div>
+
+                <div class="section-divider"></div>
+
+                <h2>Built-in Constraints</h2>
+
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Constraint</th>
+                            <th>Description</th>
+                            <th>Example</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><code>:int</code></td>
+                            <td>Integer</td>
+                            <td><code>{id:int}</code></td>
+                        </tr>
+                        <tr>
+                            <td><code>:long</code></td>
+                            <td>Long integer</td>
+                            <td><code>{id:long}</code></td>
+                        </tr>
+                        <tr>
+                            <td><code>:decimal</code></td>
+                            <td>Decimal number</td>
+                            <td><code>{price:decimal}</code></td>
+                        </tr>
+                        <tr>
+                            <td><code>:double</code></td>
+                            <td>Double</td>
+                            <td><code>{value:double}</code></td>
+                        </tr>
+                        <tr>
+                            <td><code>:float</code></td>
+                            <td>Float</td>
+                            <td><code>{value:float}</code></td>
+                        </tr>
+                        <tr>
+                            <td><code>:bool</code></td>
+                            <td>Boolean</td>
+                            <td><code>{active:bool}</code></td>
+                        </tr>
+                        <tr>
+                            <td><code>:guid</code></td>
+                            <td>GUID</td>
+                            <td><code>{id:guid}</code></td>
+                        </tr>
+                        <tr>
+                            <td><code>:datetime</code></td>
+                            <td>DateTime</td>
+                            <td><code>{date:datetime}</code></td>
+                        </tr>
+                        <tr>
+                            <td><code>:alpha</code></td>
+                            <td>Letters only</td>
+                            <td><code>{name:alpha}</code></td>
+                        </tr>
+                        <tr>
+                            <td><code>:min(n)</code></td>
+                            <td>Minimum value</td>
+                            <td><code>{age:min(18)}</code></td>
+                        </tr>
+                        <tr>
+                            <td><code>:max(n)</code></td>
+                            <td>Maximum value</td>
+                            <td><code>{age:max(100)}</code></td>
+                        </tr>
+                        <tr>
+                            <td><code>:range(min,max)</code></td>
+                            <td>Value range</td>
+                            <td><code>{age:range(18,100)}</code></td>
+                        </tr>
+                        <tr>
+                            <td><code>:length(n)</code></td>
+                            <td>Exact length</td>
+                            <td><code>{code:length(5)}</code></td>
+                        </tr>
+                        <tr>
+                            <td><code>:minlength(n)</code></td>
+                            <td>Minimum length</td>
+                            <td><code>{name:minlength(3)}</code></td>
+                        </tr>
+                        <tr>
+                            <td><code>:maxlength(n)</code></td>
+                            <td>Maximum length</td>
+                            <td><code>{name:maxlength(50)}</code></td>
+                        </tr>
+                        <tr>
+                            <td><code>:regex(pattern)</code></td>
+                            <td>Regular expression</td>
+                            <td><code>{zip:regex(^\\d{{5}}$)}</code></td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="section-divider"></div>
+
+                <h2>Common Constraint Examples</h2>
+
+                <h3>Integer Constraint</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">Integer ID</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code>[<span class="code-class">HttpGet</span>(<span class="code-string">"{id:int}"</span>)]
+<span class="code-keyword">public</span> <span class="code-class">IActionResult</span> <span class="code-method">GetProduct</span>(<span class="code-type">int</span> <span class="code-variable">id</span>)
+{
+    <span class="code-keyword">return</span> <span class="code-method">Ok</span>(<span class="code-string">$"Product </span>{<span class="code-variable">id</span>}<span class="code-string">"</span>);
+}
+
+<span class="code-comment">// ✅ /api/products/123</span>
+<span class="code-comment">// ❌ /api/products/abc</span></code></pre>
+
+                <h3>GUID Constraint</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">GUID ID</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code>[<span class="code-class">HttpGet</span>(<span class="code-string">"{id:guid}"</span>)]
+<span class="code-keyword">public</span> <span class="code-class">IActionResult</span> <span class="code-method">GetOrder</span>(<span class="code-class">Guid</span> <span class="code-variable">id</span>)
+{
+    <span class="code-keyword">return</span> <span class="code-method">Ok</span>(<span class="code-string">$"Order </span>{<span class="code-variable">id</span>}<span class="code-string">"</span>);
+}
+
+<span class="code-comment">// ✅ /api/orders/3fa85f64-5717-4562-b3fc-2c963f66afa6</span>
+<span class="code-comment">// ❌ /api/orders/123</span></code></pre>
+
+                <h3>Range Constraint</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">Age Range</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code>[<span class="code-class">HttpGet</span>(<span class="code-string">"age/{age:range(18,100)}"</span>)]
+<span class="code-keyword">public</span> <span class="code-class">IActionResult</span> <span class="code-method">GetByAge</span>(<span class="code-type">int</span> <span class="code-variable">age</span>)
+{
+    <span class="code-keyword">return</span> <span class="code-method">Ok</span>(<span class="code-string">$"Age: </span>{<span class="code-variable">age</span>}<span class="code-string">"</span>);
+}
+
+<span class="code-comment">// ✅ /api/users/age/25</span>
+<span class="code-comment">// ❌ /api/users/age/15 (too young)</span>
+<span class="code-comment">// ❌ /api/users/age/150 (too old)</span></code></pre>
+
+                <h3>Regex Constraint</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">Zip Code Pattern</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code>[<span class="code-class">HttpGet</span>(<span class="code-string">"zip/{zipCode:regex(^\\d{{5}}$)}"</span>)]
+<span class="code-keyword">public</span> <span class="code-class">IActionResult</span> <span class="code-method">GetByZip</span>(<span class="code-type">string</span> <span class="code-variable">zipCode</span>)
+{
+    <span class="code-keyword">return</span> <span class="code-method">Ok</span>(<span class="code-string">$"Zip: </span>{<span class="code-variable">zipCode</span>}<span class="code-string">"</span>);
+}
+
+<span class="code-comment">// ✅ /api/locations/zip/12345</span>
+<span class="code-comment">// ❌ /api/locations/zip/1234 (too short)</span>
+<span class="code-comment">// ❌ /api/locations/zip/abcde (not digits)</span></code></pre>
+
+                <div class="callout callout-warning">
+                    <div class="callout-title">⚠️ Regex Escaping</div>
+                    <p>
+                        In regex constraints, use double curly braces <code>{{}}</code> to escape single braces.
+                    </p>
+                </div>
+
+                <div class="section-divider"></div>
+
+                <h2>Multiple Constraints</h2>
+
+                <p>
+                    Combine multiple constraints with <code>:</code> separator.
+                </p>
+
+                <div class="code-header">
+                    <span class="code-filename">Multiple Constraints</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-comment">// Integer with minimum value</span>
+[<span class="code-class">HttpGet</span>(<span class="code-string">"{id:int:min(1)}"</span>)]
+<span class="code-keyword">public</span> <span class="code-class">IActionResult</span> <span class="code-method">GetProduct</span>(<span class="code-type">int</span> <span class="code-variable">id</span>) { }
+
+<span class="code-comment">// ✅ /api/products/1</span>
+<span class="code-comment">// ❌ /api/products/0</span>
+<span class="code-comment">// ❌ /api/products/-1</span>
+
+<span class="code-comment">// String with length constraints</span>
+[<span class="code-class">HttpGet</span>(<span class="code-string">"{code:alpha:length(5)}"</span>)]
+<span class="code-keyword">public</span> <span class="code-class">IActionResult</span> <span class="code-method">GetByCode</span>(<span class="code-type">string</span> <span class="code-variable">code</span>) { }
+
+<span class="code-comment">// ✅ /api/products/ABCDE</span>
+<span class="code-comment">// ❌ /api/products/ABC (too short)</span>
+<span class="code-comment">// ❌ /api/products/ABC12 (contains digits)</span></code></pre>
+
+                <div class="section-divider"></div>
+
+                <h2>Custom Constraints</h2>
+
+                <p>
+                    Create custom constraints by implementing <code>IRouteConstraint</code>.
+                </p>
+
+                <div class="code-header">
+                    <span class="code-filename">Custom Constraint</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">ProductSkuConstraint</span> : <span class="code-class">IRouteConstraint</span>
+{
+    <span class="code-keyword">public</span> <span class="code-type">bool</span> <span class="code-method">Match</span>(
+        <span class="code-class">HttpContext</span>? <span class="code-variable">httpContext</span>,
+        <span class="code-class">IRouter</span>? <span class="code-variable">route</span>,
+        <span class="code-type">string</span> <span class="code-variable">routeKey</span>,
+        <span class="code-class">RouteValueDictionary</span> <span class="code-variable">values</span>,
+        <span class="code-class">RouteDirection</span> <span class="code-variable">routeDirection</span>)
+    {
+        <span class="code-keyword">if</span> (!<span class="code-variable">values</span>.<span class="code-method">TryGetValue</span>(<span class="code-variable">routeKey</span>, <span class="code-keyword">out</span> <span class="code-keyword">var</span> <span class="code-variable">value</span>) || <span class="code-variable">value</span> == <span class="code-keyword">null</span>)
+            <span class="code-keyword">return</span> <span class="code-keyword">false</span>;
+
+        <span class="code-keyword">var</span> <span class="code-variable">sku</span> = <span class="code-variable">value</span>.<span class="code-method">ToString</span>();
+        
+        <span class="code-comment">// SKU format: PRD-XXXXX (e.g., PRD-12345)</span>
+        <span class="code-keyword">return</span> <span class="code-variable">sku</span>?.<span class="code-method">StartsWith</span>(<span class="code-string">"PRD-"</span>) == <span class="code-keyword">true</span> && <span class="code-variable">sku</span>.<span class="code-variable">Length</span> == <span class="code-number">9</span>;
+    }
+}</code></pre>
+
+                <h3>Register Custom Constraint</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">Program.cs</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-variable">builder</span>.<span class="code-variable">Services</span>.<span class="code-method">AddRouting</span>(<span class="code-variable">options</span> =&gt;
+{
+    <span class="code-variable">options</span>.<span class="code-variable">ConstraintMap</span>.<span class="code-method">Add</span>(<span class="code-string">"productsku"</span>, <span class="code-keyword">typeof</span>(<span class="code-class">ProductSkuConstraint</span>));
+});</code></pre>
+
+                <h3>Use Custom Constraint</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">Using Custom Constraint</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code>[<span class="code-class">HttpGet</span>(<span class="code-string">"{sku:productsku}"</span>)]
+<span class="code-keyword">public</span> <span class="code-class">IActionResult</span> <span class="code-method">GetBySku</span>(<span class="code-type">string</span> <span class="code-variable">sku</span>)
+{
+    <span class="code-keyword">return</span> <span class="code-method">Ok</span>(<span class="code-string">$"Product SKU: </span>{<span class="code-variable">sku</span>}<span class="code-string">"</span>);
+}
+
+<span class="code-comment">// ✅ /api/products/PRD-12345</span>
+<span class="code-comment">// ❌ /api/products/ABC-12345</span>
+<span class="code-comment">// ❌ /api/products/PRD-123</span></code></pre>
+
+                <div class="section-divider"></div>
+
+                <h2>Complete InvenTrack Example</h2>
+
+                <div class="code-header">
+                    <span class="code-filename">Controllers/ProductsController.cs</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code>[<span class="code-class">ApiController</span>]
+[<span class="code-class">Route</span>(<span class="code-string">"api/[controller]"</span>)]
+<span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">ProductsController</span> : <span class="code-class">ControllerBase</span>
+{
+    <span class="code-comment">// Integer constraint</span>
+    <span class="code-comment">// GET /api/products/123</span>
+    [<span class="code-class">HttpGet</span>(<span class="code-string">"{id:int:min(1)}"</span>)]
+    <span class="code-keyword">public</span> <span class="code-class">IActionResult</span> <span class="code-method">GetById</span>(<span class="code-type">int</span> <span class="code-variable">id</span>)
+    {
+        <span class="code-keyword">return</span> <span class="code-method">Ok</span>(<span class="code-string">$"Product </span>{<span class="code-variable">id</span>}<span class="code-string">"</span>);
+    }
+
+    <span class="code-comment">// GUID constraint</span>
+    <span class="code-comment">// GET /api/products/guid/3fa85f64-5717-4562-b3fc-2c963f66afa6</span>
+    [<span class="code-class">HttpGet</span>(<span class="code-string">"guid/{id:guid}"</span>)]
+    <span class="code-keyword">public</span> <span class="code-class">IActionResult</span> <span class="code-method">GetByGuid</span>(<span class="code-class">Guid</span> <span class="code-variable">id</span>)
+    {
+        <span class="code-keyword">return</span> <span class="code-method">Ok</span>(<span class="code-string">$"Product GUID: </span>{<span class="code-variable">id</span>}<span class="code-string">"</span>);
+    }
+
+    <span class="code-comment">// Range constraint</span>
+    <span class="code-comment">// GET /api/products/price/50</span>
+    [<span class="code-class">HttpGet</span>(<span class="code-string">"price/{maxPrice:decimal:range(1,10000)}"</span>)]
+    <span class="code-keyword">public</span> <span class="code-class">IActionResult</span> <span class="code-method">GetByMaxPrice</span>(<span class="code-type">decimal</span> <span class="code-variable">maxPrice</span>)
+    {
+        <span class="code-keyword">return</span> <span class="code-method">Ok</span>(<span class="code-string">$"Products under $</span>{<span class="code-variable">maxPrice</span>}<span class="code-string">"</span>);
+    }
+
+    <span class="code-comment">// Alpha constraint</span>
+    <span class="code-comment">// GET /api/products/category/electronics</span>
+    [<span class="code-class">HttpGet</span>(<span class="code-string">"category/{name:alpha:minlength(3)}"</span>)]
+    <span class="code-keyword">public</span> <span class="code-class">IActionResult</span> <span class="code-method">GetByCategory</span>(<span class="code-type">string</span> <span class="code-variable">name</span>)
+    {
+        <span class="code-keyword">return</span> <span class="code-method">Ok</span>(<span class="code-string">$"Category: </span>{<span class="code-variable">name</span>}<span class="code-string">"</span>);
+    }
+
+    <span class="code-comment">// Regex constraint for SKU</span>
+    <span class="code-comment">// GET /api/products/sku/PRD12345</span>
+    [<span class="code-class">HttpGet</span>(<span class="code-string">"sku/{sku:regex(^PRD\\d{{5}}$)}"</span>)]
+    <span class="code-keyword">public</span> <span class="code-class">IActionResult</span> <span class="code-method">GetBySku</span>(<span class="code-type">string</span> <span class="code-variable">sku</span>)
+    {
+        <span class="code-keyword">return</span> <span class="code-method">Ok</span>(<span class="code-string">$"Product SKU: </span>{<span class="code-variable">sku</span>}<span class="code-string">"</span>);
+    }
+
+    <span class="code-comment">// Boolean constraint</span>
+    <span class="code-comment">// GET /api/products/active/true</span>
+    [<span class="code-class">HttpGet</span>(<span class="code-string">"active/{isActive:bool}"</span>)]
+    <span class="code-keyword">public</span> <span class="code-class">IActionResult</span> <span class="code-method">GetByActiveStatus</span>(<span class="code-type">bool</span> <span class="code-variable">isActive</span>)
+    {
+        <span class="code-keyword">return</span> <span class="code-method">Ok</span>(<span class="code-string">$"Active: </span>{<span class="code-variable">isActive</span>}<span class="code-string">"</span>);
+    }
+}</code></pre>
+
+                <h2>When to Use Constraints</h2>
+
+                <ul>
+                    <li><strong>Type safety</strong>: Ensure parameters are the correct type</li>
+                    <li><strong>Route disambiguation</strong>: Distinguish between similar routes</li>
+                    <li><strong>Validation</strong>: Enforce business rules (min/max values)</li>
+                    <li><strong>SEO-friendly URLs</strong>: Enforce URL patterns</li>
+                    <li><strong>API versioning</strong>: Match specific version patterns</li>
+                </ul>
+
+                <h2>Best Practices</h2>
+
+                <ul>
+                    <li><strong>Use constraints for type safety</strong>: <code>{id:int}</code> instead of
+                        <code>{id}</code></li>
+                    <li><strong>Combine constraints</strong>: <code>{id:int:min(1)}</code> for positive integers</li>
+                    <li><strong>Regex sparingly</strong>: Complex regex can hurt performance</li>
+                    <li><strong>Custom constraints</strong>: For complex business rules</li>
+                    <li><strong>404 vs 400</strong>: Constraints return 404 (route doesn't match)</li>
+                    <li><strong>Document constraints</strong>: Comment complex patterns</li>
+                </ul>
+
+                <h2>Key Takeaways</h2>
+
+                <ul>
+                    <li><strong>Route constraints</strong>: Restrict parameter values</li>
+                    <li><strong>Built-in constraints</strong>: int, guid, regex, range, etc.</li>
+                    <li><strong>Multiple constraints</strong>: Combine with <code>:</code></li>
+                    <li><strong>Custom constraints</strong>: Implement <code>IRouteConstraint</code></li>
+                    <li><strong>404 vs 400</strong>: Constraints → 404, binding fails → 400</li>
+                    <li><strong>Type safety</strong>: Use <code>:int</code>, <code>:guid</code>, etc.</li>
+                    <li><strong>Validation</strong>: Use <code>:min</code>, <code>:max</code>, <code>:range</code></li>
+                    <li><strong>Patterns</strong>: Use <code>:regex</code> for complex patterns</li>
+                </ul>
+
+                <div class="callout callout-concept">
+                    <div class="callout-title">🎯 Next Steps</div>
+                    <p>
+                        You now understand route constraints! In the next section, we'll explore
+                        <strong>URL Generation</strong>—how to generate URLs programmatically for links,
+                        redirects, and API responses.
+                    </p>
+                </div>
+
+                <nav class="page-nav">
+                    <a href="03-route-parameters.html" class="prev">Route Parameters</a>
+                    <a href="05-url-generation.html" class="next">URL Generation</a>
+                </nav>
+
+            
+        <footer class="page-footer">
+          Built with 💜 by <a href="https://akwasi.dev" target="_blank" rel="noopener noreferrer">Akwasi Adu-Kyeremeh</a> for developers who want to truly understand what they're building.
+        </footer>
+
+      </div>
+        </main>
+    </div>
+</body>
+
+</html>

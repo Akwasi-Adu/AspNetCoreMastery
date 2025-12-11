@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Integration Testing | ASP.NET Core Mastery</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;500&family=Source+Serif+4:ital,wght@0,400;0,600;1,400&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="../assets/style.css">
+</head>
+
+<body>
+    <div class="page-wrapper">
+        <aside class="sidebar">
+            <a href="../index.html" class="sidebar-logo">ASP.NET Core Mastery</a>
+            <div class="sidebar-section">Part XVI: Testing</div>
+            <ul class="sidebar-nav">
+                <li><a href="01-unit-testing-xunit.html">Unit Testing with xUnit</a></li>
+                <li><a href="02-mocking-with-moq.html">Mocking with Moq</a></li>
+                <li><a href="03-integration-testing.html" class="active">Integration Testing</a></li>
+                <li><a href="04-webapplicationfactory.html">WebApplicationFactory</a></li>
+                <li><a href="05-test-driven-development.html">Test-Driven Development</a></li>
+            </ul>
+            <div class="sidebar-section">Resources</div>
+            <ul class="sidebar-nav">
+                <li><a href="../index.html">Full Roadmap</a></li>
+            </ul>
+        </aside>
+
+        <main class="main-content">
+            <div class="content-container">
+                <nav class="breadcrumb">
+                    <a href="../index.html">Home</a>
+                    <span>→</span>
+                    <a href="01-unit-testing-xunit.html">Part XVI: Testing</a>
+                    <span>→</span>
+                    Integration Testing
+                </nav>
+
+                <div class="progress-indicator">
+                    <span>Section 3 of 5</span>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 60%"></div>
+                    </div>
+                </div>
+
+                <h1>Integration Testing</h1>
+
+                <div class="learning-objectives">
+                    <h3>🎯 What You'll Learn</h3>
+                    <ul>
+                        <li>What is integration testing</li>
+                        <li>Unit vs Integration tests</li>
+                        <li>In-memory database</li>
+                        <li>Testing with real dependencies</li>
+                        <li>Test database setup</li>
+                    </ul>
+                </div>
+
+                <h2>What is Integration Testing?</h2>
+
+                <p>
+                    <strong>Integration testing</strong> tests how multiple components work together,
+                    including real dependencies like databases, APIs, and file systems.
+                </p>
+
+                <div class="section-divider"></div>
+
+                <h2>Unit vs Integration Tests</h2>
+
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Aspect</th>
+                            <th>Unit Tests</th>
+                            <th>Integration Tests</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Scope</strong></td>
+                            <td>Single unit (method/class)</td>
+                            <td>Multiple components</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Dependencies</strong></td>
+                            <td>Mocked</td>
+                            <td>Real</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Speed</strong></td>
+                            <td>Fast</td>
+                            <td>Slower</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Isolation</strong></td>
+                            <td>High</td>
+                            <td>Low</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Purpose</strong></td>
+                            <td>Verify logic</td>
+                            <td>Verify integration</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="section-divider"></div>
+
+                <h2>In-Memory Database</h2>
+
+                <p>Use an in-memory database for fast integration tests.</p>
+
+                <div class="code-header">
+                    <span class="code-filename">Install Package</span>
+                    <span class="code-language">Bash</span>
+                </div>
+                <pre><code>dotnet add package Microsoft.EntityFrameworkCore.InMemory</code></pre>
+
+                <div class="code-header">
+                    <span class="code-filename">Setup In-Memory Database</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">ProductRepositoryTests</span>
+{
+    <span class="code-keyword">private</span> <span class="code-class">InvenTrackDbContext</span> <span class="code-method">GetInMemoryContext</span>()
+    {
+        <span class="code-keyword">var</span> <span class="code-variable">options</span> = <span class="code-keyword">new</span> <span class="code-class">DbContextOptionsBuilder</span>&lt;<span class="code-class">InvenTrackDbContext</span>&gt;()
+            .<span class="code-method">UseInMemoryDatabase</span>(<span class="code-variable">databaseName</span>: <span class="code-class">Guid</span>.<span class="code-method">NewGuid</span>().<span class="code-method">ToString</span>())
+            .<span class="code-variable">Options</span>;
+
+        <span class="code-keyword">return</span> <span class="code-keyword">new</span> <span class="code-class">InvenTrackDbContext</span>(<span class="code-variable">options</span>);
+    }
+}</code></pre>
+
+                <div class="section-divider"></div>
+
+                <h2>InvenTrack Integration Test Example</h2>
+
+                <div class="code-header">
+                    <span class="code-filename">ProductRepositoryTests.cs</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">ProductRepositoryTests</span>
+{
+    [<span class="code-class">Fact</span>]
+    <span class="code-keyword">public</span> <span class="code-keyword">async</span> <span class="code-class">Task</span> <span class="code-method">Add_Product_SavesToDatabase</span>()
+    {
+        <span class="code-comment">// Arrange</span>
+        <span class="code-keyword">using</span> <span class="code-keyword">var</span> <span class="code-variable">context</span> = <span class="code-method">GetInMemoryContext</span>();
+        <span class="code-keyword">var</span> <span class="code-variable">repository</span> = <span class="code-keyword">new</span> <span class="code-class">ProductRepository</span>(<span class="code-variable">context</span>);
+        <span class="code-keyword">var</span> <span class="code-variable">product</span> = <span class="code-keyword">new</span> <span class="code-class">Product</span> { <span class="code-variable">Name</span> = <span class="code-string">"Laptop"</span>, <span class="code-variable">Price</span> = <span class="code-number">999</span> };
+
+        <span class="code-comment">// Act</span>
+        <span class="code-keyword">await</span> <span class="code-variable">repository</span>.<span class="code-method">AddAsync</span>(<span class="code-variable">product</span>);
+        <span class="code-keyword">await</span> <span class="code-variable">context</span>.<span class="code-method">SaveChangesAsync</span>();
+
+        <span class="code-comment">// Assert</span>
+        <span class="code-keyword">var</span> <span class="code-variable">saved</span> = <span class="code-keyword">await</span> <span class="code-variable">context</span>.<span class="code-variable">Products</span>.<span class="code-method">FindAsync</span>(<span class="code-variable">product</span>.<span class="code-variable">Id</span>);
+        <span class="code-class">Assert</span>.<span class="code-method">NotNull</span>(<span class="code-variable">saved</span>);
+        <span class="code-class">Assert</span>.<span class="code-method">Equal</span>(<span class="code-string">"Laptop"</span>, <span class="code-variable">saved</span>.<span class="code-variable">Name</span>);
+    }
+
+    [<span class="code-class">Fact</span>]
+    <span class="code-keyword">public</span> <span class="code-keyword">async</span> <span class="code-class">Task</span> <span class="code-method">GetById_ExistingProduct_ReturnsProduct</span>()
+    {
+        <span class="code-comment">// Arrange</span>
+        <span class="code-keyword">using</span> <span class="code-keyword">var</span> <span class="code-variable">context</span> = <span class="code-method">GetInMemoryContext</span>();
+        <span class="code-keyword">var</span> <span class="code-variable">product</span> = <span class="code-keyword">new</span> <span class="code-class">Product</span> { <span class="code-variable">Name</span> = <span class="code-string">"Mouse"</span>, <span class="code-variable">Price</span> = <span class="code-number">25</span> };
+        <span class="code-variable">context</span>.<span class="code-variable">Products</span>.<span class="code-method">Add</span>(<span class="code-variable">product</span>);
+        <span class="code-keyword">await</span> <span class="code-variable">context</span>.<span class="code-method">SaveChangesAsync</span>();
+
+        <span class="code-keyword">var</span> <span class="code-variable">repository</span> = <span class="code-keyword">new</span> <span class="code-class">ProductRepository</span>(<span class="code-variable">context</span>);
+
+        <span class="code-comment">// Act</span>
+        <span class="code-keyword">var</span> <span class="code-variable">result</span> = <span class="code-keyword">await</span> <span class="code-variable">repository</span>.<span class="code-method">GetByIdAsync</span>(<span class="code-variable">product</span>.<span class="code-variable">Id</span>);
+
+        <span class="code-comment">// Assert</span>
+        <span class="code-class">Assert</span>.<span class="code-method">NotNull</span>(<span class="code-variable">result</span>);
+        <span class="code-class">Assert</span>.<span class="code-method">Equal</span>(<span class="code-string">"Mouse"</span>, <span class="code-variable">result</span>.<span class="code-variable">Name</span>);
+    }
+
+    <span class="code-keyword">private</span> <span class="code-class">InvenTrackDbContext</span> <span class="code-method">GetInMemoryContext</span>()
+    {
+        <span class="code-keyword">var</span> <span class="code-variable">options</span> = <span class="code-keyword">new</span> <span class="code-class">DbContextOptionsBuilder</span>&lt;<span class="code-class">InvenTrackDbContext</span>&gt;()
+            .<span class="code-method">UseInMemoryDatabase</span>(<span class="code-class">Guid</span>.<span class="code-method">NewGuid</span>().<span class="code-method">ToString</span>())
+            .<span class="code-variable">Options</span>;
+
+        <span class="code-keyword">return</span> <span class="code-keyword">new</span> <span class="code-class">InvenTrackDbContext</span>(<span class="code-variable">options</span>);
+    }
+}</code></pre>
+
+                <h2>Key Takeaways</h2>
+
+                <ul>
+                    <li><strong>Integration tests</strong>: Test multiple components together</li>
+                    <li><strong>Real dependencies</strong>: Use actual database, not mocks</li>
+                    <li><strong>In-memory database</strong>: Fast, isolated tests</li>
+                    <li><strong>Guid.NewGuid()</strong>: Unique database per test</li>
+                    <li><strong>Slower than unit tests</strong>: But more realistic</li>
+                </ul>
+
+                <nav class="page-nav">
+                    <a href="02-mocking-with-moq.html" class="prev">Mocking with Moq</a>
+                    <a href="04-webapplicationfactory.html" class="next">WebApplicationFactory</a>
+                </nav>
+
+            
+        <footer class="page-footer">
+          Built with 💜 by <a href="https://akwasi.dev" target="_blank" rel="noopener noreferrer">Akwasi Adu-Kyeremeh</a> for developers who want to truly understand what they're building.
+        </footer>
+
+      </div>
+        </main>
+    </div>
+</body>
+
+</html>

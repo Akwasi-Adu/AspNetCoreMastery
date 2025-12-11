@@ -1,0 +1,583 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ASP.NET Core Mastery - Complete Learning Guide</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;500&family=Source+Serif+4:ital,wght@0,400;0,600;1,400&display=swap"
+    rel="stylesheet">
+  <link rel="stylesheet" href="assets/style.css">
+</head>
+
+<body>
+  <div class="page-wrapper">
+    <main class="main-content full-width">
+      <div class="content-container">
+
+        <!-- Hero Section -->
+        <header class="hero">
+          <h1>ASP.NET Core Mastery</h1>
+          <p class="subtitle">
+            A comprehensive, ground-up guide to mastering ASP.NET Core development.
+            From absolute beginner to production-ready full-stack engineer.
+          </p>
+        </header>
+
+        <!-- Introduction -->
+        <section id="introduction">
+          <h2>Welcome to Your Journey</h2>
+
+          <p>
+            This guide is designed for motivated learners who want to truly <em>understand</em> ASP.NET Core,
+            not just copy-paste code patterns. Whether you're completely new to programming or an experienced
+            developer looking to fill knowledge gaps, this resource will take you from first principles to
+            building production-grade applications.
+          </p>
+
+          <p>
+            We'll build a real-world project together: <strong>InvenTrack</strong>, a mini-ERP system for
+            inventory and sales management. By the end, you'll have created something meaningful while
+            internalizing the concepts that make great .NET developers.
+          </p>
+
+          <div class="callout callout-concept">
+            <div class="callout-title">🎯 Our Philosophy</div>
+            <p>
+              <strong>Depth over breadth.</strong> We explain the "why" behind every concept.
+              <strong>Progressive complexity.</strong> Each topic builds on what came before.
+              <strong>Real-world focus.</strong> Everything connects to practical, professional development.
+            </p>
+          </div>
+
+          <h3>What You'll Build: InvenTrack Mini-ERP</h3>
+
+          <p>
+            Throughout this guide, we'll progressively build a complete inventory and sales management system:
+          </p>
+
+          <table>
+            <thead>
+              <tr>
+                <th>Phase</th>
+                <th>Module</th>
+                <th>What You'll Learn</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>1</td>
+                <td>Product Catalog</td>
+                <td>Basic CRUD operations, Entity Framework Core, validation</td>
+              </tr>
+              <tr>
+                <td>2</td>
+                <td>Inventory Management</td>
+                <td>Transactions, concurrency, business logic in services</td>
+              </tr>
+              <tr>
+                <td>3</td>
+                <td>Customer Management</td>
+                <td>Relationships, complex queries, DTOs</td>
+              </tr>
+              <tr>
+                <td>4</td>
+                <td>Sales Orders</td>
+                <td>Complex workflows, state management, validation rules</td>
+              </tr>
+              <tr>
+                <td>5</td>
+                <td>Authentication &amp; Users</td>
+                <td>ASP.NET Core Identity, JWT, role-based access</td>
+              </tr>
+              <tr>
+                <td>6</td>
+                <td>Reporting Dashboard</td>
+                <td>Aggregations, caching, Razor Pages UI</td>
+              </tr>
+              <tr>
+                <td>7</td>
+                <td>Multi-Warehouse</td>
+                <td>Multi-tenancy patterns, complex domain logic</td>
+              </tr>
+              <tr>
+                <td>8</td>
+                <td>Audit Trail</td>
+                <td>EF Core interceptors, compliance, logging</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <h3>Prerequisites</h3>
+
+          <p>
+            <strong>None.</strong> We start from "What is programming?" and build up from there.
+            You'll need a computer and the willingness to learn—that's it. We'll install everything
+            together as we go.
+          </p>
+
+          <h3>Tools We'll Use</h3>
+
+          <ul>
+            <li><strong>Visual Studio 2022</strong> — Our primary IDE (Community Edition is free)</li>
+            <li><strong>.NET 8</strong> — The latest Long-Term Support version</li>
+            <li><strong>SQL Server</strong> — Our database (Express/LocalDB editions are free)</li>
+            <li><strong>Git</strong> — For version control</li>
+          </ul>
+        </section>
+
+        <!-- Complete Table of Contents -->
+        <section id="table-of-contents">
+          <h2>Complete Roadmap</h2>
+
+          <p>
+            Click any section to begin. Sections are designed to be read in order, but you can
+            jump around if you're already familiar with certain topics.
+          </p>
+
+          <div class="roadmap-grid">
+
+            <!-- Part 1: Foundations -->
+            <div class="roadmap-card">
+              <span class="part-number">Part I</span>
+              <h3>Foundations</h3>
+              <p>The absolute basics—what programming is, how C# works, and the .NET ecosystem.</p>
+              <ul>
+                <li><a href="part-01-foundations/01-what-is-programming.html">What is Programming?</a></li>
+                <li><a href="part-01-foundations/02-what-is-csharp-dotnet.html">What is C# and .NET?</a></li>
+                <li><a href="part-01-foundations/03-variables-and-data-types.html">Variables and Data Types</a></li>
+                <li><a href="part-01-foundations/04-operators-and-expressions.html">Operators and Expressions</a></li>
+                <li><a href="part-01-foundations/05-control-flow.html">Control Flow (if, loops)</a></li>
+                <li><a href="part-01-foundations/06-methods-and-functions.html">Methods and Functions</a></li>
+                <li><a href="part-01-foundations/07-oop-classes-objects.html">Object-Oriented Programming</a></li>
+                <li><a href="part-01-foundations/08-collections-and-generics.html">Collections and Generics</a></li>
+                <li><a href="part-01-foundations/09-linq.html">LINQ</a></li>
+                <li><a href="part-01-foundations/10-async-await.html">Asynchronous Programming</a></li>
+              </ul>
+              <a href="part-01-foundations/01-what-is-programming.html">Start Part I →</a>
+            </div>
+
+            <!-- Part 2: .NET Core Basics -->
+            <div class="roadmap-card">
+              <span class="part-number">Part II</span>
+              <h3>.NET Core Basics</h3>
+              <p>Understanding the runtime, SDK, CLI tools, and project structure.</p>
+              <ul>
+                <li><a href="part-02-dotnet-core-basics/01-dotnet-ecosystem.html">The .NET Ecosystem</a></li>
+                <li><a href="part-02-dotnet-core-basics/02-installing-sdk.html">Installing the .NET SDK</a></li>
+                <li><a href="part-02-dotnet-core-basics/03-first-console-app.html">Your First Console Application</a>
+                </li>
+                <li><a href="part-02-dotnet-core-basics/04-project-structure.html">Project Files and Structure</a></li>
+                <li><a href="part-02-dotnet-core-basics/05-dotnet-cli.html">The dotnet CLI</a></li>
+                <li><a href="part-02-dotnet-core-basics/06-nuget-packages.html">NuGet Package Management</a></li>
+              </ul>
+              <a href="part-02-dotnet-core-basics/01-dotnet-ecosystem.html">Start Part II →</a>
+            </div>
+
+            <!-- Part 3: ASP.NET Core Basics -->
+            <div class="roadmap-card">
+              <span class="part-number">Part III</span>
+              <h3>ASP.NET Core Basics</h3>
+              <p>The web framework—hosting, configuration, and the request pipeline.</p>
+              <ul>
+                <li><a href="part-03-aspnetcore-basics/01-what-is-aspnetcore.html">What is ASP.NET Core?</a></li>
+                <li><a href="part-03-aspnetcore-basics/02-first-web-app.html">Your First Web Application</a></li>
+                <li><a href="part-03-aspnetcore-basics/03-program-cs-deep-dive.html">Program.cs Deep Dive</a></li>
+                <li><a href="part-03-aspnetcore-basics/04-configuration.html">Configuration &amp; appsettings.json</a>
+                </li>
+                <li><a href="part-03-aspnetcore-basics/05-options-pattern.html">The Options Pattern</a></li>
+                <li><a href="part-03-aspnetcore-basics/06-environments.html">Environments</a></li>
+              </ul>
+              <a href="part-03-aspnetcore-basics/01-what-is-aspnetcore.html">Start Part III →</a>
+            </div>
+
+            <!-- Part 4: Dependency Injection -->
+            <div class="roadmap-card">
+              <span class="part-number">Part IV</span>
+              <h3>Dependency Injection</h3>
+              <p>The heart of ASP.NET Core—how services are managed and connected.</p>
+              <ul>
+                <li><a href="part-04-dependency-injection/01-what-is-di.html">What is Dependency Injection?</a></li>
+                <li><a href="part-04-dependency-injection/02-built-in-container.html">The Built-in DI Container</a></li>
+                <li><a href="part-04-dependency-injection/03-service-lifetimes.html">Service Lifetimes</a></li>
+                <li><a href="part-04-dependency-injection/04-registering-services.html">Registering Services</a></li>
+                <li><a href="part-04-dependency-injection/05-constructor-injection.html">Constructor Injection</a></li>
+                <li><a href="part-04-dependency-injection/06-common-patterns.html">Common DI Patterns</a></li>
+              </ul>
+              <a href="part-04-dependency-injection/01-what-is-di.html">Start Part IV →</a>
+            </div>
+
+            <!-- Part 5: Middleware -->
+            <div class="roadmap-card">
+              <span class="part-number">Part V</span>
+              <h3>Middleware &amp; Pipeline</h3>
+              <p>How HTTP requests flow through your application.</p>
+              <ul>
+                <li><a href="part-05-middleware/01-request-pipeline.html">The Request Pipeline</a></li>
+                <li><a href="part-05-middleware/02-built-in-middleware.html">Built-in Middleware</a></li>
+                <li><a href="part-05-middleware/03-custom-middleware.html">Creating Custom Middleware</a></li>
+                <li><a href="part-05-middleware/04-middleware-ordering.html">Middleware Ordering</a></li>
+                <li><a href="part-05-middleware/05-exception-handling.html">Exception Handling Middleware</a></li>
+              </ul>
+              <a href="part-05-middleware/01-request-pipeline.html" class="start-button">Start Part V →</a>
+            </div>
+
+            <!-- Part 6: HTTP & Web Fundamentals -->
+            <div class="roadmap-card">
+              <span class="part-number">Part VI</span>
+              <h3>HTTP &amp; Web Fundamentals</h3>
+              <p>Understanding the protocol that powers the web.</p>
+              <ul>
+                <li><a href="part-06-http-fundamentals/01-http-basics.html">HTTP Protocol Basics</a></li>
+                <li><a href="part-06-http-fundamentals/02-request-response.html">Request/Response Cycle</a></li>
+                <li><a href="part-06-http-fundamentals/03-http-methods.html">HTTP Methods (GET, POST, etc.)</a></li>
+                <li><a href="part-06-http-fundamentals/04-status-codes.html">Status Codes</a></li>
+                <li><a href="part-06-http-fundamentals/05-headers-content-types.html">Headers and Content Types</a></li>
+                <li><a href="part-06-http-fundamentals/06-cookies-sessions.html">Cookies and Sessions</a></li>
+              </ul>
+              <a href="part-06-http-fundamentals/01-http-basics.html" class="start-button">Start Part VI →</a>
+            </div>
+
+            <!-- Part 7: Routing -->
+            <div class="roadmap-card">
+              <span class="part-number">Part VII</span>
+              <h3>Routing</h3>
+              <p>How URLs map to your code.</p>
+              <ul>
+                <li><a href="part-07-routing/01-endpoint-routing.html">Endpoint Routing Basics</a></li>
+                <li><a href="part-07-routing/02-conventional-vs-attribute.html">Conventional vs Attribute Routing</a>
+                </li>
+                <li><a href="part-07-routing/03-route-parameters.html">Route Parameters</a></li>
+                <li><a href="part-07-routing/04-route-constraints.html">Route Constraints</a></li>
+                <li><a href="part-07-routing/05-url-generation.html">URL Generation</a></li>
+                <li><a href="part-07-routing/06-areas.html">Areas</a></li>
+              </ul>
+              <a href="part-07-routing/01-endpoint-routing.html" class="start-button">Start Part VII →</a>
+            </div>
+
+
+            <!-- Part 8: Building Web APIs -->
+            <div class="roadmap-card">
+              <span class="part-number">Part VIII</span>
+              <h3>Building Web APIs</h3>
+              <p>Creating RESTful APIs with controllers and minimal APIs.</p>
+              <ul>
+                <li><a href="part-08-web-apis/01-restful-principles.html">RESTful Principles</a></li>
+                <li><a href="part-08-web-apis/02-api-controllers.html">API Controllers</a></li>
+                <li><a href="part-08-web-apis/03-model-binding.html">Model Binding</a></li>
+                <li><a href="part-08-web-apis/04-validation.html">Validation</a></li>
+                <li><a href="part-08-web-apis/05-minimal-apis.html">Minimal APIs</a></li>
+                <li><a href="part-08-web-apis/06-dtos-automapper.html">DTOs and AutoMapper</a></li>
+                <li><a href="part-08-web-apis/07-api-versioning.html">API Versioning</a></li>
+              </ul>
+              <a href="part-08-web-apis/01-restful-principles.html" class="start-button">Start Part VIII →</a>
+            </div>
+
+            <!-- Part 9: Entity Framework Core -->
+            <div class="roadmap-card">
+              <span class="part-number">Part IX</span>
+              <h3>Entity Framework Core</h3>
+              <p>Database access with Microsoft's ORM.</p>
+              <ul>
+                <li><a href="part-09-entity-framework-core/01-what-is-orm.html">What is an ORM?</a></li>
+                <li><a href="part-09-entity-framework-core/02-dbcontext-entities.html">DbContext and Entities</a></li>
+                <li><a href="part-09-entity-framework-core/03-code-first-migrations.html">Code-First Migrations</a></li>
+                <li><a href="part-09-entity-framework-core/04-querying-linq.html">Querying Data with LINQ</a></li>
+                <li><a href="part-09-entity-framework-core/05-relationships.html">Relationships</a></li>
+                <li><a href="part-09-entity-framework-core/06-loading-strategies.html">Loading Strategies</a></li>
+                <li><a href="part-09-entity-framework-core/07-advanced-ef-core.html">Advanced EF Core</a></li>
+              </ul>
+              <a href="part-09-entity-framework-core/01-what-is-orm.html" class="start-button">Start Part IX</a>
+            </div>
+
+            <!-- Part 10: MVC & Views -->
+            <div class="roadmap-card">
+              <span class="part-number">Part X</span>
+              <h3>MVC &amp; Views</h3>
+              <p>Server-rendered web applications with the MVC pattern.</p>
+              <ul>
+                <li><a href="part-10-mvc-views/01-mvc-architecture.html">MVC Architecture</a></li>
+                <li><a href="part-10-mvc-views/02-controllers-for-views.html">Controllers for Views</a></li>
+                <li><a href="part-10-mvc-views/03-razor-syntax.html">Razor Syntax</a></li>
+                <li><a href="part-10-mvc-views/04-layouts-partials.html">Layouts and Partials</a></li>
+                <li><a href="part-10-mvc-views/05-view-components.html">View Components</a></li>
+                <li><a href="part-10-mvc-views/06-tag-helpers.html">Tag Helpers</a></li>
+              </ul>
+              <a href="part-10-mvc-views/01-mvc-architecture.html" class="start-button">Start Part X</a>
+            </div>
+
+            <!-- Part 11: Razor Pages -->
+            <div class="roadmap-card">
+              <span class="part-number">Part XI</span>
+              <h3>Razor Pages</h3>
+              <p>Page-focused development for simpler UI scenarios.</p>
+              <ul>
+                <li><a href="part-11-razor-pages/01-what-are-razor-pages.html">What are Razor Pages?</a></li>
+                <li><a href="part-11-razor-pages/02-page-model-pattern.html">Page Model Pattern</a></li>
+                <li><a href="part-11-razor-pages/03-handlers.html">Handlers (OnGet, OnPost)</a></li>
+                <li><a href="part-11-razor-pages/04-forms-validation.html">Forms and Validation</a></li>
+                <li><a href="part-11-razor-pages/05-razor-pages-vs-mvc.html">Razor Pages vs MVC</a></li>
+              </ul>
+              <a href="part-11-razor-pages/01-what-are-razor-pages.html" class="start-button">Start Part XI</a>
+            </div>
+
+            <!-- Part 12: Authentication -->
+            <div class="roadmap-card">
+              <span class="part-number">Part XII</span>
+              <h3>Authentication</h3>
+              <p>Who is the user? Identity, cookies, and JWT.</p>
+              <ul>
+                <li><a href="part-12-authentication/01-authentication-fundamentals.html">Authentication Fundamentals</a>
+                </li>
+                <li><a href="part-12-authentication/02-aspnet-core-identity.html">ASP.NET Core Identity</a></li>
+                <li><a href="part-12-authentication/03-cookie-authentication.html">Cookie Authentication</a></li>
+                <li><a href="part-12-authentication/04-jwt-bearer-authentication.html">JWT Bearer Authentication</a>
+                </li>
+                <li><a href="part-12-authentication/05-oauth-openid-connect.html">OAuth 2.0 & OpenID Connect</a></li>
+                <li><a href="part-12-authentication/06-external-login-providers.html">External Login Providers</a></li>
+              </ul>
+              <a href="part-12-authentication/01-authentication-fundamentals.html" class="start-button">Start Part
+                XII</a>
+            </div>
+
+            <!-- Part 13: Authorization -->
+            <div class="roadmap-card">
+              <span class="part-number">Part XIII</span>
+              <h3>Authorization</h3>
+              <p>What can the user do? Roles, claims, and policies.</p>
+              <ul>
+                <li><a href="part-13-authorization/01-authorization-fundamentals.html">Authorization Fundamentals</a>
+                </li>
+                <li><a href="part-13-authorization/02-role-based-authorization.html">Role-Based Authorization</a></li>
+                <li><a href="part-13-authorization/03-claims-based-authorization.html">Claims-Based Authorization</a>
+                </li>
+                <li><a href="part-13-authorization/04-policy-based-authorization.html">Policy-Based Authorization</a>
+                </li>
+                <li><a href="part-13-authorization/05-resource-based-authorization.html">Resource-Based
+                    Authorization</a></li>
+                <li><a href="part-13-authorization/06-custom-authorization-handlers.html">Custom Authorization
+                    Handlers</a></li>
+              </ul>
+              <a href="part-13-authorization/01-authorization-fundamentals.html" class="start-button">Start Part
+                XIII</a>
+            </div>
+
+            <!-- Part 14: Security -->
+            <div class="roadmap-card">
+              <span class="part-number">Part XIV</span>
+              <h3>Security Best Practices</h3>
+              <p>Protecting your application from common vulnerabilities.</p>
+              <ul>
+                <li><a href="part-14-security/01-owasp-top-10.html">OWASP Top 10</a></li>
+                <li><a href="part-14-security/02-xss-protection.html">Cross-Site Scripting (XSS)</a></li>
+                <li><a href="part-14-security/03-csrf-protection.html">Cross-Site Request Forgery (CSRF)</a></li>
+                <li><a href="part-14-security/04-sql-injection.html">SQL Injection</a></li>
+                <li><a href="part-14-security/05-data-protection-api.html">Data Protection API</a></li>
+                <li><a href="part-14-security/06-https-security-headers.html">HTTPS and Security Headers</a></li>
+              </ul>
+              <a href="part-14-security/01-owasp-top-10.html" class="start-button">Start Part XIV</a>
+            </div>
+
+            <!-- Part 15: Logging -->
+            <div class="roadmap-card">
+              <span class="part-number">Part XV</span>
+              <h3>Logging</h3>
+              <p>Observing what your application is doing.</p>
+              <ul>
+                <li><a href="part-15-logging/01-ilogger-interface.html">ILogger Interface</a></li>
+                <li><a href="part-15-logging/02-log-levels.html">Log Levels</a></li>
+                <li><a href="part-15-logging/03-built-in-providers.html">Built-in Providers</a></li>
+                <li><a href="part-15-logging/04-structured-logging.html">Structured Logging</a></li>
+                <li><a href="part-15-logging/05-serilog-integration.html">Serilog Integration</a></li>
+                <li><a href="part-15-logging/06-logging-best-practices.html">Logging Best Practices</a></li>
+              </ul>
+              <a href="part-15-logging/01-ilogger-interface.html" class="start-button">Start Part XV</a>
+            </div>
+
+            <!-- Part 16: Testing -->
+            <div class="roadmap-card">
+              <span class="part-number">Part XVI</span>
+              <h3>Testing</h3>
+              <p>Ensuring your code works correctly.</p>
+              <ul>
+                <li><a href="part-16-testing/01-unit-testing-xunit.html">Unit Testing with xUnit</a></li>
+                <li><a href="part-16-testing/02-mocking-with-moq.html">Mocking with Moq</a></li>
+                <li><a href="part-16-testing/03-integration-testing.html">Integration Testing</a></li>
+                <li><a href="part-16-testing/04-webapplicationfactory.html">WebApplicationFactory</a></li>
+                <li><a href="part-16-testing/05-test-driven-development.html">Test-Driven Development</a></li>
+              </ul>
+              <a href="part-16-testing/01-unit-testing-xunit.html" class="start-button">Start Part XVI</a>
+            </div>
+
+            <!-- Part 17: Performance -->
+            <div class="roadmap-card">
+              <span class="part-number">Part XVII</span>
+              <h3>Performance &amp; Caching</h3>
+              <p>Making your application fast and scalable.</p>
+              <ul>
+                <li><a href="part-17-performance/01-in-memory-caching.html">In-Memory Caching</a></li>
+                <li><a href="part-17-performance/02-distributed-caching.html">Distributed Caching</a></li>
+                <li><a href="part-17-performance/03-response-caching.html">Response Caching</a></li>
+                <li><a href="part-17-performance/04-async-best-practices.html">Async Best Practices</a></li>
+                <li><a href="part-17-performance/05-ef-core-performance.html">EF Core Performance</a></li>
+                <li><a href="part-17-performance/06-profiling-tools.html">Profiling Tools</a></li>
+              </ul>
+              <a href="part-17-performance/01-in-memory-caching.html" class="start-button">Start Part XVII</a>
+            </div>
+
+            <!-- Part 18: Deployment -->
+            <div class="roadmap-card">
+              <span class="part-number">Part XVIII</span>
+              <h3>Deployment &amp; Hosting</h3>
+              <p>Getting your application into production.</p>
+              <ul>
+                <li><a href="part-18-deployment/01-kestrel-reverse-proxies.html">Kestrel and Reverse Proxies</a></li>
+                <li><a href="part-18-deployment/02-iis-hosting.html">IIS Hosting</a></li>
+                <li><a href="part-18-deployment/03-linux-hosting.html">Linux Hosting</a></li>
+                <li><a href="part-18-deployment/04-docker-containers.html">Docker Containers</a></li>
+                <li><a href="part-18-deployment/05-azure-app-service.html">Azure App Service</a></li>
+                <li><a href="part-18-deployment/06-cicd-pipelines.html">CI/CD Pipelines</a></li>
+              </ul>
+              <a href="part-18-deployment/01-kestrel-reverse-proxies.html" class="start-button">Start Part XVIII</a>
+            </div>
+
+            <!-- Part 19: Advanced Topics -->
+            <div class="roadmap-card">
+              <span class="part-number">Part XIX</span>
+              <h3>Advanced Topics</h3>
+              <p>Real-time communication, microservices, and more.</p>
+              <ul>
+                <li><a href="part-19-advanced/01-signalr.html">SignalR</a></li>
+                <li><a href="part-19-advanced/02-grpc.html">gRPC</a></li>
+                <li><a href="part-19-advanced/03-background-services.html">Background Services</a></li>
+                <li><a href="part-19-advanced/04-microservices-patterns.html">Microservices Patterns</a></li>
+                <li><a href="part-19-advanced/05-health-checks.html">Health Checks</a></li>
+                <li><a href="part-19-advanced/06-distributed-tracing.html">Distributed Tracing</a></li>
+              </ul>
+              <a href="part-19-advanced/01-signalr.html" class="start-button">Start Part XIX</a>
+            </div>
+
+            <!-- Part 20: Architecture -->
+            <div class="roadmap-card">
+              <span class="part-number">Part XX</span>
+              <h3>Architecture &amp; Patterns</h3>
+              <p>Structuring applications for maintainability.</p>
+              <ul>
+                <li><a href="part-20-architecture/01-solid-principles.html">SOLID Principles</a></li>
+                <li><a href="part-20-architecture/02-repository-pattern.html">Repository Pattern</a></li>
+                <li><a href="part-20-architecture/03-unit-of-work.html">Unit of Work</a></li>
+                <li><a href="part-20-architecture/04-clean-architecture.html">Clean Architecture</a></li>
+                <li><a href="part-20-architecture/05-ddd-basics.html">Domain-Driven Design Basics</a></li>
+              </ul>
+              <a href="part-20-architecture/01-solid-principles.html" class="start-button">Start Part XX</a>
+            </div>
+
+          </div>
+        </section>
+
+        <!-- Milestone Projects Overview -->
+        <section id="milestone-projects">
+          <h2>Milestone Projects</h2>
+
+          <p>
+            After completing groups of related sections, you'll apply what you've learned by
+            building increasingly sophisticated parts of InvenTrack:
+          </p>
+
+          <table>
+            <thead>
+              <tr>
+                <th>Milestone</th>
+                <th>After Parts</th>
+                <th>What You'll Build</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>🏗️ Milestone 1</strong></td>
+                <td>I-II</td>
+                <td>Console app with classes, collections, and file I/O</td>
+              </tr>
+              <tr>
+                <td><strong>🏗️ Milestone 2</strong></td>
+                <td>III-V</td>
+                <td>Basic ASP.NET Core web app with DI and middleware</td>
+              </tr>
+              <tr>
+                <td><strong>🏗️ Milestone 3</strong></td>
+                <td>VI-VIII</td>
+                <td>InvenTrack Product Catalog API (full CRUD)</td>
+              </tr>
+              <tr>
+                <td><strong>🏗️ Milestone 4</strong></td>
+                <td>IX</td>
+                <td>InvenTrack with SQL Server via Entity Framework Core</td>
+              </tr>
+              <tr>
+                <td><strong>🏗️ Milestone 5</strong></td>
+                <td>X-XI</td>
+                <td>InvenTrack Admin Dashboard (Razor Pages UI)</td>
+              </tr>
+              <tr>
+                <td><strong>🏗️ Milestone 6</strong></td>
+                <td>XII-XIV</td>
+                <td>InvenTrack with authentication and authorization</td>
+              </tr>
+              <tr>
+                <td><strong>🏗️ Milestone 7</strong></td>
+                <td>XV-XVII</td>
+                <td>InvenTrack with logging, testing, and caching</td>
+              </tr>
+              <tr>
+                <td><strong>🏗️ Final Project</strong></td>
+                <td>XVIII-XX</td>
+                <td>Deploy InvenTrack to production with CI/CD</td>
+              </tr>
+            </tbody>
+          </table>
+        </section>
+
+        <!-- Getting Started -->
+        <section id="getting-started">
+          <h2>Ready to Begin?</h2>
+
+          <p>
+            Start with <strong>Part I: Foundations</strong> where we'll answer the most fundamental
+            question: <em>What is programming?</em>
+          </p>
+
+          <p>
+            <a href="part-01-foundations/01-what-is-programming.html" style="display: inline-block; background: var(--color-accent); color: white; 
+                      padding: 1rem 2rem; border-radius: 8px; font-family: var(--font-heading);
+                      font-weight: 600; text-decoration: none; border: none;">
+              Start Learning →
+            </a>
+          </p>
+
+          <div class="callout callout-tip">
+            <div class="callout-title">💡 Tip: Bookmark This Page</div>
+            <p>
+              This index serves as your roadmap. Come back here whenever you want to see the
+              big picture or jump to a different topic.
+            </p>
+          </div>
+        </section>
+
+        <!-- Footer -->
+        <footer style="margin-top: 4rem; padding-top: 2rem; border-top: 1px solid var(--color-border); 
+                       text-align: center; color: var(--color-text-muted);">
+          <p>
+            <strong>ASP.NET Core Mastery</strong><br>
+            Built with 💜 for developers who want to truly understand what they're building.
+          </p>
+        </footer>
+
+      </div>
+    </main>
+  </div>
+</body>
+
+</html>

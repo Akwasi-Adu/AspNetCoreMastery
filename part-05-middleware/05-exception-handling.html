@@ -1,0 +1,582 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Exception Handling Middleware | ASP.NET Core Mastery</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;500&family=Source+Serif+4:ital,wght@0,400;0,600;1,400&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="../assets/style.css">
+</head>
+
+<body>
+    <div class="page-wrapper">
+        <aside class="sidebar">
+            <a href="../index.html" class="sidebar-logo">ASP.NET Core Mastery</a>
+            <div class="sidebar-section">Part V: Middleware & Pipeline</div>
+            <ul class="sidebar-nav">
+                <li><a href="01-request-pipeline.html">The Request Pipeline</a></li>
+                <li><a href="02-built-in-middleware.html">Built-in Middleware</a></li>
+                <li><a href="03-custom-middleware.html">Creating Custom Middleware</a></li>
+                <li><a href="04-middleware-ordering.html">Middleware Ordering</a></li>
+                <li><a href="05-exception-handling.html" class="active">Exception Handling Middleware</a></li>
+            </ul>
+            <div class="sidebar-section">Resources</div>
+            <ul class="sidebar-nav">
+                <li><a href="../index.html">Full Roadmap</a></li>
+            </ul>
+        </aside>
+
+        <main class="main-content">
+            <div class="content-container">
+                <nav class="breadcrumb">
+                    <a href="../index.html">Home</a>
+                    <span>→</span>
+                    <a href="01-request-pipeline.html">Part V: Middleware & Pipeline</a>
+                    <span>→</span>
+                    Exception Handling Middleware
+                </nav>
+
+                <div class="progress-indicator">
+                    <span>Section 5 of 5</span>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 100%"></div>
+                    </div>
+                </div>
+
+                <h1>Exception Handling Middleware</h1>
+
+                <div class="learning-objectives">
+                    <h3>🎯 What You'll Learn</h3>
+                    <ul>
+                        <li>Built-in exception handling middleware</li>
+                        <li>Developer Exception Page</li>
+                        <li>UseExceptionHandler middleware</li>
+                        <li>Custom exception handling middleware</li>
+                        <li>Logging exceptions</li>
+                        <li>Returning JSON error responses</li>
+                        <li>Problem Details (RFC 7807)</li>
+                        <li>Production-ready error handling</li>
+                    </ul>
+                </div>
+
+                <h2>Why Exception Handling Matters</h2>
+
+                <p>
+                    Without proper exception handling:
+                </p>
+
+                <ul>
+                    <li>Users see ugly error pages</li>
+                    <li>Sensitive information leaks (stack traces, connection strings)</li>
+                    <li>Errors go unlogged</li>
+                    <li>APIs return HTML instead of JSON</li>
+                </ul>
+
+                <div class="callout callout-warning">
+                    <div class="callout-title">⚠️ Security Risk</div>
+                    <p>
+                        Never expose detailed error information in production! Stack traces can reveal:
+                    </p>
+                    <ul>
+                        <li>File paths and directory structure</li>
+                        <li>Database connection strings</li>
+                        <li>Third-party library versions</li>
+                        <li>Business logic details</li>
+                    </ul>
+                </div>
+
+                <div class="section-divider"></div>
+
+                <h2>1. Developer Exception Page</h2>
+
+                <p>
+                    In <strong>development</strong>, use the Developer Exception Page for detailed error information:
+                </p>
+
+                <div class="code-header">
+                    <span class="code-filename">Development Only</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-keyword">if</span> (<span class="code-variable">app</span>.<span class="code-variable">Environment</span>.<span class="code-method">IsDevelopment</span>())
+{
+    <span class="code-variable">app</span>.<span class="code-method">UseDeveloperExceptionPage</span>();
+}
+<span class="code-keyword">else</span>
+{
+    <span class="code-variable">app</span>.<span class="code-method">UseExceptionHandler</span>(<span class="code-string">"/error"</span>);
+}</code></pre>
+
+                <h3>What It Shows</h3>
+
+                <ul>
+                    <li>Full stack trace</li>
+                    <li>Exception message</li>
+                    <li>Request headers</li>
+                    <li>Query string</li>
+                    <li>Cookies</li>
+                    <li>Routing data</li>
+                </ul>
+
+                <div class="callout callout-info">
+                    <div class="callout-title">ℹ️ ASP.NET Core 6+</div>
+                    <p>
+                        In ASP.NET Core 6+, <code>UseDeveloperExceptionPage()</code> is added automatically
+                        in development. You don't need to call it explicitly.
+                    </p>
+                </div>
+
+                <div class="section-divider"></div>
+
+                <h2>2. UseExceptionHandler Middleware</h2>
+
+                <p>
+                    In <strong>production</strong>, use <code>UseExceptionHandler</code> to handle errors gracefully:
+                </p>
+
+                <div class="code-header">
+                    <span class="code-filename">Basic Usage</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-variable">app</span>.<span class="code-method">UseExceptionHandler</span>(<span class="code-string">"/error"</span>);
+
+<span class="code-comment">// Define error endpoint</span>
+<span class="code-variable">app</span>.<span class="code-method">MapGet</span>(<span class="code-string">"/error"</span>, () =&gt; <span class="code-class">Results</span>.<span class="code-method">Problem</span>());</code></pre>
+
+                <h3>With Custom Error Page</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">Controllers/ErrorController.cs</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code>[<span class="code-class">ApiController</span>]
+<span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">ErrorController</span> : <span class="code-class">ControllerBase</span>
+{
+    [<span class="code-class">Route</span>(<span class="code-string">"/error"</span>)]
+    [<span class="code-class">ApiExplorerSettings</span>(<span class="code-variable">IgnoreApi</span> = <span class="code-keyword">true</span>)]
+    <span class="code-keyword">public</span> <span class="code-class">IActionResult</span> <span class="code-method">HandleError</span>()
+    {
+        <span class="code-keyword">return</span> <span class="code-method">Problem</span>(
+            <span class="code-variable">title</span>: <span class="code-string">"An error occurred"</span>,
+            <span class="code-variable">statusCode</span>: <span class="code-number">500</span>);
+    }
+}</code></pre>
+
+                <div class="section-divider"></div>
+
+                <h2>3. Custom Exception Handling Middleware</h2>
+
+                <p>
+                    For full control, create custom exception handling middleware:
+                </p>
+
+                <div class="code-header">
+                    <span class="code-filename">Middleware/GlobalExceptionMiddleware.cs</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">GlobalExceptionMiddleware</span>
+{
+    <span class="code-keyword">private</span> <span class="code-keyword">readonly</span> <span class="code-class">RequestDelegate</span> <span class="code-variable">_next</span>;
+    <span class="code-keyword">private</span> <span class="code-keyword">readonly</span> <span class="code-class">ILogger</span>&lt;<span class="code-class">GlobalExceptionMiddleware</span>&gt; <span class="code-variable">_logger</span>;
+    <span class="code-keyword">private</span> <span class="code-keyword">readonly</span> <span class="code-class">IHostEnvironment</span> <span class="code-variable">_environment</span>;
+
+    <span class="code-keyword">public</span> <span class="code-method">GlobalExceptionMiddleware</span>(
+        <span class="code-class">RequestDelegate</span> <span class="code-variable">next</span>,
+        <span class="code-class">ILogger</span>&lt;<span class="code-class">GlobalExceptionMiddleware</span>&gt; <span class="code-variable">logger</span>,
+        <span class="code-class">IHostEnvironment</span> <span class="code-variable">environment</span>)
+    {
+        <span class="code-variable">_next</span> = <span class="code-variable">next</span>;
+        <span class="code-variable">_logger</span> = <span class="code-variable">logger</span>;
+        <span class="code-variable">_environment</span> = <span class="code-variable">environment</span>;
+    }
+
+    <span class="code-keyword">public</span> <span class="code-keyword">async</span> <span class="code-class">Task</span> <span class="code-method">InvokeAsync</span>(<span class="code-class">HttpContext</span> <span class="code-variable">context</span>)
+    {
+        <span class="code-keyword">try</span>
+        {
+            <span class="code-keyword">await</span> <span class="code-variable">_next</span>(<span class="code-variable">context</span>);
+        }
+        <span class="code-keyword">catch</span> (<span class="code-class">Exception</span> <span class="code-variable">ex</span>)
+        {
+            <span class="code-variable">_logger</span>.<span class="code-method">LogError</span>(<span class="code-variable">ex</span>, <span class="code-string">"An unhandled exception occurred"</span>);
+            <span class="code-keyword">await</span> <span class="code-method">HandleExceptionAsync</span>(<span class="code-variable">context</span>, <span class="code-variable">ex</span>);
+        }
+    }
+
+    <span class="code-keyword">private</span> <span class="code-keyword">async</span> <span class="code-class">Task</span> <span class="code-method">HandleExceptionAsync</span>(<span class="code-class">HttpContext</span> <span class="code-variable">context</span>, <span class="code-class">Exception</span> <span class="code-variable">exception</span>)
+    {
+        <span class="code-variable">context</span>.<span class="code-variable">Response</span>.<span class="code-variable">ContentType</span> = <span class="code-string">"application/json"</span>;
+        <span class="code-variable">context</span>.<span class="code-variable">Response</span>.<span class="code-variable">StatusCode</span> = <span class="code-number">500</span>;
+
+        <span class="code-keyword">var</span> <span class="code-variable">response</span> = <span class="code-keyword">new</span>
+        {
+            <span class="code-variable">error</span> = <span class="code-string">"An error occurred while processing your request"</span>,
+            <span class="code-variable">details</span> = <span class="code-variable">_environment</span>.<span class="code-method">IsDevelopment</span>() ? <span class="code-variable">exception</span>.<span class="code-variable">Message</span> : <span class="code-keyword">null</span>,
+            <span class="code-variable">stackTrace</span> = <span class="code-variable">_environment</span>.<span class="code-method">IsDevelopment</span>() ? <span class="code-variable">exception</span>.<span class="code-variable">StackTrace</span> : <span class="code-keyword">null</span>
+        };
+
+        <span class="code-keyword">await</span> <span class="code-variable">context</span>.<span class="code-variable">Response</span>.<span class="code-method">WriteAsJsonAsync</span>(<span class="code-variable">response</span>);
+    }
+}</code></pre>
+
+                <h3>Registration</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">Program.cs</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-variable">app</span>.<span class="code-method">UseMiddleware</span>&lt;<span class="code-class">GlobalExceptionMiddleware</span>&gt;();</code></pre>
+
+                <div class="section-divider"></div>
+
+                <h2>4. Problem Details (RFC 7807)</h2>
+
+                <p>
+                    Use the <strong>Problem Details</strong> standard for consistent API error responses:
+                </p>
+
+                <div class="code-header">
+                    <span class="code-filename">Problem Details Response</span>
+                    <span class="code-language">JSON</span>
+                </div>
+                <pre><code>{
+  <span class="code-string">"type"</span>: <span class="code-string">"https://tools.ietf.org/html/rfc7231#section-6.5.1"</span>,
+  <span class="code-string">"title"</span>: <span class="code-string">"One or more validation errors occurred."</span>,
+  <span class="code-string">"status"</span>: <span class="code-number">400</span>,
+  <span class="code-string">"traceId"</span>: <span class="code-string">"00-abc123..."</span>,
+  <span class="code-string">"errors"</span>: {
+    <span class="code-string">"Name"</span>: [<span class="code-string">"The Name field is required."</span>]
+  }
+}</code></pre>
+
+                <h3>Enable Problem Details</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">Program.cs</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-variable">builder</span>.<span class="code-variable">Services</span>.<span class="code-method">AddProblemDetails</span>();
+
+<span class="code-keyword">var</span> <span class="code-variable">app</span> = <span class="code-variable">builder</span>.<span class="code-method">Build</span>();
+
+<span class="code-variable">app</span>.<span class="code-method">UseExceptionHandler</span>();
+<span class="code-variable">app</span>.<span class="code-method">UseStatusCodePages</span>();</code></pre>
+
+                <h3>Custom Problem Details</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">Middleware/ProblemDetailsExceptionMiddleware.cs</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">ProblemDetailsExceptionMiddleware</span>
+{
+    <span class="code-keyword">private</span> <span class="code-keyword">readonly</span> <span class="code-class">RequestDelegate</span> <span class="code-variable">_next</span>;
+    <span class="code-keyword">private</span> <span class="code-keyword">readonly</span> <span class="code-class">ILogger</span>&lt;<span class="code-class">ProblemDetailsExceptionMiddleware</span>&gt; <span class="code-variable">_logger</span>;
+
+    <span class="code-keyword">public</span> <span class="code-method">ProblemDetailsExceptionMiddleware</span>(
+        <span class="code-class">RequestDelegate</span> <span class="code-variable">next</span>,
+        <span class="code-class">ILogger</span>&lt;<span class="code-class">ProblemDetailsExceptionMiddleware</span>&gt; <span class="code-variable">logger</span>)
+    {
+        <span class="code-variable">_next</span> = <span class="code-variable">next</span>;
+        <span class="code-variable">_logger</span> = <span class="code-variable">logger</span>;
+    }
+
+    <span class="code-keyword">public</span> <span class="code-keyword">async</span> <span class="code-class">Task</span> <span class="code-method">InvokeAsync</span>(<span class="code-class">HttpContext</span> <span class="code-variable">context</span>)
+    {
+        <span class="code-keyword">try</span>
+        {
+            <span class="code-keyword">await</span> <span class="code-variable">_next</span>(<span class="code-variable">context</span>);
+        }
+        <span class="code-keyword">catch</span> (<span class="code-class">Exception</span> <span class="code-variable">ex</span>)
+        {
+            <span class="code-keyword">await</span> <span class="code-method">HandleExceptionAsync</span>(<span class="code-variable">context</span>, <span class="code-variable">ex</span>);
+        }
+    }
+
+    <span class="code-keyword">private</span> <span class="code-keyword">async</span> <span class="code-class">Task</span> <span class="code-method">HandleExceptionAsync</span>(<span class="code-class">HttpContext</span> <span class="code-variable">context</span>, <span class="code-class">Exception</span> <span class="code-variable">exception</span>)
+    {
+        <span class="code-variable">_logger</span>.<span class="code-method">LogError</span>(<span class="code-variable">exception</span>, <span class="code-string">"An error occurred: </span>{<span class="code-variable">Message</span>}<span class="code-string">"</span>, <span class="code-variable">exception</span>.<span class="code-variable">Message</span>);
+
+        <span class="code-keyword">var</span> (<span class="code-variable">statusCode</span>, <span class="code-variable">title</span>) = <span class="code-variable">exception</span> <span class="code-keyword">switch</span>
+        {
+            <span class="code-class">ArgumentException</span> => (<span class="code-number">400</span>, <span class="code-string">"Bad Request"</span>),
+            <span class="code-class">UnauthorizedAccessException</span> => (<span class="code-number">401</span>, <span class="code-string">"Unauthorized"</span>),
+            <span class="code-class">KeyNotFoundException</span> => (<span class="code-number">404</span>, <span class="code-string">"Not Found"</span>),
+            <span class="code-variable">_</span> => (<span class="code-number">500</span>, <span class="code-string">"Internal Server Error"</span>)
+        };
+
+        <span class="code-keyword">var</span> <span class="code-variable">problemDetails</span> = <span class="code-keyword">new</span> <span class="code-class">ProblemDetails</span>
+        {
+            <span class="code-variable">Status</span> = <span class="code-variable">statusCode</span>,
+            <span class="code-variable">Title</span> = <span class="code-variable">title</span>,
+            <span class="code-variable">Detail</span> = <span class="code-variable">exception</span>.<span class="code-variable">Message</span>,
+            <span class="code-variable">Instance</span> = <span class="code-variable">context</span>.<span class="code-variable">Request</span>.<span class="code-variable">Path</span>
+        };
+
+        <span class="code-variable">problemDetails</span>.<span class="code-variable">Extensions</span>[<span class="code-string">"traceId"</span>] = <span class="code-variable">context</span>.<span class="code-variable">TraceIdentifier</span>;
+
+        <span class="code-variable">context</span>.<span class="code-variable">Response</span>.<span class="code-variable">StatusCode</span> = <span class="code-variable">statusCode</span>;
+        <span class="code-variable">context</span>.<span class="code-variable">Response</span>.<span class="code-variable">ContentType</span> = <span class="code-string">"application/problem+json"</span>;
+
+        <span class="code-keyword">await</span> <span class="code-variable">context</span>.<span class="code-variable">Response</span>.<span class="code-method">WriteAsJsonAsync</span>(<span class="code-variable">problemDetails</span>);
+    }
+}</code></pre>
+
+                <div class="section-divider"></div>
+
+                <h2>5. Logging Exceptions</h2>
+
+                <div class="code-header">
+                    <span class="code-filename">Comprehensive Logging</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-keyword">private</span> <span class="code-keyword">async</span> <span class="code-class">Task</span> <span class="code-method">HandleExceptionAsync</span>(<span class="code-class">HttpContext</span> <span class="code-variable">context</span>, <span class="code-class">Exception</span> <span class="code-variable">exception</span>)
+{
+    <span class="code-comment">// Log with structured data</span>
+    <span class="code-variable">_logger</span>.<span class="code-method">LogError</span>(
+        <span class="code-variable">exception</span>,
+        <span class="code-string">"Unhandled exception: </span>{<span class="code-variable">ExceptionType</span>}<span class="code-string"> | Path: </span>{<span class="code-variable">Path</span>}<span class="code-string"> | Method: </span>{<span class="code-variable">Method</span>}<span class="code-string"> | User: </span>{<span class="code-variable">User</span>}<span class="code-string">"</span>,
+        <span class="code-variable">exception</span>.<span class="code-method">GetType</span>().<span class="code-variable">Name</span>,
+        <span class="code-variable">context</span>.<span class="code-variable">Request</span>.<span class="code-variable">Path</span>,
+        <span class="code-variable">context</span>.<span class="code-variable">Request</span>.<span class="code-variable">Method</span>,
+        <span class="code-variable">context</span>.<span class="code-variable">User</span>.<span class="code-variable">Identity</span>?.<span class="code-variable">Name</span> ?? <span class="code-string">"Anonymous"</span>);
+
+    <span class="code-comment">// Return error response...</span>
+}</code></pre>
+
+                <div class="section-divider"></div>
+
+                <h2>Complete InvenTrack Example</h2>
+
+                <div class="code-header">
+                    <span class="code-filename">Middleware/InvenTrackExceptionMiddleware.cs</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">InvenTrackExceptionMiddleware</span>
+{
+    <span class="code-keyword">private</span> <span class="code-keyword">readonly</span> <span class="code-class">RequestDelegate</span> <span class="code-variable">_next</span>;
+    <span class="code-keyword">private</span> <span class="code-keyword">readonly</span> <span class="code-class">ILogger</span>&lt;<span class="code-class">InvenTrackExceptionMiddleware</span>&gt; <span class="code-variable">_logger</span>;
+    <span class="code-keyword">private</span> <span class="code-keyword">readonly</span> <span class="code-class">IHostEnvironment</span> <span class="code-variable">_environment</span>;
+
+    <span class="code-keyword">public</span> <span class="code-method">InvenTrackExceptionMiddleware</span>(
+        <span class="code-class">RequestDelegate</span> <span class="code-variable">next</span>,
+        <span class="code-class">ILogger</span>&lt;<span class="code-class">InvenTrackExceptionMiddleware</span>&gt; <span class="code-variable">logger</span>,
+        <span class="code-class">IHostEnvironment</span> <span class="code-variable">environment</span>)
+    {
+        <span class="code-variable">_next</span> = <span class="code-variable">next</span>;
+        <span class="code-variable">_logger</span> = <span class="code-variable">logger</span>;
+        <span class="code-variable">_environment</span> = <span class="code-variable">environment</span>;
+    }
+
+    <span class="code-keyword">public</span> <span class="code-keyword">async</span> <span class="code-class">Task</span> <span class="code-method">InvokeAsync</span>(<span class="code-class">HttpContext</span> <span class="code-variable">context</span>)
+    {
+        <span class="code-keyword">try</span>
+        {
+            <span class="code-keyword">await</span> <span class="code-variable">_next</span>(<span class="code-variable">context</span>);
+        }
+        <span class="code-keyword">catch</span> (<span class="code-class">Exception</span> <span class="code-variable">ex</span>)
+        {
+            <span class="code-keyword">await</span> <span class="code-method">HandleExceptionAsync</span>(<span class="code-variable">context</span>, <span class="code-variable">ex</span>);
+        }
+    }
+
+    <span class="code-keyword">private</span> <span class="code-keyword">async</span> <span class="code-class">Task</span> <span class="code-method">HandleExceptionAsync</span>(<span class="code-class">HttpContext</span> <span class="code-variable">context</span>, <span class="code-class">Exception</span> <span class="code-variable">exception</span>)
+    {
+        <span class="code-comment">// Determine status code and title based on exception type</span>
+        <span class="code-keyword">var</span> (<span class="code-variable">statusCode</span>, <span class="code-variable">title</span>, <span class="code-variable">logLevel</span>) = <span class="code-variable">exception</span> <span class="code-keyword">switch</span>
+        {
+            <span class="code-class">ArgumentException</span> => (<span class="code-number">400</span>, <span class="code-string">"Bad Request"</span>, <span class="code-class">LogLevel</span>.<span class="code-variable">Warning</span>),
+            <span class="code-class">UnauthorizedAccessException</span> => (<span class="code-number">401</span>, <span class="code-string">"Unauthorized"</span>, <span class="code-class">LogLevel</span>.<span class="code-variable">Warning</span>),
+            <span class="code-class">KeyNotFoundException</span> => (<span class="code-number">404</span>, <span class="code-string">"Not Found"</span>, <span class="code-class">LogLevel</span>.<span class="code-variable">Warning</span>),
+            <span class="code-class">InvalidOperationException</span> => (<span class="code-number">409</span>, <span class="code-string">"Conflict"</span>, <span class="code-class">LogLevel</span>.<span class="code-variable">Warning</span>),
+            <span class="code-variable">_</span> => (<span class="code-number">500</span>, <span class="code-string">"Internal Server Error"</span>, <span class="code-class">LogLevel</span>.<span class="code-variable">Error</span>)
+        };
+
+        <span class="code-comment">// Log the exception</span>
+        <span class="code-variable">_logger</span>.<span class="code-method">Log</span>(
+            <span class="code-variable">logLevel</span>,
+            <span class="code-variable">exception</span>,
+            <span class="code-string">"[InvenTrack] </span>{<span class="code-variable">ExceptionType</span>}<span class="code-string"> | </span>{<span class="code-variable">Method</span>}<span class="code-string"> </span>{<span class="code-variable">Path</span>}<span class="code-string"> | User: </span>{<span class="code-variable">User</span>}<span class="code-string"> | TraceId: </span>{<span class="code-variable">TraceId</span>}<span class="code-string">"</span>,
+            <span class="code-variable">exception</span>.<span class="code-method">GetType</span>().<span class="code-variable">Name</span>,
+            <span class="code-variable">context</span>.<span class="code-variable">Request</span>.<span class="code-variable">Method</span>,
+            <span class="code-variable">context</span>.<span class="code-variable">Request</span>.<span class="code-variable">Path</span>,
+            <span class="code-variable">context</span>.<span class="code-variable">User</span>.<span class="code-variable">Identity</span>?.<span class="code-variable">Name</span> ?? <span class="code-string">"Anonymous"</span>,
+            <span class="code-variable">context</span>.<span class="code-variable">TraceIdentifier</span>);
+
+        <span class="code-comment">// Build Problem Details response</span>
+        <span class="code-keyword">var</span> <span class="code-variable">problemDetails</span> = <span class="code-keyword">new</span> <span class="code-class">ProblemDetails</span>
+        {
+            <span class="code-variable">Status</span> = <span class="code-variable">statusCode</span>,
+            <span class="code-variable">Title</span> = <span class="code-variable">title</span>,
+            <span class="code-variable">Type</span> = <span class="code-string">$"https://httpstatuses.com/</span>{<span class="code-variable">statusCode</span>}<span class="code-string">"</span>,
+            <span class="code-variable">Instance</span> = <span class="code-variable">context</span>.<span class="code-variable">Request</span>.<span class="code-variable">Path</span>
+        };
+
+        <span class="code-comment">// Add detail only in development</span>
+        <span class="code-keyword">if</span> (<span class="code-variable">_environment</span>.<span class="code-method">IsDevelopment</span>())
+        {
+            <span class="code-variable">problemDetails</span>.<span class="code-variable">Detail</span> = <span class="code-variable">exception</span>.<span class="code-variable">Message</span>;
+            <span class="code-variable">problemDetails</span>.<span class="code-variable">Extensions</span>[<span class="code-string">"stackTrace"</span>] = <span class="code-variable">exception</span>.<span class="code-variable">StackTrace</span>;
+        }
+        <span class="code-keyword">else</span>
+        {
+            <span class="code-variable">problemDetails</span>.<span class="code-variable">Detail</span> = <span class="code-string">"An error occurred while processing your request."</span>;
+        }
+
+        <span class="code-comment">// Add trace ID</span>
+        <span class="code-variable">problemDetails</span>.<span class="code-variable">Extensions</span>[<span class="code-string">"traceId"</span>] = <span class="code-variable">context</span>.<span class="code-variable">TraceIdentifier</span>;
+
+        <span class="code-comment">// Add correlation ID if available</span>
+        <span class="code-keyword">if</span> (<span class="code-variable">context</span>.<span class="code-variable">Items</span>.<span class="code-method">TryGetValue</span>(<span class="code-string">"X-Correlation-Id"</span>, <span class="code-keyword">out</span> <span class="code-keyword">var</span> <span class="code-variable">correlationId</span>))
+        {
+            <span class="code-variable">problemDetails</span>.<span class="code-variable">Extensions</span>[<span class="code-string">"correlationId"</span>] = <span class="code-variable">correlationId</span>;
+        }
+
+        <span class="code-comment">// Set response</span>
+        <span class="code-variable">context</span>.<span class="code-variable">Response</span>.<span class="code-variable">StatusCode</span> = <span class="code-variable">statusCode</span>;
+        <span class="code-variable">context</span>.<span class="code-variable">Response</span>.<span class="code-variable">ContentType</span> = <span class="code-string">"application/problem+json"</span>;
+
+        <span class="code-keyword">await</span> <span class="code-variable">context</span>.<span class="code-variable">Response</span>.<span class="code-method">WriteAsJsonAsync</span>(<span class="code-variable">problemDetails</span>);
+    }
+}</code></pre>
+
+                <h3>Extension Method</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">Extensions/MiddlewareExtensions.cs</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-keyword">public</span> <span class="code-keyword">static</span> <span class="code-class">IApplicationBuilder</span> <span class="code-method">UseInvenTrackExceptionHandler</span>(
+    <span class="code-keyword">this</span> <span class="code-class">IApplicationBuilder</span> <span class="code-variable">app</span>)
+{
+    <span class="code-keyword">return</span> <span class="code-variable">app</span>.<span class="code-method">UseMiddleware</span>&lt;<span class="code-class">InvenTrackExceptionMiddleware</span>&gt;();
+}</code></pre>
+
+                <h3>Usage in Program.cs</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">Program.cs</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-keyword">var</span> <span class="code-variable">app</span> = <span class="code-variable">builder</span>.<span class="code-method">Build</span>();
+
+<span class="code-comment">// Exception handling (FIRST!)</span>
+<span class="code-keyword">if</span> (<span class="code-variable">app</span>.<span class="code-variable">Environment</span>.<span class="code-method">IsDevelopment</span>())
+{
+    <span class="code-variable">app</span>.<span class="code-method">UseDeveloperExceptionPage</span>();
+}
+<span class="code-keyword">else</span>
+{
+    <span class="code-variable">app</span>.<span class="code-method">UseInvenTrackExceptionHandler</span>();
+    <span class="code-variable">app</span>.<span class="code-method">UseHsts</span>();
+}
+
+<span class="code-comment">// Rest of pipeline...</span>
+<span class="code-variable">app</span>.<span class="code-method">UseHttpsRedirection</span>();
+<span class="code-variable">app</span>.<span class="code-method">UseAuthentication</span>();
+<span class="code-variable">app</span>.<span class="code-method">UseAuthorization</span>();
+<span class="code-variable">app</span>.<span class="code-method">MapControllers</span>();
+
+<span class="code-variable">app</span>.<span class="code-method">Run</span>();</code></pre>
+
+                <h3>Example Response</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">Production Error Response</span>
+                    <span class="code-language">JSON</span>
+                </div>
+                <pre><code>{
+  <span class="code-string">"type"</span>: <span class="code-string">"https://httpstatuses.com/404"</span>,
+  <span class="code-string">"title"</span>: <span class="code-string">"Not Found"</span>,
+  <span class="code-string">"status"</span>: <span class="code-number">404</span>,
+  <span class="code-string">"detail"</span>: <span class="code-string">"An error occurred while processing your request."</span>,
+  <span class="code-string">"instance"</span>: <span class="code-string">"/api/products/999"</span>,
+  <span class="code-string">"traceId"</span>: <span class="code-string">"00-abc123def456..."</span>,
+  <span class="code-string">"correlationId"</span>: <span class="code-string">"xyz789"</span>
+}</code></pre>
+
+                <div class="code-header">
+                    <span class="code-filename">Development Error Response</span>
+                    <span class="code-language">JSON</span>
+                </div>
+                <pre><code>{
+  <span class="code-string">"type"</span>: <span class="code-string">"https://httpstatuses.com/404"</span>,
+  <span class="code-string">"title"</span>: <span class="code-string">"Not Found"</span>,
+  <span class="code-string">"status"</span>: <span class="code-number">404</span>,
+  <span class="code-string">"detail"</span>: <span class="code-string">"Product with ID 999 not found"</span>,
+  <span class="code-string">"instance"</span>: <span class="code-string">"/api/products/999"</span>,
+  <span class="code-string">"traceId"</span>: <span class="code-string">"00-abc123def456..."</span>,
+  <span class="code-string">"correlationId"</span>: <span class="code-string">"xyz789"</span>,
+  <span class="code-string">"stackTrace"</span>: <span class="code-string">"   at InvenTrack.Services.ProductService..."</span>
+}</code></pre>
+
+                <h2>Best Practices</h2>
+
+                <ul>
+                    <li><strong>Exception handler first</strong>: Always register exception handling middleware first
+                    </li>
+                    <li><strong>Never expose stack traces in production</strong>: Security risk</li>
+                    <li><strong>Use Problem Details</strong>: Standard format for API errors</li>
+                    <li><strong>Log all exceptions</strong>: Include context (user, path, trace ID)</li>
+                    <li><strong>Map exception types to status codes</strong>: ArgumentException → 400, etc.</li>
+                    <li><strong>Include trace/correlation IDs</strong>: Help debugging</li>
+                    <li><strong>Different responses for dev/prod</strong>: Details in dev, generic in prod</li>
+                    <li><strong>Use structured logging</strong>: Makes searching logs easier</li>
+                    <li><strong>Don't catch everything</strong>: Let critical errors bubble up</li>
+                    <li><strong>Test error handling</strong>: Verify responses and logging</li>
+                </ul>
+
+                <h2>Key Takeaways</h2>
+
+                <ul>
+                    <li><strong>Developer Exception Page</strong>: Detailed errors in development</li>
+                    <li><strong>UseExceptionHandler</strong>: Production error handling</li>
+                    <li><strong>Custom middleware</strong>: Full control over error responses</li>
+                    <li><strong>Problem Details (RFC 7807)</strong>: Standard error format</li>
+                    <li>Map exception types to HTTP status codes</li>
+                    <li>Log exceptions with context (user, path, trace ID)</li>
+                    <li>Never expose sensitive information in production</li>
+                    <li>Include trace/correlation IDs for debugging</li>
+                    <li>Different error details for dev vs production</li>
+                    <li>Exception handler must be first in the pipeline</li>
+                </ul>
+
+                <div class="callout callout-concept">
+                    <div class="callout-title">🎉 Part V Complete!</div>
+                    <p>
+                        Congratulations! You've completed <strong>Part V: Middleware & Pipeline</strong>. You now
+                        understand:
+                    </p>
+                    <ul>
+                        <li>✅ The request pipeline and how it works</li>
+                        <li>✅ Built-in middleware (static files, CORS, auth, etc.)</li>
+                        <li>✅ Creating custom middleware (inline, convention-based, factory-based)</li>
+                        <li>✅ Middleware ordering and why it matters</li>
+                        <li>✅ Exception handling middleware and best practices</li>
+                    </ul>
+                    <p>
+                        You're building a solid foundation in ASP.NET Core! The middleware pipeline is the
+                        backbone of every ASP.NET Core application. Keep up the great work! 🚀
+                    </p>
+                </div>
+
+                <nav class="page-nav">
+                    <a href="04-middleware-ordering.html" class="prev">Middleware Ordering</a>
+                    <a href="../index.html" class="next">Back to Roadmap</a>
+                </nav>
+
+            
+        <footer class="page-footer">
+          Built with 💜 by <a href="https://akwasi.dev" target="_blank" rel="noopener noreferrer">Akwasi Adu-Kyeremeh</a> for developers who want to truly understand what they're building.
+        </footer>
+
+      </div>
+        </main>
+    </div>
+</body>
+
+</html>

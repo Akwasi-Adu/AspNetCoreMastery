@@ -1,0 +1,504 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DbContext and Entities | ASP.NET Core Mastery</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;500&family=Source+Serif+4:ital,wght@0,400;0,600;1,400&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="../assets/style.css">
+</head>
+
+<body>
+    <div class="page-wrapper">
+        <aside class="sidebar">
+            <a href="../index.html" class="sidebar-logo">ASP.NET Core Mastery</a>
+            <div class="sidebar-section">Part IX: Entity Framework Core</div>
+            <ul class="sidebar-nav">
+                <li><a href="01-what-is-orm.html">What is an ORM?</a></li>
+                <li><a href="02-dbcontext-entities.html" class="active">DbContext and Entities</a></li>
+                <li><a href="03-code-first-migrations.html">Code-First Migrations</a></li>
+                <li><a href="04-querying-linq.html">Querying Data with LINQ</a></li>
+                <li><a href="05-relationships.html">Relationships</a></li>
+                <li><a href="06-loading-strategies.html">Loading Strategies</a></li>
+                <li><a href="07-advanced-ef-core.html">Advanced EF Core</a></li>
+            </ul>
+            <div class="sidebar-section">Resources</div>
+            <ul class="sidebar-nav">
+                <li><a href="../index.html">Full Roadmap</a></li>
+            </ul>
+        </aside>
+
+        <main class="main-content">
+            <div class="content-container">
+                <nav class="breadcrumb">
+                    <a href="../index.html">Home</a>
+                    <span>→</span>
+                    <a href="01-what-is-orm.html">Part IX: Entity Framework Core</a>
+                    <span>→</span>
+                    DbContext and Entities
+                </nav>
+
+                <div class="progress-indicator">
+                    <span>Section 2 of 7</span>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 28.57%"></div>
+                    </div>
+                </div>
+
+                <h1>DbContext and Entities</h1>
+
+                <div class="learning-objectives">
+                    <h3>🎯 What You'll Learn</h3>
+                    <ul>
+                        <li>What is DbContext</li>
+                        <li>Creating entity classes</li>
+                        <li>Configuring DbContext</li>
+                        <li>Data annotations</li>
+                        <li>Fluent API configuration</li>
+                        <li>Dependency injection setup</li>
+                    </ul>
+                </div>
+
+                <h2>What is DbContext?</h2>
+
+                <p>
+                    <strong>DbContext</strong> is the primary class for interacting with the database. It:
+                </p>
+
+                <ul>
+                    <li><strong>Represents a session</strong> with the database</li>
+                    <li><strong>Manages entity instances</strong> and their state</li>
+                    <li><strong>Provides DbSet properties</strong> for querying</li>
+                    <li><strong>Tracks changes</strong> to entities</li>
+                    <li><strong>Saves changes</strong> to the database</li>
+                </ul>
+
+                <div class="section-divider"></div>
+
+                <h2>Creating Entities</h2>
+
+                <p>
+                    <strong>Entities</strong> are C# classes that represent database tables.
+                </p>
+
+                <div class="code-header">
+                    <span class="code-filename">Models/Product.cs</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">Product</span>
+{
+    <span class="code-keyword">public</span> <span class="code-type">int</span> <span class="code-variable">Id</span> { <span class="code-keyword">get</span>; <span class="code-keyword">set</span>; }
+    <span class="code-keyword">public</span> <span class="code-type">string</span> <span class="code-variable">Name</span> { <span class="code-keyword">get</span>; <span class="code-keyword">set</span>; } = <span class="code-keyword">string</span>.<span class="code-variable">Empty</span>;
+    <span class="code-keyword">public</span> <span class="code-type">decimal</span> <span class="code-variable">Price</span> { <span class="code-keyword">get</span>; <span class="code-keyword">set</span>; }
+    <span class="code-keyword">public</span> <span class="code-type">string</span>? <span class="code-variable">Description</span> { <span class="code-keyword">get</span>; <span class="code-keyword">set</span>; }
+    <span class="code-keyword">public</span> <span class="code-type">int</span> <span class="code-variable">Quantity</span> { <span class="code-keyword">get</span>; <span class="code-keyword">set</span>; }
+    <span class="code-keyword">public</span> <span class="code-class">DateTime</span> <span class="code-variable">CreatedAt</span> { <span class="code-keyword">get</span>; <span class="code-keyword">set</span>; }
+}</code></pre>
+
+                <h3>Conventions</h3>
+
+                <p>EF Core uses <strong>conventions</strong> to infer database schema:</p>
+
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Convention</th>
+                            <th>Result</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Class name</td>
+                            <td>Table name (Products)</td>
+                        </tr>
+                        <tr>
+                            <td>Property named <code>Id</code> or <code>ProductId</code></td>
+                            <td>Primary key</td>
+                        </tr>
+                        <tr>
+                            <td><code>string</code> property</td>
+                            <td><code>nvarchar(max)</code> column</td>
+                        </tr>
+                        <tr>
+                            <td><code>int</code>, <code>long</code> primary key</td>
+                            <td>Identity column (auto-increment)</td>
+                        </tr>
+                        <tr>
+                            <td>Nullable type (<code>int?</code>)</td>
+                            <td>Nullable column</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="section-divider"></div>
+
+                <h2>Creating DbContext</h2>
+
+                <div class="code-header">
+                    <span class="code-filename">Data/InvenTrackDbContext.cs</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">InvenTrackDbContext</span> : <span class="code-class">DbContext</span>
+{
+    <span class="code-comment">// DbSet properties represent tables</span>
+    <span class="code-keyword">public</span> <span class="code-class">DbSet</span>&lt;<span class="code-class">Product</span>&gt; <span class="code-variable">Products</span> { <span class="code-keyword">get</span>; <span class="code-keyword">set</span>; }
+    <span class="code-keyword">public</span> <span class="code-class">DbSet</span>&lt;<span class="code-class">Category</span>&gt; <span class="code-variable">Categories</span> { <span class="code-keyword">get</span>; <span class="code-keyword">set</span>; }
+    <span class="code-keyword">public</span> <span class="code-class">DbSet</span>&lt;<span class="code-class">Order</span>&gt; <span class="code-variable">Orders</span> { <span class="code-keyword">get</span>; <span class="code-keyword">set</span>; }
+
+    <span class="code-keyword">public</span> <span class="code-method">InvenTrackDbContext</span>(<span class="code-class">DbContextOptions</span>&lt;<span class="code-class">InvenTrackDbContext</span>&gt; <span class="code-variable">options</span>)
+        : <span class="code-keyword">base</span>(<span class="code-variable">options</span>)
+    {
+    }
+}</code></pre>
+
+                <div class="section-divider"></div>
+
+                <h2>Configuring DbContext</h2>
+
+                <h3>In Program.cs (Recommended)</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">Program.cs</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-keyword">var</span> <span class="code-variable">builder</span> = <span class="code-class">WebApplication</span>.<span class="code-method">CreateBuilder</span>(<span class="code-variable">args</span>);
+
+<span class="code-comment">// Register DbContext with DI</span>
+<span class="code-variable">builder</span>.<span class="code-variable">Services</span>.<span class="code-method">AddDbContext</span>&lt;<span class="code-class">InvenTrackDbContext</span>&gt;(<span class="code-variable">options</span> =&gt;
+    <span class="code-variable">options</span>.<span class="code-method">UseSqlServer</span>(<span class="code-variable">builder</span>.<span class="code-variable">Configuration</span>.<span class="code-method">GetConnectionString</span>(<span class="code-string">"DefaultConnection"</span>)));
+
+<span class="code-keyword">var</span> <span class="code-variable">app</span> = <span class="code-variable">builder</span>.<span class="code-method">Build</span>();
+<span class="code-variable">app</span>.<span class="code-method">Run</span>();</code></pre>
+
+                <h3>Connection String in appsettings.json</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">appsettings.json</span>
+                    <span class="code-language">JSON</span>
+                </div>
+                <pre><code>{
+  "ConnectionStrings": {
+    "DefaultConnection": "Server=.;Database=InvenTrack;Trusted_Connection=True;TrustServerCertificate=True;"
+  }
+}</code></pre>
+
+                <div class="section-divider"></div>
+
+                <h2>Data Annotations</h2>
+
+                <p>
+                    <strong>Data Annotations</strong> configure entities using attributes.
+                </p>
+
+                <div class="code-header">
+                    <span class="code-filename">Using Data Annotations</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-keyword">using</span> <span class="code-class">System</span>.<span class="code-class">ComponentModel</span>.<span class="code-class">DataAnnotations</span>;
+<span class="code-keyword">using</span> <span class="code-class">System</span>.<span class="code-class">ComponentModel</span>.<span class="code-class">DataAnnotations</span>.<span class="code-class">Schema</span>;
+
+[<span class="code-class">Table</span>(<span class="code-string">"Products"</span>)]
+<span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">Product</span>
+{
+    [<span class="code-class">Key</span>]
+    <span class="code-keyword">public</span> <span class="code-type">int</span> <span class="code-variable">Id</span> { <span class="code-keyword">get</span>; <span class="code-keyword">set</span>; }
+
+    [<span class="code-class">Required</span>]
+    [<span class="code-class">MaxLength</span>(<span class="code-number">100</span>)]
+    <span class="code-keyword">public</span> <span class="code-type">string</span> <span class="code-variable">Name</span> { <span class="code-keyword">get</span>; <span class="code-keyword">set</span>; } = <span class="code-keyword">string</span>.<span class="code-variable">Empty</span>;
+
+    [<span class="code-class">Column</span>(<span class="code-variable">TypeName</span> = <span class="code-string">"decimal(18,2)"</span>)]
+    <span class="code-keyword">public</span> <span class="code-type">decimal</span> <span class="code-variable">Price</span> { <span class="code-keyword">get</span>; <span class="code-keyword">set</span>; }
+
+    [<span class="code-class">MaxLength</span>(<span class="code-number">500</span>)]
+    <span class="code-keyword">public</span> <span class="code-type">string</span>? <span class="code-variable">Description</span> { <span class="code-keyword">get</span>; <span class="code-keyword">set</span>; }
+
+    <span class="code-keyword">public</span> <span class="code-type">int</span> <span class="code-variable">Quantity</span> { <span class="code-keyword">get</span>; <span class="code-keyword">set</span>; }
+
+    [<span class="code-class">DatabaseGenerated</span>(<span class="code-class">DatabaseGeneratedOption</span>.<span class="code-variable">Identity</span>)]
+    <span class="code-keyword">public</span> <span class="code-class">DateTime</span> <span class="code-variable">CreatedAt</span> { <span class="code-keyword">get</span>; <span class="code-keyword">set</span>; } = <span class="code-class">DateTime</span>.<span class="code-variable">UtcNow</span>;
+}</code></pre>
+
+                <h3>Common Data Annotations</h3>
+
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Annotation</th>
+                            <th>Purpose</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><code>[Key]</code></td>
+                            <td>Mark as primary key</td>
+                        </tr>
+                        <tr>
+                            <td><code>[Required]</code></td>
+                            <td>Not null column</td>
+                        </tr>
+                        <tr>
+                            <td><code>[MaxLength(100)]</code></td>
+                            <td>String length limit</td>
+                        </tr>
+                        <tr>
+                            <td><code>[Column("ProductName")]</code></td>
+                            <td>Custom column name</td>
+                        </tr>
+                        <tr>
+                            <td><code>[Table("Products")]</code></td>
+                            <td>Custom table name</td>
+                        </tr>
+                        <tr>
+                            <td><code>[ForeignKey("CategoryId")]</code></td>
+                            <td>Foreign key</td>
+                        </tr>
+                        <tr>
+                            <td><code>[NotMapped]</code></td>
+                            <td>Exclude from database</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="section-divider"></div>
+
+                <h2>Fluent API Configuration</h2>
+
+                <p>
+                    <strong>Fluent API</strong> provides more control than data annotations.
+                </p>
+
+                <div class="code-header">
+                    <span class="code-filename">OnModelCreating</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">InvenTrackDbContext</span> : <span class="code-class">DbContext</span>
+{
+    <span class="code-keyword">public</span> <span class="code-class">DbSet</span>&lt;<span class="code-class">Product</span>&gt; <span class="code-variable">Products</span> { <span class="code-keyword">get</span>; <span class="code-keyword">set</span>; }
+
+    <span class="code-keyword">public</span> <span class="code-method">InvenTrackDbContext</span>(<span class="code-class">DbContextOptions</span>&lt;<span class="code-class">InvenTrackDbContext</span>&gt; <span class="code-variable">options</span>)
+        : <span class="code-keyword">base</span>(<span class="code-variable">options</span>) { }
+
+    <span class="code-keyword">protected</span> <span class="code-keyword">override</span> <span class="code-type">void</span> <span class="code-method">OnModelCreating</span>(<span class="code-class">ModelBuilder</span> <span class="code-variable">modelBuilder</span>)
+    {
+        <span class="code-variable">modelBuilder</span>.<span class="code-method">Entity</span>&lt;<span class="code-class">Product</span>&gt;(<span class="code-variable">entity</span> =&gt;
+        {
+            <span class="code-comment">// Table name</span>
+            <span class="code-variable">entity</span>.<span class="code-method">ToTable</span>(<span class="code-string">"Products"</span>);
+
+            <span class="code-comment">// Primary key</span>
+            <span class="code-variable">entity</span>.<span class="code-method">HasKey</span>(<span class="code-variable">p</span> =&gt; <span class="code-variable">p</span>.<span class="code-variable">Id</span>);
+
+            <span class="code-comment">// Properties</span>
+            <span class="code-variable">entity</span>.<span class="code-method">Property</span>(<span class="code-variable">p</span> =&gt; <span class="code-variable">p</span>.<span class="code-variable">Name</span>)
+                .<span class="code-method">IsRequired</span>()
+                .<span class="code-method">HasMaxLength</span>(<span class="code-number">100</span>);
+
+            <span class="code-variable">entity</span>.<span class="code-method">Property</span>(<span class="code-variable">p</span> =&gt; <span class="code-variable">p</span>.<span class="code-variable">Price</span>)
+                .<span class="code-method">HasColumnType</span>(<span class="code-string">"decimal(18,2)"</span>);
+
+            <span class="code-variable">entity</span>.<span class="code-method">Property</span>(<span class="code-variable">p</span> =&gt; <span class="code-variable">p</span>.<span class="code-variable">Description</span>)
+                .<span class="code-method">HasMaxLength</span>(<span class="code-number">500</span>);
+
+            <span class="code-variable">entity</span>.<span class="code-method">Property</span>(<span class="code-variable">p</span> =&gt; <span class="code-variable">p</span>.<span class="code-variable">CreatedAt</span>)
+                .<span class="code-method">HasDefaultValueSql</span>(<span class="code-string">"GETUTCDATE()"</span>);
+
+            <span class="code-comment">// Index</span>
+            <span class="code-variable">entity</span>.<span class="code-method">HasIndex</span>(<span class="code-variable">p</span> =&gt; <span class="code-variable">p</span>.<span class="code-variable">Name</span>);
+        });
+    }
+}</code></pre>
+
+                <h3>Fluent API vs Data Annotations</h3>
+
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Aspect</th>
+                            <th>Fluent API</th>
+                            <th>Data Annotations</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Power</strong></td>
+                            <td>More features</td>
+                            <td>Limited features</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Readability</strong></td>
+                            <td>Centralized</td>
+                            <td>On entity classes</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Separation</strong></td>
+                            <td>Clean entities</td>
+                            <td>Attributes on entities</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Precedence</strong></td>
+                            <td>Overrides annotations</td>
+                            <td>Lower priority</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="section-divider"></div>
+
+                <h2>Using DbContext</h2>
+
+                <h3>In Controllers</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">Controllers/ProductsController.cs</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code>[<span class="code-class">ApiController</span>]
+[<span class="code-class">Route</span>(<span class="code-string">"api/[controller]"</span>)]
+<span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">ProductsController</span> : <span class="code-class">ControllerBase</span>
+{
+    <span class="code-keyword">private</span> <span class="code-keyword">readonly</span> <span class="code-class">InvenTrackDbContext</span> <span class="code-variable">_context</span>;
+
+    <span class="code-keyword">public</span> <span class="code-method">ProductsController</span>(<span class="code-class">InvenTrackDbContext</span> <span class="code-variable">context</span>)
+    {
+        <span class="code-variable">_context</span> = <span class="code-variable">context</span>;
+    }
+
+    [<span class="code-class">HttpGet</span>]
+    <span class="code-keyword">public</span> <span class="code-keyword">async</span> <span class="code-class">Task</span>&lt;<span class="code-class">ActionResult</span>&gt; <span class="code-method">GetProducts</span>()
+    {
+        <span class="code-keyword">var</span> <span class="code-variable">products</span> = <span class="code-keyword">await</span> <span class="code-variable">_context</span>.<span class="code-variable">Products</span>.<span class="code-method">ToListAsync</span>();
+        <span class="code-keyword">return</span> <span class="code-method">Ok</span>(<span class="code-variable">products</span>);
+    }
+
+    [<span class="code-class">HttpPost</span>]
+    <span class="code-keyword">public</span> <span class="code-keyword">async</span> <span class="code-class">Task</span>&lt;<span class="code-class">ActionResult</span>&gt; <span class="code-method">CreateProduct</span>(<span class="code-class">Product</span> <span class="code-variable">product</span>)
+    {
+        <span class="code-variable">_context</span>.<span class="code-variable">Products</span>.<span class="code-method">Add</span>(<span class="code-variable">product</span>);
+        <span class="code-keyword">await</span> <span class="code-variable">_context</span>.<span class="code-method">SaveChangesAsync</span>();
+        
+        <span class="code-keyword">return</span> <span class="code-method">CreatedAtAction</span>(<span class="code-keyword">nameof</span>(<span class="code-method">GetProduct</span>), <span class="code-keyword">new</span> { <span class="code-variable">id</span> = <span class="code-variable">product</span>.<span class="code-variable">Id</span> }, <span class="code-variable">product</span>);
+    }
+}</code></pre>
+
+                <h2>Complete InvenTrack Example</h2>
+
+                <div class="code-header">
+                    <span class="code-filename">Models/Product.cs</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">Product</span>
+{
+    <span class="code-keyword">public</span> <span class="code-type">int</span> <span class="code-variable">Id</span> { <span class="code-keyword">get</span>; <span class="code-keyword">set</span>; }
+    <span class="code-keyword">public</span> <span class="code-type">string</span> <span class="code-variable">Name</span> { <span class="code-keyword">get</span>; <span class="code-keyword">set</span>; } = <span class="code-keyword">string</span>.<span class="code-variable">Empty</span>;
+    <span class="code-keyword">public</span> <span class="code-type">decimal</span> <span class="code-variable">Price</span> { <span class="code-keyword">get</span>; <span class="code-keyword">set</span>; }
+    <span class="code-keyword">public</span> <span class="code-type">string</span>? <span class="code-variable">Description</span> { <span class="code-keyword">get</span>; <span class="code-keyword">set</span>; }
+    <span class="code-keyword">public</span> <span class="code-type">int</span> <span class="code-variable">Quantity</span> { <span class="code-keyword">get</span>; <span class="code-keyword">set</span>; }
+    <span class="code-keyword">public</span> <span class="code-type">int</span> <span class="code-variable">CategoryId</span> { <span class="code-keyword">get</span>; <span class="code-keyword">set</span>; }
+    <span class="code-keyword">public</span> <span class="code-class">DateTime</span> <span class="code-variable">CreatedAt</span> { <span class="code-keyword">get</span>; <span class="code-keyword">set</span>; }
+}
+
+<span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">Category</span>
+{
+    <span class="code-keyword">public</span> <span class="code-type">int</span> <span class="code-variable">Id</span> { <span class="code-keyword">get</span>; <span class="code-keyword">set</span>; }
+    <span class="code-keyword">public</span> <span class="code-type">string</span> <span class="code-variable">Name</span> { <span class="code-keyword">get</span>; <span class="code-keyword">set</span>; } = <span class="code-keyword">string</span>.<span class="code-variable">Empty</span>;
+}</code></pre>
+
+                <div class="code-header">
+                    <span class="code-filename">Data/InvenTrackDbContext.cs</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">InvenTrackDbContext</span> : <span class="code-class">DbContext</span>
+{
+    <span class="code-keyword">public</span> <span class="code-class">DbSet</span>&lt;<span class="code-class">Product</span>&gt; <span class="code-variable">Products</span> { <span class="code-keyword">get</span>; <span class="code-keyword">set</span>; }
+    <span class="code-keyword">public</span> <span class="code-class">DbSet</span>&lt;<span class="code-class">Category</span>&gt; <span class="code-variable">Categories</span> { <span class="code-keyword">get</span>; <span class="code-keyword">set</span>; }
+
+    <span class="code-keyword">public</span> <span class="code-method">InvenTrackDbContext</span>(<span class="code-class">DbContextOptions</span>&lt;<span class="code-class">InvenTrackDbContext</span>&gt; <span class="code-variable">options</span>)
+        : <span class="code-keyword">base</span>(<span class="code-variable">options</span>) { }
+
+    <span class="code-keyword">protected</span> <span class="code-keyword">override</span> <span class="code-type">void</span> <span class="code-method">OnModelCreating</span>(<span class="code-class">ModelBuilder</span> <span class="code-variable">modelBuilder</span>)
+    {
+        <span class="code-variable">modelBuilder</span>.<span class="code-method">Entity</span>&lt;<span class="code-class">Product</span>&gt;(<span class="code-variable">entity</span> =&gt;
+        {
+            <span class="code-variable">entity</span>.<span class="code-method">Property</span>(<span class="code-variable">p</span> =&gt; <span class="code-variable">p</span>.<span class="code-variable">Name</span>).<span class="code-method">HasMaxLength</span>(<span class="code-number">100</span>);
+            <span class="code-variable">entity</span>.<span class="code-method">Property</span>(<span class="code-variable">p</span> =&gt; <span class="code-variable">p</span>.<span class="code-variable">Price</span>).<span class="code-method">HasColumnType</span>(<span class="code-string">"decimal(18,2)"</span>);
+            <span class="code-variable">entity</span>.<span class="code-method">Property</span>(<span class="code-variable">p</span> =&gt; <span class="code-variable">p</span>.<span class="code-variable">CreatedAt</span>).<span class="code-method">HasDefaultValueSql</span>(<span class="code-string">"GETUTCDATE()"</span>);
+        });
+
+        <span class="code-variable">modelBuilder</span>.<span class="code-method">Entity</span>&lt;<span class="code-class">Category</span>&gt;(<span class="code-variable">entity</span> =&gt;
+        {
+            <span class="code-variable">entity</span>.<span class="code-method">Property</span>(<span class="code-variable">c</span> =&gt; <span class="code-variable">c</span>.<span class="code-variable">Name</span>).<span class="code-method">HasMaxLength</span>(<span class="code-number">50</span>);
+        });
+    }
+}</code></pre>
+
+                <div class="code-header">
+                    <span class="code-filename">Program.cs</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-keyword">var</span> <span class="code-variable">builder</span> = <span class="code-class">WebApplication</span>.<span class="code-method">CreateBuilder</span>(<span class="code-variable">args</span>);
+
+<span class="code-variable">builder</span>.<span class="code-variable">Services</span>.<span class="code-method">AddControllers</span>();
+<span class="code-variable">builder</span>.<span class="code-variable">Services</span>.<span class="code-method">AddDbContext</span>&lt;<span class="code-class">InvenTrackDbContext</span>&gt;(<span class="code-variable">options</span> =&gt;
+    <span class="code-variable">options</span>.<span class="code-method">UseSqlServer</span>(<span class="code-variable">builder</span>.<span class="code-variable">Configuration</span>.<span class="code-method">GetConnectionString</span>(<span class="code-string">"DefaultConnection"</span>)));
+
+<span class="code-keyword">var</span> <span class="code-variable">app</span> = <span class="code-variable">builder</span>.<span class="code-method">Build</span>();
+
+<span class="code-variable">app</span>.<span class="code-method">MapControllers</span>();
+<span class="code-variable">app</span>.<span class="code-method">Run</span>();</code></pre>
+
+                <h2>Best Practices</h2>
+
+                <ul>
+                    <li><strong>Use DI</strong>: Register DbContext with dependency injection</li>
+                    <li><strong>Connection strings</strong>: Store in appsettings.json</li>
+                    <li><strong>Async operations</strong>: Always use async methods</li>
+                    <li><strong>Fluent API</strong>: Prefer for complex configurations</li>
+                    <li><strong>Data annotations</strong>: Use for simple validation</li>
+                    <li><strong>DbSet properties</strong>: Name as plural (Products, not Product)</li>
+                    <li><strong>Dispose</strong>: DI handles disposal automatically</li>
+                </ul>
+
+                <h2>Key Takeaways</h2>
+
+                <ul>
+                    <li><strong>DbContext</strong>: Central class for database operations</li>
+                    <li><strong>Entities</strong>: C# classes that map to tables</li>
+                    <li><strong>DbSet</strong>: Properties representing tables</li>
+                    <li><strong>Conventions</strong>: EF Core infers schema from code</li>
+                    <li><strong>Data Annotations</strong>: Attributes for configuration</li>
+                    <li><strong>Fluent API</strong>: More powerful configuration in OnModelCreating</li>
+                    <li><strong>DI</strong>: Register with AddDbContext</li>
+                    <li><strong>Connection strings</strong>: Configure in appsettings.json</li>
+                </ul>
+
+                <div class="callout callout-concept">
+                    <div class="callout-title">🎯 Next Steps</div>
+                    <p>
+                        You now understand DbContext and entities! In the next section, we'll explore
+                        <strong>Code-First Migrations</strong>—how to create and manage your database
+                        schema from code.
+                    </p>
+                </div>
+
+                <nav class="page-nav">
+                    <a href="01-what-is-orm.html" class="prev">What is an ORM?</a>
+                    <a href="03-code-first-migrations.html" class="next">Code-First Migrations</a>
+                </nav>
+
+            
+        <footer class="page-footer">
+          Built with 💜 by <a href="https://akwasi.dev" target="_blank" rel="noopener noreferrer">Akwasi Adu-Kyeremeh</a> for developers who want to truly understand what they're building.
+        </footer>
+
+      </div>
+        </main>
+    </div>
+</body>
+
+</html>

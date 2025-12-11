@@ -1,0 +1,828 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>What is C# and .NET? | ASP.NET Core Mastery</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;500&family=Source+Serif+4:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../assets/style.css">
+</head>
+<body>
+  <div class="page-wrapper">
+    
+    <!-- Sidebar Navigation -->
+    <aside class="sidebar">
+      <a href="../index.html" class="sidebar-logo">ASP.NET Core Mastery</a>
+      
+      <div class="sidebar-section">Part I: Foundations</div>
+      <ul class="sidebar-nav">
+        <li><a href="01-what-is-programming.html">What is Programming?</a></li>
+        <li><a href="02-what-is-csharp-dotnet.html" class="active">What is C# and .NET?</a></li>
+        <li><a href="03-variables-and-data-types.html">Variables and Data Types</a></li>
+        <li><a href="04-operators-and-expressions.html">Operators and Expressions</a></li>
+        <li><a href="05-control-flow.html">Control Flow</a></li>
+        <li><a href="06-methods-and-functions.html">Methods and Functions</a></li>
+        <li><a href="07-oop-classes-objects.html">OOP: Classes &amp; Objects</a></li>
+        <li><a href="08-collections-and-generics.html">Collections and Generics</a></li>
+        <li><a href="09-linq.html">LINQ</a></li>
+        <li><a href="10-async-await.html">Async/Await</a></li>
+      </ul>
+      
+      <div class="sidebar-section">Resources</div>
+      <ul class="sidebar-nav">
+        <li><a href="../index.html">Full Roadmap</a></li>
+      </ul>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+      <div class="content-container">
+        
+        <!-- Breadcrumb -->
+        <nav class="breadcrumb">
+          <a href="../index.html">Home</a>
+          <span>→</span>
+          <a href="01-what-is-programming.html">Part I: Foundations</a>
+          <span>→</span>
+          What is C# and .NET?
+        </nav>
+
+        <!-- Progress Indicator -->
+        <div class="progress-indicator">
+          <span>Section 2 of 10</span>
+          <div class="progress-bar">
+            <div class="progress-fill" style="width: 20%"></div>
+          </div>
+        </div>
+
+        <!-- Page Title -->
+        <h1>What is C# and .NET?</h1>
+
+        <!-- Learning Objectives -->
+        <div class="learning-objectives">
+          <h3>🎯 What You'll Learn</h3>
+          <ul>
+            <li>The history of C# and why Microsoft created it</li>
+            <li>What .NET actually is (runtime, libraries, ecosystem)</li>
+            <li>The difference between .NET Framework, .NET Core, and modern .NET</li>
+            <li>How C# code becomes a running program (compilation pipeline)</li>
+            <li>Key terminology: CLR, IL, JIT, SDK, Runtime</li>
+            <li>How to set up your development environment</li>
+          </ul>
+        </div>
+
+        <!-- Content Begins -->
+        <h2>A Brief History</h2>
+
+        <p>
+          To understand C# and .NET, we need to travel back to the late 1990s. Microsoft was 
+          watching the explosive growth of Java—a language that promised "write once, run anywhere." 
+          Java code could run on Windows, Mac, Linux, and more, thanks to the Java Virtual Machine (JVM).
+        </p>
+
+        <p>
+          Microsoft needed an answer. They wanted a modern, object-oriented language that could:
+        </p>
+
+        <ul>
+          <li>Compete with Java's productivity and safety</li>
+          <li>Work seamlessly with Windows and their growing web technologies</li>
+          <li>Be easier to use than C++, which was powerful but notoriously complex</li>
+          <li>Support the future of web services and distributed computing</li>
+        </ul>
+
+        <p>
+          The result was a two-part solution announced in 2000:
+        </p>
+
+        <ol>
+          <li><strong>C#</strong> (pronounced "C-sharp") — A new programming language</li>
+          <li><strong>.NET Framework</strong> — A platform for running C# (and other languages)</li>
+        </ol>
+
+        <p>
+          The lead architect of C# was <strong>Anders Hejlsberg</strong>, who had previously created 
+          Turbo Pascal and was the chief architect of Delphi—two of the most beloved development tools 
+          of their era. His experience shows in C#'s design: it's pragmatic, readable, and 
+          developer-friendly.
+        </p>
+
+        <div class="callout callout-info">
+          <div class="callout-title">ℹ️ Why "C-Sharp"?</div>
+          <p>
+            The name comes from music notation, where a "sharp" (♯) raises a note by a half step. 
+            It's a play on C++, where "++" is an operator that increments a value. So C# is 
+            symbolically "C++ incremented" or "C++ improved." The # symbol was chosen because 
+            it's easier to type than ♯.
+          </p>
+        </div>
+
+        <h2>Understanding .NET: The Platform</h2>
+
+        <p>
+          Here's a critical distinction that confuses many beginners: <strong>C# is a language; 
+          .NET is a platform</strong>. They're closely related but different things.
+        </p>
+
+        <div class="analogy">
+          Think of it like this: C# is the language you speak, and .NET is the country where 
+          that language is understood. You write your instructions in C#, but .NET provides 
+          the infrastructure to actually execute them—the runtime, the libraries, the tools.
+        </div>
+
+        <p>
+          .NET consists of several key components:
+        </p>
+
+        <h3>1. The Common Language Runtime (CLR)</h3>
+
+        <p>
+          The <span class="term">CLR</span> is the heart of .NET. It's the "virtual machine" that 
+          actually runs your code. When you hear ".NET Runtime," this is what people usually mean.
+        </p>
+
+        <p>
+          The CLR provides crucial services:
+        </p>
+
+        <dl>
+          <dt>Memory Management</dt>
+          <dd>
+            The CLR automatically allocates and frees memory for your objects. You don't need 
+            to manually manage memory like in C or C++. This is called <span class="term">garbage collection</span>.
+          </dd>
+
+          <dt>Type Safety</dt>
+          <dd>
+            The CLR enforces that you use data types correctly. You can't accidentally treat 
+            a number as text or access memory you shouldn't.
+          </dd>
+
+          <dt>Exception Handling</dt>
+          <dd>
+            When errors occur, the CLR provides a structured way to catch and handle them 
+            instead of your program crashing mysteriously.
+          </dd>
+
+          <dt>Security</dt>
+          <dd>
+            The CLR enforces security boundaries, preventing malicious code from accessing 
+            system resources it shouldn't.
+          </dd>
+
+          <dt>JIT Compilation</dt>
+          <dd>
+            The CLR compiles your intermediate code to machine code right before execution, 
+            optimizing it for the specific computer it's running on.
+          </dd>
+        </dl>
+
+        <h3>2. The Base Class Library (BCL)</h3>
+
+        <p>
+          The <span class="term">Base Class Library</span> is a massive collection of pre-written code 
+          that you can use in your programs. Why write code to read a file, make a web request, 
+          or format a date when Microsoft has already written (and tested) that code for you?
+        </p>
+
+        <p>
+          The BCL includes:
+        </p>
+
+        <ul>
+          <li><strong>System.IO</strong> — File and stream operations</li>
+          <li><strong>System.Collections</strong> — Lists, dictionaries, queues, stacks</li>
+          <li><strong>System.Net</strong> — Networking and HTTP</li>
+          <li><strong>System.Text</strong> — String manipulation, encoding, regular expressions</li>
+          <li><strong>System.Threading</strong> — Parallel and concurrent programming</li>
+          <li><strong>System.Linq</strong> — Querying data (we'll cover this extensively)</li>
+          <li>...and hundreds more</li>
+        </ul>
+
+        <p>
+          When you write a C# program, you're constantly using the BCL, often without realizing it. 
+          Even something as simple as <code>Console.WriteLine("Hello")</code> uses the BCL's 
+          <code>System.Console</code> class.
+        </p>
+
+        <h3>3. The SDK (Software Development Kit)</h3>
+
+        <p>
+          The <span class="term">.NET SDK</span> is what you install on your computer to <em>develop</em> 
+          .NET applications. It includes:
+        </p>
+
+        <ul>
+          <li>The C# compiler</li>
+          <li>The runtime (CLR)</li>
+          <li>The base class libraries</li>
+          <li>Command-line tools (<code>dotnet</code> CLI)</li>
+          <li>Project templates</li>
+        </ul>
+
+        <p>
+          When you "install .NET," you're typically installing the SDK.
+        </p>
+
+        <h3>4. The Runtime (Standalone)</h3>
+
+        <p>
+          The <span class="term">.NET Runtime</span> is a smaller package that only includes what's 
+          needed to <em>run</em> .NET applications (not develop them). This is what you'd install 
+          on a server that needs to host your application but where no development happens.
+        </p>
+
+        <div class="callout callout-concept">
+          <div class="callout-title">💡 SDK vs Runtime</div>
+          <p>
+            <strong>SDK</strong> = Everything for development (includes Runtime)<br>
+            <strong>Runtime</strong> = Only what's needed to run apps<br><br>
+            As a developer, always install the SDK. The runtime is for production servers 
+            or end-user machines.
+          </p>
+        </div>
+
+        <h2>The .NET Evolution: A Confusing History Made Clear</h2>
+
+        <p>
+          One of the most confusing things about .NET is its versioning history. Let me clarify 
+          this once and for all, because you'll encounter these terms in the wild.
+        </p>
+
+        <h3>.NET Framework (2002-2019) — The Original</h3>
+
+        <p>
+          The original .NET Framework ran <strong>only on Windows</strong>. For almost two decades, 
+          if you wanted to run C# code on Linux or Mac, you were out of luck (mostly).
+        </p>
+
+        <p>
+          .NET Framework versions went from 1.0 up to 4.8. Many enterprise applications still 
+          run on .NET Framework 4.8, and Microsoft continues to support it—but no new features 
+          are being added.
+        </p>
+
+        <h3>.NET Core (2016-2020) — The Revolution</h3>
+
+        <p>
+          In 2016, Microsoft did something remarkable: they rewrote .NET from scratch and made 
+          it <strong>open-source and cross-platform</strong>. This was called .NET Core.
+        </p>
+
+        <p>
+          .NET Core could run on Windows, Linux, and macOS. It was faster, more modular, and 
+          designed for modern cloud and container workloads. Versions went from 1.0 to 3.1.
+        </p>
+
+        <h3>.NET 5, 6, 7, 8... (2020-Present) — The Unification</h3>
+
+        <p>
+          In 2020, Microsoft unified everything under the simple name ".NET" (dropping both 
+          "Framework" and "Core"). They skipped version 4 to avoid confusion with .NET Framework 4.x.
+        </p>
+
+        <table>
+          <thead>
+            <tr>
+              <th>Version</th>
+              <th>Release</th>
+              <th>Support Type</th>
+              <th>Notes</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>.NET 5</td>
+              <td>Nov 2020</td>
+              <td>Standard (ended)</td>
+              <td>First unified .NET</td>
+            </tr>
+            <tr>
+              <td>.NET 6</td>
+              <td>Nov 2021</td>
+              <td>LTS (ended Nov 2024)</td>
+              <td>Long-term support</td>
+            </tr>
+            <tr>
+              <td>.NET 7</td>
+              <td>Nov 2022</td>
+              <td>Standard (ended)</td>
+              <td>Short-term support</td>
+            </tr>
+            <tr>
+              <td><strong>.NET 8</strong></td>
+              <td>Nov 2023</td>
+              <td><strong>LTS (until Nov 2026)</strong></td>
+              <td><strong>← We'll use this!</strong></td>
+            </tr>
+            <tr>
+              <td>.NET 9</td>
+              <td>Nov 2024</td>
+              <td>Standard</td>
+              <td>Latest features</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <p>
+          <strong>LTS</strong> (Long-Term Support) versions are supported for 3 years and are 
+          recommended for production applications. <strong>Standard</strong> versions get 18 months 
+          of support and contain the newest features.
+        </p>
+
+        <div class="callout callout-tip">
+          <div class="callout-title">💡 Which Version to Use?</div>
+          <p>
+            For this guide and your professional work, use <strong>.NET 8</strong>. It's the 
+            current LTS version, meaning it's stable, well-supported, and what most companies 
+            are adopting for new projects. All examples in this guide will use .NET 8.
+          </p>
+        </div>
+
+        <h3>What About ASP.NET?</h3>
+
+        <p>
+          You might be wondering where ASP.NET fits in. Here's the quick breakdown:
+        </p>
+
+        <dl>
+          <dt>ASP.NET (Original)</dt>
+          <dd>
+            The web framework that ran on .NET Framework. Included Web Forms, MVC, Web API, 
+            and SignalR. Windows-only.
+          </dd>
+
+          <dt>ASP.NET Core</dt>
+          <dd>
+            The modern, cross-platform rewrite of ASP.NET that runs on .NET Core / .NET 5+. 
+            This is what we'll be learning. It's faster, more flexible, and the future of 
+            .NET web development.
+          </dd>
+        </dl>
+
+        <p>
+          When we say "ASP.NET Core Mastery," we mean building web applications using ASP.NET Core 
+          on modern .NET (version 8 in our case).
+        </p>
+
+        <h2>How C# Code Becomes a Running Program</h2>
+
+        <p>
+          Let's trace the journey from the code you write to the program that runs. Understanding 
+          this process helps demystify error messages and debugging.
+        </p>
+
+        <h3>Step 1: You Write Source Code</h3>
+
+        <p>
+          You create files with the <code>.cs</code> extension containing C# code:
+        </p>
+
+        <div class="code-header">
+          <span class="code-filename">Program.cs</span>
+          <span class="code-language">C#</span>
+        </div>
+        <pre><code><span class="code-keyword">using</span> System;
+
+<span class="code-keyword">class</span> <span class="code-class">Program</span>
+{
+    <span class="code-keyword">static</span> <span class="code-keyword">void</span> <span class="code-method">Main</span>()
+    {
+        Console.<span class="code-method">WriteLine</span>(<span class="code-string">"Hello, World!"</span>);
+    }
+}</code></pre>
+
+        <p>
+          This is human-readable text. The computer can't run it yet.
+        </p>
+
+        <h3>Step 2: The C# Compiler Creates IL</h3>
+
+        <p>
+          When you build your project, the C# compiler (<code>csc.exe</code> or <code>Roslyn</code>) 
+          reads your source code and produces <span class="term">Intermediate Language (IL)</span>, 
+          also called MSIL or CIL.
+        </p>
+
+        <p>
+          IL is a CPU-independent instruction set. It's not machine code yet, but it's much 
+          lower-level than C#. Here's roughly what our "Hello World" looks like in IL:
+        </p>
+
+        <div class="code-header">
+          <span class="code-filename">output</span>
+          <span class="code-language">IL (Intermediate Language)</span>
+        </div>
+        <pre><code>.method private hidebysig static void Main() cil managed
+{
+    .entrypoint
+    .maxstack 1
+    
+    ldstr "Hello, World!"
+    call void [System.Console]System.Console::WriteLine(string)
+    ret
+}</code></pre>
+
+        <p>
+          You'll never need to write or read IL directly, but knowing it exists helps you 
+          understand what's happening under the hood.
+        </p>
+
+        <p>
+          The IL code is packaged into an <span class="term">assembly</span>—either a 
+          <code>.dll</code> (Dynamic Link Library) or <code>.exe</code> (Executable) file.
+        </p>
+
+        <h3>Step 3: The CLR JIT-Compiles to Machine Code</h3>
+
+        <p>
+          When you run your program, the CLR's <span class="term">JIT (Just-In-Time) compiler</span> 
+          converts the IL to native machine code for your specific processor.
+        </p>
+
+        <p>
+          Why not compile directly to machine code like C++? Because IL enables powerful features:
+        </p>
+
+        <ul>
+          <li><strong>Cross-platform</strong>: The same IL runs on Windows, Linux, and Mac—the JIT 
+              produces the right machine code for each</li>
+          <li><strong>Optimization</strong>: The JIT can optimize for the specific CPU at runtime</li>
+          <li><strong>Security</strong>: The CLR can verify IL is safe before executing it</li>
+          <li><strong>Language interop</strong>: C#, F#, and VB.NET all compile to IL, so they 
+              can work together seamlessly</li>
+        </ul>
+
+        <div class="analogy">
+          Think of IL like a universal recipe written in metric measurements. When you cook it 
+          (run it), the JIT "translates" to whatever measuring system your kitchen uses 
+          (your specific CPU architecture). The recipe stays the same, but the final conversion 
+          happens in your kitchen.
+        </div>
+
+        <h3>The Full Picture</h3>
+
+        <table>
+          <thead>
+            <tr>
+              <th>Stage</th>
+              <th>Input</th>
+              <th>Output</th>
+              <th>When</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>1. Compilation</td>
+              <td>Source code (.cs)</td>
+              <td>IL in assembly (.dll/.exe)</td>
+              <td>Build time</td>
+            </tr>
+            <tr>
+              <td>2. JIT Compilation</td>
+              <td>IL</td>
+              <td>Machine code</td>
+              <td>Runtime (first execution)</td>
+            </tr>
+            <tr>
+              <td>3. Execution</td>
+              <td>Machine code</td>
+              <td>Program behavior</td>
+              <td>Runtime</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <h2>C# as a Language: Key Characteristics</h2>
+
+        <p>
+          Now that you understand the platform, let's look at C# itself. What kind of language is it?
+        </p>
+
+        <h3>Statically Typed</h3>
+
+        <p>
+          In C#, every variable has a specific type, and that type is checked at <em>compile time</em>. 
+          This catches many errors before your code even runs.
+        </p>
+
+        <div class="code-header">
+          <span class="code-filename">example.cs</span>
+          <span class="code-language">C#</span>
+        </div>
+        <pre><code><span class="code-type">int</span> <span class="code-variable">age</span> = <span class="code-number">25</span>;           <span class="code-comment">// age is an integer</span>
+<span class="code-type">string</span> <span class="code-variable">name</span> = <span class="code-string">"Akwasi"</span>;   <span class="code-comment">// name is text</span>
+
+age = <span class="code-string">"twenty-five"</span>;      <span class="code-comment">// ERROR! Can't assign text to an integer</span></code></pre>
+
+        <p>
+          Compare this to Python (dynamically typed), where the same variable can hold 
+          different types at different times. Static typing adds safety but requires you 
+          to be explicit about what kind of data you're working with.
+        </p>
+
+        <h3>Object-Oriented</h3>
+
+        <p>
+          C# is built around the concept of <span class="term">objects</span>—bundles of data 
+          and behavior. Everything in C# is either an object or belongs to an object. We'll 
+          explore this deeply in the OOP section.
+        </p>
+
+        <h3>Memory-Managed</h3>
+
+        <p>
+          Unlike C or C++, you don't manually allocate and free memory. The garbage collector 
+          handles this automatically. This prevents entire categories of bugs (memory leaks, 
+          use-after-free) at the cost of occasional garbage collection pauses.
+        </p>
+
+        <h3>Modern and Evolving</h3>
+
+        <p>
+          C# is actively developed. New versions add features like pattern matching, records, 
+          nullable reference types, and more. The language has evolved dramatically from version 
+          1.0 to the current version (12 as of .NET 8), always staying modern and competitive.
+        </p>
+
+        <h2>Setting Up Your Development Environment</h2>
+
+        <p>
+          Let's get your computer ready for C# development. We'll install Visual Studio 2022, 
+          which includes everything you need.
+        </p>
+
+        <h3>Installing Visual Studio 2022</h3>
+
+        <div class="callout callout-info">
+          <div class="callout-title">ℹ️ Why Visual Studio?</div>
+          <p>
+            Visual Studio is Microsoft's flagship IDE (Integrated Development Environment) for 
+            .NET development. The Community Edition is free for individuals, students, and small 
+            teams. It provides the best C# development experience with IntelliSense, debugging, 
+            refactoring tools, and seamless integration with .NET.
+          </p>
+        </div>
+
+        <p>
+          Follow these steps:
+        </p>
+
+        <ol>
+          <li>
+            Go to <a href="https://visualstudio.microsoft.com/downloads/" target="_blank">
+            visualstudio.microsoft.com/downloads</a>
+          </li>
+          <li>
+            Download <strong>Visual Studio 2022 Community</strong> (the free version)
+          </li>
+          <li>
+            Run the installer. When prompted to select workloads, check:
+            <ul>
+              <li><strong>ASP.NET and web development</strong> (essential for our goals)</li>
+              <li><strong>.NET desktop development</strong> (useful for console apps and learning)</li>
+            </ul>
+          </li>
+          <li>
+            Click Install and wait (this may take a while—it's a large download)
+          </li>
+          <li>
+            Once installed, launch Visual Studio and sign in with a Microsoft account (or skip)
+          </li>
+        </ol>
+
+        <h3>Verifying the Installation</h3>
+
+        <p>
+          Let's confirm everything is working by checking the .NET SDK version. Open a 
+          <strong>Command Prompt</strong> or <strong>PowerShell</strong> and type:
+        </p>
+
+        <div class="code-header">
+          <span class="code-filename">terminal</span>
+          <span class="code-language">Command Line</span>
+        </div>
+        <pre><code>dotnet --version</code></pre>
+
+        <p>
+          You should see output like:
+        </p>
+
+        <div class="code-header">
+          <span class="code-filename">output</span>
+          <span class="code-language">Command Line</span>
+        </div>
+        <pre><code>8.0.100</code></pre>
+
+        <p>
+          The exact version may differ, but as long as it starts with <code>8.</code>, you're 
+          using .NET 8.
+        </p>
+
+        <p>
+          You can also see all installed SDKs:
+        </p>
+
+        <div class="code-header">
+          <span class="code-filename">terminal</span>
+          <span class="code-language">Command Line</span>
+        </div>
+        <pre><code>dotnet --list-sdks</code></pre>
+
+        <h3>Creating Your First Project (Quick Test)</h3>
+
+        <p>
+          Let's create a quick project to verify everything works. We'll do this properly in 
+          later sections, but here's a quick test:
+        </p>
+
+        <ol>
+          <li>Open Visual Studio 2022</li>
+          <li>Click <strong>Create a new project</strong></li>
+          <li>Search for "Console" and select <strong>Console App</strong> (make sure it says 
+              "C#" and not "Visual Basic")</li>
+          <li>Click <strong>Next</strong></li>
+          <li>Name your project <code>HelloWorld</code> and choose a location</li>
+          <li>Click <strong>Next</strong></li>
+          <li>Ensure <strong>.NET 8.0</strong> is selected in the Framework dropdown</li>
+          <li>Click <strong>Create</strong></li>
+        </ol>
+
+        <p>
+          Visual Studio will create a project with a single file containing:
+        </p>
+
+        <div class="code-header">
+          <span class="code-filename">Program.cs</span>
+          <span class="code-language">C#</span>
+        </div>
+        <pre><code><span class="code-comment">// See https://aka.ms/new-console-template for more information</span>
+Console.<span class="code-method">WriteLine</span>(<span class="code-string">"Hello, World!"</span>);</code></pre>
+
+        <p>
+          Press <strong>F5</strong> (or click the green "Start" button). A console window should 
+          appear showing "Hello, World!" — and then immediately close.
+        </p>
+
+        <div class="callout callout-tip">
+          <div class="callout-title">💡 Keep the Console Open</div>
+          <p>
+            To keep the console window open after the program finishes, press <strong>Ctrl+F5</strong> 
+            instead of F5. This runs without the debugger and adds a "Press any key to continue" prompt.
+          </p>
+        </div>
+
+        <p>
+          Congratulations! You've just compiled and run your first C# program. 🎉
+        </p>
+
+        <h2>Understanding the Modern C# Template</h2>
+
+        <p>
+          You might have noticed the code was surprisingly short—just one line. That's because 
+          .NET 6+ introduced <span class="term">top-level statements</span>, which remove the 
+          ceremonial boilerplate for simple programs.
+        </p>
+
+        <p>
+          Behind the scenes, the compiler wraps your code in the traditional structure. These 
+          two programs are equivalent:
+        </p>
+
+        <div class="code-header">
+          <span class="code-filename">Modern (Top-level statements)</span>
+          <span class="code-language">C#</span>
+        </div>
+        <pre><code>Console.<span class="code-method">WriteLine</span>(<span class="code-string">"Hello, World!"</span>);</code></pre>
+
+        <div class="code-header">
+          <span class="code-filename">Traditional (Explicit structure)</span>
+          <span class="code-language">C#</span>
+        </div>
+        <pre><code><span class="code-keyword">using</span> System;
+
+<span class="code-keyword">namespace</span> <span class="code-class">HelloWorld</span>
+{
+    <span class="code-keyword">class</span> <span class="code-class">Program</span>
+    {
+        <span class="code-keyword">static</span> <span class="code-keyword">void</span> <span class="code-method">Main</span>(<span class="code-type">string</span>[] <span class="code-variable">args</span>)
+        {
+            Console.<span class="code-method">WriteLine</span>(<span class="code-string">"Hello, World!"</span>);
+        }
+    }
+}</code></pre>
+
+        <p>
+          We'll use top-level statements for simple examples (they reduce noise while learning), 
+          but you'll also learn the traditional structure because real-world applications use it.
+        </p>
+
+        <div class="section-divider"></div>
+
+        <h2>Key Terminology Reference</h2>
+
+        <p>
+          Here's a quick reference for the terms we've covered. Bookmark this for later!
+        </p>
+
+        <table>
+          <thead>
+            <tr>
+              <th>Term</th>
+              <th>Definition</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>C#</strong></td>
+              <td>A modern, object-oriented programming language created by Microsoft</td>
+            </tr>
+            <tr>
+              <td><strong>.NET</strong></td>
+              <td>A platform/ecosystem for building applications (includes runtime, libraries, tools)</td>
+            </tr>
+            <tr>
+              <td><strong>CLR</strong></td>
+              <td>Common Language Runtime — the virtual machine that executes .NET code</td>
+            </tr>
+            <tr>
+              <td><strong>IL</strong></td>
+              <td>Intermediate Language — the bytecode that C# compiles to</td>
+            </tr>
+            <tr>
+              <td><strong>JIT</strong></td>
+              <td>Just-In-Time compiler — converts IL to machine code at runtime</td>
+            </tr>
+            <tr>
+              <td><strong>SDK</strong></td>
+              <td>Software Development Kit — everything needed to develop .NET apps</td>
+            </tr>
+            <tr>
+              <td><strong>Runtime</strong></td>
+              <td>The subset needed to run (not develop) .NET apps</td>
+            </tr>
+            <tr>
+              <td><strong>BCL</strong></td>
+              <td>Base Class Library — the built-in library of useful code</td>
+            </tr>
+            <tr>
+              <td><strong>Assembly</strong></td>
+              <td>A compiled unit of code (.dll or .exe file)</td>
+            </tr>
+            <tr>
+              <td><strong>LTS</strong></td>
+              <td>Long-Term Support — versions supported for 3 years</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <div class="section-divider"></div>
+
+        <h2>Key Takeaways</h2>
+
+        <ul>
+          <li><strong>C#</strong> is a language; <strong>.NET</strong> is the platform that runs it</li>
+          <li>The <strong>CLR</strong> provides memory management, type safety, and JIT compilation</li>
+          <li>The <strong>BCL</strong> provides thousands of ready-to-use classes</li>
+          <li>Modern .NET is <strong>cross-platform</strong> and <strong>open-source</strong></li>
+          <li>C# code compiles to <strong>IL</strong>, which the JIT converts to machine code</li>
+          <li>Use <strong>.NET 8</strong> (LTS) for new projects</li>
+          <li><strong>Visual Studio 2022 Community</strong> is free and provides the best C# experience</li>
+        </ul>
+
+        <div class="callout callout-tip">
+          <div class="callout-title">🚀 Environment Ready!</div>
+          <p>
+            You now have a solid understanding of the C#/.NET ecosystem <em>and</em> a working 
+            development environment. In the next section, we'll start writing real code—beginning 
+            with variables and data types.
+          </p>
+        </div>
+
+        <h2>What's Next?</h2>
+
+        <p>
+          In the next section, <strong>Variables and Data Types</strong>, we'll learn how to 
+          store and manipulate data in C#. You'll understand the difference between <code>int</code>, 
+          <code>string</code>, <code>bool</code>, and other fundamental types—the building blocks 
+          of every program.
+        </p>
+
+        <!-- Page Navigation -->
+        <nav class="page-nav">
+          <a href="01-what-is-programming.html" class="prev">What is Programming?</a>
+          <a href="03-variables-and-data-types.html" class="next">Variables and Data Types</a>
+        </nav>
+
+      
+        <footer class="page-footer">
+          Built with 💜 by <a href="https://akwasi.dev" target="_blank" rel="noopener noreferrer">Akwasi Adu-Kyeremeh</a> for developers who want to truly understand what they're building.
+        </footer>
+
+      </div>
+    </main>
+  </div>
+</body>
+</html>

@@ -1,0 +1,1049 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Object-Oriented Programming | ASP.NET Core Mastery</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;500&family=Source+Serif+4:ital,wght@0,400;0,600;1,400&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="../assets/style.css">
+</head>
+
+<body>
+    <div class="page-wrapper">
+        <aside class="sidebar">
+            <a href="../index.html" class="sidebar-logo">ASP.NET Core Mastery</a>
+            <div class="sidebar-section">Part I: Foundations</div>
+            <ul class="sidebar-nav">
+                <li><a href="01-what-is-programming.html">What is Programming?</a></li>
+                <li><a href="02-what-is-csharp-dotnet.html">What is C# and .NET?</a></li>
+                <li><a href="03-variables-and-data-types.html">Variables and Data Types</a></li>
+                <li><a href="04-operators-and-expressions.html">Operators and Expressions</a></li>
+                <li><a href="05-control-flow.html">Control Flow</a></li>
+                <li><a href="06-methods-and-functions.html">Methods and Functions</a></li>
+                <li><a href="07-oop-classes-objects.html" class="active">OOP: Classes &amp; Objects</a></li>
+                <li><a href="08-collections-and-generics.html">Collections and Generics</a></li>
+                <li><a href="09-linq.html">LINQ</a></li>
+                <li><a href="10-async-await.html">Async/Await</a></li>
+            </ul>
+            <div class="sidebar-section">Resources</div>
+            <ul class="sidebar-nav">
+                <li><a href="../index.html">Full Roadmap</a></li>
+            </ul>
+        </aside>
+
+        <main class="main-content">
+            <div class="content-container">
+                <nav class="breadcrumb">
+                    <a href="../index.html">Home</a>
+                    <span>→</span>
+                    <a href="01-what-is-programming.html">Part I: Foundations</a>
+                    <span>→</span>
+                    Object-Oriented Programming
+                </nav>
+
+                <div class="progress-indicator">
+                    <span>Section 7 of 10</span>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 70%"></div>
+                    </div>
+                </div>
+
+                <h1>Object-Oriented Programming: Classes and Objects</h1>
+
+                <div class="learning-objectives">
+                    <h3>🎯 What You'll Learn</h3>
+                    <ul>
+                        <li>What object-oriented programming (OOP) is and why it matters</li>
+                        <li>The difference between classes and objects</li>
+                        <li>How to define classes with fields, properties, and methods</li>
+                        <li>Constructors and object initialization</li>
+                        <li>Access modifiers (public, private, protected, internal)</li>
+                        <li>Static members vs instance members</li>
+                        <li>The four pillars of OOP: Encapsulation, Inheritance, Polymorphism, Abstraction</li>
+                        <li>Properties vs fields and why properties are preferred</li>
+                        <li>Building real InvenTrack classes for our mini-ERP system</li>
+                    </ul>
+                </div>
+
+                <h2>What is Object-Oriented Programming?</h2>
+
+                <p>
+                    So far, we've been writing <strong>procedural code</strong>—variables and methods that
+                    operate on data. This works for small programs, but as applications grow, you need a
+                    better way to organize complexity. That's where <strong>Object-Oriented Programming
+                        (OOP)</strong> comes in.
+                </p>
+
+                <div class="callout callout-concept">
+                    <div class="callout-title">💡 Key Concept</div>
+                    <p>
+                        <strong>Object-Oriented Programming</strong> is a programming paradigm that organizes
+                        code around <strong>objects</strong>—bundles of data (properties) and behavior (methods)
+                        that represent real-world entities. Instead of scattered variables and functions, you
+                        group related data and operations into cohesive units called <strong>classes</strong>.
+                    </p>
+                </div>
+
+                <div class="analogy">
+                    Think of a blueprint for a house. The blueprint (class) defines what a house should have:
+                    rooms, doors, windows, a roof. But the blueprint itself isn't a house—it's just the design.
+                    When you build an actual house from that blueprint, you create an <strong>object</strong>
+                    (an instance). You can build many houses from the same blueprint, each with its own specific
+                    characteristics (3 bedrooms vs 4, blue paint vs white), but all following the same design.
+                </div>
+
+                <h3>Why Use OOP?</h3>
+
+                <ul>
+                    <li><strong>Organization</strong>: Group related data and behavior together</li>
+                    <li><strong>Reusability</strong>: Create templates (classes) and reuse them throughout your
+                        application</li>
+                    <li><strong>Maintainability</strong>: Changes to a class affect all objects created from it</li>
+                    <li><strong>Abstraction</strong>: Hide complexity behind simple interfaces</li>
+                    <li><strong>Real-world modeling</strong>: Code mirrors the problem domain (customers, products,
+                        orders)</li>
+                </ul>
+
+                <h2>Classes and Objects: The Fundamentals</h2>
+
+                <h3>What is a Class?</h3>
+
+                <p>
+                    A <strong>class</strong> is a blueprint or template that defines the structure and behavior
+                    of objects. It specifies what data an object will hold (fields/properties) and what operations
+                    it can perform (methods).
+                </p>
+
+                <h3>What is an Object?</h3>
+
+                <p>
+                    An <strong>object</strong> is a specific instance of a class—an actual entity created from
+                    the blueprint. Each object has its own copy of the data defined by the class.
+                </p>
+
+                <h3>Your First Class</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">Product.cs</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-comment">// Define a class</span>
+<span class="code-keyword">class</span> <span class="code-class">Product</span>
+{
+    <span class="code-comment">// Fields (data)</span>
+    <span class="code-keyword">public</span> <span class="code-type">string</span> <span class="code-variable">Name</span>;
+    <span class="code-keyword">public</span> <span class="code-type">decimal</span> <span class="code-variable">Price</span>;
+    <span class="code-keyword">public</span> <span class="code-type">int</span> <span class="code-variable">Quantity</span>;
+    
+    <span class="code-comment">// Method (behavior)</span>
+    <span class="code-keyword">public</span> <span class="code-type">decimal</span> <span class="code-method">GetTotalValue</span>()
+    {
+        <span class="code-keyword">return</span> <span class="code-variable">Price</span> * <span class="code-variable">Quantity</span>;
+    }
+}
+
+<span class="code-comment">// Create objects (instances)</span>
+<span class="code-class">Product</span> <span class="code-variable">laptop</span> = <span class="code-keyword">new</span> <span class="code-class">Product</span>();
+<span class="code-variable">laptop</span>.<span class="code-variable">Name</span> = <span class="code-string">"Dell XPS 15"</span>;
+<span class="code-variable">laptop</span>.<span class="code-variable">Price</span> = <span class="code-number">1299.99m</span>;
+<span class="code-variable">laptop</span>.<span class="code-variable">Quantity</span> = <span class="code-number">5</span>;
+
+<span class="code-class">Product</span> <span class="code-variable">mouse</span> = <span class="code-keyword">new</span> <span class="code-class">Product</span>();
+<span class="code-variable">mouse</span>.<span class="code-variable">Name</span> = <span class="code-string">"Logitech MX Master"</span>;
+<span class="code-variable">mouse</span>.<span class="code-variable">Price</span> = <span class="code-number">99.99m</span>;
+<span class="code-variable">mouse</span>.<span class="code-variable">Quantity</span> = <span class="code-number">20</span>;
+
+Console.<span class="code-method">WriteLine</span>(<span class="code-string">$"Laptop inventory value: </span>{<span class="code-variable">laptop</span>.<span class="code-method">GetTotalValue</span>():C}<span class="code-string">"</span>);
+Console.<span class="code-method">WriteLine</span>(<span class="code-string">$"Mouse inventory value: </span>{<span class="code-variable">mouse</span>.<span class="code-method">GetTotalValue</span>():C}<span class="code-string">"</span>);</code></pre>
+
+                <div class="callout callout-info">
+                    <div class="callout-title">ℹ️ Class vs Object</div>
+                    <p>
+                        <strong>Class</strong> = Blueprint/Template (defined once)<br>
+                        <strong>Object</strong> = Instance (created many times with <code>new</code>)<br><br>
+                        One <code>Product</code> class can create thousands of product objects, each with different
+                        data.
+                    </p>
+                </div>
+
+                <h2>Constructors: Initializing Objects</h2>
+
+                <p>
+                    A <strong>constructor</strong> is a special method that runs when you create an object.
+                    It's used to initialize the object's data. Constructors have the same name as the class
+                    and no return type.
+                </p>
+
+                <div class="code-header">
+                    <span class="code-filename">ProductWithConstructor.cs</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-keyword">class</span> <span class="code-class">Product</span>
+{
+    <span class="code-keyword">public</span> <span class="code-type">string</span> <span class="code-variable">Name</span>;
+    <span class="code-keyword">public</span> <span class="code-type">decimal</span> <span class="code-variable">Price</span>;
+    <span class="code-keyword">public</span> <span class="code-type">int</span> <span class="code-variable">Quantity</span>;
+    
+    <span class="code-comment">// Constructor</span>
+    <span class="code-keyword">public</span> <span class="code-method">Product</span>(<span class="code-type">string</span> <span class="code-variable">name</span>, <span class="code-type">decimal</span> <span class="code-variable">price</span>, <span class="code-type">int</span> <span class="code-variable">quantity</span>)
+    {
+        <span class="code-variable">Name</span> = <span class="code-variable">name</span>;
+        <span class="code-variable">Price</span> = <span class="code-variable">price</span>;
+        <span class="code-variable">Quantity</span> = <span class="code-variable">quantity</span>;
+    }
+    
+    <span class="code-keyword">public</span> <span class="code-type">decimal</span> <span class="code-method">GetTotalValue</span>() => <span class="code-variable">Price</span> * <span class="code-variable">Quantity</span>;
+}
+
+<span class="code-comment">// Much cleaner object creation!</span>
+<span class="code-class">Product</span> <span class="code-variable">laptop</span> = <span class="code-keyword">new</span> <span class="code-class">Product</span>(<span class="code-string">"Dell XPS 15"</span>, <span class="code-number">1299.99m</span>, <span class="code-number">5</span>);
+<span class="code-class">Product</span> <span class="code-variable">mouse</span> = <span class="code-keyword">new</span> <span class="code-class">Product</span>(<span class="code-string">"Logitech MX Master"</span>, <span class="code-number">99.99m</span>, <span class="code-number">20</span>);</code></pre>
+
+                <h3>Constructor Overloading</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">ConstructorOverloading.cs</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-keyword">class</span> <span class="code-class">Product</span>
+{
+    <span class="code-keyword">public</span> <span class="code-type">string</span> <span class="code-variable">Name</span>;
+    <span class="code-keyword">public</span> <span class="code-type">decimal</span> <span class="code-variable">Price</span>;
+    <span class="code-keyword">public</span> <span class="code-type">int</span> <span class="code-variable">Quantity</span>;
+    
+    <span class="code-comment">// Default constructor</span>
+    <span class="code-keyword">public</span> <span class="code-method">Product</span>()
+    {
+        <span class="code-variable">Name</span> = <span class="code-string">"Unknown"</span>;
+        <span class="code-variable">Price</span> = <span class="code-number">0m</span>;
+        <span class="code-variable">Quantity</span> = <span class="code-number">0</span>;
+    }
+    
+    <span class="code-comment">// Constructor with parameters</span>
+    <span class="code-keyword">public</span> <span class="code-method">Product</span>(<span class="code-type">string</span> <span class="code-variable">name</span>, <span class="code-type">decimal</span> <span class="code-variable">price</span>)
+    {
+        <span class="code-variable">Name</span> = <span class="code-variable">name</span>;
+        <span class="code-variable">Price</span> = <span class="code-variable">price</span>;
+        <span class="code-variable">Quantity</span> = <span class="code-number">0</span>;
+    }
+    
+    <span class="code-comment">// Full constructor</span>
+    <span class="code-keyword">public</span> <span class="code-method">Product</span>(<span class="code-type">string</span> <span class="code-variable">name</span>, <span class="code-type">decimal</span> <span class="code-variable">price</span>, <span class="code-type">int</span> <span class="code-variable">quantity</span>)
+    {
+        <span class="code-variable">Name</span> = <span class="code-variable">name</span>;
+        <span class="code-variable">Price</span> = <span class="code-variable">price</span>;
+        <span class="code-variable">Quantity</span> = <span class="code-variable">quantity</span>;
+    }
+}
+
+<span class="code-class">Product</span> <span class="code-variable">p1</span> = <span class="code-keyword">new</span> <span class="code-class">Product</span>();
+<span class="code-class">Product</span> <span class="code-variable">p2</span> = <span class="code-keyword">new</span> <span class="code-class">Product</span>(<span class="code-string">"Widget"</span>, <span class="code-number">19.99m</span>);
+<span class="code-class">Product</span> <span class="code-variable">p3</span> = <span class="code-keyword">new</span> <span class="code-class">Product</span>(<span class="code-string">"Gadget"</span>, <span class="code-number">29.99m</span>, <span class="code-number">100</span>);</code></pre>
+
+                <div class="section-divider"></div>
+
+                <h2>Access Modifiers: Controlling Visibility</h2>
+
+                <p>
+                    Access modifiers control who can see and use your class members. This is crucial for
+                    <strong>encapsulation</strong>—hiding internal details and exposing only what's necessary.
+                </p>
+
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Modifier</th>
+                            <th>Visibility</th>
+                            <th>When to Use</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><code>public</code></td>
+                            <td>Accessible from anywhere</td>
+                            <td>Public API of your class</td>
+                        </tr>
+                        <tr>
+                            <td><code>private</code></td>
+                            <td>Only within the same class</td>
+                            <td>Internal implementation details</td>
+                        </tr>
+                        <tr>
+                            <td><code>protected</code></td>
+                            <td>Same class and derived classes</td>
+                            <td>Shared with child classes</td>
+                        </tr>
+                        <tr>
+                            <td><code>internal</code></td>
+                            <td>Same assembly (project)</td>
+                            <td>Internal to your library</td>
+                        </tr>
+                        <tr>
+                            <td><code>protected internal</code></td>
+                            <td>Same assembly OR derived classes</td>
+                            <td>Combination of both</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="code-header">
+                    <span class="code-filename">AccessModifiers.cs</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-keyword">class</span> <span class="code-class">BankAccount</span>
+{
+    <span class="code-keyword">private</span> <span class="code-type">decimal</span> <span class="code-variable">balance</span>;  <span class="code-comment">// Hidden from outside</span>
+    
+    <span class="code-keyword">public</span> <span class="code-method">BankAccount</span>(<span class="code-type">decimal</span> <span class="code-variable">initialBalance</span>)
+    {
+        <span class="code-variable">balance</span> = <span class="code-variable">initialBalance</span>;
+    }
+    
+    <span class="code-keyword">public</span> <span class="code-type">void</span> <span class="code-method">Deposit</span>(<span class="code-type">decimal</span> <span class="code-variable">amount</span>)
+    {
+        <span class="code-keyword">if</span> (<span class="code-variable">amount</span> > <span class="code-number">0</span>)
+            <span class="code-variable">balance</span> += <span class="code-variable">amount</span>;
+    }
+    
+    <span class="code-keyword">public</span> <span class="code-type">bool</span> <span class="code-method">Withdraw</span>(<span class="code-type">decimal</span> <span class="code-variable">amount</span>)
+    {
+        <span class="code-keyword">if</span> (<span class="code-variable">amount</span> > <span class="code-number">0</span> && <span class="code-variable">amount</span> <= <span class="code-variable">balance</span>)
+        {
+            <span class="code-variable">balance</span> -= <span class="code-variable">amount</span>;
+            <span class="code-keyword">return</span> <span class="code-keyword">true</span>;
+        }
+        <span class="code-keyword">return</span> <span class="code-keyword">false</span>;
+    }
+    
+    <span class="code-keyword">public</span> <span class="code-type">decimal</span> <span class="code-method">GetBalance</span>() => <span class="code-variable">balance</span>;
+}
+
+<span class="code-class">BankAccount</span> <span class="code-variable">account</span> = <span class="code-keyword">new</span> <span class="code-class">BankAccount</span>(<span class="code-number">1000m</span>);
+<span class="code-variable">account</span>.<span class="code-method">Deposit</span>(<span class="code-number">500m</span>);
+<span class="code-comment">// account.balance = 5000000;  // ERROR! Can't access private field</span>
+Console.<span class="code-method">WriteLine</span>(<span class="code-variable">account</span>.<span class="code-method">GetBalance</span>());  <span class="code-comment">// OK - public method</span></code></pre>
+
+                <div class="callout callout-tip">
+                    <div class="callout-title">💡 Best Practice</div>
+                    <p>
+                        Make fields <code>private</code> by default. Expose data through <code>public</code>
+                        properties or methods. This gives you control over how data is accessed and modified.
+                    </p>
+                </div>
+
+                <h2>Properties: The Right Way to Expose Data</h2>
+
+                <p>
+                    While you <em>can</em> use public fields, C# provides a better way: <strong>properties</strong>.
+                    Properties look like fields from the outside but act like methods internally, giving you
+                    control over getting and setting values.
+                </p>
+
+                <h3>Auto-Implemented Properties</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">Properties.cs</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-keyword">class</span> <span class="code-class">Product</span>
+{
+    <span class="code-comment">// Auto-implemented properties (compiler creates hidden field)</span>
+    <span class="code-keyword">public</span> <span class="code-type">string</span> <span class="code-variable">Name</span> { <span class="code-keyword">get</span>; <span class="code-keyword">set</span>; }
+    <span class="code-keyword">public</span> <span class="code-type">decimal</span> <span class="code-variable">Price</span> { <span class="code-keyword">get</span>; <span class="code-keyword">set</span>; }
+    <span class="code-keyword">public</span> <span class="code-type">int</span> <span class="code-variable">Quantity</span> { <span class="code-keyword">get</span>; <span class="code-keyword">set</span>; }
+    
+    <span class="code-keyword">public</span> <span class="code-method">Product</span>(<span class="code-type">string</span> <span class="code-variable">name</span>, <span class="code-type">decimal</span> <span class="code-variable">price</span>, <span class="code-type">int</span> <span class="code-variable">quantity</span>)
+    {
+        <span class="code-variable">Name</span> = <span class="code-variable">name</span>;
+        <span class="code-variable">Price</span> = <span class="code-variable">price</span>;
+        <span class="code-variable">Quantity</span> = <span class="code-variable">quantity</span>;
+    }
+}
+
+<span class="code-class">Product</span> <span class="code-variable">p</span> = <span class="code-keyword">new</span> <span class="code-class">Product</span>(<span class="code-string">"Widget"</span>, <span class="code-number">19.99m</span>, <span class="code-number">100</span>);
+Console.<span class="code-method">WriteLine</span>(<span class="code-variable">p</span>.<span class="code-variable">Name</span>);   <span class="code-comment">// Uses get accessor</span>
+<span class="code-variable">p</span>.<span class="code-variable">Price</span> = <span class="code-number">24.99m</span>;         <span class="code-comment">// Uses set accessor</span></code></pre>
+
+                <h3>Properties with Validation Logic</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">PropertiesWithLogic.cs</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-keyword">class</span> <span class="code-class">Product</span>
+{
+    <span class="code-keyword">private</span> <span class="code-type">string</span> <span class="code-variable">name</span>;
+    <span class="code-keyword">private</span> <span class="code-type">decimal</span> <span class="code-variable">price</span>;
+    <span class="code-keyword">private</span> <span class="code-type">int</span> <span class="code-variable">quantity</span>;
+    
+    <span class="code-keyword">public</span> <span class="code-type">string</span> <span class="code-variable">Name</span>
+    {
+        <span class="code-keyword">get</span> => <span class="code-variable">name</span>;
+        <span class="code-keyword">set</span>
+        {
+            <span class="code-keyword">if</span> (<span class="code-keyword">string</span>.<span class="code-method">IsNullOrWhiteSpace</span>(<span class="code-keyword">value</span>))
+                <span class="code-keyword">throw new</span> <span class="code-class">ArgumentException</span>(<span class="code-string">"Name cannot be empty"</span>);
+            <span class="code-variable">name</span> = <span class="code-keyword">value</span>;
+        }
+    }
+    
+    <span class="code-keyword">public</span> <span class="code-type">decimal</span> <span class="code-variable">Price</span>
+    {
+        <span class="code-keyword">get</span> => <span class="code-variable">price</span>;
+        <span class="code-keyword">set</span>
+        {
+            <span class="code-keyword">if</span> (<span class="code-keyword">value</span> < <span class="code-number">0</span>)
+                <span class="code-keyword">throw new</span> <span class="code-class">ArgumentException</span>(<span class="code-string">"Price cannot be negative"</span>);
+            <span class="code-variable">price</span> = <span class="code-keyword">value</span>;
+        }
+    }
+    
+    <span class="code-keyword">public</span> <span class="code-type">int</span> <span class="code-variable">Quantity</span>
+    {
+        <span class="code-keyword">get</span> => <span class="code-variable">quantity</span>;
+        <span class="code-keyword">set</span>
+        {
+            <span class="code-keyword">if</span> (<span class="code-keyword">value</span> < <span class="code-number">0</span>)
+                <span class="code-keyword">throw new</span> <span class="code-class">ArgumentException</span>(<span class="code-string">"Quantity cannot be negative"</span>);
+            <span class="code-variable">quantity</span> = <span class="code-keyword">value</span>;
+        }
+    }
+}</code></pre>
+
+                <h3>Read-Only and Init-Only Properties</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">ReadOnlyProperties.cs</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-keyword">class</span> <span class="code-class">Product</span>
+{
+    <span class="code-comment">// Read-only property (can only be set in constructor)</span>
+    <span class="code-keyword">public</span> <span class="code-type">string</span> <span class="code-variable">Sku</span> { <span class="code-keyword">get</span>; }
+    
+    <span class="code-comment">// Init-only property (can be set during object initialization)</span>
+    <span class="code-keyword">public</span> <span class="code-type">string</span> <span class="code-variable">Name</span> { <span class="code-keyword">get</span>; <span class="code-keyword">init</span>; }
+    <span class="code-keyword">public</span> <span class="code-type">decimal</span> <span class="code-variable">Price</span> { <span class="code-keyword">get</span>; <span class="code-keyword">set</span>; }
+    
+    <span class="code-comment">// Computed property (no setter, calculated on-the-fly)</span>
+    <span class="code-keyword">public</span> <span class="code-type">decimal</span> <span class="code-variable">PriceWithTax</span> => <span class="code-variable">Price</span> * <span class="code-number">1.125m</span>;
+    
+    <span class="code-keyword">public</span> <span class="code-method">Product</span>(<span class="code-type">string</span> <span class="code-variable">sku</span>)
+    {
+        <span class="code-variable">Sku</span> = <span class="code-variable">sku</span>;  <span class="code-comment">// Can set in constructor</span>
+    }
+}
+
+<span class="code-class">Product</span> <span class="code-variable">p</span> = <span class="code-keyword">new</span> <span class="code-class">Product</span>(<span class="code-string">"SKU-001"</span>) 
+{ 
+    <span class="code-variable">Name</span> = <span class="code-string">"Widget"</span>,  <span class="code-comment">// OK - init property</span>
+    <span class="code-variable">Price</span> = <span class="code-number">100m</span> 
+};
+<span class="code-comment">// p.Name = "Gadget";  // ERROR! Can't set init property after initialization</span>
+<span class="code-comment">// p.Sku = "SKU-002";  // ERROR! No setter</span>
+<span class="code-variable">p</span>.<span class="code-variable">Price</span> = <span class="code-number">120m</span>;        <span class="code-comment">// OK - has setter</span></code></pre>
+
+                <div class="section-divider"></div>
+
+                <h2>Static Members: Shared Across All Instances</h2>
+
+                <p>
+                    By default, each object has its own copy of fields and properties. But sometimes you want
+                    data or behavior that's shared across <em>all</em> instances of a class. That's where
+                    <code>static</code> comes in.
+                </p>
+
+                <div class="code-header">
+                    <span class="code-filename">StaticMembers.cs</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-keyword">class</span> <span class="code-class">Product</span>
+{
+    <span class="code-comment">// Static field - shared by all Product instances</span>
+    <span class="code-keyword">private static</span> <span class="code-type">int</span> <span class="code-variable">nextId</span> = <span class="code-number">1</span>;
+    <span class="code-keyword">public static</span> <span class="code-type">decimal</span> <span class="code-variable">TaxRate</span> = <span class="code-number">0.125m</span>;
+    
+    <span class="code-comment">// Instance fields - each object has its own copy</span>
+    <span class="code-keyword">public</span> <span class="code-type">int</span> <span class="code-variable">Id</span> { <span class="code-keyword">get</span>; }
+    <span class="code-keyword">public</span> <span class="code-type">string</span> <span class="code-variable">Name</span> { <span class="code-keyword">get</span>; <span class="code-keyword">set</span>; }
+    <span class="code-keyword">public</span> <span class="code-type">decimal</span> <span class="code-variable">Price</span> { <span class="code-keyword">get</span>; <span class="code-keyword">set</span>; }
+    
+    <span class="code-keyword">public</span> <span class="code-method">Product</span>(<span class="code-type">string</span> <span class="code-variable">name</span>, <span class="code-type">decimal</span> <span class="code-variable">price</span>)
+    {
+        <span class="code-variable">Id</span> = <span class="code-variable">nextId</span>++;  <span class="code-comment">// Auto-increment ID</span>
+        <span class="code-variable">Name</span> = <span class="code-variable">name</span>;
+        <span class="code-variable">Price</span> = <span class="code-variable">price</span>;
+    }
+    
+    <span class="code-comment">// Static method - called on the class, not an instance</span>
+    <span class="code-keyword">public static</span> <span class="code-type">decimal</span> <span class="code-method">CalculateTax</span>(<span class="code-type">decimal</span> <span class="code-variable">amount</span>)
+    {
+        <span class="code-keyword">return</span> <span class="code-variable">amount</span> * <span class="code-variable">TaxRate</span>;
+    }
+    
+    <span class="code-comment">// Instance method</span>
+    <span class="code-keyword">public</span> <span class="code-type">decimal</span> <span class="code-method">GetPriceWithTax</span>()
+    {
+        <span class="code-keyword">return</span> <span class="code-variable">Price</span> * (<span class="code-number">1</span> + <span class="code-variable">TaxRate</span>);
+    }
+}
+
+<span class="code-class">Product</span> <span class="code-variable">p1</span> = <span class="code-keyword">new</span> <span class="code-class">Product</span>(<span class="code-string">"Widget"</span>, <span class="code-number">100m</span>);
+<span class="code-class">Product</span> <span class="code-variable">p2</span> = <span class="code-keyword">new</span> <span class="code-class">Product</span>(<span class="code-string">"Gadget"</span>, <span class="code-number">200m</span>);
+
+Console.<span class="code-method">WriteLine</span>(<span class="code-variable">p1</span>.<span class="code-variable">Id</span>);  <span class="code-comment">// 1</span>
+Console.<span class="code-method">WriteLine</span>(<span class="code-variable">p2</span>.<span class="code-variable">Id</span>);  <span class="code-comment">// 2</span>
+
+<span class="code-comment">// Static method - called on class</span>
+<span class="code-type">decimal</span> <span class="code-variable">tax</span> = <span class="code-class">Product</span>.<span class="code-method">CalculateTax</span>(<span class="code-number">100m</span>);
+
+<span class="code-comment">// Change static field - affects all instances</span>
+<span class="code-class">Product</span>.<span class="code-variable">TaxRate</span> = <span class="code-number">0.15m</span>;
+Console.<span class="code-method">WriteLine</span>(<span class="code-variable">p1</span>.<span class="code-method">GetPriceWithTax</span>());  <span class="code-comment">// Uses new tax rate</span>
+Console.<span class="code-method">WriteLine</span>(<span class="code-variable">p2</span>.<span class="code-method">GetPriceWithTax</span>());  <span class="code-comment">// Uses new tax rate</span></code></pre>
+
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Instance Members</th>
+                            <th>Static Members</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Each object has its own copy</td>
+                            <td>Shared across all objects</td>
+                        </tr>
+                        <tr>
+                            <td>Accessed via object reference (<code>p1.Name</code>)</td>
+                            <td>Accessed via class name (<code>Product.TaxRate</code>)</td>
+                        </tr>
+                        <tr>
+                            <td>Can access instance and static members</td>
+                            <td>Can only access static members</td>
+                        </tr>
+                        <tr>
+                            <td>Requires object creation</td>
+                            <td>No object needed</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="callout callout-info">
+                    <div class="callout-title">ℹ️ When to Use Static</div>
+                    <p>
+                        Use <code>static</code> for utility methods (<code>Math.Sqrt</code>), shared configuration,
+                        counters, or anything that doesn't depend on instance data. Examples:
+                        <code>Console.WriteLine</code>,
+                        <code>int.Parse</code>, <code>DateTime.Now</code>.
+                    </p>
+                </div>
+
+                <div class="section-divider"></div>
+
+                <h2>The Four Pillars of OOP</h2>
+
+                <p>
+                    Object-Oriented Programming is built on four fundamental principles. Understanding these
+                    will help you design better, more maintainable software.
+                </p>
+
+                <h3>1. Encapsulation: Hiding Implementation Details</h3>
+
+                <p>
+                    <strong>Encapsulation</strong> means bundling data and methods together while hiding internal
+                    details. You expose a clean public interface and keep implementation private.
+                </p>
+
+                <div class="code-header">
+                    <span class="code-filename">Encapsulation.cs</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-keyword">class</span> <span class="code-class">InventoryItem</span>
+{
+    <span class="code-keyword">private</span> <span class="code-type">int</span> <span class="code-variable">quantity</span>;  <span class="code-comment">// Hidden</span>
+    <span class="code-keyword">private</span> <span class="code-type">int</span> <span class="code-variable">reorderLevel</span> = <span class="code-number">10</span>;
+    
+    <span class="code-keyword">public</span> <span class="code-type">string</span> <span class="code-variable">ProductName</span> { <span class="code-keyword">get</span>; <span class="code-keyword">set</span>; }
+    
+    <span class="code-comment">// Controlled access through properties</span>
+    <span class="code-keyword">public</span> <span class="code-type">int</span> <span class="code-variable">Quantity</span>
+    {
+        <span class="code-keyword">get</span> => <span class="code-variable">quantity</span>;
+        <span class="code-keyword">set</span>
+        {
+            <span class="code-keyword">if</span> (<span class="code-keyword">value</span> < <span class="code-number">0</span>)
+                <span class="code-keyword">throw new</span> <span class="code-class">ArgumentException</span>(<span class="code-string">"Quantity cannot be negative"</span>);
+            <span class="code-variable">quantity</span> = <span class="code-keyword">value</span>;
+            <span class="code-method">CheckReorderStatus</span>();
+        }
+    }
+    
+    <span class="code-keyword">public</span> <span class="code-type">bool</span> <span class="code-variable">NeedsReorder</span> { <span class="code-keyword">get</span>; <span class="code-keyword">private</span> <span class="code-keyword">set</span>; }
+    
+    <span class="code-comment">// Private helper method</span>
+    <span class="code-keyword">private</span> <span class="code-type">void</span> <span class="code-method">CheckReorderStatus</span>()
+    {
+        <span class="code-variable">NeedsReorder</span> = <span class="code-variable">quantity</span> < <span class="code-variable">reorderLevel</span>;
+    }
+    
+    <span class="code-comment">// Public methods for controlled operations</span>
+    <span class="code-keyword">public</span> <span class="code-type">void</span> <span class="code-method">AddStock</span>(<span class="code-type">int</span> <span class="code-variable">amount</span>)
+    {
+        <span class="code-keyword">if</span> (<span class="code-variable">amount</span> > <span class="code-number">0</span>)
+            <span class="code-variable">Quantity</span> += <span class="code-variable">amount</span>;
+    }
+    
+    <span class="code-keyword">public</span> <span class="code-type">bool</span> <span class="code-method">RemoveStock</span>(<span class="code-type">int</span> <span class="code-variable">amount</span>)
+    {
+        <span class="code-keyword">if</span> (<span class="code-variable">amount</span> > <span class="code-number">0</span> && <span class="code-variable">amount</span> <= <span class="code-variable">quantity</span>)
+        {
+            <span class="code-variable">Quantity</span> -= <span class="code-variable">amount</span>;
+            <span class="code-keyword">return</span> <span class="code-keyword">true</span>;
+        }
+        <span class="code-keyword">return</span> <span class="code-keyword">false</span>;
+    }
+}</code></pre>
+
+                <div class="callout callout-concept">
+                    <div class="callout-title">💡 Encapsulation Benefits</div>
+                    <p>
+                        <strong>Control</strong>: Validate data before accepting it<br>
+                        <strong>Flexibility</strong>: Change internal implementation without breaking external code<br>
+                        <strong>Security</strong>: Prevent direct manipulation of sensitive data<br>
+                        <strong>Maintainability</strong>: Clear separation between interface and implementation
+                    </p>
+                </div>
+
+                <h3>2. Inheritance: Building on Existing Classes</h3>
+
+                <p>
+                    <strong>Inheritance</strong> allows you to create new classes based on existing ones, reusing
+                    and extending their functionality. The new class (child/derived) inherits members from the
+                    base class (parent).
+                </p>
+
+                <div class="code-header">
+                    <span class="code-filename">Inheritance.cs</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-comment">// Base class</span>
+<span class="code-keyword">class</span> <span class="code-class">Product</span>
+{
+    <span class="code-keyword">public</span> <span class="code-type">string</span> <span class="code-variable">Name</span> { <span class="code-keyword">get</span>; <span class="code-keyword">set</span>; }
+    <span class="code-keyword">public</span> <span class="code-type">decimal</span> <span class="code-variable">Price</span> { <span class="code-keyword">get</span>; <span class="code-keyword">set</span>; }
+    <span class="code-keyword">public</span> <span class="code-type">string</span> <span class="code-variable">Sku</span> { <span class="code-keyword">get</span>; <span class="code-keyword">set</span>; }
+    
+    <span class="code-keyword">public</span> <span class="code-type">virtual</span> <span class="code-type">decimal</span> <span class="code-method">CalculateTotal</span>(<span class="code-type">int</span> <span class="code-variable">quantity</span>)
+    {
+        <span class="code-keyword">return</span> <span class="code-variable">Price</span> * <span class="code-variable">quantity</span>;
+    }
+    
+    <span class="code-keyword">public</span> <span class="code-type">virtual</span> <span class="code-type">void</span> <span class="code-method">DisplayInfo</span>()
+    {
+        Console.<span class="code-method">WriteLine</span>(<span class="code-string">$"Product: </span>{<span class="code-variable">Name</span>}<span class="code-string">, Price: </span>{<span class="code-variable">Price</span>:C}<span class="code-string">"</span>);
+    }
+}
+
+<span class="code-comment">// Derived class - inherits from Product</span>
+<span class="code-keyword">class</span> <span class="code-class">DigitalProduct</span> : <span class="code-class">Product</span>
+{
+    <span class="code-keyword">public</span> <span class="code-type">string</span> <span class="code-variable">DownloadUrl</span> { <span class="code-keyword">get</span>; <span class="code-keyword">set</span>; }
+    <span class="code-keyword">public</span> <span class="code-type">int</span> <span class="code-variable">FileSizeMB</span> { <span class="code-keyword">get</span>; <span class="code-keyword">set</span>; }
+    
+    <span class="code-comment">// Override base method</span>
+    <span class="code-keyword">public</span> <span class="code-keyword">override</span> <span class="code-type">void</span> <span class="code-method">DisplayInfo</span>()
+    {
+        <span class="code-keyword">base</span>.<span class="code-method">DisplayInfo</span>();  <span class="code-comment">// Call parent method</span>
+        Console.<span class="code-method">WriteLine</span>(<span class="code-string">$"Download: </span>{<span class="code-variable">DownloadUrl</span>}<span class="code-string">, Size: </span>{<span class="code-variable">FileSizeMB</span>}<span class="code-string">MB"</span>);
+    }
+}
+
+<span class="code-comment">// Another derived class</span>
+<span class="code-keyword">class</span> <span class="code-class">PhysicalProduct</span> : <span class="code-class">Product</span>
+{
+    <span class="code-keyword">public</span> <span class="code-type">decimal</span> <span class="code-variable">Weight</span> { <span class="code-keyword">get</span>; <span class="code-keyword">set</span>; }
+    <span class="code-keyword">public</span> <span class="code-type">decimal</span> <span class="code-variable">ShippingCost</span> { <span class="code-keyword">get</span>; <span class="code-keyword">set</span>; }
+    
+    <span class="code-keyword">public</span> <span class="code-keyword">override</span> <span class="code-type">decimal</span> <span class="code-method">CalculateTotal</span>(<span class="code-type">int</span> <span class="code-variable">quantity</span>)
+    {
+        <span class="code-keyword">return</span> (<span class="code-variable">Price</span> * <span class="code-variable">quantity</span>) + <span class="code-variable">ShippingCost</span>;
+    }
+}
+
+<span class="code-class">DigitalProduct</span> <span class="code-variable">ebook</span> = <span class="code-keyword">new</span> <span class="code-class">DigitalProduct</span>
+{
+    <span class="code-variable">Name</span> = <span class="code-string">"C# Programming Guide"</span>,
+    <span class="code-variable">Price</span> = <span class="code-number">29.99m</span>,
+    <span class="code-variable">DownloadUrl</span> = <span class="code-string">"https://example.com/ebook.pdf"</span>,
+    <span class="code-variable">FileSizeMB</span> = <span class="code-number">15</span>
+};
+
+<span class="code-class">PhysicalProduct</span> <span class="code-variable">book</span> = <span class="code-keyword">new</span> <span class="code-class">PhysicalProduct</span>
+{
+    <span class="code-variable">Name</span> = <span class="code-string">"C# in Depth"</span>,
+    <span class="code-variable">Price</span> = <span class="code-number">49.99m</span>,
+    <span class="code-variable">Weight</span> = <span class="code-number">1.2m</span>,
+    <span class="code-variable">ShippingCost</span> = <span class="code-number">5.99m</span>
+};
+
+<span class="code-variable">ebook</span>.<span class="code-method">DisplayInfo</span>();
+Console.<span class="code-method">WriteLine</span>(<span class="code-variable">book</span>.<span class="code-method">CalculateTotal</span>(<span class="code-number">2</span>));  <span class="code-comment">// Includes shipping</span></code></pre>
+
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Keyword</th>
+                            <th>Purpose</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><code>virtual</code></td>
+                            <td>Marks a method/property in base class as overridable</td>
+                        </tr>
+                        <tr>
+                            <td><code>override</code></td>
+                            <td>Provides new implementation in derived class</td>
+                        </tr>
+                        <tr>
+                            <td><code>base</code></td>
+                            <td>Calls the parent class's version of a method</td>
+                        </tr>
+                        <tr>
+                            <td><code>sealed</code></td>
+                            <td>Prevents further inheritance</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h3>3. Polymorphism: Many Forms</h3>
+
+                <p>
+                    <strong>Polymorphism</strong> means "many forms." It allows objects of different types to be
+                    treated uniformly through a common interface, while each type provides its own specific behavior.
+                </p>
+
+                <div class="code-header">
+                    <span class="code-filename">Polymorphism.cs</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-comment">// Polymorphism in action - same interface, different behaviors</span>
+<span class="code-class">Product</span>[] <span class="code-variable">products</span> = <span class="code-keyword">new</span> <span class="code-class">Product</span>[]
+{
+    <span class="code-keyword">new</span> <span class="code-class">DigitalProduct</span> { <span class="code-variable">Name</span> = <span class="code-string">"Software"</span>, <span class="code-variable">Price</span> = <span class="code-number">99.99m</span> },
+    <span class="code-keyword">new</span> <span class="code-class">PhysicalProduct</span> { <span class="code-variable">Name</span> = <span class="code-string">"Book"</span>, <span class="code-variable">Price</span> = <span class="code-number">29.99m</span>, <span class="code-variable">ShippingCost</span> = <span class="code-number">5m</span> },
+    <span class="code-keyword">new</span> <span class="code-class">Product</span> { <span class="code-variable">Name</span> = <span class="code-string">"Generic"</span>, <span class="code-variable">Price</span> = <span class="code-number">19.99m</span> }
+};
+
+<span class="code-comment">// Each calls its own version of CalculateTotal</span>
+<span class="code-keyword">foreach</span> (<span class="code-class">Product</span> <span class="code-variable">p</span> <span class="code-keyword">in</span> <span class="code-variable">products</span>)
+{
+    Console.<span class="code-method">WriteLine</span>(<span class="code-string">$"</span>{<span class="code-variable">p</span>.<span class="code-variable">Name</span>}<span class="code-string">: </span>{<span class="code-variable">p</span>.<span class="code-method">CalculateTotal</span>(<span class="code-number">1</span>):C}<span class="code-string">"</span>);
+    <span class="code-variable">p</span>.<span class="code-method">DisplayInfo</span>();
+}</code></pre>
+
+                <div class="analogy">
+                    Think of a remote control. The "power" button works on any device (TV, stereo, AC), but each
+                    device responds differently. The interface (button) is the same, but the behavior (what happens
+                    when you press it) varies. That's polymorphism!
+                </div>
+
+                <h3>4. Abstraction: Simplifying Complexity</h3>
+
+                <p>
+                    <strong>Abstraction</strong> means hiding complex implementation details and showing only the
+                    essential features. You define what something does, not how it does it.
+                </p>
+
+                <div class="code-header">
+                    <span class="code-filename">Abstraction.cs</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-comment">// Abstract class - cannot be instantiated directly</span>
+<span class="code-keyword">abstract</span> <span class="code-keyword">class</span> <span class="code-class">PaymentMethod</span>
+{
+    <span class="code-keyword">public</span> <span class="code-type">string</span> <span class="code-variable">TransactionId</span> { <span class="code-keyword">get</span>; <span class="code-keyword">set</span>; }
+    
+    <span class="code-comment">// Abstract method - must be implemented by derived classes</span>
+    <span class="code-keyword">public</span> <span class="code-keyword">abstract</span> <span class="code-type">bool</span> <span class="code-method">ProcessPayment</span>(<span class="code-type">decimal</span> <span class="code-variable">amount</span>);
+    
+    <span class="code-comment">// Concrete method - shared by all payment methods</span>
+    <span class="code-keyword">public</span> <span class="code-type">void</span> <span class="code-method">LogTransaction</span>(<span class="code-type">decimal</span> <span class="code-variable">amount</span>)
+    {
+        Console.<span class="code-method">WriteLine</span>(<span class="code-string">$"Transaction </span>{<span class="code-variable">TransactionId</span>}<span class="code-string">: </span>{<span class="code-variable">amount</span>:C}<span class="code-string">"</span>);
+    }
+}
+
+<span class="code-keyword">class</span> <span class="code-class">CreditCardPayment</span> : <span class="code-class">PaymentMethod</span>
+{
+    <span class="code-keyword">public</span> <span class="code-type">string</span> <span class="code-variable">CardNumber</span> { <span class="code-keyword">get</span>; <span class="code-keyword">set</span>; }
+    
+    <span class="code-keyword">public</span> <span class="code-keyword">override</span> <span class="code-type">bool</span> <span class="code-method">ProcessPayment</span>(<span class="code-type">decimal</span> <span class="code-variable">amount</span>)
+    {
+        Console.<span class="code-method">WriteLine</span>(<span class="code-string">$"Processing credit card payment: </span>{<span class="code-variable">amount</span>:C}<span class="code-string">"</span>);
+        <span class="code-comment">// Credit card processing logic here</span>
+        <span class="code-method">LogTransaction</span>(<span class="code-variable">amount</span>);
+        <span class="code-keyword">return</span> <span class="code-keyword">true</span>;
+    }
+}
+
+<span class="code-keyword">class</span> <span class="code-class">PayPalPayment</span> : <span class="code-class">PaymentMethod</span>
+{
+    <span class="code-keyword">public</span> <span class="code-type">string</span> <span class="code-variable">Email</span> { <span class="code-keyword">get</span>; <span class="code-keyword">set</span>; }
+    
+    <span class="code-keyword">public</span> <span class="code-keyword">override</span> <span class="code-type">bool</span> <span class="code-method">ProcessPayment</span>(<span class="code-type">decimal</span> <span class="code-variable">amount</span>)
+    {
+        Console.<span class="code-method">WriteLine</span>(<span class="code-string">$"Processing PayPal payment: </span>{<span class="code-variable">amount</span>:C}<span class="code-string">"</span>);
+        <span class="code-comment">// PayPal processing logic here</span>
+        <span class="code-method">LogTransaction</span>(<span class="code-variable">amount</span>);
+        <span class="code-keyword">return</span> <span class="code-keyword">true</span>;
+    }
+}
+
+<span class="code-comment">// Usage - we don't care HOW payment is processed</span>
+<span class="code-class">PaymentMethod</span> <span class="code-variable">payment</span> = <span class="code-keyword">new</span> <span class="code-class">CreditCardPayment</span> 
+{ 
+    <span class="code-variable">TransactionId</span> = <span class="code-string">"TXN-001"</span>,
+    <span class="code-variable">CardNumber</span> = <span class="code-string">"****1234"</span>
+};
+<span class="code-variable">payment</span>.<span class="code-method">ProcessPayment</span>(<span class="code-number">99.99m</span>);</code></pre>
+
+                <div class="callout callout-info">
+                    <div class="callout-title">ℹ️ Abstract vs Virtual</div>
+                    <p>
+                        <strong>Abstract</strong>: No implementation in base class, derived classes MUST implement<br>
+                        <strong>Virtual</strong>: Has implementation in base class, derived classes CAN override
+                    </p>
+                </div>
+
+                <div class="section-divider"></div>
+
+                <h2>Building InvenTrack: Practical OOP Example</h2>
+
+                <p>
+                    Let's apply everything we've learned to build core classes for our InvenTrack mini-ERP system.
+                </p>
+
+                <div class="code-header">
+                    <span class="code-filename">InvenTrack.cs</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-comment">// Product class with full OOP principles</span>
+<span class="code-keyword">class</span> <span class="code-class">Product</span>
+{
+    <span class="code-keyword">private</span> <span class="code-keyword">static</span> <span class="code-type">int</span> <span class="code-variable">nextId</span> = <span class="code-number">1</span>;
+    <span class="code-keyword">private</span> <span class="code-type">decimal</span> <span class="code-variable">price</span>;
+    <span class="code-keyword">private</span> <span class="code-type">int</span> <span class="code-variable">quantityInStock</span>;
+    
+    <span class="code-comment">// Properties</span>
+    <span class="code-keyword">public</span> <span class="code-type">int</span> <span class="code-variable">Id</span> { <span class="code-keyword">get</span>; }
+    <span class="code-keyword">public</span> <span class="code-type">string</span> <span class="code-variable">Sku</span> { <span class="code-keyword">get</span>; <span class="code-keyword">init</span>; }
+    <span class="code-keyword">public</span> <span class="code-type">string</span> <span class="code-variable">Name</span> { <span class="code-keyword">get</span>; <span class="code-keyword">set</span>; }
+    <span class="code-keyword">public</span> <span class="code-type">string</span> <span class="code-variable">Description</span> { <span class="code-keyword">get</span>; <span class="code-keyword">set</span>; }
+    
+    <span class="code-keyword">public</span> <span class="code-type">decimal</span> <span class="code-variable">Price</span>
+    {
+        <span class="code-keyword">get</span> => <span class="code-variable">price</span>;
+        <span class="code-keyword">set</span>
+        {
+            <span class="code-keyword">if</span> (<span class="code-keyword">value</span> < <span class="code-number">0</span>)
+                <span class="code-keyword">throw new</span> <span class="code-class">ArgumentException</span>(<span class="code-string">"Price cannot be negative"</span>);
+            <span class="code-variable">price</span> = <span class="code-keyword">value</span>;
+        }
+    }
+    
+    <span class="code-keyword">public</span> <span class="code-type">int</span> <span class="code-variable">QuantityInStock</span>
+    {
+        <span class="code-keyword">get</span> => <span class="code-variable">quantityInStock</span>;
+        <span class="code-keyword">private</span> <span class="code-keyword">set</span> => <span class="code-variable">quantityInStock</span> = <span class="code-keyword">value</span>;
+    }
+    
+    <span class="code-keyword">public</span> <span class="code-type">int</span> <span class="code-variable">ReorderLevel</span> { <span class="code-keyword">get</span>; <span class="code-keyword">set</span>; } = <span class="code-number">10</span>;
+    <span class="code-keyword">public</span> <span class="code-type">bool</span> <span class="code-variable">IsLowStock</span> => <span class="code-variable">quantityInStock</span> < <span class="code-variable">ReorderLevel</span>;
+    
+    <span class="code-comment">// Constructor</span>
+    <span class="code-keyword">public</span> <span class="code-method">Product</span>(<span class="code-type">string</span> <span class="code-variable">sku</span>, <span class="code-type">string</span> <span class="code-variable">name</span>, <span class="code-type">decimal</span> <span class="code-variable">price</span>, <span class="code-type">int</span> <span class="code-variable">initialStock</span>)
+    {
+        <span class="code-variable">Id</span> = <span class="code-variable">nextId</span>++;
+        <span class="code-variable">Sku</span> = <span class="code-variable">sku</span>;
+        <span class="code-variable">Name</span> = <span class="code-variable">name</span>;
+        <span class="code-variable">Price</span> = <span class="code-variable">price</span>;
+        <span class="code-variable">QuantityInStock</span> = <span class="code-variable">initialStock</span>;
+    }
+    
+    <span class="code-comment">// Methods</span>
+    <span class="code-keyword">public</span> <span class="code-type">void</span> <span class="code-method">AddStock</span>(<span class="code-type">int</span> <span class="code-variable">quantity</span>)
+    {
+        <span class="code-keyword">if</span> (<span class="code-variable">quantity</span> <= <span class="code-number">0</span>)
+            <span class="code-keyword">throw new</span> <span class="code-class">ArgumentException</span>(<span class="code-string">"Quantity must be positive"</span>);
+        <span class="code-variable">QuantityInStock</span> += <span class="code-variable">quantity</span>;
+    }
+    
+    <span class="code-keyword">public</span> <span class="code-type">bool</span> <span class="code-method">RemoveStock</span>(<span class="code-type">int</span> <span class="code-variable">quantity</span>)
+    {
+        <span class="code-keyword">if</span> (<span class="code-variable">quantity</span> <= <span class="code-number">0</span> || <span class="code-variable">quantity</span> > <span class="code-variable">QuantityInStock</span>)
+            <span class="code-keyword">return</span> <span class="code-keyword">false</span>;
+        <span class="code-variable">QuantityInStock</span> -= <span class="code-variable">quantity</span>;
+        <span class="code-keyword">return</span> <span class="code-keyword">true</span>;
+    }
+    
+    <span class="code-keyword">public</span> <span class="code-type">decimal</span> <span class="code-method">GetInventoryValue</span>() => <span class="code-variable">Price</span> * <span class="code-variable">QuantityInStock</span>;
+}
+
+<span class="code-comment">// Customer class</span>
+<span class="code-keyword">class</span> <span class="code-class">Customer</span>
+{
+    <span class="code-keyword">private</span> <span class="code-keyword">static</span> <span class="code-type">int</span> <span class="code-variable">nextId</span> = <span class="code-number">1000</span>;
+    
+    <span class="code-keyword">public</span> <span class="code-type">int</span> <span class="code-variable">Id</span> { <span class="code-keyword">get</span>; }
+    <span class="code-keyword">public</span> <span class="code-type">string</span> <span class="code-variable">Name</span> { <span class="code-keyword">get</span>; <span class="code-keyword">set</span>; }
+    <span class="code-keyword">public</span> <span class="code-type">string</span> <span class="code-variable">Email</span> { <span class="code-keyword">get</span>; <span class="code-keyword">set</span>; }
+    <span class="code-keyword">public</span> <span class="code-type">string</span> <span class="code-variable">Phone</span> { <span class="code-keyword">get</span>; <span class="code-keyword">set</span>; }
+    <span class="code-keyword">public</span> <span class="code-type">decimal</span> <span class="code-variable">CreditLimit</span> { <span class="code-keyword">get</span>; <span class="code-keyword">set</span>; }
+    <span class="code-keyword">public</span> <span class="code-type">decimal</span> <span class="code-variable">CurrentBalance</span> { <span class="code-keyword">get</span>; <span class="code-keyword">private</span> <span class="code-keyword">set</span>; }
+    
+    <span class="code-keyword">public</span> <span class="code-method">Customer</span>(<span class="code-type">string</span> <span class="code-variable">name</span>, <span class="code-type">string</span> <span class="code-variable">email</span>)
+    {
+        <span class="code-variable">Id</span> = <span class="code-variable">nextId</span>++;
+        <span class="code-variable">Name</span> = <span class="code-variable">name</span>;
+        <span class="code-variable">Email</span> = <span class="code-variable">email</span>;
+        <span class="code-variable">CreditLimit</span> = <span class="code-number">1000m</span>;
+    }
+    
+    <span class="code-keyword">public</span> <span class="code-type">bool</span> <span class="code-method">CanPurchase</span>(<span class="code-type">decimal</span> <span class="code-variable">amount</span>)
+    {
+        <span class="code-keyword">return</span> (<span class="code-variable">CurrentBalance</span> + <span class="code-variable">amount</span>) <= <span class="code-variable">CreditLimit</span>;
+    }
+    
+    <span class="code-keyword">public</span> <span class="code-type">void</span> <span class="code-method">AddCharge</span>(<span class="code-type">decimal</span> <span class="code-variable">amount</span>)
+    {
+        <span class="code-variable">CurrentBalance</span> += <span class="code-variable">amount</span>;
+    }
+    
+    <span class="code-keyword">public</span> <span class="code-type">void</span> <span class="code-method">MakePayment</span>(<span class="code-type">decimal</span> <span class="code-variable">amount</span>)
+    {
+        <span class="code-keyword">if</span> (<span class="code-variable">amount</span> > <span class="code-variable">CurrentBalance</span>)
+            <span class="code-variable">amount</span> = <span class="code-variable">CurrentBalance</span>;
+        <span class="code-variable">CurrentBalance</span> -= <span class="code-variable">amount</span>;
+    }
+}
+
+<span class="code-comment">// SalesOrder class</span>
+<span class="code-keyword">class</span> <span class="code-class">SalesOrder</span>
+{
+    <span class="code-keyword">private</span> <span class="code-keyword">static</span> <span class="code-type">int</span> <span class="code-variable">nextOrderNumber</span> = <span class="code-number">1</span>;
+    
+    <span class="code-keyword">public</span> <span class="code-type">int</span> <span class="code-variable">OrderNumber</span> { <span class="code-keyword">get</span>; }
+    <span class="code-keyword">public</span> <span class="code-class">Customer</span> <span class="code-variable">Customer</span> { <span class="code-keyword">get</span>; }
+    <span class="code-keyword">public</span> <span class="code-class">DateTime</span> <span class="code-variable">OrderDate</span> { <span class="code-keyword">get</span>; }
+    <span class="code-keyword">public</span> <span class="code-class">List</span>&lt;<span class="code-class">OrderLine</span>&gt; <span class="code-variable">Lines</span> { <span class="code-keyword">get</span>; }
+    
+    <span class="code-keyword">public</span> <span class="code-type">decimal</span> <span class="code-variable">Total</span> => <span class="code-variable">Lines</span>.<span class="code-method">Sum</span>(<span class="code-variable">l</span> => <span class="code-variable">l</span>.<span class="code-method">GetLineTotal</span>());
+    
+    <span class="code-keyword">public</span> <span class="code-method">SalesOrder</span>(<span class="code-class">Customer</span> <span class="code-variable">customer</span>)
+    {
+        <span class="code-variable">OrderNumber</span> = <span class="code-variable">nextOrderNumber</span>++;
+        <span class="code-variable">Customer</span> = <span class="code-variable">customer</span>;
+        <span class="code-variable">OrderDate</span> = <span class="code-class">DateTime</span>.<span class="code-variable">Now</span>;
+        <span class="code-variable">Lines</span> = <span class="code-keyword">new</span> <span class="code-class">List</span>&lt;<span class="code-class">OrderLine</span>&gt;();
+    }
+    
+    <span class="code-keyword">public</span> <span class="code-type">void</span> <span class="code-method">AddLine</span>(<span class="code-class">Product</span> <span class="code-variable">product</span>, <span class="code-type">int</span> <span class="code-variable">quantity</span>)
+    {
+        <span class="code-variable">Lines</span>.<span class="code-method">Add</span>(<span class="code-keyword">new</span> <span class="code-class">OrderLine</span>(<span class="code-variable">product</span>, <span class="code-variable">quantity</span>));
+    }
+}
+
+<span class="code-keyword">class</span> <span class="code-class">OrderLine</span>
+{
+    <span class="code-keyword">public</span> <span class="code-class">Product</span> <span class="code-variable">Product</span> { <span class="code-keyword">get</span>; }
+    <span class="code-keyword">public</span> <span class="code-type">int</span> <span class="code-variable">Quantity</span> { <span class="code-keyword">get</span>; <span class="code-keyword">set</span>; }
+    <span class="code-keyword">public</span> <span class="code-type">decimal</span> <span class="code-variable">UnitPrice</span> { <span class="code-keyword">get</span>; }
+    
+    <span class="code-keyword">public</span> <span class="code-method">OrderLine</span>(<span class="code-class">Product</span> <span class="code-variable">product</span>, <span class="code-type">int</span> <span class="code-variable">quantity</span>)
+    {
+        <span class="code-variable">Product</span> = <span class="code-variable">product</span>;
+        <span class="code-variable">Quantity</span> = <span class="code-variable">quantity</span>;
+        <span class="code-variable">UnitPrice</span> = <span class="code-variable">product</span>.<span class="code-variable">Price</span>;  <span class="code-comment">// Lock in price at order time</span>
+    }
+    
+    <span class="code-keyword">public</span> <span class="code-type">decimal</span> <span class="code-method">GetLineTotal</span>() => <span class="code-variable">UnitPrice</span> * <span class="code-variable">Quantity</span>;
+}
+
+<span class="code-comment">// Usage example</span>
+<span class="code-class">Product</span> <span class="code-variable">laptop</span> = <span class="code-keyword">new</span> <span class="code-class">Product</span>(<span class="code-string">"LAP-001"</span>, <span class="code-string">"Dell XPS 15"</span>, <span class="code-number">1299.99m</span>, <span class="code-number">10</span>);
+<span class="code-class">Product</span> <span class="code-variable">mouse</span> = <span class="code-keyword">new</span> <span class="code-class">Product</span>(<span class="code-string">"MOU-001"</span>, <span class="code-string">"Logitech MX"</span>, <span class="code-number">99.99m</span>, <span class="code-number">50</span>);
+
+<span class="code-class">Customer</span> <span class="code-variable">customer</span> = <span class="code-keyword">new</span> <span class="code-class">Customer</span>(<span class="code-string">"Akwasi Asante"</span>, <span class="code-string">"akwasi@example.com"</span>);
+
+<span class="code-class">SalesOrder</span> <span class="code-variable">order</span> = <span class="code-keyword">new</span> <span class="code-class">SalesOrder</span>(<span class="code-variable">customer</span>);
+<span class="code-variable">order</span>.<span class="code-method">AddLine</span>(<span class="code-variable">laptop</span>, <span class="code-number">1</span>);
+<span class="code-variable">order</span>.<span class="code-method">AddLine</span>(<span class="code-variable">mouse</span>, <span class="code-number">2</span>);
+
+Console.<span class="code-method">WriteLine</span>(<span class="code-string">$"Order #{</span>{<span class="code-variable">order</span>.<span class="code-variable">OrderNumber</span>}<span class="code-string">} for </span>{<span class="code-variable">customer</span>.<span class="code-variable">Name</span>}<span class="code-string">"</span>);
+Console.<span class="code-method">WriteLine</span>(<span class="code-string">$"Total: </span>{<span class="code-variable">order</span>.<span class="code-variable">Total</span>:C}<span class="code-string">"</span>);</code></pre>
+
+                <div class="callout callout-tip">
+                    <div class="callout-title">🚀 Real-World Design</div>
+                    <p>
+                        Notice how these classes model real business entities. Each class has a single, clear
+                        responsibility. Data is protected with private fields and exposed through properties.
+                        Methods provide controlled operations. This is professional, production-quality code structure!
+                    </p>
+                </div>
+
+                <div class="section-divider"></div>
+
+                <h2>Key Takeaways</h2>
+
+                <ul>
+                    <li><strong>Classes</strong> are blueprints; <strong>objects</strong> are instances created from
+                        those blueprints</li>
+                    <li><strong>Constructors</strong> initialize objects when they're created</li>
+                    <li><strong>Access modifiers</strong> (public, private, protected, internal) control visibility</li>
+                    <li><strong>Properties</strong> are preferred over public fields—they provide encapsulation and
+                        validation</li>
+                    <li><strong>Static members</strong> are shared across all instances; instance members are unique per
+                        object</li>
+                    <li><strong>Encapsulation</strong>: Bundle data and methods, hide implementation details</li>
+                    <li><strong>Inheritance</strong>: Build new classes based on existing ones (use
+                        <code>virtual</code>/<code>override</code>)</li>
+                    <li><strong>Polymorphism</strong>: Treat different types uniformly through a common interface</li>
+                    <li><strong>Abstraction</strong>: Hide complexity, define contracts with abstract classes/methods
+                    </li>
+                    <li>OOP helps you model real-world domains in code, making applications more maintainable and
+                        scalable</li>
+                </ul>
+
+                <div class="callout callout-concept">
+                    <div class="callout-title">🎯 Next Steps</div>
+                    <p>
+                        You now understand the fundamentals of object-oriented programming! In the next section,
+                        we'll explore <strong>Collections and Generics</strong>—how to work with groups of objects
+                        efficiently and type-safely. You'll learn about Lists, Dictionaries, and how to write
+                        reusable code that works with any type.
+                    </p>
+                </div>
+
+                <nav class="page-nav">
+                    <a href="06-methods-and-functions.html" class="prev">Methods and Functions</a>
+                    <a href="08-collections-and-generics.html" class="next">Collections and Generics</a>
+                </nav>
+
+            
+        <footer class="page-footer">
+          Built with 💜 by <a href="https://akwasi.dev" target="_blank" rel="noopener noreferrer">Akwasi Adu-Kyeremeh</a> for developers who want to truly understand what they're building.
+        </footer>
+
+      </div>
+        </main>
+    </div>
+</body>
+
+</html>

@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Domain-Driven Design Basics | ASP.NET Core Mastery</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;500&family=Source+Serif+4:ital,wght@0,400;0,600;1,400&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="../assets/style.css">
+</head>
+
+<body>
+    <div class="page-wrapper">
+        <aside class="sidebar">
+            <a href="../index.html" class="sidebar-logo">ASP.NET Core Mastery</a>
+            <div class="sidebar-section">Part XX: Architecture</div>
+            <ul class="sidebar-nav">
+                <li><a href="01-solid-principles.html">SOLID Principles</a></li>
+                <li><a href="02-repository-pattern.html">Repository Pattern</a></li>
+                <li><a href="03-unit-of-work.html">Unit of Work</a></li>
+                <li><a href="04-clean-architecture.html">Clean Architecture</a></li>
+                <li><a href="05-ddd-basics.html" class="active">Domain-Driven Design Basics</a></li>
+            </ul>
+            <div class="sidebar-section">Resources</div>
+            <ul class="sidebar-nav">
+                <li><a href="../index.html">Full Roadmap</a></li>
+            </ul>
+        </aside>
+
+        <main class="main-content">
+            <div class="content-container">
+                <nav class="breadcrumb">
+                    <a href="../index.html">Home</a>
+                    <span>→</span>
+                    <a href="01-solid-principles.html">Part XX: Architecture & Patterns</a>
+                    <span>→</span>
+                    Domain-Driven Design Basics
+                </nav>
+
+                <div class="progress-indicator">
+                    <span>Section 5 of 5</span>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 100%"></div>
+                    </div>
+                </div>
+
+                <h1>Domain-Driven Design Basics</h1>
+
+                <div class="learning-objectives">
+                    <h3>🎯 What You'll Learn</h3>
+                    <ul>
+                        <li>What is DDD</li>
+                        <li>Entities vs Value Objects</li>
+                        <li>Aggregates</li>
+                        <li>Domain Services</li>
+                        <li>Ubiquitous Language</li>
+                    </ul>
+                </div>
+
+                <h2>What is Domain-Driven Design?</h2>
+
+                <p>
+                    <strong>Domain-Driven Design (DDD)</strong> is an approach to software development that focuses on
+                    modeling the business domain and using a common language between developers and domain experts.
+                </p>
+
+                <div class="section-divider"></div>
+
+                <h2>Entities</h2>
+
+                <p>Objects with a unique identity that persists over time.</p>
+
+                <div class="code-header">
+                    <span class="code-filename">Product.cs (Entity)</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">Product</span>
+{
+    <span class="code-keyword">public</span> <span class="code-type">int</span> <span class="code-variable">Id</span> { <span class="code-keyword">get</span>; <span class="code-keyword">private</span> <span class="code-keyword">set</span>; } <span class="code-comment">// Identity</span>
+    <span class="code-keyword">public</span> <span class="code-type">string</span> <span class="code-variable">Name</span> { <span class="code-keyword">get</span>; <span class="code-keyword">private</span> <span class="code-keyword">set</span>; }
+    <span class="code-keyword">public</span> <span class="code-class">Money</span> <span class="code-variable">Price</span> { <span class="code-keyword">get</span>; <span class="code-keyword">private</span> <span class="code-keyword">set</span>; }
+
+    <span class="code-keyword">public</span> <span class="code-keyword">void</span> <span class="code-method">UpdatePrice</span>(<span class="code-class">Money</span> <span class="code-variable">newPrice</span>)
+    {
+        <span class="code-keyword">if</span> (<span class="code-variable">newPrice</span>.<span class="code-variable">Amount</span> &lt;= <span class="code-number">0</span>)
+            <span class="code-keyword">throw</span> <span class="code-keyword">new</span> <span class="code-class">ArgumentException</span>(<span class="code-string">"Price must be positive"</span>);
+        
+        <span class="code-variable">Price</span> = <span class="code-variable">newPrice</span>;
+    }
+}</code></pre>
+
+                <div class="section-divider"></div>
+
+                <h2>Value Objects</h2>
+
+                <p>Objects without identity, defined by their attributes.</p>
+
+                <div class="code-header">
+                    <span class="code-filename">Money.cs (Value Object)</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">Money</span>
+{
+    <span class="code-keyword">public</span> <span class="code-type">decimal</span> <span class="code-variable">Amount</span> { <span class="code-keyword">get</span>; }
+    <span class="code-keyword">public</span> <span class="code-type">string</span> <span class="code-variable">Currency</span> { <span class="code-keyword">get</span>; }
+
+    <span class="code-keyword">public</span> <span class="code-method">Money</span>(<span class="code-type">decimal</span> <span class="code-variable">amount</span>, <span class="code-type">string</span> <span class="code-variable">currency</span>)
+    {
+        <span class="code-variable">Amount</span> = <span class="code-variable">amount</span>;
+        <span class="code-variable">Currency</span> = <span class="code-variable">currency</span>;
+    }
+
+    <span class="code-keyword">public</span> <span class="code-keyword">override</span> <span class="code-type">bool</span> <span class="code-method">Equals</span>(<span class="code-type">object</span> <span class="code-variable">obj</span>)
+    {
+        <span class="code-keyword">if</span> (<span class="code-variable">obj</span> <span class="code-keyword">is</span> <span class="code-class">Money</span> <span class="code-variable">other</span>)
+            <span class="code-keyword">return</span> <span class="code-variable">Amount</span> == <span class="code-variable">other</span>.<span class="code-variable">Amount</span> && <span class="code-variable">Currency</span> == <span class="code-variable">other</span>.<span class="code-variable">Currency</span>;
+        <span class="code-keyword">return</span> <span class="code-keyword">false</span>;
+    }
+
+    <span class="code-keyword">public</span> <span class="code-keyword">override</span> <span class="code-type">int</span> <span class="code-method">GetHashCode</span>()
+    {
+        <span class="code-keyword">return</span> <span class="code-class">HashCode</span>.<span class="code-method">Combine</span>(<span class="code-variable">Amount</span>, <span class="code-variable">Currency</span>);
+    }
+}</code></pre>
+
+                <div class="section-divider"></div>
+
+                <h2>Aggregates</h2>
+
+                <p>A cluster of entities and value objects with a root entity.</p>
+
+                <div class="code-header">
+                    <span class="code-filename">Order.cs (Aggregate Root)</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">Order</span> <span class="code-comment">// Aggregate Root</span>
+{
+    <span class="code-keyword">public</span> <span class="code-type">int</span> <span class="code-variable">Id</span> { <span class="code-keyword">get</span>; <span class="code-keyword">private</span> <span class="code-keyword">set</span>; }
+    <span class="code-keyword">private</span> <span class="code-keyword">readonly</span> <span class="code-class">List</span>&lt;<span class="code-class">OrderItem</span>&gt; <span class="code-variable">_items</span> = <span class="code-keyword">new</span>();
+    <span class="code-keyword">public</span> <span class="code-class">IReadOnlyCollection</span>&lt;<span class="code-class">OrderItem</span>&gt; <span class="code-variable">Items</span> => <span class="code-variable">_items</span>.<span class="code-method">AsReadOnly</span>();
+
+    <span class="code-keyword">public</span> <span class="code-keyword">void</span> <span class="code-method">AddItem</span>(<span class="code-class">Product</span> <span class="code-variable">product</span>, <span class="code-type">int</span> <span class="code-variable">quantity</span>)
+    {
+        <span class="code-keyword">var</span> <span class="code-variable">item</span> = <span class="code-keyword">new</span> <span class="code-class">OrderItem</span>(<span class="code-variable">product</span>, <span class="code-variable">quantity</span>);
+        <span class="code-variable">_items</span>.<span class="code-method">Add</span>(<span class="code-variable">item</span>);
+    }
+
+    <span class="code-keyword">public</span> <span class="code-class">Money</span> <span class="code-method">GetTotal</span>()
+    {
+        <span class="code-keyword">var</span> <span class="code-variable">total</span> = <span class="code-variable">_items</span>.<span class="code-method">Sum</span>(<span class="code-variable">i</span> => <span class="code-variable">i</span>.<span class="code-variable">Price</span>.<span class="code-variable">Amount</span> * <span class="code-variable">i</span>.<span class="code-variable">Quantity</span>);
+        <span class="code-keyword">return</span> <span class="code-keyword">new</span> <span class="code-class">Money</span>(<span class="code-variable">total</span>, <span class="code-string">"USD"</span>);
+    }
+}
+
+<span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">OrderItem</span> <span class="code-comment">// Part of Order aggregate</span>
+{
+    <span class="code-keyword">public</span> <span class="code-type">int</span> <span class="code-variable">Id</span> { <span class="code-keyword">get</span>; <span class="code-keyword">private</span> <span class="code-keyword">set</span>; }
+    <span class="code-keyword">public</span> <span class="code-class">Product</span> <span class="code-variable">Product</span> { <span class="code-keyword">get</span>; <span class="code-keyword">private</span> <span class="code-keyword">set</span>; }
+    <span class="code-keyword">public</span> <span class="code-type">int</span> <span class="code-variable">Quantity</span> { <span class="code-keyword">get</span>; <span class="code-keyword">private</span> <span class="code-keyword">set</span>; }
+    <span class="code-keyword">public</span> <span class="code-class">Money</span> <span class="code-variable">Price</span> { <span class="code-keyword">get</span>; <span class="code-keyword">private</span> <span class="code-keyword">set</span>; }
+
+    <span class="code-keyword">public</span> <span class="code-method">OrderItem</span>(<span class="code-class">Product</span> <span class="code-variable">product</span>, <span class="code-type">int</span> <span class="code-variable">quantity</span>)
+    {
+        <span class="code-variable">Product</span> = <span class="code-variable">product</span>;
+        <span class="code-variable">Quantity</span> = <span class="code-variable">quantity</span>;
+        <span class="code-variable">Price</span> = <span class="code-variable">product</span>.<span class="code-variable">Price</span>;
+    }
+}</code></pre>
+
+                <div class="section-divider"></div>
+
+                <h2>Domain Services</h2>
+
+                <p>Business logic that doesn't belong to a single entity.</p>
+
+                <div class="code-header">
+                    <span class="code-filename">PricingService.cs</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">PricingService</span>
+{
+    <span class="code-keyword">public</span> <span class="code-class">Money</span> <span class="code-method">CalculateDiscount</span>(<span class="code-class">Order</span> <span class="code-variable">order</span>, <span class="code-class">Customer</span> <span class="code-variable">customer</span>)
+    {
+        <span class="code-keyword">var</span> <span class="code-variable">total</span> = <span class="code-variable">order</span>.<span class="code-method">GetTotal</span>();
+        <span class="code-keyword">var</span> <span class="code-variable">discountPercent</span> = <span class="code-variable">customer</span>.<span class="code-variable">IsPremium</span> ? <span class="code-number">0.10m</span> : <span class="code-number">0.05m</span>;
+        
+        <span class="code-keyword">return</span> <span class="code-keyword">new</span> <span class="code-class">Money</span>(<span class="code-variable">total</span>.<span class="code-variable">Amount</span> * <span class="code-variable">discountPercent</span>, <span class="code-variable">total</span>.<span class="code-variable">Currency</span>);
+    }
+}</code></pre>
+
+                <div class="section-divider"></div>
+
+                <h2>Ubiquitous Language</h2>
+
+                <p>A common language shared by developers and domain experts.</p>
+
+                <div class="code-header">
+                    <span class="code-filename">Example</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-comment">// ❌ Bad: Technical language</span>
+<span class="code-keyword">public</span> <span class="code-keyword">void</span> <span class="code-method">ProcessData</span>() { }
+
+<span class="code-comment">// ✅ Good: Domain language</span>
+<span class="code-keyword">public</span> <span class="code-keyword">void</span> <span class="code-method">PlaceOrder</span>() { }
+<span class="code-keyword">public</span> <span class="code-keyword">void</span> <span class="code-method">ShipOrder</span>() { }
+<span class="code-keyword">public</span> <span class="code-keyword">void</span> <span class="code-method">CancelOrder</span>() { }</code></pre>
+
+                <h2>InvenTrack Example</h2>
+
+                <div class="code-header">
+                    <span class="code-filename">Inventory.cs (Aggregate)</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">Inventory</span>
+{
+    <span class="code-keyword">public</span> <span class="code-type">int</span> <span class="code-variable">Id</span> { <span class="code-keyword">get</span>; <span class="code-keyword">private</span> <span class="code-keyword">set</span>; }
+    <span class="code-keyword">public</span> <span class="code-class">Product</span> <span class="code-variable">Product</span> { <span class="code-keyword">get</span>; <span class="code-keyword">private</span> <span class="code-keyword">set</span>; }
+    <span class="code-keyword">public</span> <span class="code-type">int</span> <span class="code-variable">QuantityOnHand</span> { <span class="code-keyword">get</span>; <span class="code-keyword">private</span> <span class="code-keyword">set</span>; }
+    <span class="code-keyword">public</span> <span class="code-type">int</span> <span class="code-variable">ReorderLevel</span> { <span class="code-keyword">get</span>; <span class="code-keyword">private</span> <span class="code-keyword">set</span>; }
+
+    <span class="code-keyword">public</span> <span class="code-keyword">void</span> <span class="code-method">ReceiveStock</span>(<span class="code-type">int</span> <span class="code-variable">quantity</span>)
+    {
+        <span class="code-keyword">if</span> (<span class="code-variable">quantity</span> &lt;= <span class="code-number">0</span>)
+            <span class="code-keyword">throw</span> <span class="code-keyword">new</span> <span class="code-class">ArgumentException</span>(<span class="code-string">"Quantity must be positive"</span>);
+        
+        <span class="code-variable">QuantityOnHand</span> += <span class="code-variable">quantity</span>;
+    }
+
+    <span class="code-keyword">public</span> <span class="code-keyword">void</span> <span class="code-method">AllocateStock</span>(<span class="code-type">int</span> <span class="code-variable">quantity</span>)
+    {
+        <span class="code-keyword">if</span> (<span class="code-variable">quantity</span> > <span class="code-variable">QuantityOnHand</span>)
+            <span class="code-keyword">throw</span> <span class="code-keyword">new</span> <span class="code-class">InvalidOperationException</span>(<span class="code-string">"Insufficient stock"</span>);
+        
+        <span class="code-variable">QuantityOnHand</span> -= <span class="code-variable">quantity</span>;
+    }
+
+    <span class="code-keyword">public</span> <span class="code-type">bool</span> <span class="code-method">NeedsReorder</span>() => <span class="code-variable">QuantityOnHand</span> &lt; <span class="code-variable">ReorderLevel</span>;
+}</code></pre>
+
+                <h2>Key Takeaways</h2>
+
+                <ul>
+                    <li><strong>DDD</strong>: Focus on business domain</li>
+                    <li><strong>Entities</strong>: Objects with unique identity</li>
+                    <li><strong>Value Objects</strong>: Objects defined by attributes</li>
+                    <li><strong>Aggregates</strong>: Cluster with root entity</li>
+                    <li><strong>Domain Services</strong>: Business logic across entities</li>
+                    <li><strong>Ubiquitous Language</strong>: Common vocabulary</li>
+                </ul>
+
+                <div class="callout callout-concept">
+                    <div class="callout-title">🎉 Congratulations!</div>
+                    <p>
+                        You've completed the <strong>ASP.NET Core Mastery</strong> learning guide!
+                        You've covered <strong>122 sections across 20 parts</strong>, from the basics to advanced
+                        topics.
+                    </p>
+                    <p>
+                        You now have the knowledge to build production-ready ASP.NET Core applications with:
+                    </p>
+                    <ul>
+                        <li>✅ Solid fundamentals (.NET Core, C#, MVC)</li>
+                        <li>✅ Database access (EF Core, migrations, relationships)</li>
+                        <li>✅ Authentication & authorization (Identity, JWT, policies)</li>
+                        <li>✅ API development (REST, validation, versioning)</li>
+                        <li>✅ Advanced features (SignalR, gRPC, microservices)</li>
+                        <li>✅ Testing (unit, integration, TDD)</li>
+                        <li>✅ Performance optimization (caching, async, profiling)</li>
+                        <li>✅ Deployment (IIS, Linux, Docker, Azure, CI/CD)</li>
+                        <li>✅ Architecture (SOLID, Clean Architecture, DDD)</li>
+                    </ul>
+                    <p>
+                        Keep building, keep learning, and happy coding! 🚀
+                    </p>
+                </div>
+
+                <nav class="page-nav">
+                    <a href="04-clean-architecture.html" class="prev">Clean Architecture</a>
+                    <a href="../index.html" class="next">Back to Roadmap</a>
+                </nav>
+
+            
+        <footer class="page-footer">
+          Built with 💜 by <a href="https://akwasi.dev" target="_blank" rel="noopener noreferrer">Akwasi Adu-Kyeremeh</a> for developers who want to truly understand what they're building.
+        </footer>
+
+      </div>
+        </main>
+    </div>
+</body>
+
+</html>

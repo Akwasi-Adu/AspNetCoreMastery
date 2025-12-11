@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ILogger Interface | ASP.NET Core Mastery</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;500&family=Source+Serif+4:ital,wght@0,400;0,600;1,400&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="../assets/style.css">
+</head>
+
+<body>
+    <div class="page-wrapper">
+        <aside class="sidebar">
+            <a href="../index.html" class="sidebar-logo">ASP.NET Core Mastery</a>
+            <div class="sidebar-section">Part XV: Logging</div>
+            <ul class="sidebar-nav">
+                <li><a href="01-ilogger-interface.html" class="active">ILogger Interface</a></li>
+                <li><a href="02-log-levels.html">Log Levels</a></li>
+                <li><a href="03-built-in-providers.html">Built-in Providers</a></li>
+                <li><a href="04-structured-logging.html">Structured Logging</a></li>
+                <li><a href="05-serilog-integration.html">Serilog Integration</a></li>
+                <li><a href="06-logging-best-practices.html">Logging Best Practices</a></li>
+            </ul>
+            <div class="sidebar-section">Resources</div>
+            <ul class="sidebar-nav">
+                <li><a href="../index.html">Full Roadmap</a></li>
+            </ul>
+        </aside>
+
+        <main class="main-content">
+            <div class="content-container">
+                <nav class="breadcrumb">
+                    <a href="../index.html">Home</a>
+                    <span>→</span>
+                    <a href="01-ilogger-interface.html">Part XV: Logging</a>
+                    <span>→</span>
+                    ILogger Interface
+                </nav>
+
+                <div class="progress-indicator">
+                    <span>Section 1 of 6</span>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 16.67%"></div>
+                    </div>
+                </div>
+
+                <h1>ILogger Interface</h1>
+
+                <div class="learning-objectives">
+                    <h3>🎯 What You'll Learn</h3>
+                    <ul>
+                        <li>What is logging</li>
+                        <li>ILogger interface</li>
+                        <li>Dependency injection</li>
+                        <li>Basic logging methods</li>
+                        <li>InvenTrack examples</li>
+                    </ul>
+                </div>
+
+                <h2>What is Logging?</h2>
+
+                <p>
+                    <strong>Logging</strong> records events that happen in your application.
+                    It helps with debugging, monitoring, and understanding application behavior.
+                </p>
+
+                <div class="section-divider"></div>
+
+                <h2>ILogger Interface</h2>
+
+                <p>ASP.NET Core provides the <code>ILogger&lt;T&gt;</code> interface for logging.</p>
+
+                <div class="section-divider"></div>
+
+                <h2>Dependency Injection</h2>
+
+                <div class="code-header">
+                    <span class="code-filename">Inject ILogger</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">ProductsController</span> : <span class="code-class">Controller</span>
+{
+    <span class="code-keyword">private</span> <span class="code-keyword">readonly</span> <span class="code-class">ILogger</span>&lt;<span class="code-class">ProductsController</span>&gt; <span class="code-variable">_logger</span>;
+
+    <span class="code-keyword">public</span> <span class="code-method">ProductsController</span>(<span class="code-class">ILogger</span>&lt;<span class="code-class">ProductsController</span>&gt; <span class="code-variable">logger</span>)
+    {
+        <span class="code-variable">_logger</span> = <span class="code-variable">logger</span>;
+    }
+}</code></pre>
+
+                <div class="section-divider"></div>
+
+                <h2>Basic Logging Methods</h2>
+
+                <div class="code-header">
+                    <span class="code-filename">Log Methods</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-variable">_logger</span>.<span class="code-method">LogTrace</span>(<span class="code-string">"Trace message"</span>);
+<span class="code-variable">_logger</span>.<span class="code-method">LogDebug</span>(<span class="code-string">"Debug message"</span>);
+<span class="code-variable">_logger</span>.<span class="code-method">LogInformation</span>(<span class="code-string">"Information message"</span>);
+<span class="code-variable">_logger</span>.<span class="code-method">LogWarning</span>(<span class="code-string">"Warning message"</span>);
+<span class="code-variable">_logger</span>.<span class="code-method">LogError</span>(<span class="code-string">"Error message"</span>);
+<span class="code-variable">_logger</span>.<span class="code-method">LogCritical</span>(<span class="code-string">"Critical message"</span>);</code></pre>
+
+                <div class="section-divider"></div>
+
+                <h2>Logging with Parameters</h2>
+
+                <div class="code-header">
+                    <span class="code-filename">Structured Logging</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-variable">_logger</span>.<span class="code-method">LogInformation</span>(<span class="code-string">"Product {ProductId} created by {UserId}"</span>, <span class="code-variable">productId</span>, <span class="code-variable">userId</span>);</code></pre>
+
+                <div class="section-divider"></div>
+
+                <h2>Logging Exceptions</h2>
+
+                <div class="code-header">
+                    <span class="code-filename">Log Exception</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-keyword">try</span>
+{
+    <span class="code-comment">// Some operation</span>
+}
+<span class="code-keyword">catch</span> (<span class="code-class">Exception</span> <span class="code-variable">ex</span>)
+{
+    <span class="code-variable">_logger</span>.<span class="code-method">LogError</span>(<span class="code-variable">ex</span>, <span class="code-string">"Failed to create product {ProductId}"</span>, <span class="code-variable">productId</span>);
+}</code></pre>
+
+                <h2>InvenTrack Example</h2>
+
+                <div class="code-header">
+                    <span class="code-filename">ProductsController.cs</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">ProductsController</span> : <span class="code-class">Controller</span>
+{
+    <span class="code-keyword">private</span> <span class="code-keyword">readonly</span> <span class="code-class">ILogger</span>&lt;<span class="code-class">ProductsController</span>&gt; <span class="code-variable">_logger</span>;
+    <span class="code-keyword">private</span> <span class="code-keyword">readonly</span> <span class="code-class">InvenTrackDbContext</span> <span class="code-variable">_context</span>;
+
+    [<span class="code-class">HttpPost</span>]
+    <span class="code-keyword">public</span> <span class="code-keyword">async</span> <span class="code-class">Task</span>&lt;<span class="code-class">IActionResult</span>&gt; <span class="code-method">Create</span>(<span class="code-class">Product</span> <span class="code-variable">product</span>)
+    {
+        <span class="code-variable">_logger</span>.<span class="code-method">LogInformation</span>(<span class="code-string">"Creating product {ProductName}"</span>, <span class="code-variable">product</span>.<span class="code-variable">Name</span>);
+
+        <span class="code-keyword">try</span>
+        {
+            <span class="code-variable">_context</span>.<span class="code-variable">Products</span>.<span class="code-method">Add</span>(<span class="code-variable">product</span>);
+            <span class="code-keyword">await</span> <span class="code-variable">_context</span>.<span class="code-method">SaveChangesAsync</span>();
+
+            <span class="code-variable">_logger</span>.<span class="code-method">LogInformation</span>(<span class="code-string">"Product {ProductId} created successfully"</span>, <span class="code-variable">product</span>.<span class="code-variable">Id</span>);
+            <span class="code-keyword">return</span> <span class="code-method">RedirectToAction</span>(<span class="code-string">"Index"</span>);
+        }
+        <span class="code-keyword">catch</span> (<span class="code-class">Exception</span> <span class="code-variable">ex</span>)
+        {
+            <span class="code-variable">_logger</span>.<span class="code-method">LogError</span>(<span class="code-variable">ex</span>, <span class="code-string">"Failed to create product {ProductName}"</span>, <span class="code-variable">product</span>.<span class="code-variable">Name</span>);
+            <span class="code-keyword">return</span> <span class="code-method">View</span>(<span class="code-variable">product</span>);
+        }
+    }
+}</code></pre>
+
+                <h2>Key Takeaways</h2>
+
+                <ul>
+                    <li><strong>ILogger&lt;T&gt;</strong>: Logging interface</li>
+                    <li><strong>Dependency injection</strong>: Inject ILogger in constructor</li>
+                    <li><strong>Log methods</strong>: LogTrace, LogDebug, LogInformation, LogWarning, LogError,
+                        LogCritical</li>
+                    <li><strong>Parameters</strong>: Use placeholders {Name} for structured logging</li>
+                    <li><strong>Exceptions</strong>: Pass exception as first parameter</li>
+                </ul>
+
+                <nav class="page-nav">
+                    <a href="../index.html" class="prev">Back to Roadmap</a>
+                    <a href="02-log-levels.html" class="next">Log Levels</a>
+                </nav>
+
+            
+        <footer class="page-footer">
+          Built with 💜 by <a href="https://akwasi.dev" target="_blank" rel="noopener noreferrer">Akwasi Adu-Kyeremeh</a> for developers who want to truly understand what they're building.
+        </footer>
+
+      </div>
+        </main>
+    </div>
+</body>
+
+</html>

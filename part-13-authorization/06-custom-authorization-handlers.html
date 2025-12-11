@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Custom Authorization Handlers | ASP.NET Core Mastery</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;500&family=Source+Serif+4:ital,wght@0,400;0,600;1,400&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="../assets/style.css">
+</head>
+
+<body>
+    <div class="page-wrapper">
+        <aside class="sidebar">
+            <a href="../index.html" class="sidebar-logo">ASP.NET Core Mastery</a>
+            <div class="sidebar-section">Part XIII: Authorization</div>
+            <ul class="sidebar-nav">
+                <li><a href="01-authorization-fundamentals.html">Authorization Fundamentals</a></li>
+                <li><a href="02-role-based-authorization.html">Role-Based Authorization</a></li>
+                <li><a href="03-claims-based-authorization.html">Claims-Based Authorization</a></li>
+                <li><a href="04-policy-based-authorization.html">Policy-Based Authorization</a></li>
+                <li><a href="05-resource-based-authorization.html">Resource-Based Authorization</a></li>
+                <li><a href="06-custom-authorization-handlers.html" class="active">Custom Authorization Handlers</a>
+                </li>
+            </ul>
+            <div class="sidebar-section">Resources</div>
+            <ul class="sidebar-nav">
+                <li><a href="../index.html">Full Roadmap</a></li>
+            </ul>
+        </aside>
+
+        <main class="main-content">
+            <div class="content-container">
+                <nav class="breadcrumb">
+                    <a href="../index.html">Home</a>
+                    <span>→</span>
+                    <a href="01-authorization-fundamentals.html">Part XIII: Authorization</a>
+                    <span>→</span>
+                    Custom Authorization Handlers
+                </nav>
+
+                <div class="progress-indicator">
+                    <span>Section 6 of 6</span>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 100%"></div>
+                    </div>
+                </div>
+
+                <h1>Custom Authorization Handlers</h1>
+
+                <div class="learning-objectives">
+                    <h3>🎯 What You'll Learn</h3>
+                    <ul>
+                        <li>Creating custom requirements</li>
+                        <li>Creating custom handlers</li>
+                        <li>Dependency injection in handlers</li>
+                        <li>Multiple handlers</li>
+                        <li>Complete examples</li>
+                    </ul>
+                </div>
+
+                <h2>Creating Custom Requirements</h2>
+
+                <p>
+                    Custom requirements allow you to implement complex authorization logic beyond roles and claims.
+                </p>
+
+                <div class="code-header">
+                    <span class="code-filename">MinimumAgeRequirement.cs</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">MinimumAgeRequirement</span> : <span class="code-class">IAuthorizationRequirement</span>
+{
+    <span class="code-keyword">public</span> <span class="code-type">int</span> <span class="code-variable">MinimumAge</span> { <span class="code-keyword">get</span>; }
+
+    <span class="code-keyword">public</span> <span class="code-method">MinimumAgeRequirement</span>(<span class="code-type">int</span> <span class="code-variable">minimumAge</span>)
+    {
+        <span class="code-variable">MinimumAge</span> = <span class="code-variable">minimumAge</span>;
+    }
+}</code></pre>
+
+                <div class="section-divider"></div>
+
+                <h2>Creating Custom Handlers</h2>
+
+                <div class="code-header">
+                    <span class="code-filename">MinimumAgeHandler.cs</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">MinimumAgeHandler</span> : <span class="code-class">AuthorizationHandler</span>&lt;<span class="code-class">MinimumAgeRequirement</span>&gt;
+{
+    <span class="code-keyword">protected</span> <span class="code-keyword">override</span> <span class="code-class">Task</span> <span class="code-method">HandleRequirementAsync</span>(
+        <span class="code-class">AuthorizationHandlerContext</span> <span class="code-variable">context</span>,
+        <span class="code-class">MinimumAgeRequirement</span> <span class="code-variable">requirement</span>)
+    {
+        <span class="code-keyword">var</span> <span class="code-variable">birthDateClaim</span> = <span class="code-variable">context</span>.<span class="code-variable">User</span>.<span class="code-method">FindFirst</span>(<span class="code-string">"BirthDate"</span>);
+        
+        <span class="code-keyword">if</span> (<span class="code-variable">birthDateClaim</span> == <span class="code-keyword">null</span>)
+            <span class="code-keyword">return</span> <span class="code-class">Task</span>.<span class="code-variable">CompletedTask</span>;
+
+        <span class="code-keyword">if</span> (<span class="code-class">DateTime</span>.<span class="code-method">TryParse</span>(<span class="code-variable">birthDateClaim</span>.<span class="code-variable">Value</span>, <span class="code-keyword">out</span> <span class="code-keyword">var</span> <span class="code-variable">birthDate</span>))
+        {
+            <span class="code-keyword">var</span> <span class="code-variable">age</span> = <span class="code-class">DateTime</span>.<span class="code-variable">Today</span>.<span class="code-variable">Year</span> - <span class="code-variable">birthDate</span>.<span class="code-variable">Year</span>;
+            
+            <span class="code-keyword">if</span> (<span class="code-variable">age</span> >= <span class="code-variable">requirement</span>.<span class="code-variable">MinimumAge</span>)
+            {
+                <span class="code-variable">context</span>.<span class="code-method">Succeed</span>(<span class="code-variable">requirement</span>);
+            }
+        }
+
+        <span class="code-keyword">return</span> <span class="code-class">Task</span>.<span class="code-variable">CompletedTask</span>;
+    }
+}</code></pre>
+
+                <div class="section-divider"></div>
+
+                <h2>Dependency Injection in Handlers</h2>
+
+                <div class="code-header">
+                    <span class="code-filename">Handler with DbContext</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">ActiveSubscriptionHandler</span> 
+    : <span class="code-class">AuthorizationHandler</span>&lt;<span class="code-class">ActiveSubscriptionRequirement</span>&gt;
+{
+    <span class="code-keyword">private</span> <span class="code-keyword">readonly</span> <span class="code-class">InvenTrackDbContext</span> <span class="code-variable">_context</span>;
+
+    <span class="code-keyword">public</span> <span class="code-method">ActiveSubscriptionHandler</span>(<span class="code-class">InvenTrackDbContext</span> <span class="code-variable">context</span>)
+    {
+        <span class="code-variable">_context</span> = <span class="code-variable">context</span>;
+    }
+
+    <span class="code-keyword">protected</span> <span class="code-keyword">override</span> <span class="code-keyword">async</span> <span class="code-class">Task</span> <span class="code-method">HandleRequirementAsync</span>(
+        <span class="code-class">AuthorizationHandlerContext</span> <span class="code-variable">context</span>,
+        <span class="code-class">ActiveSubscriptionRequirement</span> <span class="code-variable">requirement</span>)
+    {
+        <span class="code-keyword">var</span> <span class="code-variable">userId</span> = <span class="code-variable">context</span>.<span class="code-variable">User</span>.<span class="code-method">FindFirst</span>(<span class="code-class">ClaimTypes</span>.<span class="code-variable">NameIdentifier</span>)?.<span class="code-variable">Value</span>;
+        
+        <span class="code-keyword">var</span> <span class="code-variable">hasActiveSubscription</span> = <span class="code-keyword">await</span> <span class="code-variable">_context</span>.<span class="code-variable">Subscriptions</span>
+            .<span class="code-method">AnyAsync</span>(<span class="code-variable">s</span> => <span class="code-variable">s</span>.<span class="code-variable">UserId</span> == <span class="code-variable">userId</span> && <span class="code-variable">s</span>.<span class="code-variable">IsActive</span>);
+
+        <span class="code-keyword">if</span> (<span class="code-variable">hasActiveSubscription</span>)
+        {
+            <span class="code-variable">context</span>.<span class="code-method">Succeed</span>(<span class="code-variable">requirement</span>);
+        }
+    }
+}</code></pre>
+
+                <div class="section-divider"></div>
+
+                <h2>Registering Handlers</h2>
+
+                <div class="code-header">
+                    <span class="code-filename">Program.cs</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-comment">// Register handlers</span>
+<span class="code-variable">builder</span>.<span class="code-variable">Services</span>.<span class="code-method">AddSingleton</span>&lt;<span class="code-class">IAuthorizationHandler</span>, <span class="code-class">MinimumAgeHandler</span>&gt;();
+<span class="code-variable">builder</span>.<span class="code-variable">Services</span>.<span class="code-method">AddScoped</span>&lt;<span class="code-class">IAuthorizationHandler</span>, <span class="code-class">ActiveSubscriptionHandler</span>&gt;();
+
+<span class="code-comment">// Create policies</span>
+<span class="code-variable">builder</span>.<span class="code-variable">Services</span>.<span class="code-method">AddAuthorization</span>(<span class="code-variable">options</span> =>
+{
+    <span class="code-variable">options</span>.<span class="code-method">AddPolicy</span>(<span class="code-string">"Over18"</span>, <span class="code-variable">policy</span> =>
+        <span class="code-variable">policy</span>.<span class="code-variable">Requirements</span>.<span class="code-method">Add</span>(<span class="code-keyword">new</span> <span class="code-class">MinimumAgeRequirement</span>(<span class="code-number">18</span>)));
+
+    <span class="code-variable">options</span>.<span class="code-method">AddPolicy</span>(<span class="code-string">"ActiveSubscription"</span>, <span class="code-variable">policy</span> =>
+        <span class="code-variable">policy</span>.<span class="code-variable">Requirements</span>.<span class="code-method">Add</span>(<span class="code-keyword">new</span> <span class="code-class">ActiveSubscriptionRequirement</span>()));
+});</code></pre>
+
+                <h2>Complete InvenTrack Example</h2>
+
+                <div class="code-header">
+                    <span class="code-filename">BusinessHoursRequirement.cs</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">BusinessHoursRequirement</span> : <span class="code-class">IAuthorizationRequirement</span>
+{
+}</code></pre>
+
+                <div class="code-header">
+                    <span class="code-filename">BusinessHoursHandler.cs</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">BusinessHoursHandler</span> : <span class="code-class">AuthorizationHandler</span>&lt;<span class="code-class">BusinessHoursRequirement</span>&gt;
+{
+    <span class="code-keyword">protected</span> <span class="code-keyword">override</span> <span class="code-class">Task</span> <span class="code-method">HandleRequirementAsync</span>(
+        <span class="code-class">AuthorizationHandlerContext</span> <span class="code-variable">context</span>,
+        <span class="code-class">BusinessHoursRequirement</span> <span class="code-variable">requirement</span>)
+    {
+        <span class="code-keyword">var</span> <span class="code-variable">currentHour</span> = <span class="code-class">DateTime</span>.<span class="code-variable">Now</span>.<span class="code-variable">Hour</span>;
+
+        <span class="code-comment">// Business hours: 9 AM - 5 PM</span>
+        <span class="code-keyword">if</span> (<span class="code-variable">currentHour</span> >= <span class="code-number">9</span> && <span class="code-variable">currentHour</span> < <span class="code-number">17</span>)
+        {
+            <span class="code-variable">context</span>.<span class="code-method">Succeed</span>(<span class="code-variable">requirement</span>);
+        }
+
+        <span class="code-keyword">return</span> <span class="code-class">Task</span>.<span class="code-variable">CompletedTask</span>;
+    }
+}
+
+<span class="code-comment">// Usage in Program.cs</span>
+<span class="code-variable">builder</span>.<span class="code-variable">Services</span>.<span class="code-method">AddSingleton</span>&lt;<span class="code-class">IAuthorizationHandler</span>, <span class="code-class">BusinessHoursHandler</span>&gt;();
+
+<span class="code-variable">builder</span>.<span class="code-variable">Services</span>.<span class="code-method">AddAuthorization</span>(<span class="code-variable">options</span> =>
+{
+    <span class="code-variable">options</span>.<span class="code-method">AddPolicy</span>(<span class="code-string">"BusinessHoursOnly"</span>, <span class="code-variable">policy</span> =>
+        <span class="code-variable">policy</span>.<span class="code-variable">Requirements</span>.<span class="code-method">Add</span>(<span class="code-keyword">new</span> <span class="code-class">BusinessHoursRequirement</span>()));
+});
+
+<span class="code-comment">// Usage in Controller</span>
+[<span class="code-class">Authorize</span>(<span class="code-variable">Policy</span> = <span class="code-string">"BusinessHoursOnly"</span>)]
+<span class="code-keyword">public</span> <span class="code-class">IActionResult</span> <span class="code-method">CreateOrder</span>()
+{
+    <span class="code-keyword">return</span> <span class="code-method">View</span>();
+}</code></pre>
+
+                <h2>Key Takeaways</h2>
+
+                <ul>
+                    <li><strong>IAuthorizationRequirement</strong>: Define custom requirement</li>
+                    <li><strong>AuthorizationHandler</strong>: Implement authorization logic</li>
+                    <li><strong>context.Succeed()</strong>: Mark requirement as satisfied</li>
+                    <li><strong>Dependency injection</strong>: Inject services into handlers</li>
+                    <li><strong>Singleton vs Scoped</strong>: Choose based on dependencies</li>
+                    <li><strong>Flexible</strong>: Implement any authorization logic</li>
+                </ul>
+
+                <div class="callout callout-concept">
+                    <div class="callout-title">🎉 Part XIII Complete!</div>
+                    <p>
+                        Congratulations! You've completed <strong>Part XIII: Authorization</strong>. You now understand:
+                    </p>
+                    <ul>
+                        <li>✅ Authorization fundamentals ([Authorize], UseAuthorization)</li>
+                        <li>✅ Role-based authorization (roles, [Authorize(Roles)])</li>
+                        <li>✅ Claims-based authorization (claims, RequireClaim)</li>
+                        <li>✅ Policy-based authorization (policies, combining requirements)</li>
+                        <li>✅ Resource-based authorization (IAuthorizationService, AuthorizeAsync)</li>
+                        <li>✅ Custom authorization handlers (IAuthorizationRequirement, AuthorizationHandler)</li>
+                    </ul>
+                    <p>
+                        You now have the skills to implement comprehensive authorization in your ASP.NET Core
+                        applications! 🚀
+                    </p>
+                </div>
+
+                <nav class="page-nav">
+                    <a href="05-resource-based-authorization.html" class="prev">Resource-Based Authorization</a>
+                    <a href="../index.html" class="next">Back to Roadmap</a>
+                </nav>
+
+            
+        <footer class="page-footer">
+          Built with 💜 by <a href="https://akwasi.dev" target="_blank" rel="noopener noreferrer">Akwasi Adu-Kyeremeh</a> for developers who want to truly understand what they're building.
+        </footer>
+
+      </div>
+        </main>
+    </div>
+</body>
+
+</html>

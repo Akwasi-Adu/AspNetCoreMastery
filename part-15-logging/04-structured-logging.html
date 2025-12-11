@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Structured Logging | ASP.NET Core Mastery</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;500&family=Source+Serif+4:ital,wght@0,400;0,600;1,400&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="../assets/style.css">
+</head>
+
+<body>
+    <div class="page-wrapper">
+        <aside class="sidebar">
+            <a href="../index.html" class="sidebar-logo">ASP.NET Core Mastery</a>
+            <div class="sidebar-section">Part XV: Logging</div>
+            <ul class="sidebar-nav">
+                <li><a href="01-ilogger-interface.html">ILogger Interface</a></li>
+                <li><a href="02-log-levels.html">Log Levels</a></li>
+                <li><a href="03-built-in-providers.html">Built-in Providers</a></li>
+                <li><a href="04-structured-logging.html" class="active">Structured Logging</a></li>
+                <li><a href="05-serilog-integration.html">Serilog Integration</a></li>
+                <li><a href="06-logging-best-practices.html">Logging Best Practices</a></li>
+            </ul>
+            <div class="sidebar-section">Resources</div>
+            <ul class="sidebar-nav">
+                <li><a href="../index.html">Full Roadmap</a></li>
+            </ul>
+        </aside>
+
+        <main class="main-content">
+            <div class="content-container">
+                <nav class="breadcrumb">
+                    <a href="../index.html">Home</a>
+                    <span>→</span>
+                    <a href="01-ilogger-interface.html">Part XV: Logging</a>
+                    <span>→</span>
+                    Structured Logging
+                </nav>
+
+                <div class="progress-indicator">
+                    <span>Section 4 of 6</span>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 66.67%"></div>
+                    </div>
+                </div>
+
+                <h1>Structured Logging</h1>
+
+                <div class="learning-objectives">
+                    <h3>🎯 What You'll Learn</h3>
+                    <ul>
+                        <li>What is structured logging</li>
+                        <li>Message templates</li>
+                        <li>Named parameters</li>
+                        <li>Benefits of structured logging</li>
+                        <li>Querying structured logs</li>
+                    </ul>
+                </div>
+
+                <h2>What is Structured Logging?</h2>
+
+                <p>
+                    <strong>Structured logging</strong> stores log data as structured data (key-value pairs)
+                    instead of plain text, making logs easier to search and analyze.
+                </p>
+
+                <div class="section-divider"></div>
+
+                <h2>String Interpolation vs Message Templates</h2>
+
+                <h3>❌ Bad: String Interpolation</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">Unstructured (Don't do this)</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-variable">_logger</span>.<span class="code-method">LogInformation</span>(<span class="code-string">$"Product {productId} created by {userId}"</span>);</code></pre>
+
+                <p><strong>Output:</strong> <code>"Product 123 created by user456"</code> (plain text)</p>
+
+                <h3>✅ Good: Message Templates</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">Structured (Do this)</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-variable">_logger</span>.<span class="code-method">LogInformation</span>(<span class="code-string">"Product {ProductId} created by {UserId}"</span>, <span class="code-variable">productId</span>, <span class="code-variable">userId</span>);</code></pre>
+
+                <p><strong>Output:</strong> Structured data with properties <code>ProductId=123</code>,
+                    <code>UserId="user456"</code></p>
+
+                <div class="section-divider"></div>
+
+                <h2>Named Parameters</h2>
+
+                <p>Use PascalCase names in curly braces for parameters.</p>
+
+                <div class="code-header">
+                    <span class="code-filename">Named Parameters</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-variable">_logger</span>.<span class="code-method">LogInformation</span>(
+    <span class="code-string">"Order {OrderId} placed by {CustomerName} for {TotalAmount:C}"</span>,
+    <span class="code-variable">orderId</span>,
+    <span class="code-variable">customerName</span>,
+    <span class="code-variable">totalAmount</span>
+);</code></pre>
+
+                <div class="section-divider"></div>
+
+                <h2>Format Specifiers</h2>
+
+                <div class="code-header">
+                    <span class="code-filename">Formatting Values</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-comment">// Currency</span>
+<span class="code-variable">_logger</span>.<span class="code-method">LogInformation</span>(<span class="code-string">"Price: {Price:C}"</span>, <span class="code-number">19.99</span>); <span class="code-comment">// $19.99</span>
+
+<span class="code-comment">// Decimal places</span>
+<span class="code-variable">_logger</span>.<span class="code-method">LogInformation</span>(<span class="code-string">"Percentage: {Percent:P2}"</span>, <span class="code-number">0.1234</span>); <span class="code-comment">// 12.34%</span>
+
+<span class="code-comment">// Date</span>
+<span class="code-variable">_logger</span>.<span class="code-method">LogInformation</span>(<span class="code-string">"Date: {Date:yyyy-MM-dd}"</span>, <span class="code-class">DateTime</span>.<span class="code-variable">Now</span>);</code></pre>
+
+                <div class="section-divider"></div>
+
+                <h2>Benefits of Structured Logging</h2>
+
+                <ul>
+                    <li><strong>Searchable</strong>: Query by specific properties</li>
+                    <li><strong>Analyzable</strong>: Aggregate and analyze data</li>
+                    <li><strong>Filterable</strong>: Filter by property values</li>
+                    <li><strong>Machine-readable</strong>: Easy to parse programmatically</li>
+                </ul>
+
+                <div class="section-divider"></div>
+
+                <h2>InvenTrack Example</h2>
+
+                <div class="code-header">
+                    <span class="code-filename">Structured Logging in Action</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-keyword">public</span> <span class="code-keyword">async</span> <span class="code-class">Task</span>&lt;<span class="code-class">IActionResult</span>&gt; <span class="code-method">CreateOrder</span>(<span class="code-class">Order</span> <span class="code-variable">order</span>)
+{
+    <span class="code-variable">_logger</span>.<span class="code-method">LogInformation</span>(
+        <span class="code-string">"Creating order for customer {CustomerId} with {ItemCount} items, total {TotalAmount:C}"</span>,
+        <span class="code-variable">order</span>.<span class="code-variable">CustomerId</span>,
+        <span class="code-variable">order</span>.<span class="code-variable">Items</span>.<span class="code-variable">Count</span>,
+        <span class="code-variable">order</span>.<span class="code-variable">TotalAmount</span>
+    );
+
+    <span class="code-keyword">try</span>
+    {
+        <span class="code-keyword">await</span> <span class="code-variable">_context</span>.<span class="code-variable">Orders</span>.<span class="code-method">AddAsync</span>(<span class="code-variable">order</span>);
+        <span class="code-keyword">await</span> <span class="code-variable">_context</span>.<span class="code-method">SaveChangesAsync</span>();
+
+        <span class="code-variable">_logger</span>.<span class="code-method">LogInformation</span>(
+            <span class="code-string">"Order {OrderId} created successfully"</span>,
+            <span class="code-variable">order</span>.<span class="code-variable">Id</span>
+        );
+
+        <span class="code-keyword">return</span> <span class="code-method">Ok</span>(<span class="code-variable">order</span>);
+    }
+    <span class="code-keyword">catch</span> (<span class="code-class">Exception</span> <span class="code-variable">ex</span>)
+    {
+        <span class="code-variable">_logger</span>.<span class="code-method">LogError</span>(
+            <span class="code-variable">ex</span>,
+            <span class="code-string">"Failed to create order for customer {CustomerId}"</span>,
+            <span class="code-variable">order</span>.<span class="code-variable">CustomerId</span>
+        );
+        <span class="code-keyword">return</span> <span class="code-method">BadRequest</span>();
+    }
+}</code></pre>
+
+                <h2>Key Takeaways</h2>
+
+                <ul>
+                    <li><strong>Structured logging</strong>: Key-value pairs, not plain text</li>
+                    <li><strong>Message templates</strong>: Use {PropertyName} placeholders</li>
+                    <li><strong>Don't use string interpolation</strong>: Use parameters instead</li>
+                    <li><strong>PascalCase</strong>: Name parameters in PascalCase</li>
+                    <li><strong>Format specifiers</strong>: {Price:C}, {Percent:P2}, etc.</li>
+                    <li><strong>Benefits</strong>: Searchable, analyzable, filterable</li>
+                </ul>
+
+                <nav class="page-nav">
+                    <a href="03-built-in-providers.html" class="prev">Built-in Providers</a>
+                    <a href="05-serilog-integration.html" class="next">Serilog Integration</a>
+                </nav>
+
+            
+        <footer class="page-footer">
+          Built with 💜 by <a href="https://akwasi.dev" target="_blank" rel="noopener noreferrer">Akwasi Adu-Kyeremeh</a> for developers who want to truly understand what they're building.
+        </footer>
+
+      </div>
+        </main>
+    </div>
+</body>
+
+</html>

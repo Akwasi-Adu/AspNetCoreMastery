@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>URL Generation | ASP.NET Core Mastery</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;500&family=Source+Serif+4:ital,wght@0,400;0,600;1,400&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="../assets/style.css">
+</head>
+
+<body>
+    <div class="page-wrapper">
+        <aside class="sidebar">
+            <a href="../index.html" class="sidebar-logo">ASP.NET Core Mastery</a>
+            <div class="sidebar-section">Part VII: Routing</div>
+            <ul class="sidebar-nav">
+                <li><a href="01-endpoint-routing.html">Endpoint Routing Basics</a></li>
+                <li><a href="02-conventional-vs-attribute.html">Conventional vs Attribute Routing</a></li>
+                <li><a href="03-route-parameters.html">Route Parameters</a></li>
+                <li><a href="04-route-constraints.html">Route Constraints</a></li>
+                <li><a href="05-url-generation.html" class="active">URL Generation</a></li>
+                <li><a href="06-areas.html">Areas</a></li>
+            </ul>
+            <div class="sidebar-section">Resources</div>
+            <ul class="sidebar-nav">
+                <li><a href="../index.html">Full Roadmap</a></li>
+            </ul>
+        </aside>
+
+        <main class="main-content">
+            <div class="content-container">
+                <nav class="breadcrumb">
+                    <a href="../index.html">Home</a>
+                    <span>→</span>
+                    <a href="01-endpoint-routing.html">Part VII: Routing</a>
+                    <span>→</span>
+                    URL Generation
+                </nav>
+
+                <div class="progress-indicator">
+                    <span>Section 5 of 6</span>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 83.33%"></div>
+                    </div>
+                </div>
+
+                <h1>URL Generation</h1>
+
+                <div class="learning-objectives">
+                    <h3>🎯 What You'll Learn</h3>
+                    <ul>
+                        <li>Why generate URLs programmatically</li>
+                        <li>Url.Action() and Url.RouteUrl()</li>
+                        <li>CreatedAtAction() for APIs</li>
+                        <li>LinkGenerator service</li>
+                        <li>Named routes</li>
+                        <li>Best practices</li>
+                    </ul>
+                </div>
+
+                <h2>Why Generate URLs?</h2>
+
+                <p>
+                    <strong>URL generation</strong> creates URLs programmatically instead of hardcoding them.
+                </p>
+
+                <h3>Benefits</h3>
+
+                <ul>
+                    <li><strong>Maintainability</strong>: Change routes in one place</li>
+                    <li><strong>Type safety</strong>: Compile-time checking</li>
+                    <li><strong>Consistency</strong>: URLs always match routes</li>
+                    <li><strong>Refactoring</strong>: Rename actions without breaking links</li>
+                </ul>
+
+                <div class="code-header">
+                    <span class="code-filename">Hardcoded vs Generated</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-comment">// ❌ Hardcoded (brittle)</span>
+<span class="code-keyword">return</span> <span class="code-method">Created</span>(<span class="code-string">"/api/products/123"</span>, <span class="code-variable">product</span>);
+
+<span class="code-comment">// ✅ Generated (maintainable)</span>
+<span class="code-keyword">return</span> <span class="code-method">CreatedAtAction</span>(<span class="code-keyword">nameof</span>(<span class="code-method">GetProduct</span>), <span class="code-keyword">new</span> { <span class="code-variable">id</span> = <span class="code-number">123</span> }, <span class="code-variable">product</span>);</code></pre>
+
+                <div class="section-divider"></div>
+
+                <h2>Url.Action() - MVC</h2>
+
+                <p>
+                    <code>Url.Action()</code> generates URLs for MVC controller actions.
+                </p>
+
+                <div class="code-header">
+                    <span class="code-filename">Basic Usage</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-comment">// Current controller</span>
+<span class="code-keyword">var</span> <span class="code-variable">url</span> = <span class="code-class">Url</span>.<span class="code-method">Action</span>(<span class="code-string">"Details"</span>);
+<span class="code-comment">// → /Products/Details</span>
+
+<span class="code-comment">// Different controller</span>
+<span class="code-keyword">var</span> <span class="code-variable">url</span> = <span class="code-class">Url</span>.<span class="code-method">Action</span>(<span class="code-string">"Index"</span>, <span class="code-string">"Home"</span>);
+<span class="code-comment">// → /Home/Index</span>
+
+<span class="code-comment">// With route values</span>
+<span class="code-keyword">var</span> <span class="code-variable">url</span> = <span class="code-class">Url</span>.<span class="code-method">Action</span>(<span class="code-string">"Details"</span>, <span class="code-string">"Products"</span>, <span class="code-keyword">new</span> { <span class="code-variable">id</span> = <span class="code-number">123</span> });
+<span class="code-comment">// → /Products/Details/123</span>
+
+<span class="code-comment">// Absolute URL</span>
+<span class="code-keyword">var</span> <span class="code-variable">url</span> = <span class="code-class">Url</span>.<span class="code-method">Action</span>(<span class="code-string">"Details"</span>, <span class="code-string">"Products"</span>, <span class="code-keyword">new</span> { <span class="code-variable">id</span> = <span class="code-number">123</span> }, <span class="code-class">Request</span>.<span class="code-variable">Scheme</span>);
+<span class="code-comment">// → https://example.com/Products/Details/123</span></code></pre>
+
+                <h3>In Razor Views</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">Views/Products/Index.cshtml</span>
+                    <span class="code-language">HTML</span>
+                </div>
+                <pre><code>&lt;a href="@Url.Action("Details", "Products", new { id = 123 })"&gt;
+    View Product
+&lt;/a&gt;
+
+&lt;!-- Or use asp-* tag helpers --&gt;
+&lt;a asp-controller="Products" asp-action="Details" asp-route-id="123"&gt;
+    View Product
+&lt;/a&gt;</code></pre>
+
+                <div class="section-divider"></div>
+
+                <h2>CreatedAtAction() - APIs</h2>
+
+                <p>
+                    <code>CreatedAtAction()</code> returns 201 Created with a Location header.
+                </p>
+
+                <div class="code-header">
+                    <span class="code-filename">API Controller</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code>[<span class="code-class">HttpPost</span>]
+<span class="code-keyword">public</span> <span class="code-class">IActionResult</span> <span class="code-method">CreateProduct</span>([<span class="code-class">FromBody</span>] <span class="code-class">ProductDto</span> <span class="code-variable">dto</span>)
+{
+    <span class="code-keyword">var</span> <span class="code-variable">product</span> = <span class="code-keyword">new</span> <span class="code-class">Product</span> { <span class="code-variable">Id</span> = <span class="code-number">123</span>, <span class="code-variable">Name</span> = <span class="code-variable">dto</span>.<span class="code-variable">Name</span> };
+    
+    <span class="code-comment">// Generate URL to GetProduct action</span>
+    <span class="code-keyword">return</span> <span class="code-method">CreatedAtAction</span>(
+        <span class="code-keyword">nameof</span>(<span class="code-method">GetProduct</span>),        <span class="code-comment">// Action name</span>
+        <span class="code-keyword">new</span> { <span class="code-variable">id</span> = <span class="code-variable">product</span>.<span class="code-variable">Id</span> },  <span class="code-comment">// Route values</span>
+        <span class="code-variable">product</span>);                  <span class="code-comment">// Response body</span>
+}
+
+[<span class="code-class">HttpGet</span>(<span class="code-string">"{id}"</span>)]
+<span class="code-keyword">public</span> <span class="code-class">IActionResult</span> <span class="code-method">GetProduct</span>(<span class="code-type">int</span> <span class="code-variable">id</span>)
+{
+    <span class="code-keyword">return</span> <span class="code-method">Ok</span>(<span class="code-keyword">new</span> <span class="code-class">Product</span> { <span class="code-variable">Id</span> = <span class="code-variable">id</span> });
+}
+
+<span class="code-comment">// Response:</span>
+<span class="code-comment">// HTTP/1.1 201 Created</span>
+<span class="code-comment">// Location: /api/products/123</span>
+<span class="code-comment">// { "id": 123, "name": "Laptop" }</span></code></pre>
+
+                <h3>CreatedAtRoute()</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">Using Named Routes</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code>[<span class="code-class">HttpGet</span>(<span class="code-string">"{id}"</span>, <span class="code-variable">Name</span> = <span class="code-string">"GetProduct"</span>)]
+<span class="code-keyword">public</span> <span class="code-class">IActionResult</span> <span class="code-method">GetProduct</span>(<span class="code-type">int</span> <span class="code-variable">id</span>) { }
+
+[<span class="code-class">HttpPost</span>]
+<span class="code-keyword">public</span> <span class="code-class">IActionResult</span> <span class="code-method">CreateProduct</span>([<span class="code-class">FromBody</span>] <span class="code-class">ProductDto</span> <span class="code-variable">dto</span>)
+{
+    <span class="code-keyword">var</span> <span class="code-variable">product</span> = <span class="code-keyword">new</span> <span class="code-class">Product</span> { <span class="code-variable">Id</span> = <span class="code-number">123</span> };
+    
+    <span class="code-keyword">return</span> <span class="code-method">CreatedAtRoute</span>(
+        <span class="code-string">"GetProduct"</span>,           <span class="code-comment">// Route name</span>
+        <span class="code-keyword">new</span> { <span class="code-variable">id</span> = <span class="code-variable">product</span>.<span class="code-variable">Id</span> },
+        <span class="code-variable">product</span>);
+}</code></pre>
+
+                <div class="section-divider"></div>
+
+                <h2>LinkGenerator Service</h2>
+
+                <p>
+                    <code>LinkGenerator</code> generates URLs outside of controllers (services, middleware, etc.).
+                </p>
+
+                <div class="code-header">
+                    <span class="code-filename">Using LinkGenerator</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">EmailService</span>
+{
+    <span class="code-keyword">private</span> <span class="code-keyword">readonly</span> <span class="code-class">LinkGenerator</span> <span class="code-variable">_linkGenerator</span>;
+
+    <span class="code-keyword">public</span> <span class="code-method">EmailService</span>(<span class="code-class">LinkGenerator</span> <span class="code-variable">linkGenerator</span>)
+    {
+        <span class="code-variable">_linkGenerator</span> = <span class="code-variable">linkGenerator</span>;
+    }
+
+    <span class="code-keyword">public</span> <span class="code-type">string</span> <span class="code-method">GenerateConfirmationEmail</span>(<span class="code-type">int</span> <span class="code-variable">orderId</span>)
+    {
+        <span class="code-comment">// Generate URL by action</span>
+        <span class="code-keyword">var</span> <span class="code-variable">url</span> = <span class="code-variable">_linkGenerator</span>.<span class="code-method">GetUriByAction</span>(
+            <span class="code-string">"Details"</span>,
+            <span class="code-string">"Orders"</span>,
+            <span class="code-keyword">new</span> { <span class="code-variable">id</span> = <span class="code-variable">orderId</span> },
+            <span class="code-string">"https"</span>,
+            <span class="code-keyword">new</span> <span class="code-class">HostString</span>(<span class="code-string">"inventrackapp.com"</span>));
+        
+        <span class="code-keyword">return</span> <span class="code-string">$"View your order: </span>{<span class="code-variable">url</span>}<span class="code-string">"</span>;
+    }
+}</code></pre>
+
+                <h3>LinkGenerator Methods</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">LinkGenerator Methods</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-comment">// By action</span>
+<span class="code-keyword">var</span> <span class="code-variable">url</span> = <span class="code-variable">_linkGenerator</span>.<span class="code-method">GetPathByAction</span>(<span class="code-string">"Details"</span>, <span class="code-string">"Products"</span>, <span class="code-keyword">new</span> { <span class="code-variable">id</span> = <span class="code-number">123</span> });
+<span class="code-comment">// → /Products/Details/123</span>
+
+<span class="code-comment">// By route name</span>
+<span class="code-keyword">var</span> <span class="code-variable">url</span> = <span class="code-variable">_linkGenerator</span>.<span class="code-method">GetPathByName</span>(<span class="code-string">"GetProduct"</span>, <span class="code-keyword">new</span> { <span class="code-variable">id</span> = <span class="code-number">123</span> });
+<span class="code-comment">// → /api/products/123</span>
+
+<span class="code-comment">// Absolute URI</span>
+<span class="code-keyword">var</span> <span class="code-variable">url</span> = <span class="code-variable">_linkGenerator</span>.<span class="code-method">GetUriByAction</span>(
+    <span class="code-string">"Details"</span>, <span class="code-string">"Products"</span>, <span class="code-keyword">new</span> { <span class="code-variable">id</span> = <span class="code-number">123</span> },
+    <span class="code-string">"https"</span>, <span class="code-keyword">new</span> <span class="code-class">HostString</span>(<span class="code-string">"example.com"</span>));
+<span class="code-comment">// → https://example.com/Products/Details/123</span></code></pre>
+
+                <div class="section-divider"></div>
+
+                <h2>Named Routes</h2>
+
+                <p>
+                    Named routes provide a stable identifier for URL generation.
+                </p>
+
+                <div class="code-header">
+                    <span class="code-filename">Attribute Routing</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code>[<span class="code-class">HttpGet</span>(<span class="code-string">"{id}"</span>, <span class="code-variable">Name</span> = <span class="code-string">"GetProduct"</span>)]
+<span class="code-keyword">public</span> <span class="code-class">IActionResult</span> <span class="code-method">GetProduct</span>(<span class="code-type">int</span> <span class="code-variable">id</span>) { }
+
+<span class="code-comment">// Generate URL by name</span>
+<span class="code-keyword">var</span> <span class="code-variable">url</span> = <span class="code-class">Url</span>.<span class="code-method">RouteUrl</span>(<span class="code-string">"GetProduct"</span>, <span class="code-keyword">new</span> { <span class="code-variable">id</span> = <span class="code-number">123</span> });</code></pre>
+
+                <div class="code-header">
+                    <span class="code-filename">Conventional Routing</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-variable">app</span>.<span class="code-method">MapControllerRoute</span>(
+    <span class="code-variable">name</span>: <span class="code-string">"product-details"</span>,
+    <span class="code-variable">pattern</span>: <span class="code-string">"products/{id}"</span>,
+    <span class="code-variable">defaults</span>: <span class="code-keyword">new</span> { <span class="code-variable">controller</span> = <span class="code-string">"Products"</span>, <span class="code-variable">action</span> = <span class="code-string">"Details"</span> });
+
+<span class="code-comment">// Generate URL by name</span>
+<span class="code-keyword">var</span> <span class="code-variable">url</span> = <span class="code-class">Url</span>.<span class="code-method">RouteUrl</span>(<span class="code-string">"product-details"</span>, <span class="code-keyword">new</span> { <span class="code-variable">id</span> = <span class="code-number">123</span> });</code></pre>
+
+                <div class="section-divider"></div>
+
+                <h2>Redirect to Action</h2>
+
+                <div class="code-header">
+                    <span class="code-filename">Redirects</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-comment">// Redirect to action in same controller</span>
+<span class="code-keyword">return</span> <span class="code-method">RedirectToAction</span>(<span class="code-string">"Index"</span>);
+
+<span class="code-comment">// Redirect to action in different controller</span>
+<span class="code-keyword">return</span> <span class="code-method">RedirectToAction</span>(<span class="code-string">"Details"</span>, <span class="code-string">"Products"</span>, <span class="code-keyword">new</span> { <span class="code-variable">id</span> = <span class="code-number">123</span> });
+
+<span class="code-comment">// Redirect to named route</span>
+<span class="code-keyword">return</span> <span class="code-method">RedirectToRoute</span>(<span class="code-string">"GetProduct"</span>, <span class="code-keyword">new</span> { <span class="code-variable">id</span> = <span class="code-number">123</span> });</code></pre>
+
+                <div class="section-divider"></div>
+
+                <h2>Complete InvenTrack Example</h2>
+
+                <div class="code-header">
+                    <span class="code-filename">Controllers/ProductsController.cs</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code>[<span class="code-class">ApiController</span>]
+[<span class="code-class">Route</span>(<span class="code-string">"api/[controller]"</span>)]
+<span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">ProductsController</span> : <span class="code-class">ControllerBase</span>
+{
+    <span class="code-keyword">private</span> <span class="code-keyword">readonly</span> <span class="code-class">IProductService</span> <span class="code-variable">_productService</span>;
+
+    <span class="code-keyword">public</span> <span class="code-method">ProductsController</span>(<span class="code-class">IProductService</span> <span class="code-variable">productService</span>)
+    {
+        <span class="code-variable">_productService</span> = <span class="code-variable">productService</span>;
+    }
+
+    <span class="code-comment">// Named route for URL generation</span>
+    [<span class="code-class">HttpGet</span>(<span class="code-string">"{id}"</span>, <span class="code-variable">Name</span> = <span class="code-string">"GetProduct"</span>)]
+    <span class="code-keyword">public</span> <span class="code-keyword">async</span> <span class="code-class">Task</span>&lt;<span class="code-class">IActionResult</span>&gt; <span class="code-method">GetProduct</span>(<span class="code-type">int</span> <span class="code-variable">id</span>)
+    {
+        <span class="code-keyword">var</span> <span class="code-variable">product</span> = <span class="code-keyword">await</span> <span class="code-variable">_productService</span>.<span class="code-method">GetByIdAsync</span>(<span class="code-variable">id</span>);
+        
+        <span class="code-keyword">if</span> (<span class="code-variable">product</span> == <span class="code-keyword">null</span>)
+            <span class="code-keyword">return</span> <span class="code-method">NotFound</span>();
+        
+        <span class="code-keyword">return</span> <span class="code-method">Ok</span>(<span class="code-variable">product</span>);
+    }
+
+    <span class="code-comment">// CreatedAtAction with URL generation</span>
+    [<span class="code-class">HttpPost</span>]
+    <span class="code-keyword">public</span> <span class="code-keyword">async</span> <span class="code-class">Task</span>&lt;<span class="code-class">IActionResult</span>&gt; <span class="code-method">CreateProduct</span>([<span class="code-class">FromBody</span>] <span class="code-class">CreateProductDto</span> <span class="code-variable">dto</span>)
+    {
+        <span class="code-keyword">var</span> <span class="code-variable">product</span> = <span class="code-keyword">await</span> <span class="code-variable">_productService</span>.<span class="code-method">CreateAsync</span>(<span class="code-variable">dto</span>);
+        
+        <span class="code-comment">// Generate URL to GetProduct action</span>
+        <span class="code-keyword">return</span> <span class="code-method">CreatedAtAction</span>(
+            <span class="code-keyword">nameof</span>(<span class="code-method">GetProduct</span>),
+            <span class="code-keyword">new</span> { <span class="code-variable">id</span> = <span class="code-variable">product</span>.<span class="code-variable">Id</span> },
+            <span class="code-variable">product</span>);
+        
+        <span class="code-comment">// Response:</span>
+        <span class="code-comment">// HTTP/1.1 201 Created</span>
+        <span class="code-comment">// Location: /api/products/123</span>
+    }
+
+    <span class="code-comment">// CreatedAtRoute with named route</span>
+    [<span class="code-class">HttpPost</span>(<span class="code-string">"batch"</span>)]
+    <span class="code-keyword">public</span> <span class="code-keyword">async</span> <span class="code-class">Task</span>&lt;<span class="code-class">IActionResult</span>&gt; <span class="code-method">CreateBatch</span>([<span class="code-class">FromBody</span>] <span class="code-type">List</span>&lt;<span class="code-class">CreateProductDto</span>&gt; <span class="code-variable">dtos</span>)
+    {
+        <span class="code-keyword">var</span> <span class="code-variable">products</span> = <span class="code-keyword">await</span> <span class="code-variable">_productService</span>.<span class="code-method">CreateBatchAsync</span>(<span class="code-variable">dtos</span>);
+        
+        <span class="code-comment">// Generate URLs for each product</span>
+        <span class="code-keyword">var</span> <span class="code-variable">result</span> = <span class="code-variable">products</span>.<span class="code-method">Select</span>(<span class="code-variable">p</span> =&gt; <span class="code-keyword">new</span>
+        {
+            <span class="code-variable">product</span> = <span class="code-variable">p</span>,
+            <span class="code-variable">url</span> = <span class="code-class">Url</span>.<span class="code-method">RouteUrl</span>(<span class="code-string">"GetProduct"</span>, <span class="code-keyword">new</span> { <span class="code-variable">id</span> = <span class="code-variable">p</span>.<span class="code-variable">Id</span> })
+        });
+        
+        <span class="code-keyword">return</span> <span class="code-method">Ok</span>(<span class="code-variable">result</span>);
+    }
+}</code></pre>
+
+                <h3>Email Service with LinkGenerator</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">Services/EmailService.cs</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">EmailService</span>
+{
+    <span class="code-keyword">private</span> <span class="code-keyword">readonly</span> <span class="code-class">LinkGenerator</span> <span class="code-variable">_linkGenerator</span>;
+
+    <span class="code-keyword">public</span> <span class="code-method">EmailService</span>(<span class="code-class">LinkGenerator</span> <span class="code-variable">linkGenerator</span>)
+    {
+        <span class="code-variable">_linkGenerator</span> = <span class="code-variable">linkGenerator</span>;
+    }
+
+    <span class="code-keyword">public</span> <span class="code-type">string</span> <span class="code-method">GenerateOrderConfirmation</span>(<span class="code-type">int</span> <span class="code-variable">orderId</span>)
+    {
+        <span class="code-comment">// Generate absolute URL for email</span>
+        <span class="code-keyword">var</span> <span class="code-variable">orderUrl</span> = <span class="code-variable">_linkGenerator</span>.<span class="code-method">GetUriByName</span>(
+            <span class="code-string">"GetOrder"</span>,
+            <span class="code-keyword">new</span> { <span class="code-variable">id</span> = <span class="code-variable">orderId</span> },
+            <span class="code-string">"https"</span>,
+            <span class="code-keyword">new</span> <span class="code-class">HostString</span>(<span class="code-string">"inventrackapp.com"</span>));
+        
+        <span class="code-keyword">return</span> <span class="code-string">$@"
+            Thank you for your order!
+            View your order: {orderUrl}
+        "</span>;
+    }
+}</code></pre>
+
+                <h2>Best Practices</h2>
+
+                <ul>
+                    <li><strong>Use nameof()</strong>: <code>nameof(GetProduct)</code> for type safety</li>
+                    <li><strong>Named routes</strong>: Use for stable API contracts</li>
+                    <li><strong>CreatedAtAction()</strong>: Always use for POST endpoints</li>
+                    <li><strong>LinkGenerator</strong>: Use in services/middleware</li>
+                    <li><strong>Avoid hardcoding</strong>: Never hardcode URLs</li>
+                    <li><strong>Absolute URLs</strong>: Use for emails, external links</li>
+                    <li><strong>Relative URLs</strong>: Use for internal navigation</li>
+                </ul>
+
+                <h2>Key Takeaways</h2>
+
+                <ul>
+                    <li><strong>URL generation</strong>: Create URLs programmatically</li>
+                    <li><strong>Url.Action()</strong>: Generate URLs in MVC controllers</li>
+                    <li><strong>CreatedAtAction()</strong>: Return 201 with Location header</li>
+                    <li><strong>CreatedAtRoute()</strong>: Use named routes</li>
+                    <li><strong>LinkGenerator</strong>: Generate URLs in services</li>
+                    <li><strong>Named routes</strong>: Stable identifiers for URL generation</li>
+                    <li><strong>RedirectToAction()</strong>: Redirect to another action</li>
+                    <li><strong>Type safety</strong>: Use <code>nameof()</code></li>
+                </ul>
+
+                <div class="callout callout-concept">
+                    <div class="callout-title">🎯 Next Steps</div>
+                    <p>
+                        You now understand URL generation! In the final section, we'll explore
+                        <strong>Areas</strong>—how to organize large applications into logical sections
+                        with their own controllers, views, and routes.
+                    </p>
+                </div>
+
+                <nav class="page-nav">
+                    <a href="04-route-constraints.html" class="prev">Route Constraints</a>
+                    <a href="06-areas.html" class="next">Areas</a>
+                </nav>
+
+            
+        <footer class="page-footer">
+          Built with 💜 by <a href="https://akwasi.dev" target="_blank" rel="noopener noreferrer">Akwasi Adu-Kyeremeh</a> for developers who want to truly understand what they're building.
+        </footer>
+
+      </div>
+        </main>
+    </div>
+</body>
+
+</html>

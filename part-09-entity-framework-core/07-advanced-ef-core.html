@@ -1,0 +1,504 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Advanced EF Core | ASP.NET Core Mastery</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;500&family=Source+Serif+4:ital,wght@0,400;0,600;1,400&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="../assets/style.css">
+</head>
+
+<body>
+    <div class="page-wrapper">
+        <aside class="sidebar">
+            <a href="../index.html" class="sidebar-logo">ASP.NET Core Mastery</a>
+            <div class="sidebar-section">Part IX: Entity Framework Core</div>
+            <ul class="sidebar-nav">
+                <li><a href="01-what-is-orm.html">What is an ORM?</a></li>
+                <li><a href="02-dbcontext-entities.html">DbContext and Entities</a></li>
+                <li><a href="03-code-first-migrations.html">Code-First Migrations</a></li>
+                <li><a href="04-querying-linq.html">Querying Data with LINQ</a></li>
+                <li><a href="05-relationships.html">Relationships</a></li>
+                <li><a href="06-loading-strategies.html">Loading Strategies</a></li>
+                <li><a href="07-advanced-ef-core.html" class="active">Advanced EF Core</a></li>
+            </ul>
+            <div class="sidebar-section">Resources</div>
+            <ul class="sidebar-nav">
+                <li><a href="../index.html">Full Roadmap</a></li>
+            </ul>
+        </aside>
+
+        <main class="main-content">
+            <div class="content-container">
+                <nav class="breadcrumb">
+                    <a href="../index.html">Home</a>
+                    <span>→</span>
+                    <a href="01-what-is-orm.html">Part IX: Entity Framework Core</a>
+                    <span>→</span>
+                    Advanced EF Core
+                </nav>
+
+                <div class="progress-indicator">
+                    <span>Section 7 of 7</span>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 100%"></div>
+                    </div>
+                </div>
+
+                <h1>Advanced EF Core</h1>
+
+                <div class="learning-objectives">
+                    <h3>🎯 What You'll Learn</h3>
+                    <ul>
+                        <li>Raw SQL queries</li>
+                        <li>Transactions</li>
+                        <li>AsNoTracking for performance</li>
+                        <li>Global query filters</li>
+                        <li>Compiled queries</li>
+                        <li>Performance best practices</li>
+                    </ul>
+                </div>
+
+                <h2>Raw SQL Queries</h2>
+
+                <p>
+                    Sometimes you need to execute raw SQL for complex queries or performance optimization.
+                </p>
+
+                <h3>FromSqlRaw</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">Execute Raw SQL</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-comment">// Simple query</span>
+<span class="code-keyword">var</span> <span class="code-variable">products</span> = <span class="code-keyword">await</span> <span class="code-variable">_context</span>.<span class="code-variable">Products</span>
+    .<span class="code-method">FromSqlRaw</span>(<span class="code-string">"SELECT * FROM Products WHERE Price > 100"</span>)
+    .<span class="code-method">ToListAsync</span>();
+
+<span class="code-comment">// With parameters (prevents SQL injection)</span>
+<span class="code-keyword">var</span> <span class="code-variable">minPrice</span> = <span class="code-number">100</span>;
+<span class="code-keyword">var</span> <span class="code-variable">products</span> = <span class="code-keyword">await</span> <span class="code-variable">_context</span>.<span class="code-variable">Products</span>
+    .<span class="code-method">FromSqlRaw</span>(<span class="code-string">"SELECT * FROM Products WHERE Price > {0}"</span>, <span class="code-variable">minPrice</span>)
+    .<span class="code-method">ToListAsync</span>();
+
+<span class="code-comment">// Can combine with LINQ</span>
+<span class="code-keyword">var</span> <span class="code-variable">products</span> = <span class="code-keyword">await</span> <span class="code-variable">_context</span>.<span class="code-variable">Products</span>
+    .<span class="code-method">FromSqlRaw</span>(<span class="code-string">"SELECT * FROM Products WHERE Price > {0}"</span>, <span class="code-variable">minPrice</span>)
+    .<span class="code-method">Where</span>(<span class="code-variable">p</span> => <span class="code-variable">p</span>.<span class="code-variable">Quantity</span> > <span class="code-number">0</span>)
+    .<span class="code-method">OrderBy</span>(<span class="code-variable">p</span> => <span class="code-variable">p</span>.<span class="code-variable">Name</span>)
+    .<span class="code-method">ToListAsync</span>();</code></pre>
+
+                <h3>FromSqlInterpolated (Safer)</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">Interpolated SQL</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-keyword">var</span> <span class="code-variable">minPrice</span> = <span class="code-number">100</span>;
+<span class="code-keyword">var</span> <span class="code-variable">products</span> = <span class="code-keyword">await</span> <span class="code-variable">_context</span>.<span class="code-variable">Products</span>
+    .<span class="code-method">FromSqlInterpolated</span>(<span class="code-string">$"SELECT * FROM Products WHERE Price > </span>{<span class="code-variable">minPrice</span>}<span class="code-string">"</span>)
+    .<span class="code-method">ToListAsync</span>();</code></pre>
+
+                <h3>ExecuteSqlRaw (Non-Query)</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">Execute Commands</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-comment">// Update/Delete/Insert</span>
+<span class="code-keyword">var</span> <span class="code-variable">rowsAffected</span> = <span class="code-keyword">await</span> <span class="code-variable">_context</span>.<span class="code-variable">Database</span>
+    .<span class="code-method">ExecuteSqlRawAsync</span>(<span class="code-string">"UPDATE Products SET Price = Price * 1.1 WHERE CategoryId = {0}"</span>, <span class="code-number">1</span>);
+
+<span class="code-comment">// Interpolated version</span>
+<span class="code-keyword">var</span> <span class="code-variable">categoryId</span> = <span class="code-number">1</span>;
+<span class="code-keyword">var</span> <span class="code-variable">rowsAffected</span> = <span class="code-keyword">await</span> <span class="code-variable">_context</span>.<span class="code-variable">Database</span>
+    .<span class="code-method">ExecuteSqlInterpolatedAsync</span>(<span class="code-string">$"UPDATE Products SET Price = Price * 1.1 WHERE CategoryId = </span>{<span class="code-variable">categoryId</span>}<span class="code-string">"</span>);</code></pre>
+
+                <div class="section-divider"></div>
+
+                <h2>Transactions</h2>
+
+                <p>
+                    <strong>Transactions</strong> ensure multiple operations succeed or fail together.
+                </p>
+
+                <h3>Automatic Transactions</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">SaveChanges is Transactional</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-comment">// All changes saved in a single transaction</span>
+<span class="code-variable">_context</span>.<span class="code-variable">Products</span>.<span class="code-method">Add</span>(<span class="code-keyword">new</span> <span class="code-class">Product</span> { <span class="code-variable">Name</span> = <span class="code-string">"Laptop"</span>, <span class="code-variable">Price</span> = <span class="code-number">999</span> });
+<span class="code-variable">_context</span>.<span class="code-variable">Products</span>.<span class="code-method">Add</span>(<span class="code-keyword">new</span> <span class="code-class">Product</span> { <span class="code-variable">Name</span> = <span class="code-string">"Mouse"</span>, <span class="code-variable">Price</span> = <span class="code-number">29</span> });
+
+<span class="code-comment">// Both saved or both rolled back</span>
+<span class="code-keyword">await</span> <span class="code-variable">_context</span>.<span class="code-method">SaveChangesAsync</span>();</code></pre>
+
+                <h3>Manual Transactions</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">Explicit Transaction Control</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-keyword">using</span> <span class="code-keyword">var</span> <span class="code-variable">transaction</span> = <span class="code-keyword">await</span> <span class="code-variable">_context</span>.<span class="code-variable">Database</span>.<span class="code-method">BeginTransactionAsync</span>();
+
+<span class="code-keyword">try</span>
+{
+    <span class="code-comment">// Operation 1</span>
+    <span class="code-keyword">var</span> <span class="code-variable">product</span> = <span class="code-keyword">await</span> <span class="code-variable">_context</span>.<span class="code-variable">Products</span>.<span class="code-method">FindAsync</span>(<span class="code-number">1</span>);
+    <span class="code-variable">product</span>.<span class="code-variable">Quantity</span> -= <span class="code-number">1</span>;
+    <span class="code-keyword">await</span> <span class="code-variable">_context</span>.<span class="code-method">SaveChangesAsync</span>();
+
+    <span class="code-comment">// Operation 2</span>
+    <span class="code-keyword">var</span> <span class="code-variable">order</span> = <span class="code-keyword">new</span> <span class="code-class">Order</span> { <span class="code-variable">CustomerName</span> = <span class="code-string">"John"</span>, <span class="code-variable">OrderDate</span> = <span class="code-class">DateTime</span>.<span class="code-variable">UtcNow</span> };
+    <span class="code-variable">_context</span>.<span class="code-variable">Orders</span>.<span class="code-method">Add</span>(<span class="code-variable">order</span>);
+    <span class="code-keyword">await</span> <span class="code-variable">_context</span>.<span class="code-method">SaveChangesAsync</span>();
+
+    <span class="code-comment">// Commit if all succeeded</span>
+    <span class="code-keyword">await</span> <span class="code-variable">transaction</span>.<span class="code-method">CommitAsync</span>();
+}
+<span class="code-keyword">catch</span>
+{
+    <span class="code-comment">// Rollback on error</span>
+    <span class="code-keyword">await</span> <span class="code-variable">transaction</span>.<span class="code-method">RollbackAsync</span>();
+    <span class="code-keyword">throw</span>;
+}</code></pre>
+
+                <h3>Transaction with Raw SQL</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">Mix EF and Raw SQL</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-keyword">using</span> <span class="code-keyword">var</span> <span class="code-variable">transaction</span> = <span class="code-keyword">await</span> <span class="code-variable">_context</span>.<span class="code-variable">Database</span>.<span class="code-method">BeginTransactionAsync</span>();
+
+<span class="code-keyword">try</span>
+{
+    <span class="code-comment">// EF Core operation</span>
+    <span class="code-variable">_context</span>.<span class="code-variable">Products</span>.<span class="code-method">Add</span>(<span class="code-keyword">new</span> <span class="code-class">Product</span> { <span class="code-variable">Name</span> = <span class="code-string">"Laptop"</span>, <span class="code-variable">Price</span> = <span class="code-number">999</span> });
+    <span class="code-keyword">await</span> <span class="code-variable">_context</span>.<span class="code-method">SaveChangesAsync</span>();
+
+    <span class="code-comment">// Raw SQL operation</span>
+    <span class="code-keyword">await</span> <span class="code-variable">_context</span>.<span class="code-variable">Database</span>
+        .<span class="code-method">ExecuteSqlRawAsync</span>(<span class="code-string">"UPDATE Inventory SET LastUpdated = GETDATE()"</span>);
+
+    <span class="code-keyword">await</span> <span class="code-variable">transaction</span>.<span class="code-method">CommitAsync</span>();
+}
+<span class="code-keyword">catch</span>
+{
+    <span class="code-keyword">await</span> <span class="code-variable">transaction</span>.<span class="code-method">RollbackAsync</span>();
+    <span class="code-keyword">throw</span>;
+}</code></pre>
+
+                <div class="section-divider"></div>
+
+                <h2>AsNoTracking for Performance</h2>
+
+                <p>
+                    <strong>AsNoTracking()</strong> disables change tracking for read-only queries, improving
+                    performance.
+                </p>
+
+                <div class="code-header">
+                    <span class="code-filename">Read-Only Queries</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-comment">// Tracked (default) - slower, can update</span>
+<span class="code-keyword">var</span> <span class="code-variable">products</span> = <span class="code-keyword">await</span> <span class="code-variable">_context</span>.<span class="code-variable">Products</span>.<span class="code-method">ToListAsync</span>();
+
+<span class="code-comment">// No tracking - faster, read-only</span>
+<span class="code-keyword">var</span> <span class="code-variable">products</span> = <span class="code-keyword">await</span> <span class="code-variable">_context</span>.<span class="code-variable">Products</span>
+    .<span class="code-method">AsNoTracking</span>()
+    .<span class="code-method">ToListAsync</span>();
+
+<span class="code-comment">// Use for API GET endpoints</span>
+[<span class="code-class">HttpGet</span>]
+<span class="code-keyword">public</span> <span class="code-keyword">async</span> <span class="code-class">Task</span>&lt;<span class="code-class">ActionResult</span>&gt; <span class="code-method">GetProducts</span>()
+{
+    <span class="code-keyword">var</span> <span class="code-variable">products</span> = <span class="code-keyword">await</span> <span class="code-variable">_context</span>.<span class="code-variable">Products</span>
+        .<span class="code-method">AsNoTracking</span>()
+        .<span class="code-method">ToListAsync</span>();
+    
+    <span class="code-keyword">return</span> <span class="code-method">Ok</span>(<span class="code-variable">products</span>);
+}</code></pre>
+
+                <h3>Global No Tracking</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">Configure Globally</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-variable">builder</span>.<span class="code-variable">Services</span>.<span class="code-method">AddDbContext</span>&lt;<span class="code-class">InvenTrackDbContext</span>&gt;(<span class="code-variable">options</span> =&gt;
+{
+    <span class="code-variable">options</span>.<span class="code-method">UseSqlServer</span>(<span class="code-variable">connectionString</span>);
+    <span class="code-variable">options</span>.<span class="code-method">UseQueryTrackingBehavior</span>(<span class="code-class">QueryTrackingBehavior</span>.<span class="code-variable">NoTracking</span>);
+});</code></pre>
+
+                <div class="section-divider"></div>
+
+                <h2>Global Query Filters</h2>
+
+                <p>
+                    <strong>Global query filters</strong> automatically apply filters to all queries.
+                </p>
+
+                <div class="code-header">
+                    <span class="code-filename">Soft Delete Example</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">Product</span>
+{
+    <span class="code-keyword">public</span> <span class="code-type">int</span> <span class="code-variable">Id</span> { <span class="code-keyword">get</span>; <span class="code-keyword">set</span>; }
+    <span class="code-keyword">public</span> <span class="code-type">string</span> <span class="code-variable">Name</span> { <span class="code-keyword">get</span>; <span class="code-keyword">set</span>; } = <span class="code-keyword">string</span>.<span class="code-variable">Empty</span>;
+    <span class="code-keyword">public</span> <span class="code-type">bool</span> <span class="code-variable">IsDeleted</span> { <span class="code-keyword">get</span>; <span class="code-keyword">set</span>; }
+}
+
+<span class="code-keyword">protected</span> <span class="code-keyword">override</span> <span class="code-type">void</span> <span class="code-method">OnModelCreating</span>(<span class="code-class">ModelBuilder</span> <span class="code-variable">modelBuilder</span>)
+{
+    <span class="code-comment">// Automatically filter out deleted products</span>
+    <span class="code-variable">modelBuilder</span>.<span class="code-method">Entity</span>&lt;<span class="code-class">Product</span>&gt;()
+        .<span class="code-method">HasQueryFilter</span>(<span class="code-variable">p</span> => !<span class="code-variable">p</span>.<span class="code-variable">IsDeleted</span>);
+}
+
+<span class="code-comment">// All queries automatically exclude deleted products</span>
+<span class="code-keyword">var</span> <span class="code-variable">products</span> = <span class="code-keyword">await</span> <span class="code-variable">_context</span>.<span class="code-variable">Products</span>.<span class="code-method">ToListAsync</span>(); <span class="code-comment">// Only non-deleted</span>
+
+<span class="code-comment">// Ignore filter when needed</span>
+<span class="code-keyword">var</span> <span class="code-variable">allProducts</span> = <span class="code-keyword">await</span> <span class="code-variable">_context</span>.<span class="code-variable">Products</span>
+    .<span class="code-method">IgnoreQueryFilters</span>()
+    .<span class="code-method">ToListAsync</span>(); <span class="code-comment">// Includes deleted</span></code></pre>
+
+                <div class="section-divider"></div>
+
+                <h2>Compiled Queries</h2>
+
+                <p>
+                    <strong>Compiled queries</strong> improve performance by caching query translation.
+                </p>
+
+                <div class="code-header">
+                    <span class="code-filename">Define Compiled Query</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-keyword">private</span> <span class="code-keyword">static</span> <span class="code-keyword">readonly</span> <span class="code-class">Func</span>&lt;<span class="code-class">InvenTrackDbContext</span>, <span class="code-type">int</span>, <span class="code-class">Task</span>&lt;<span class="code-class">Product</span>?&gt;&gt; <span class="code-variable">_getProductById</span> =
+    <span class="code-class">EF</span>.<span class="code-method">CompileAsyncQuery</span>((<span class="code-class">InvenTrackDbContext</span> <span class="code-variable">context</span>, <span class="code-type">int</span> <span class="code-variable">id</span>) =>
+        <span class="code-variable">context</span>.<span class="code-variable">Products</span>.<span class="code-method">FirstOrDefault</span>(<span class="code-variable">p</span> => <span class="code-variable">p</span>.<span class="code-variable">Id</span> == <span class="code-variable">id</span>));
+
+<span class="code-comment">// Use compiled query</span>
+<span class="code-keyword">var</span> <span class="code-variable">product</span> = <span class="code-keyword">await</span> <span class="code-method">_getProductById</span>(<span class="code-variable">_context</span>, <span class="code-number">1</span>);</code></pre>
+
+                <div class="section-divider"></div>
+
+                <h2>Batch Operations</h2>
+
+                <div class="code-header">
+                    <span class="code-filename">Bulk Insert</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-comment">// Add multiple entities</span>
+<span class="code-keyword">var</span> <span class="code-variable">products</span> = <span class="code-keyword">new</span> <span class="code-class">List</span>&lt;<span class="code-class">Product</span>&gt;
+{
+    <span class="code-keyword">new</span> <span class="code-class">Product</span> { <span class="code-variable">Name</span> = <span class="code-string">"Laptop"</span>, <span class="code-variable">Price</span> = <span class="code-number">999</span> },
+    <span class="code-keyword">new</span> <span class="code-class">Product</span> { <span class="code-variable">Name</span> = <span class="code-string">"Mouse"</span>, <span class="code-variable">Price</span> = <span class="code-number">29</span> },
+    <span class="code-keyword">new</span> <span class="code-class">Product</span> { <span class="code-variable">Name</span> = <span class="code-string">"Keyboard"</span>, <span class="code-variable">Price</span> = <span class="code-number">79</span> }
+};
+
+<span class="code-variable">_context</span>.<span class="code-variable">Products</span>.<span class="code-method">AddRange</span>(<span class="code-variable">products</span>);
+<span class="code-keyword">await</span> <span class="code-variable">_context</span>.<span class="code-method">SaveChangesAsync</span>();
+
+<span class="code-comment">// Remove multiple</span>
+<span class="code-variable">_context</span>.<span class="code-variable">Products</span>.<span class="code-method">RemoveRange</span>(<span class="code-variable">products</span>);
+<span class="code-keyword">await</span> <span class="code-variable">_context</span>.<span class="code-method">SaveChangesAsync</span>();</code></pre>
+
+                <h2>Performance Best Practices</h2>
+
+                <h3>1. Use AsNoTracking for Read-Only</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">Read-Only Queries</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-keyword">var</span> <span class="code-variable">products</span> = <span class="code-keyword">await</span> <span class="code-variable">_context</span>.<span class="code-variable">Products</span>.<span class="code-method">AsNoTracking</span>().<span class="code-method">ToListAsync</span>();</code></pre>
+
+                <h3>2. Project Only Needed Data</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">Use Select</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-keyword">var</span> <span class="code-variable">products</span> = <span class="code-keyword">await</span> <span class="code-variable">_context</span>.<span class="code-variable">Products</span>
+    .<span class="code-method">Select</span>(<span class="code-variable">p</span> => <span class="code-keyword">new</span> { <span class="code-variable">p</span>.<span class="code-variable">Id</span>, <span class="code-variable">p</span>.<span class="code-variable">Name</span>, <span class="code-variable">p</span>.<span class="code-variable">Price</span> })
+    .<span class="code-method">ToListAsync</span>();</code></pre>
+
+                <h3>3. Avoid N+1 with Include</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">Eager Load</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-keyword">var</span> <span class="code-variable">products</span> = <span class="code-keyword">await</span> <span class="code-variable">_context</span>.<span class="code-variable">Products</span>
+    .<span class="code-method">Include</span>(<span class="code-variable">p</span> => <span class="code-variable">p</span>.<span class="code-variable">Category</span>)
+    .<span class="code-method">ToListAsync</span>();</code></pre>
+
+                <h3>4. Use Pagination</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">Skip and Take</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-keyword">var</span> <span class="code-variable">products</span> = <span class="code-keyword">await</span> <span class="code-variable">_context</span>.<span class="code-variable">Products</span>
+    .<span class="code-method">Skip</span>((<span class="code-variable">page</span> - <span class="code-number">1</span>) * <span class="code-variable">pageSize</span>)
+    .<span class="code-method">Take</span>(<span class="code-variable">pageSize</span>)
+    .<span class="code-method">ToListAsync</span>();</code></pre>
+
+                <h3>5. Use Indexes</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">Create Indexes</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-variable">modelBuilder</span>.<span class="code-method">Entity</span>&lt;<span class="code-class">Product</span>&gt;()
+    .<span class="code-method">HasIndex</span>(<span class="code-variable">p</span> => <span class="code-variable">p</span>.<span class="code-variable">Name</span>);
+
+<span class="code-comment">// Composite index</span>
+<span class="code-variable">modelBuilder</span>.<span class="code-method">Entity</span>&lt;<span class="code-class">Product</span>&gt;()
+    .<span class="code-method">HasIndex</span>(<span class="code-variable">p</span> => <span class="code-keyword">new</span> { <span class="code-variable">p</span>.<span class="code-variable">CategoryId</span>, <span class="code-variable">p</span>.<span class="code-variable">Price</span> });</code></pre>
+
+                <h3>6. Enable Query Logging</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">Log SQL Queries</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-variable">builder</span>.<span class="code-variable">Services</span>.<span class="code-method">AddDbContext</span>&lt;<span class="code-class">InvenTrackDbContext</span>&gt;(<span class="code-variable">options</span> =&gt;
+{
+    <span class="code-variable">options</span>.<span class="code-method">UseSqlServer</span>(<span class="code-variable">connectionString</span>);
+    <span class="code-variable">options</span>.<span class="code-method">LogTo</span>(<span class="code-class">Console</span>.<span class="code-variable">WriteLine</span>, <span class="code-class">LogLevel</span>.<span class="code-variable">Information</span>);
+    <span class="code-variable">options</span>.<span class="code-method">EnableSensitiveDataLogging</span>(); <span class="code-comment">// Dev only!</span>
+});</code></pre>
+
+                <h2>Complete InvenTrack Example</h2>
+
+                <div class="code-header">
+                    <span class="code-filename">Optimized Service</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">ProductService</span>
+{
+    <span class="code-keyword">private</span> <span class="code-keyword">readonly</span> <span class="code-class">InvenTrackDbContext</span> <span class="code-variable">_context</span>;
+
+    <span class="code-keyword">public</span> <span class="code-method">ProductService</span>(<span class="code-class">InvenTrackDbContext</span> <span class="code-variable">context</span>)
+    {
+        <span class="code-variable">_context</span> = <span class="code-variable">context</span>;
+    }
+
+    <span class="code-comment">// Optimized read</span>
+    <span class="code-keyword">public</span> <span class="code-keyword">async</span> <span class="code-class">Task</span>&lt;<span class="code-class">List</span>&lt;<span class="code-class">ProductDto</span>&gt;&gt; <span class="code-method">GetProductsAsync</span>(<span class="code-type">int</span> <span class="code-variable">page</span>, <span class="code-type">int</span> <span class="code-variable">pageSize</span>)
+    {
+        <span class="code-keyword">return</span> <span class="code-keyword">await</span> <span class="code-variable">_context</span>.<span class="code-variable">Products</span>
+            .<span class="code-method">AsNoTracking</span>()
+            .<span class="code-method">Include</span>(<span class="code-variable">p</span> => <span class="code-variable">p</span>.<span class="code-variable">Category</span>)
+            .<span class="code-method">OrderBy</span>(<span class="code-variable">p</span> => <span class="code-variable">p</span>.<span class="code-variable">Name</span>)
+            .<span class="code-method">Skip</span>((<span class="code-variable">page</span> - <span class="code-number">1</span>) * <span class="code-variable">pageSize</span>)
+            .<span class="code-method">Take</span>(<span class="code-variable">pageSize</span>)
+            .<span class="code-method">Select</span>(<span class="code-variable">p</span> => <span class="code-keyword">new</span> <span class="code-class">ProductDto</span>
+            {
+                <span class="code-variable">Id</span> = <span class="code-variable">p</span>.<span class="code-variable">Id</span>,
+                <span class="code-variable">Name</span> = <span class="code-variable">p</span>.<span class="code-variable">Name</span>,
+                <span class="code-variable">Price</span> = <span class="code-variable">p</span>.<span class="code-variable">Price</span>,
+                <span class="code-variable">CategoryName</span> = <span class="code-variable">p</span>.<span class="code-variable">Category</span>.<span class="code-variable">Name</span>
+            })
+            .<span class="code-method">ToListAsync</span>();
+    }
+
+    <span class="code-comment">// Transactional operation</span>
+    <span class="code-keyword">public</span> <span class="code-keyword">async</span> <span class="code-class">Task</span> <span class="code-method">ProcessOrderAsync</span>(<span class="code-type">int</span> <span class="code-variable">productId</span>, <span class="code-type">int</span> <span class="code-variable">quantity</span>)
+    {
+        <span class="code-keyword">using</span> <span class="code-keyword">var</span> <span class="code-variable">transaction</span> = <span class="code-keyword">await</span> <span class="code-variable">_context</span>.<span class="code-variable">Database</span>.<span class="code-method">BeginTransactionAsync</span>();
+
+        <span class="code-keyword">try</span>
+        {
+            <span class="code-comment">// Reduce inventory</span>
+            <span class="code-keyword">var</span> <span class="code-variable">product</span> = <span class="code-keyword">await</span> <span class="code-variable">_context</span>.<span class="code-variable">Products</span>.<span class="code-method">FindAsync</span>(<span class="code-variable">productId</span>);
+            <span class="code-keyword">if</span> (<span class="code-variable">product</span> == <span class="code-keyword">null</span> || <span class="code-variable">product</span>.<span class="code-variable">Quantity</span> < <span class="code-variable">quantity</span>)
+                <span class="code-keyword">throw</span> <span class="code-keyword">new</span> <span class="code-class">InvalidOperationException</span>(<span class="code-string">"Insufficient quantity"</span>);
+
+            <span class="code-variable">product</span>.<span class="code-variable">Quantity</span> -= <span class="code-variable">quantity</span>;
+            <span class="code-keyword">await</span> <span class="code-variable">_context</span>.<span class="code-method">SaveChangesAsync</span>();
+
+            <span class="code-comment">// Create order</span>
+            <span class="code-keyword">var</span> <span class="code-variable">order</span> = <span class="code-keyword">new</span> <span class="code-class">Order</span>
+            {
+                <span class="code-variable">CustomerName</span> = <span class="code-string">"Customer"</span>,
+                <span class="code-variable">OrderDate</span> = <span class="code-class">DateTime</span>.<span class="code-variable">UtcNow</span>
+            };
+            <span class="code-variable">_context</span>.<span class="code-variable">Orders</span>.<span class="code-method">Add</span>(<span class="code-variable">order</span>);
+            <span class="code-keyword">await</span> <span class="code-variable">_context</span>.<span class="code-method">SaveChangesAsync</span>();
+
+            <span class="code-keyword">await</span> <span class="code-variable">transaction</span>.<span class="code-method">CommitAsync</span>();
+        }
+        <span class="code-keyword">catch</span>
+        {
+            <span class="code-keyword">await</span> <span class="code-variable">transaction</span>.<span class="code-method">RollbackAsync</span>();
+            <span class="code-keyword">throw</span>;
+        }
+    }
+}</code></pre>
+
+                <h2>Key Takeaways</h2>
+
+                <ul>
+                    <li><strong>Raw SQL</strong>: FromSqlRaw/FromSqlInterpolated for complex queries</li>
+                    <li><strong>Transactions</strong>: BeginTransaction for multi-step operations</li>
+                    <li><strong>AsNoTracking</strong>: Use for read-only queries (better performance)</li>
+                    <li><strong>Global filters</strong>: HasQueryFilter for automatic filtering</li>
+                    <li><strong>Compiled queries</strong>: Cache query translation</li>
+                    <li><strong>Batch operations</strong>: AddRange/RemoveRange for bulk</li>
+                    <li><strong>Indexes</strong>: HasIndex for frequently queried columns</li>
+                    <li><strong>Logging</strong>: Enable to see generated SQL</li>
+                </ul>
+
+                <div class="callout callout-concept">
+                    <div class="callout-title">🎉 Part IX Complete!</div>
+                    <p>
+                        Congratulations! You've completed <strong>Part IX: Entity Framework Core</strong>. You now
+                        understand:
+                    </p>
+                    <ul>
+                        <li>✅ What ORMs are and why use EF Core</li>
+                        <li>✅ DbContext and entity configuration</li>
+                        <li>✅ Code-First Migrations for schema management</li>
+                        <li>✅ Querying with LINQ (Where, Select, OrderBy, aggregation)</li>
+                        <li>✅ Relationships (one-to-many, one-to-one, many-to-many)</li>
+                        <li>✅ Loading strategies (eager, lazy, explicit, select)</li>
+                        <li>✅ Advanced features (raw SQL, transactions, performance)</li>
+                    </ul>
+                    <p>
+                        You now have the skills to build data-driven applications with Entity Framework Core!
+                        Keep up the excellent work! 🚀
+                    </p>
+                </div>
+
+                <nav class="page-nav">
+                    <a href="06-loading-strategies.html" class="prev">Loading Strategies</a>
+                    <a href="../index.html" class="next">Back to Roadmap</a>
+                </nav>
+
+            
+        <footer class="page-footer">
+          Built with 💜 by <a href="https://akwasi.dev" target="_blank" rel="noopener noreferrer">Akwasi Adu-Kyeremeh</a> for developers who want to truly understand what they're building.
+        </footer>
+
+      </div>
+        </main>
+    </div>
+</body>
+
+</html>

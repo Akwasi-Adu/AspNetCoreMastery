@@ -1,0 +1,768 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The dotnet CLI | ASP.NET Core Mastery</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;500&family=Source+Serif+4:ital,wght@0,400;0,600;1,400&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="../assets/style.css">
+</head>
+
+<body>
+    <div class="page-wrapper">
+        <aside class="sidebar">
+            <a href="../index.html" class="sidebar-logo">ASP.NET Core Mastery</a>
+            <div class="sidebar-section">Part II: .NET Core Basics</div>
+            <ul class="sidebar-nav">
+                <li><a href="01-dotnet-ecosystem.html">The .NET Ecosystem</a></li>
+                <li><a href="02-installing-sdk.html">Installing the .NET SDK</a></li>
+                <li><a href="03-first-console-app.html">Your First Console App</a></li>
+                <li><a href="04-project-structure.html">Project Files & Structure</a></li>
+                <li><a href="05-dotnet-cli.html" class="active">The dotnet CLI</a></li>
+                <li><a href="06-nuget-packages.html">NuGet Package Management</a></li>
+            </ul>
+            <div class="sidebar-section">Resources</div>
+            <ul class="sidebar-nav">
+                <li><a href="../index.html">Full Roadmap</a></li>
+            </ul>
+        </aside>
+
+        <main class="main-content">
+            <div class="content-container">
+                <nav class="breadcrumb">
+                    <a href="../index.html">Home</a>
+                    <span>→</span>
+                    <a href="01-dotnet-ecosystem.html">Part II: .NET Core Basics</a>
+                    <span>→</span>
+                    The dotnet CLI
+                </nav>
+
+                <div class="progress-indicator">
+                    <span>Section 5 of 6</span>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 83.33%"></div>
+                    </div>
+                </div>
+
+                <h1>The dotnet CLI</h1>
+
+                <div class="learning-objectives">
+                    <h3>🎯 What You'll Learn</h3>
+                    <ul>
+                        <li>Understanding the dotnet command structure</li>
+                        <li>Essential commands for daily development</li>
+                        <li>Creating projects and solutions</li>
+                        <li>Building, running, and testing applications</li>
+                        <li>Publishing and deployment commands</li>
+                        <li>Working with templates</li>
+                        <li>Useful flags and options</li>
+                        <li>Productivity tips and shortcuts</li>
+                    </ul>
+                </div>
+
+                <h2>What is the dotnet CLI?</h2>
+
+                <p>
+                    The <strong>dotnet CLI (Command-Line Interface)</strong> is your primary tool for working
+                    with .NET. It's a cross-platform command-line tool that handles everything from creating
+                    projects to deploying applications.
+                </p>
+
+                <div class="callout callout-concept">
+                    <div class="callout-title">💡 Why Use the CLI?</div>
+                    <p>
+                        <strong>Universal</strong>: Works the same on Windows, macOS, and Linux<br>
+                        <strong>Scriptable</strong>: Automate builds and deployments<br>
+                        <strong>Fast</strong>: Quicker than clicking through menus<br>
+                        <strong>CI/CD Ready</strong>: Perfect for automated pipelines<br>
+                        <strong>IDE Independent</strong>: Works without Visual Studio
+                    </p>
+                </div>
+
+                <h2>Command Structure</h2>
+
+                <p>
+                    All dotnet commands follow this pattern:
+                </p>
+
+                <div class="code-header">
+                    <span class="code-filename">Command Pattern</span>
+                    <span class="code-language">Shell</span>
+                </div>
+                <pre><code>dotnet [command] [arguments] [options]</code></pre>
+
+                <p>
+                    For example:
+                </p>
+
+                <div class="code-header">
+                    <span class="code-filename">Example</span>
+                    <span class="code-language">Shell</span>
+                </div>
+                <pre><code>dotnet new console -n MyApp -o ./src/MyApp</code></pre>
+
+                <ul>
+                    <li><code>dotnet</code> - The CLI tool</li>
+                    <li><code>new</code> - Command (create new project)</li>
+                    <li><code>console</code> - Argument (template name)</li>
+                    <li><code>-n MyApp</code> - Option (name)</li>
+                    <li><code>-o ./src/MyApp</code> - Option (output directory)</li>
+                </ul>
+
+                <div class="section-divider"></div>
+
+                <h2>Essential Commands</h2>
+
+                <h3>Getting Help</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">Help Commands</span>
+                    <span class="code-language">Shell</span>
+                </div>
+                <pre><code><span class="code-comment"># General help</span>
+dotnet --help
+dotnet -h
+
+<span class="code-comment"># Help for specific command</span>
+dotnet new --help
+dotnet build --help
+
+<span class="code-comment"># List all available commands</span>
+dotnet --list-sdks
+dotnet --list-runtimes</code></pre>
+
+                <h3>Version Information</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">Version Commands</span>
+                    <span class="code-language">Shell</span>
+                </div>
+                <pre><code><span class="code-comment"># Show .NET version</span>
+dotnet --version
+
+<span class="code-comment"># Show detailed .NET info</span>
+dotnet --info</code></pre>
+
+                <div class="section-divider"></div>
+
+                <h2>Project Creation Commands</h2>
+
+                <h3>dotnet new - Create Projects</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">Creating Projects</span>
+                    <span class="code-language">Shell</span>
+                </div>
+                <pre><code><span class="code-comment"># List all available templates</span>
+dotnet new list
+
+<span class="code-comment"># Create console application</span>
+dotnet new console -n MyConsoleApp
+
+<span class="code-comment"># Create ASP.NET Core Web API</span>
+dotnet new webapi -n InvenTrack.Api
+
+<span class="code-comment"># Create class library</span>
+dotnet new classlib -n InvenTrack.Core
+
+<span class="code-comment"># Create solution file</span>
+dotnet new sln -n InvenTrack
+
+<span class="code-comment"># Create .gitignore</span>
+dotnet new gitignore
+
+<span class="code-comment"># Create with specific framework</span>
+dotnet new console -n MyApp -f net8.0</code></pre>
+
+                <h3>Common Templates</h3>
+
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Template</th>
+                            <th>Short Name</th>
+                            <th>Description</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Console Application</td>
+                            <td><code>console</code></td>
+                            <td>Command-line application</td>
+                        </tr>
+                        <tr>
+                            <td>Class Library</td>
+                            <td><code>classlib</code></td>
+                            <td>Reusable library (DLL)</td>
+                        </tr>
+                        <tr>
+                            <td>ASP.NET Core Web API</td>
+                            <td><code>webapi</code></td>
+                            <td>RESTful API</td>
+                        </tr>
+                        <tr>
+                            <td>ASP.NET Core MVC</td>
+                            <td><code>mvc</code></td>
+                            <td>Model-View-Controller web app</td>
+                        </tr>
+                        <tr>
+                            <td>Razor Pages</td>
+                            <td><code>webapp</code></td>
+                            <td>Page-focused web app</td>
+                        </tr>
+                        <tr>
+                            <td>Blazor Server</td>
+                            <td><code>blazorserver</code></td>
+                            <td>Server-side Blazor app</td>
+                        </tr>
+                        <tr>
+                            <td>Worker Service</td>
+                            <td><code>worker</code></td>
+                            <td>Background service</td>
+                        </tr>
+                        <tr>
+                            <td>xUnit Test Project</td>
+                            <td><code>xunit</code></td>
+                            <td>Unit test project</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="callout callout-tip">
+                    <div class="callout-title">💡 Template Options</div>
+                    <p>
+                        <code>-n, --name</code>: Project name<br>
+                        <code>-o, --output</code>: Output directory<br>
+                        <code>-f, --framework</code>: Target framework (net8.0, net7.0, etc.)<br>
+                        <code>--no-restore</code>: Skip automatic package restore
+                    </p>
+                </div>
+
+                <div class="section-divider"></div>
+
+                <h2>Solution Management</h2>
+
+                <h3>dotnet sln - Manage Solutions</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">Solution Commands</span>
+                    <span class="code-language">Shell</span>
+                </div>
+                <pre><code><span class="code-comment"># Create new solution</span>
+dotnet new sln -n InvenTrack
+
+<span class="code-comment"># Add project to solution</span>
+dotnet sln add src/InvenTrack.Web/InvenTrack.Web.csproj
+dotnet sln add src/InvenTrack.Core/InvenTrack.Core.csproj
+
+<span class="code-comment"># Add multiple projects</span>
+dotnet sln add src/**/*.csproj
+
+<span class="code-comment"># Remove project from solution</span>
+dotnet sln remove src/InvenTrack.Web/InvenTrack.Web.csproj
+
+<span class="code-comment"># List projects in solution</span>
+dotnet sln list</code></pre>
+
+                <h3>dotnet add reference - Project References</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">Adding References</span>
+                    <span class="code-language">Shell</span>
+                </div>
+                <pre><code><span class="code-comment"># Add project reference</span>
+dotnet add src/InvenTrack.Web reference src/InvenTrack.Core
+
+<span class="code-comment"># Add multiple references</span>
+dotnet add reference ../InvenTrack.Core ../InvenTrack.Data
+
+<span class="code-comment"># Remove reference</span>
+dotnet remove reference ../InvenTrack.Core</code></pre>
+
+                <div class="section-divider"></div>
+
+                <h2>Build and Run Commands</h2>
+
+                <h3>dotnet restore - Restore Dependencies</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">Restore</span>
+                    <span class="code-language">Shell</span>
+                </div>
+                <pre><code><span class="code-comment"># Restore NuGet packages</span>
+dotnet restore
+
+<span class="code-comment"># Restore for specific project</span>
+dotnet restore src/InvenTrack.Web/InvenTrack.Web.csproj
+
+<span class="code-comment"># Force re-download of packages</span>
+dotnet restore --force</code></pre>
+
+                <div class="callout callout-info">
+                    <div class="callout-title">ℹ️ When to Restore</div>
+                    <p>
+                        You rarely need to run <code>dotnet restore</code> manually. It's automatically run by:<br>
+                        • <code>dotnet build</code><br>
+                        • <code>dotnet run</code><br>
+                        • <code>dotnet test</code><br>
+                        Only needed after cloning a repo or modifying package references.
+                    </p>
+                </div>
+
+                <h3>dotnet build - Compile Projects</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">Build</span>
+                    <span class="code-language">Shell</span>
+                </div>
+                <pre><code><span class="code-comment"># Build current project/solution</span>
+dotnet build
+
+<span class="code-comment"># Build specific project</span>
+dotnet build src/InvenTrack.Web/InvenTrack.Web.csproj
+
+<span class="code-comment"># Build in Release mode</span>
+dotnet build --configuration Release
+dotnet build -c Release
+
+<span class="code-comment"># Build without restoring</span>
+dotnet build --no-restore
+
+<span class="code-comment"># Build with verbose output</span>
+dotnet build --verbosity detailed
+dotnet build -v d</code></pre>
+
+                <h3>dotnet run - Build and Execute</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">Run</span>
+                    <span class="code-language">Shell</span>
+                </div>
+                <pre><code><span class="code-comment"># Run current project</span>
+dotnet run
+
+<span class="code-comment"># Run specific project</span>
+dotnet run --project src/InvenTrack.Web
+
+<span class="code-comment"># Run in Release mode</span>
+dotnet run --configuration Release
+
+<span class="code-comment"># Pass arguments to your app</span>
+dotnet run -- arg1 arg2
+
+<span class="code-comment"># Run without building (if already built)</span>
+dotnet run --no-build</code></pre>
+
+                <h3>dotnet watch - Hot Reload</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">Watch</span>
+                    <span class="code-language">Shell</span>
+                </div>
+                <pre><code><span class="code-comment"># Run with hot reload (auto-restart on file changes)</span>
+dotnet watch run
+
+<span class="code-comment"># Watch and run tests</span>
+dotnet watch test
+
+<span class="code-comment"># Watch specific project</span>
+dotnet watch --project src/InvenTrack.Web run</code></pre>
+
+                <div class="callout callout-tip">
+                    <div class="callout-title">🚀 Productivity Boost</div>
+                    <p>
+                        Use <code>dotnet watch run</code> during development! It automatically rebuilds and
+                        restarts your app whenever you save changes. Perfect for rapid iteration.
+                    </p>
+                </div>
+
+                <h3>dotnet clean - Remove Build Artifacts</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">Clean</span>
+                    <span class="code-language">Shell</span>
+                </div>
+                <pre><code><span class="code-comment"># Clean build output (bin/ and obj/)</span>
+dotnet clean
+
+<span class="code-comment"># Clean specific configuration</span>
+dotnet clean --configuration Release</code></pre>
+
+                <div class="section-divider"></div>
+
+                <h2>Testing Commands</h2>
+
+                <h3>dotnet test - Run Tests</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">Test</span>
+                    <span class="code-language">Shell</span>
+                </div>
+                <pre><code><span class="code-comment"># Run all tests</span>
+dotnet test
+
+<span class="code-comment"># Run tests in specific project</span>
+dotnet test tests/InvenTrack.Tests/InvenTrack.Tests.csproj
+
+<span class="code-comment"># Run tests with detailed output</span>
+dotnet test --verbosity normal
+
+<span class="code-comment"># Run tests and collect code coverage</span>
+dotnet test --collect:"XPlat Code Coverage"
+
+<span class="code-comment"># Run specific test</span>
+dotnet test --filter "FullyQualifiedName~InvenTrack.Tests.ProductTests"
+
+<span class="code-comment"># Run tests in parallel</span>
+dotnet test --parallel</code></pre>
+
+                <div class="section-divider"></div>
+
+                <h2>Publishing and Deployment</h2>
+
+                <h3>dotnet publish - Prepare for Deployment</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">Publish</span>
+                    <span class="code-language">Shell</span>
+                </div>
+                <pre><code><span class="code-comment"># Publish for deployment</span>
+dotnet publish
+
+<span class="code-comment"># Publish in Release mode</span>
+dotnet publish -c Release
+
+<span class="code-comment"># Publish to specific folder</span>
+dotnet publish -c Release -o ./publish
+
+<span class="code-comment"># Publish self-contained (includes .NET runtime)</span>
+dotnet publish -c Release --self-contained -r win-x64
+
+<span class="code-comment"># Publish framework-dependent (requires .NET runtime on server)</span>
+dotnet publish -c Release --no-self-contained
+
+<span class="code-comment"># Publish single file</span>
+dotnet publish -c Release -r win-x64 --self-contained -p:PublishSingleFile=true</code></pre>
+
+                <h3>Runtime Identifiers (RID)</h3>
+
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Platform</th>
+                            <th>RID</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Windows x64</td>
+                            <td><code>win-x64</code></td>
+                        </tr>
+                        <tr>
+                            <td>Windows ARM64</td>
+                            <td><code>win-arm64</code></td>
+                        </tr>
+                        <tr>
+                            <td>Linux x64</td>
+                            <td><code>linux-x64</code></td>
+                        </tr>
+                        <tr>
+                            <td>Linux ARM64</td>
+                            <td><code>linux-arm64</code></td>
+                        </tr>
+                        <tr>
+                            <td>macOS x64</td>
+                            <td><code>osx-x64</code></td>
+                        </tr>
+                        <tr>
+                            <td>macOS ARM64</td>
+                            <td><code>osx-arm64</code></td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="callout callout-info">
+                    <div class="callout-title">ℹ️ Self-Contained vs Framework-Dependent</div>
+                    <p>
+                        <strong>Self-Contained</strong>: Includes .NET runtime (larger, but no dependencies)<br>
+                        <strong>Framework-Dependent</strong>: Requires .NET runtime on target (smaller)<br>
+                        <strong>For InvenTrack</strong>: Use framework-dependent for servers with .NET installed
+                    </p>
+                </div>
+
+                <div class="section-divider"></div>
+
+                <h2>Package Management</h2>
+
+                <h3>dotnet add package - Add NuGet Packages</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">Add Packages</span>
+                    <span class="code-language">Shell</span>
+                </div>
+                <pre><code><span class="code-comment"># Add latest version</span>
+dotnet add package Newtonsoft.Json
+
+<span class="code-comment"># Add specific version</span>
+dotnet add package Serilog --version 3.1.1
+
+<span class="code-comment"># Add to specific project</span>
+dotnet add src/InvenTrack.Web package Microsoft.EntityFrameworkCore
+
+<span class="code-comment"># Add prerelease version</span>
+dotnet add package SomePackage --prerelease</code></pre>
+
+                <h3>dotnet remove package - Remove Packages</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">Remove Packages</span>
+                    <span class="code-language">Shell</span>
+                </div>
+                <pre><code><span class="code-comment"># Remove package</span>
+dotnet remove package Newtonsoft.Json
+
+<span class="code-comment"># Remove from specific project</span>
+dotnet remove src/InvenTrack.Web package Serilog</code></pre>
+
+                <h3>dotnet list package - View Packages</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">List Packages</span>
+                    <span class="code-language">Shell</span>
+                </div>
+                <pre><code><span class="code-comment"># List all packages</span>
+dotnet list package
+
+<span class="code-comment"># Check for outdated packages</span>
+dotnet list package --outdated
+
+<span class="code-comment"># Check for vulnerable packages</span>
+dotnet list package --vulnerable</code></pre>
+
+                <div class="section-divider"></div>
+
+                <h2>Tool Management</h2>
+
+                <h3>dotnet tool - Global and Local Tools</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">Tools</span>
+                    <span class="code-language">Shell</span>
+                </div>
+                <pre><code><span class="code-comment"># Install global tool</span>
+dotnet tool install --global dotnet-ef
+
+<span class="code-comment"># Install local tool (project-specific)</span>
+dotnet tool install dotnet-ef
+
+<span class="code-comment"># List installed global tools</span>
+dotnet tool list --global
+
+<span class="code-comment"># Update tool</span>
+dotnet tool update --global dotnet-ef
+
+<span class="code-comment"># Uninstall tool</span>
+dotnet tool uninstall --global dotnet-ef</code></pre>
+
+                <h3>Popular .NET Tools</h3>
+
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Tool</th>
+                            <th>Purpose</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><code>dotnet-ef</code></td>
+                            <td>Entity Framework Core migrations</td>
+                        </tr>
+                        <tr>
+                            <td><code>dotnet-aspnet-codegenerator</code></td>
+                            <td>ASP.NET Core scaffolding</td>
+                        </tr>
+                        <tr>
+                            <td><code>dotnet-format</code></td>
+                            <td>Code formatter</td>
+                        </tr>
+                        <tr>
+                            <td><code>dotnet-outdated</code></td>
+                            <td>Check for outdated packages</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="section-divider"></div>
+
+                <h2>Useful Flags and Options</h2>
+
+                <h3>Common Flags Across Commands</h3>
+
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Flag</th>
+                            <th>Description</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><code>-h, --help</code></td>
+                            <td>Show help for command</td>
+                        </tr>
+                        <tr>
+                            <td><code>-c, --configuration</code></td>
+                            <td>Build configuration (Debug/Release)</td>
+                        </tr>
+                        <tr>
+                            <td><code>-f, --framework</code></td>
+                            <td>Target framework</td>
+                        </tr>
+                        <tr>
+                            <td><code>-o, --output</code></td>
+                            <td>Output directory</td>
+                        </tr>
+                        <tr>
+                            <td><code>-v, --verbosity</code></td>
+                            <td>Output verbosity (q/m/n/d/diag)</td>
+                        </tr>
+                        <tr>
+                            <td><code>--no-restore</code></td>
+                            <td>Skip package restore</td>
+                        </tr>
+                        <tr>
+                            <td><code>--no-build</code></td>
+                            <td>Skip build step</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="section-divider"></div>
+
+                <h2>Real-World InvenTrack Workflow</h2>
+
+                <p>
+                    Here's a complete workflow for setting up InvenTrack from scratch:
+                </p>
+
+                <div class="code-header">
+                    <span class="code-filename">InvenTrack Setup</span>
+                    <span class="code-language">Shell</span>
+                </div>
+                <pre><code><span class="code-comment"># 1. Create solution</span>
+dotnet new sln -n InvenTrack
+
+<span class="code-comment"># 2. Create projects</span>
+dotnet new webapi -n InvenTrack.Api -o src/InvenTrack.Api
+dotnet new classlib -n InvenTrack.Core -o src/InvenTrack.Core
+dotnet new classlib -n InvenTrack.Data -o src/InvenTrack.Data
+dotnet new xunit -n InvenTrack.Tests -o tests/InvenTrack.Tests
+
+<span class="code-comment"># 3. Add projects to solution</span>
+dotnet sln add src/InvenTrack.Api
+dotnet sln add src/InvenTrack.Core
+dotnet sln add src/InvenTrack.Data
+dotnet sln add tests/InvenTrack.Tests
+
+<span class="code-comment"># 4. Add project references</span>
+dotnet add src/InvenTrack.Api reference src/InvenTrack.Core
+dotnet add src/InvenTrack.Core reference src/InvenTrack.Data
+dotnet add tests/InvenTrack.Tests reference src/InvenTrack.Core
+
+<span class="code-comment"># 5. Add NuGet packages</span>
+dotnet add src/InvenTrack.Data package Microsoft.EntityFrameworkCore
+dotnet add src/InvenTrack.Data package Microsoft.EntityFrameworkCore.SqlServer
+dotnet add src/InvenTrack.Api package Serilog.AspNetCore
+
+<span class="code-comment"># 6. Build everything</span>
+dotnet build
+
+<span class="code-comment"># 7. Run the API</span>
+dotnet run --project src/InvenTrack.Api
+
+<span class="code-comment"># 8. Run tests</span>
+dotnet test</code></pre>
+
+                <div class="section-divider"></div>
+
+                <h2>Productivity Tips</h2>
+
+                <h3>1. Use Aliases (PowerShell/Bash)</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">PowerShell Profile</span>
+                    <span class="code-language">PowerShell</span>
+                </div>
+                <pre><code><span class="code-comment"># Add to $PROFILE</span>
+<span class="code-keyword">function</span> <span class="code-method">dr</span> { dotnet run }
+<span class="code-keyword">function</span> <span class="code-method">db</span> { dotnet build }
+<span class="code-keyword">function</span> <span class="code-method">dt</span> { dotnet test }
+<span class="code-keyword">function</span> <span class="code-method">dw</span> { dotnet watch run }</code></pre>
+
+                <h3>2. Tab Completion</h3>
+
+                <p>
+                    The dotnet CLI supports tab completion. Type <code>dotnet new</code> and press Tab to
+                    cycle through available templates.
+                </p>
+
+                <h3>3. Combine Commands</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">Command Chaining</span>
+                    <span class="code-language">Shell</span>
+                </div>
+                <pre><code><span class="code-comment"># Clean, build, and run</span>
+dotnet clean && dotnet build && dotnet run
+
+<span class="code-comment"># Build and test</span>
+dotnet build && dotnet test</code></pre>
+
+                <h2>Key Takeaways</h2>
+
+                <ul>
+                    <li>The <strong>dotnet CLI</strong> is your primary tool for .NET development</li>
+                    <li><code>dotnet new</code> creates projects from templates</li>
+                    <li><code>dotnet sln</code> manages multi-project solutions</li>
+                    <li><code>dotnet build</code> compiles your code</li>
+                    <li><code>dotnet run</code> builds and executes your app</li>
+                    <li><code>dotnet watch run</code> enables hot reload for rapid development</li>
+                    <li><code>dotnet test</code> runs your unit tests</li>
+                    <li><code>dotnet publish</code> prepares apps for deployment</li>
+                    <li><code>dotnet add package</code> installs NuGet packages</li>
+                    <li><code>dotnet tool</code> manages global and local tools</li>
+                    <li>Use <code>--help</code> on any command to see all options</li>
+                    <li>Commands are <strong>cross-platform</strong> and work identically everywhere</li>
+                </ul>
+
+                <div class="callout callout-concept">
+                    <div class="callout-title">🎯 Next Steps</div>
+                    <p>
+                        You're now proficient with the dotnet CLI! In the final section of Part II, we'll dive
+                        into <strong>NuGet Package Management</strong>—how to find, install, and manage
+                        third-party libraries to supercharge your InvenTrack application.
+                    </p>
+                </div>
+
+                <nav class="page-nav">
+                    <a href="04-project-structure.html" class="prev">Project Files & Structure</a>
+                    <a href="06-nuget-packages.html" class="next">NuGet Package Management</a>
+                </nav>
+
+            
+        <footer class="page-footer">
+          Built with 💜 by <a href="https://akwasi.dev" target="_blank" rel="noopener noreferrer">Akwasi Adu-Kyeremeh</a> for developers who want to truly understand what they're building.
+        </footer>
+
+      </div>
+        </main>
+    </div>
+</body>
+
+</html>

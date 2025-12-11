@@ -1,0 +1,548 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Installing the .NET SDK | ASP.NET Core Mastery</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;500&family=Source+Serif+4:ital,wght@0,400;0,600;1,400&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="../assets/style.css">
+</head>
+
+<body>
+    <div class="page-wrapper">
+        <aside class="sidebar">
+            <a href="../index.html" class="sidebar-logo">ASP.NET Core Mastery</a>
+            <div class="sidebar-section">Part II: .NET Core Basics</div>
+            <ul class="sidebar-nav">
+                <li><a href="01-dotnet-ecosystem.html">The .NET Ecosystem</a></li>
+                <li><a href="02-installing-sdk.html" class="active">Installing the .NET SDK</a></li>
+                <li><a href="03-first-console-app.html">Your First Console App</a></li>
+                <li><a href="04-project-structure.html">Project Files & Structure</a></li>
+                <li><a href="05-dotnet-cli.html">The dotnet CLI</a></li>
+                <li><a href="06-nuget-packages.html">NuGet Package Management</a></li>
+            </ul>
+            <div class="sidebar-section">Resources</div>
+            <ul class="sidebar-nav">
+                <li><a href="../index.html">Full Roadmap</a></li>
+            </ul>
+        </aside>
+
+        <main class="main-content">
+            <div class="content-container">
+                <nav class="breadcrumb">
+                    <a href="../index.html">Home</a>
+                    <span>→</span>
+                    <a href="01-dotnet-ecosystem.html">Part II: .NET Core Basics</a>
+                    <span>→</span>
+                    Installing the .NET SDK
+                </nav>
+
+                <div class="progress-indicator">
+                    <span>Section 2 of 6</span>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 33.33%"></div>
+                    </div>
+                </div>
+
+                <h1>Installing the .NET SDK</h1>
+
+                <div class="learning-objectives">
+                    <h3>🎯 What You'll Learn</h3>
+                    <ul>
+                        <li>How to download and install the .NET 8 SDK</li>
+                        <li>Installation steps for Windows, macOS, and Linux</li>
+                        <li>Verifying your installation</li>
+                        <li>Understanding what gets installed</li>
+                        <li>Setting up Visual Studio 2022 (optional but recommended)</li>
+                        <li>Alternative editors: VS Code and JetBrains Rider</li>
+                        <li>Troubleshooting common installation issues</li>
+                    </ul>
+                </div>
+
+                <h2>What You're Installing</h2>
+
+                <p>
+                    When you install the <strong>.NET SDK</strong>, you get everything needed to build, run,
+                    and publish .NET applications:
+                </p>
+
+                <ul>
+                    <li><strong>.NET Runtime</strong>: Executes your applications</li>
+                    <li><strong>C# Compiler (Roslyn)</strong>: Compiles your C# code</li>
+                    <li><strong>dotnet CLI</strong>: Command-line tools for creating and managing projects</li>
+                    <li><strong>MSBuild</strong>: Build system for compiling projects</li>
+                    <li><strong>NuGet</strong>: Package manager for libraries</li>
+                    <li><strong>Templates</strong>: Project templates (console, web, API, etc.)</li>
+                    <li><strong>Libraries (BCL)</strong>: Base Class Library with thousands of APIs</li>
+                </ul>
+
+                <div class="callout callout-info">
+                    <div class="callout-title">ℹ️ SDK vs Runtime</div>
+                    <p>
+                        <strong>SDK</strong>: Install this for development. Includes everything.<br>
+                        <strong>Runtime</strong>: Install this only for running apps (production servers).<br>
+                        <strong>For this guide</strong>: You need the SDK!
+                    </p>
+                </div>
+
+                <div class="section-divider"></div>
+
+                <h2>Step 1: Download the .NET 8 SDK</h2>
+
+                <p>
+                    Head to the official .NET download page:
+                    <strong><a href="https://dotnet.microsoft.com/download"
+                            target="_blank">https://dotnet.microsoft.com/download</a></strong>
+                </p>
+
+                <div class="callout callout-tip">
+                    <div class="callout-title">💡 Which Version?</div>
+                    <p>
+                        Download <strong>.NET 8 (LTS)</strong> for this guide. It's the Long-Term Support version,
+                        supported until November 2026. Look for the big ".NET 8.0" button on the download page.
+                    </p>
+                </div>
+
+                <h3>Choose Your Operating System</h3>
+
+                <table>
+                    <thead>
+                        <tr>
+                            <th>OS</th>
+                            <th>Installer</th>
+                            <th>Notes</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Windows</strong></td>
+                            <td>x64 or Arm64 installer (.exe)</td>
+                            <td>Most users want x64</td>
+                        </tr>
+                        <tr>
+                            <td><strong>macOS</strong></td>
+                            <td>x64 or Arm64 installer (.pkg)</td>
+                            <td>Apple Silicon (M1/M2/M3) = Arm64, Intel = x64</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Linux</strong></td>
+                            <td>Package manager or binary</td>
+                            <td>Varies by distribution (Ubuntu, Fedora, etc.)</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="section-divider"></div>
+
+                <h2>Step 2: Install the SDK</h2>
+
+                <h3>Windows Installation</h3>
+
+                <ol>
+                    <li>Download the <strong>.NET 8 SDK x64 installer</strong> (.exe file)</li>
+                    <li>Run the installer (double-click the downloaded file)</li>
+                    <li>Click <strong>"Install"</strong> when prompted</li>
+                    <li>Wait for installation to complete (usually 1-2 minutes)</li>
+                    <li>Click <strong>"Close"</strong> when finished</li>
+                </ol>
+
+                <div class="callout callout-info">
+                    <div class="callout-title">ℹ️ Installation Location</div>
+                    <p>
+                        Windows installs .NET to: <code>C:\Program Files\dotnet\</code><br>
+                        The installer automatically adds this to your PATH environment variable.
+                    </p>
+                </div>
+
+                <h3>macOS Installation</h3>
+
+                <ol>
+                    <li>Download the appropriate <strong>.NET 8 SDK installer</strong> (.pkg file)
+                        <ul>
+                            <li><strong>Apple Silicon (M1/M2/M3)</strong>: Download Arm64</li>
+                            <li><strong>Intel Mac</strong>: Download x64</li>
+                        </ul>
+                    </li>
+                    <li>Open the downloaded .pkg file</li>
+                    <li>Follow the installation wizard</li>
+                    <li>Enter your password when prompted</li>
+                    <li>Click <strong>"Install"</strong></li>
+                </ol>
+
+                <div class="callout callout-info">
+                    <div class="callout-title">ℹ️ Installation Location</div>
+                    <p>
+                        macOS installs .NET to: <code>/usr/local/share/dotnet/</code><br>
+                        The installer creates a symlink in <code>/usr/local/bin/dotnet</code>
+                    </p>
+                </div>
+
+                <h3>Linux Installation (Ubuntu/Debian)</h3>
+
+                <p>
+                    For Ubuntu 22.04 or newer, use the package manager:
+                </p>
+
+                <div class="code-header">
+                    <span class="code-filename">Terminal</span>
+                    <span class="code-language">Bash</span>
+                </div>
+                <pre><code><span class="code-comment"># Add Microsoft package repository</span>
+wget https://packages.microsoft.com/config/ubuntu/22.04/packages-microsoft-prod.deb -O packages-microsoft-prod.deb
+sudo dpkg -i packages-microsoft-prod.deb
+rm packages-microsoft-prod.deb
+
+<span class="code-comment"># Install .NET SDK</span>
+sudo apt-get update
+sudo apt-get install -y dotnet-sdk-8.0</code></pre>
+
+                <div class="callout callout-tip">
+                    <div class="callout-title">💡 Other Linux Distributions</div>
+                    <p>
+                        For Fedora, RHEL, openSUSE, and other distributions, visit:
+                        <a href="https://learn.microsoft.com/en-us/dotnet/core/install/linux" target="_blank">
+                            Microsoft's Linux installation guide
+                        </a>
+                    </p>
+                </div>
+
+                <div class="section-divider"></div>
+
+                <h2>Step 3: Verify Your Installation</h2>
+
+                <p>
+                    Let's confirm .NET is installed correctly. Open a <strong>new</strong> terminal/command prompt
+                    and run:
+                </p>
+
+                <div class="code-header">
+                    <span class="code-filename">Terminal / Command Prompt / PowerShell</span>
+                    <span class="code-language">Shell</span>
+                </div>
+                <pre><code>dotnet --version</code></pre>
+
+                <p>
+                    You should see output like:
+                </p>
+
+                <div class="code-header">
+                    <span class="code-filename">Output</span>
+                    <span class="code-language">Text</span>
+                </div>
+                <pre><code>8.0.100</code></pre>
+
+                <div class="callout callout-warning">
+                    <div class="callout-title">⚠️ Important: New Terminal Window</div>
+                    <p>
+                        If you had a terminal open <em>before</em> installing .NET, close it and open a new one.
+                        The PATH environment variable is only updated in new terminal sessions.
+                    </p>
+                </div>
+
+                <h3>Check Installed SDKs and Runtimes</h3>
+
+                <p>
+                    To see all installed .NET versions:
+                </p>
+
+                <div class="code-header">
+                    <span class="code-filename">Terminal</span>
+                    <span class="code-language">Shell</span>
+                </div>
+                <pre><code><span class="code-comment"># List installed SDKs</span>
+dotnet --list-sdks
+
+<span class="code-comment"># List installed runtimes</span>
+dotnet --list-runtimes</code></pre>
+
+                <p>
+                    Example output:
+                </p>
+
+                <div class="code-header">
+                    <span class="code-filename">Output</span>
+                    <span class="code-language">Text</span>
+                </div>
+                <pre><code><span class="code-comment"># SDKs:</span>
+8.0.100 [C:\Program Files\dotnet\sdk]
+
+<span class="code-comment"># Runtimes:</span>
+Microsoft.AspNetCore.App 8.0.0 [C:\Program Files\dotnet\shared\Microsoft.AspNetCore.App]
+Microsoft.NETCore.App 8.0.0 [C:\Program Files\dotnet\shared\Microsoft.NETCore.App]
+Microsoft.WindowsDesktop.App 8.0.0 [C:\Program Files\dotnet\shared\Microsoft.WindowsDesktop.App]</code></pre>
+
+                <div class="callout callout-tip">
+                    <div class="callout-title">✅ Success!</div>
+                    <p>
+                        If you see version numbers, congratulations! .NET is installed and ready to use.
+                        You can now create and run .NET applications!
+                    </p>
+                </div>
+
+                <div class="section-divider"></div>
+
+                <h2>Step 4: Choose Your Development Environment</h2>
+
+                <p>
+                    You can write .NET code in any text editor, but these IDEs provide the best experience:
+                </p>
+
+                <h3>Option 1: Visual Studio 2022 (Recommended for Windows)</h3>
+
+                <p>
+                    <strong>Visual Studio 2022</strong> is the premier IDE for .NET development on Windows.
+                    It's feature-rich, powerful, and free (Community Edition).
+                </p>
+
+                <p>
+                    <strong>Download:</strong>
+                    <a href="https://visualstudio.microsoft.com/downloads/" target="_blank">
+                        https://visualstudio.microsoft.com/downloads/
+                    </a>
+                </p>
+
+                <div class="callout callout-info">
+                    <div class="callout-title">ℹ️ Visual Studio Editions</div>
+                    <p>
+                        <strong>Community</strong>: Free for individuals, students, and small teams<br>
+                        <strong>Professional</strong>: Paid, for professional developers<br>
+                        <strong>Enterprise</strong>: Paid, for large organizations<br>
+                        <strong>For this guide</strong>: Community Edition is perfect!
+                    </p>
+                </div>
+
+                <h4>Installing Visual Studio 2022</h4>
+
+                <ol>
+                    <li>Download <strong>Visual Studio 2022 Community</strong></li>
+                    <li>Run the installer</li>
+                    <li>Select workloads:
+                        <ul>
+                            <li>✅ <strong>ASP.NET and web development</strong> (essential for InvenTrack)</li>
+                            <li>✅ <strong>.NET desktop development</strong> (optional, for Windows apps)</li>
+                        </ul>
+                    </li>
+                    <li>Click <strong>"Install"</strong> (this takes 10-30 minutes depending on your connection)</li>
+                    <li>Launch Visual Studio when installation completes</li>
+                </ol>
+
+                <div class="callout callout-tip">
+                    <div class="callout-title">💡 What You Get with Visual Studio</div>
+                    <p>
+                        • IntelliSense (smart code completion)<br>
+                        • Built-in debugger with breakpoints<br>
+                        • Visual designers for UI<br>
+                        • Integrated Git support<br>
+                        • Database tools<br>
+                        • Performance profilers<br>
+                        • Everything you need in one place!
+                    </p>
+                </div>
+
+                <h3>Option 2: Visual Studio Code (Cross-Platform, Lightweight)</h3>
+
+                <p>
+                    <strong>VS Code</strong> is a lightweight, fast, cross-platform code editor. Perfect for
+                    macOS and Linux users, or Windows users who prefer a lighter tool.
+                </p>
+
+                <p>
+                    <strong>Download:</strong>
+                    <a href="https://code.visualstudio.com/" target="_blank">
+                        https://code.visualstudio.com/
+                    </a>
+                </p>
+
+                <h4>Setting Up VS Code for .NET</h4>
+
+                <ol>
+                    <li>Install VS Code</li>
+                    <li>Install the <strong>C# Dev Kit</strong> extension:
+                        <ul>
+                            <li>Open VS Code</li>
+                            <li>Click Extensions icon (or press <code>Ctrl+Shift+X</code>)</li>
+                            <li>Search for "C# Dev Kit"</li>
+                            <li>Click <strong>"Install"</strong></li>
+                        </ul>
+                    </li>
+                    <li>Restart VS Code</li>
+                </ol>
+
+                <div class="callout callout-info">
+                    <div class="callout-title">ℹ️ C# Dev Kit vs C# Extension</div>
+                    <p>
+                        <strong>C# Dev Kit</strong>: Microsoft's official extension pack (recommended)<br>
+                        <strong>C# Extension</strong>: The older, standalone extension<br>
+                        <strong>For this guide</strong>: Install C# Dev Kit for the best experience
+                    </p>
+                </div>
+
+                <h3>Option 3: JetBrains Rider (Cross-Platform, Professional)</h3>
+
+                <p>
+                    <strong>Rider</strong> is a powerful, cross-platform .NET IDE from JetBrains. It's paid
+                    but offers a 30-day free trial and free licenses for students.
+                </p>
+
+                <p>
+                    <strong>Download:</strong>
+                    <a href="https://www.jetbrains.com/rider/" target="_blank">
+                        https://www.jetbrains.com/rider/
+                    </a>
+                </p>
+
+                <div class="callout callout-tip">
+                    <div class="callout-title">💡 Which Should You Choose?</div>
+                    <p>
+                        <strong>Windows + Learning</strong>: Visual Studio 2022 Community<br>
+                        <strong>macOS/Linux</strong>: VS Code or Rider<br>
+                        <strong>Professional Work</strong>: Visual Studio or Rider<br>
+                        <strong>Lightweight/Fast</strong>: VS Code
+                    </p>
+                </div>
+
+                <div class="section-divider"></div>
+
+                <h2>Troubleshooting Common Issues</h2>
+
+                <h3>Issue: "dotnet: command not found"</h3>
+
+                <p><strong>Cause:</strong> .NET is not in your PATH, or you're using an old terminal session.</p>
+
+                <p><strong>Solution:</strong></p>
+                <ul>
+                    <li>Close all terminal windows and open a new one</li>
+                    <li>On Windows, restart your computer if the issue persists</li>
+                    <li>On macOS/Linux, check if <code>/usr/local/bin</code> is in your PATH</li>
+                </ul>
+
+                <h3>Issue: Wrong .NET Version Installed</h3>
+
+                <p><strong>Cause:</strong> You installed the Runtime instead of the SDK, or an older version.</p>
+
+                <p><strong>Solution:</strong></p>
+                <ul>
+                    <li>Run <code>dotnet --list-sdks</code> to check installed SDKs</li>
+                    <li>If .NET 8 SDK is missing, download and install it from the official site</li>
+                    <li>Multiple versions can coexist—you don't need to uninstall old ones</li>
+                </ul>
+
+                <h3>Issue: Permission Denied (Linux/macOS)</h3>
+
+                <p><strong>Cause:</strong> Installation requires administrator privileges.</p>
+
+                <p><strong>Solution:</strong></p>
+                <ul>
+                    <li>Use <code>sudo</code> for package manager installations</li>
+                    <li>For .pkg installers on macOS, enter your password when prompted</li>
+                </ul>
+
+                <h3>Issue: Visual Studio Can't Find .NET SDK</h3>
+
+                <p><strong>Cause:</strong> Visual Studio was installed before the .NET SDK.</p>
+
+                <p><strong>Solution:</strong></p>
+                <ul>
+                    <li>Restart Visual Studio</li>
+                    <li>If that doesn't work, repair Visual Studio from the installer</li>
+                    <li>Worst case: Reinstall Visual Studio</li>
+                </ul>
+
+                <div class="section-divider"></div>
+
+                <h2>What's Installed: A Quick Tour</h2>
+
+                <p>
+                    Let's explore what the .NET SDK installed on your system:
+                </p>
+
+                <h3>The dotnet Command</h3>
+
+                <p>
+                    The <code>dotnet</code> command is your gateway to everything .NET. Try these:
+                </p>
+
+                <div class="code-header">
+                    <span class="code-filename">Terminal</span>
+                    <span class="code-language">Shell</span>
+                </div>
+                <pre><code><span class="code-comment"># Get help</span>
+dotnet --help
+
+<span class="code-comment"># See all available commands</span>
+dotnet --list-sdks
+dotnet --list-runtimes
+
+<span class="code-comment"># Get .NET info</span>
+dotnet --info</code></pre>
+
+                <h3>Project Templates</h3>
+
+                <p>
+                    The SDK includes templates for common project types:
+                </p>
+
+                <div class="code-header">
+                    <span class="code-filename">Terminal</span>
+                    <span class="code-language">Shell</span>
+                </div>
+                <pre><code><span class="code-comment"># List all available templates</span>
+dotnet new list</code></pre>
+
+                <p>
+                    You'll see templates for:
+                </p>
+
+                <ul>
+                    <li><strong>console</strong>: Console application</li>
+                    <li><strong>webapi</strong>: ASP.NET Core Web API</li>
+                    <li><strong>mvc</strong>: ASP.NET Core MVC app</li>
+                    <li><strong>webapp</strong>: ASP.NET Core Razor Pages</li>
+                    <li><strong>classlib</strong>: Class library</li>
+                    <li>And many more!</li>
+                </ul>
+
+                <div class="callout callout-concept">
+                    <div class="callout-title">🎯 What's Next</div>
+                    <p>
+                        You now have .NET installed and ready to go! In the next section, we'll create your
+                        <strong>first console application</strong>, write some C# code, and run it. You'll see
+                        the entire development workflow from start to finish!
+                    </p>
+                </div>
+
+                <h2>Key Takeaways</h2>
+
+                <ul>
+                    <li>The <strong>.NET SDK</strong> includes everything needed for development</li>
+                    <li>Download from <strong>dotnet.microsoft.com/download</strong></li>
+                    <li>Install <strong>.NET 8 (LTS)</strong> for this guide</li>
+                    <li>Verify installation with <code>dotnet --version</code></li>
+                    <li><strong>Visual Studio 2022</strong> is recommended for Windows</li>
+                    <li><strong>VS Code</strong> is great for macOS/Linux (and Windows too!)</li>
+                    <li>The <code>dotnet</code> CLI is your primary tool for creating and managing projects</li>
+                    <li>Multiple .NET versions can coexist on the same machine</li>
+                    <li>Always open a <strong>new terminal</strong> after installation</li>
+                </ul>
+
+                <nav class="page-nav">
+                    <a href="01-dotnet-ecosystem.html" class="prev">The .NET Ecosystem</a>
+                    <a href="03-first-console-app.html" class="next">Your First Console App</a>
+                </nav>
+
+            
+        <footer class="page-footer">
+          Built with 💜 by <a href="https://akwasi.dev" target="_blank" rel="noopener noreferrer">Akwasi Adu-Kyeremeh</a> for developers who want to truly understand what they're building.
+        </footer>
+
+      </div>
+        </main>
+    </div>
+</body>
+
+</html>

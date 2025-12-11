@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>API Controllers | ASP.NET Core Mastery</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;500&family=Source+Serif+4:ital,wght@0,400;0,600;1,400&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="../assets/style.css">
+</head>
+
+<body>
+    <div class="page-wrapper">
+        <aside class="sidebar">
+            <a href="../index.html" class="sidebar-logo">ASP.NET Core Mastery</a>
+            <div class="sidebar-section">Part VIII: Building Web APIs</div>
+            <ul class="sidebar-nav">
+                <li><a href="01-restful-principles.html">RESTful Principles</a></li>
+                <li><a href="02-api-controllers.html" class="active">API Controllers</a></li>
+                <li><a href="03-model-binding.html">Model Binding</a></li>
+                <li><a href="04-validation.html">Validation</a></li>
+                <li><a href="05-minimal-apis.html">Minimal APIs</a></li>
+                <li><a href="06-dtos-automapper.html">DTOs and AutoMapper</a></li>
+                <li><a href="07-api-versioning.html">API Versioning</a></li>
+            </ul>
+            <div class="sidebar-section">Resources</div>
+            <ul class="sidebar-nav">
+                <li><a href="../index.html">Full Roadmap</a></li>
+            </ul>
+        </aside>
+
+        <main class="main-content">
+            <div class="content-container">
+                <nav class="breadcrumb">
+                    <a href="../index.html">Home</a>
+                    <span>→</span>
+                    <a href="01-restful-principles.html">Part VIII: Building Web APIs</a>
+                    <span>→</span>
+                    API Controllers
+                </nav>
+
+                <div class="progress-indicator">
+                    <span>Section 2 of 7</span>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 28.57%"></div>
+                    </div>
+                </div>
+
+                <h1>API Controllers</h1>
+
+                <div class="learning-objectives">
+                    <h3>🎯 What You'll Learn</h3>
+                    <ul>
+                        <li>[ApiController] attribute and its benefits</li>
+                        <li>Creating API controllers</li>
+                        <li>Action methods and return types</li>
+                        <li>Route attributes</li>
+                        <li>Returning data with ActionResult</li>
+                        <li>Complete CRUD implementation</li>
+                    </ul>
+                </div>
+
+                <h2>What is an API Controller?</h2>
+
+                <p>
+                    An <strong>API controller</strong> is a controller designed specifically for building Web APIs.
+                    It uses the <code>[ApiController]</code> attribute for enhanced API-specific behaviors.
+                </p>
+
+                <div class="section-divider"></div>
+
+                <h2>[ApiController] Attribute</h2>
+
+                <p>
+                    The <code>[ApiController]</code> attribute enables several API-specific features:
+                </p>
+
+                <ul>
+                    <li><strong>Automatic model validation</strong>: Returns 400 Bad Request for invalid models</li>
+                    <li><strong>Binding source inference</strong>: Automatically infers [FromBody], [FromRoute], etc.
+                    </li>
+                    <li><strong>Problem details</strong>: Returns RFC 7807 problem details for errors</li>
+                    <li><strong>Attribute routing required</strong>: Conventional routing not supported</li>
+                </ul>
+
+                <div class="code-header">
+                    <span class="code-filename">Basic API Controller</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code>[<span class="code-class">ApiController</span>]
+[<span class="code-class">Route</span>(<span class="code-string">"api/[controller]"</span>)]
+<span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">ProductsController</span> : <span class="code-class">ControllerBase</span>
+{
+    <span class="code-comment">// Actions go here</span>
+}</code></pre>
+
+                <div class="callout callout-info">
+                    <div class="callout-title">ℹ️ ControllerBase vs Controller</div>
+                    <p>
+                        API controllers inherit from <code>ControllerBase</code> (no view support).
+                        MVC controllers inherit from <code>Controller</code> (includes view support).
+                    </p>
+                </div>
+
+                <div class="section-divider"></div>
+
+                <h2>Action Return Types</h2>
+
+                <h3>1. Specific Type</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">Return Specific Type</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code>[<span class="code-class">HttpGet</span>(<span class="code-string">"{id}"</span>)]
+<span class="code-keyword">public</span> <span class="code-class">Product</span> <span class="code-method">GetProduct</span>(<span class="code-type">int</span> <span class="code-variable">id</span>)
+{
+    <span class="code-keyword">return</span> <span class="code-keyword">new</span> <span class="code-class">Product</span> { <span class="code-variable">Id</span> = <span class="code-variable">id</span>, <span class="code-variable">Name</span> = <span class="code-string">"Laptop"</span> };
+}
+
+<span class="code-comment">// ✅ Simple and clean</span>
+<span class="code-comment">// ❌ Can't return different status codes</span></code></pre>
+
+                <h3>2. IActionResult</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">Return IActionResult</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code>[<span class="code-class">HttpGet</span>(<span class="code-string">"{id}"</span>)]
+<span class="code-keyword">public</span> <span class="code-class">IActionResult</span> <span class="code-method">GetProduct</span>(<span class="code-type">int</span> <span class="code-variable">id</span>)
+{
+    <span class="code-keyword">var</span> <span class="code-variable">product</span> = <span class="code-comment">/* find product */</span>;
+    
+    <span class="code-keyword">if</span> (<span class="code-variable">product</span> == <span class="code-keyword">null</span>)
+        <span class="code-keyword">return</span> <span class="code-method">NotFound</span>();
+    
+    <span class="code-keyword">return</span> <span class="code-method">Ok</span>(<span class="code-variable">product</span>);
+}
+
+<span class="code-comment">// ✅ Can return different status codes</span>
+<span class="code-comment">// ❌ No compile-time type checking</span></code></pre>
+
+                <h3>3. ActionResult&lt;T&gt; (Recommended)</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">Return ActionResult&lt;T&gt;</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code>[<span class="code-class">HttpGet</span>(<span class="code-string">"{id}"</span>)]
+<span class="code-keyword">public</span> <span class="code-class">ActionResult</span>&lt;<span class="code-class">Product</span>&gt; <span class="code-method">GetProduct</span>(<span class="code-type">int</span> <span class="code-variable">id</span>)
+{
+    <span class="code-keyword">var</span> <span class="code-variable">product</span> = <span class="code-comment">/* find product */</span>;
+    
+    <span class="code-keyword">if</span> (<span class="code-variable">product</span> == <span class="code-keyword">null</span>)
+        <span class="code-keyword">return</span> <span class="code-method">NotFound</span>();
+    
+    <span class="code-keyword">return</span> <span class="code-variable">product</span>; <span class="code-comment">// Implicit conversion to ActionResult&lt;Product&gt;</span>
+}
+
+<span class="code-comment">// ✅ Can return different status codes</span>
+<span class="code-comment">// ✅ Compile-time type checking</span>
+<span class="code-comment">// ✅ Automatic OpenAPI documentation</span></code></pre>
+
+                <div class="section-divider"></div>
+
+                <h2>Common Action Results</h2>
+
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Method</th>
+                            <th>Status Code</th>
+                            <th>When to Use</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><code>Ok(value)</code></td>
+                            <td>200</td>
+                            <td>Successful GET, PUT, PATCH</td>
+                        </tr>
+                        <tr>
+                            <td><code>Created(uri, value)</code></td>
+                            <td>201</td>
+                            <td>Successful POST</td>
+                        </tr>
+                        <tr>
+                            <td><code>CreatedAtAction(...)</code></td>
+                            <td>201</td>
+                            <td>POST with generated Location header</td>
+                        </tr>
+                        <tr>
+                            <td><code>NoContent()</code></td>
+                            <td>204</td>
+                            <td>Successful DELETE, PUT (no body)</td>
+                        </tr>
+                        <tr>
+                            <td><code>BadRequest()</code></td>
+                            <td>400</td>
+                            <td>Invalid request</td>
+                        </tr>
+                        <tr>
+                            <td><code>NotFound()</code></td>
+                            <td>404</td>
+                            <td>Resource not found</td>
+                        </tr>
+                        <tr>
+                            <td><code>Conflict()</code></td>
+                            <td>409</td>
+                            <td>Resource conflict</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="section-divider"></div>
+
+                <h2>Complete CRUD Implementation</h2>
+
+                <div class="code-header">
+                    <span class="code-filename">Controllers/ProductsController.cs</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code>[<span class="code-class">ApiController</span>]
+[<span class="code-class">Route</span>(<span class="code-string">"api/[controller]"</span>)]
+<span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">ProductsController</span> : <span class="code-class">ControllerBase</span>
+{
+    <span class="code-keyword">private</span> <span class="code-keyword">readonly</span> <span class="code-class">IProductService</span> <span class="code-variable">_productService</span>;
+
+    <span class="code-keyword">public</span> <span class="code-method">ProductsController</span>(<span class="code-class">IProductService</span> <span class="code-variable">productService</span>)
+    {
+        <span class="code-variable">_productService</span> = <span class="code-variable">productService</span>;
+    }
+
+    <span class="code-comment">// GET: api/products</span>
+    [<span class="code-class">HttpGet</span>]
+    <span class="code-keyword">public</span> <span class="code-keyword">async</span> <span class="code-class">Task</span>&lt;<span class="code-class">ActionResult</span>&lt;<span class="code-type">IEnumerable</span>&lt;<span class="code-class">Product</span>&gt;&gt;&gt; <span class="code-method">GetProducts</span>()
+    {
+        <span class="code-keyword">var</span> <span class="code-variable">products</span> = <span class="code-keyword">await</span> <span class="code-variable">_productService</span>.<span class="code-method">GetAllAsync</span>();
+        <span class="code-keyword">return</span> <span class="code-method">Ok</span>(<span class="code-variable">products</span>);
+    }
+
+    <span class="code-comment">// GET: api/products/5</span>
+    [<span class="code-class">HttpGet</span>(<span class="code-string">"{id}"</span>)]
+    <span class="code-keyword">public</span> <span class="code-keyword">async</span> <span class="code-class">Task</span>&lt;<span class="code-class">ActionResult</span>&lt;<span class="code-class">Product</span>&gt;&gt; <span class="code-method">GetProduct</span>(<span class="code-type">int</span> <span class="code-variable">id</span>)
+    {
+        <span class="code-keyword">var</span> <span class="code-variable">product</span> = <span class="code-keyword">await</span> <span class="code-variable">_productService</span>.<span class="code-method">GetByIdAsync</span>(<span class="code-variable">id</span>);
+
+        <span class="code-keyword">if</span> (<span class="code-variable">product</span> == <span class="code-keyword">null</span>)
+            <span class="code-keyword">return</span> <span class="code-method">NotFound</span>();
+
+        <span class="code-keyword">return</span> <span class="code-variable">product</span>;
+    }
+
+    <span class="code-comment">// POST: api/products</span>
+    [<span class="code-class">HttpPost</span>]
+    <span class="code-keyword">public</span> <span class="code-keyword">async</span> <span class="code-class">Task</span>&lt;<span class="code-class">ActionResult</span>&lt;<span class="code-class">Product</span>&gt;&gt; <span class="code-method">CreateProduct</span>(<span class="code-class">CreateProductDto</span> <span class="code-variable">dto</span>)
+    {
+        <span class="code-keyword">var</span> <span class="code-variable">product</span> = <span class="code-keyword">await</span> <span class="code-variable">_productService</span>.<span class="code-method">CreateAsync</span>(<span class="code-variable">dto</span>);
+
+        <span class="code-keyword">return</span> <span class="code-method">CreatedAtAction</span>(
+            <span class="code-keyword">nameof</span>(<span class="code-method">GetProduct</span>),
+            <span class="code-keyword">new</span> { <span class="code-variable">id</span> = <span class="code-variable">product</span>.<span class="code-variable">Id</span> },
+            <span class="code-variable">product</span>);
+    }
+
+    <span class="code-comment">// PUT: api/products/5</span>
+    [<span class="code-class">HttpPut</span>(<span class="code-string">"{id}"</span>)]
+    <span class="code-keyword">public</span> <span class="code-keyword">async</span> <span class="code-class">Task</span>&lt;<span class="code-class">IActionResult</span>&gt; <span class="code-method">UpdateProduct</span>(<span class="code-type">int</span> <span class="code-variable">id</span>, <span class="code-class">UpdateProductDto</span> <span class="code-variable">dto</span>)
+    {
+        <span class="code-keyword">var</span> <span class="code-variable">exists</span> = <span class="code-keyword">await</span> <span class="code-variable">_productService</span>.<span class="code-method">ExistsAsync</span>(<span class="code-variable">id</span>);
+        
+        <span class="code-keyword">if</span> (!<span class="code-variable">exists</span>)
+            <span class="code-keyword">return</span> <span class="code-method">NotFound</span>();
+
+        <span class="code-keyword">await</span> <span class="code-variable">_productService</span>.<span class="code-method">UpdateAsync</span>(<span class="code-variable">id</span>, <span class="code-variable">dto</span>);
+
+        <span class="code-keyword">return</span> <span class="code-method">NoContent</span>();
+    }
+
+    <span class="code-comment">// DELETE: api/products/5</span>
+    [<span class="code-class">HttpDelete</span>(<span class="code-string">"{id}"</span>)]
+    <span class="code-keyword">public</span> <span class="code-keyword">async</span> <span class="code-class">Task</span>&lt;<span class="code-class">IActionResult</span>&gt; <span class="code-method">DeleteProduct</span>(<span class="code-type">int</span> <span class="code-variable">id</span>)
+    {
+        <span class="code-keyword">var</span> <span class="code-variable">exists</span> = <span class="code-keyword">await</span> <span class="code-variable">_productService</span>.<span class="code-method">ExistsAsync</span>(<span class="code-variable">id</span>);
+        
+        <span class="code-keyword">if</span> (!<span class="code-variable">exists</span>)
+            <span class="code-keyword">return</span> <span class="code-method">NotFound</span>();
+
+        <span class="code-keyword">await</span> <span class="code-variable">_productService</span>.<span class="code-method">DeleteAsync</span>(<span class="code-variable">id</span>);
+
+        <span class="code-keyword">return</span> <span class="code-method">NoContent</span>();
+    }
+}</code></pre>
+
+                <div class="section-divider"></div>
+
+                <h2>Query Parameters</h2>
+
+                <div class="code-header">
+                    <span class="code-filename">Filtering and Pagination</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-comment">// GET: api/products?category=electronics&page=1&pageSize=20</span>
+[<span class="code-class">HttpGet</span>]
+<span class="code-keyword">public</span> <span class="code-keyword">async</span> <span class="code-class">Task</span>&lt;<span class="code-class">ActionResult</span>&lt;<span class="code-class">PagedResult</span>&lt;<span class="code-class">Product</span>&gt;&gt;&gt; <span class="code-method">GetProducts</span>(
+    [<span class="code-class">FromQuery</span>] <span class="code-type">string</span>? <span class="code-variable">category</span> = <span class="code-keyword">null</span>,
+    [<span class="code-class">FromQuery</span>] <span class="code-type">int</span> <span class="code-variable">page</span> = <span class="code-number">1</span>,
+    [<span class="code-class">FromQuery</span>] <span class="code-type">int</span> <span class="code-variable">pageSize</span> = <span class="code-number">20</span>)
+{
+    <span class="code-keyword">var</span> <span class="code-variable">result</span> = <span class="code-keyword">await</span> <span class="code-variable">_productService</span>.<span class="code-method">GetPagedAsync</span>(<span class="code-variable">category</span>, <span class="code-variable">page</span>, <span class="code-variable">pageSize</span>);
+    <span class="code-keyword">return</span> <span class="code-method">Ok</span>(<span class="code-variable">result</span>);
+}</code></pre>
+
+                <div class="section-divider"></div>
+
+                <h2>Custom Routes</h2>
+
+                <div class="code-header">
+                    <span class="code-filename">Custom Action Routes</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-comment">// GET: api/products/search?name=laptop</span>
+[<span class="code-class">HttpGet</span>(<span class="code-string">"search"</span>)]
+<span class="code-keyword">public</span> <span class="code-keyword">async</span> <span class="code-class">Task</span>&lt;<span class="code-class">ActionResult</span>&lt;<span class="code-type">IEnumerable</span>&lt;<span class="code-class">Product</span>&gt;&gt;&gt; <span class="code-method">Search</span>([<span class="code-class">FromQuery</span>] <span class="code-type">string</span> <span class="code-variable">name</span>)
+{
+    <span class="code-keyword">var</span> <span class="code-variable">products</span> = <span class="code-keyword">await</span> <span class="code-variable">_productService</span>.<span class="code-method">SearchAsync</span>(<span class="code-variable">name</span>);
+    <span class="code-keyword">return</span> <span class="code-method">Ok</span>(<span class="code-variable">products</span>);
+}
+
+<span class="code-comment">// GET: api/products/low-stock</span>
+[<span class="code-class">HttpGet</span>(<span class="code-string">"low-stock"</span>)]
+<span class="code-keyword">public</span> <span class="code-keyword">async</span> <span class="code-class">Task</span>&lt;<span class="code-class">ActionResult</span>&lt;<span class="code-type">IEnumerable</span>&lt;<span class="code-class">Product</span>&gt;&gt;&gt; <span class="code-method">GetLowStock</span>()
+{
+    <span class="code-keyword">var</span> <span class="code-variable">products</span> = <span class="code-keyword">await</span> <span class="code-variable">_productService</span>.<span class="code-method">GetLowStockAsync</span>();
+    <span class="code-keyword">return</span> <span class="code-method">Ok</span>(<span class="code-variable">products</span>);
+}</code></pre>
+
+                <div class="section-divider"></div>
+
+                <h2>Async Best Practices</h2>
+
+                <div class="code-header">
+                    <span class="code-filename">Async/Await Pattern</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-comment">// ✅ Good: Async all the way</span>
+[<span class="code-class">HttpGet</span>(<span class="code-string">"{id}"</span>)]
+<span class="code-keyword">public</span> <span class="code-keyword">async</span> <span class="code-class">Task</span>&lt;<span class="code-class">ActionResult</span>&lt;<span class="code-class">Product</span>&gt;&gt; <span class="code-method">GetProduct</span>(<span class="code-type">int</span> <span class="code-variable">id</span>)
+{
+    <span class="code-keyword">var</span> <span class="code-variable">product</span> = <span class="code-keyword">await</span> <span class="code-variable">_productService</span>.<span class="code-method">GetByIdAsync</span>(<span class="code-variable">id</span>);
+    <span class="code-keyword">return</span> <span class="code-variable">product</span> == <span class="code-keyword">null</span> ? <span class="code-method">NotFound</span>() : <span class="code-method">Ok</span>(<span class="code-variable">product</span>);
+}
+
+<span class="code-comment">// ❌ Bad: Blocking async call</span>
+[<span class="code-class">HttpGet</span>(<span class="code-string">"{id}"</span>)]
+<span class="code-keyword">public</span> <span class="code-class">ActionResult</span>&lt;<span class="code-class">Product</span>&gt; <span class="code-method">GetProduct</span>(<span class="code-type">int</span> <span class="code-variable">id</span>)
+{
+    <span class="code-keyword">var</span> <span class="code-variable">product</span> = <span class="code-variable">_productService</span>.<span class="code-method">GetByIdAsync</span>(<span class="code-variable">id</span>).<span class="code-method">Result</span>; <span class="code-comment">// Deadlock risk!</span>
+    <span class="code-keyword">return</span> <span class="code-method">Ok</span>(<span class="code-variable">product</span>);
+}</code></pre>
+
+                <h2>Key Takeaways</h2>
+
+                <ul>
+                    <li><strong>[ApiController]</strong>: Enables API-specific features</li>
+                    <li><strong>ControllerBase</strong>: Base class for API controllers (no views)</li>
+                    <li><strong>ActionResult&lt;T&gt;</strong>: Recommended return type (type safety + flexibility)</li>
+                    <li><strong>HTTP attributes</strong>: [HttpGet], [HttpPost], [HttpPut], [HttpDelete]</li>
+                    <li><strong>Status codes</strong>: Ok(200), Created(201), NoContent(204), NotFound(404)</li>
+                    <li><strong>CreatedAtAction()</strong>: Returns 201 with Location header</li>
+                    <li><strong>Async/await</strong>: Use async all the way</li>
+                    <li><strong>Route attributes</strong>: Define custom routes</li>
+                    <li><strong>Query parameters</strong>: Use [FromQuery] for filtering/pagination</li>
+                </ul>
+
+                <div class="callout callout-concept">
+                    <div class="callout-title">🎯 Next Steps</div>
+                    <p>
+                        You now understand API controllers! In the next section, we'll explore
+                        <strong>Model Binding</strong>—how ASP.NET Core automatically maps request data
+                        to action method parameters.
+                    </p>
+                </div>
+
+                <nav class="page-nav">
+                    <a href="01-restful-principles.html" class="prev">RESTful Principles</a>
+                    <a href="03-model-binding.html" class="next">Model Binding</a>
+                </nav>
+
+            
+        <footer class="page-footer">
+          Built with 💜 by <a href="https://akwasi.dev" target="_blank" rel="noopener noreferrer">Akwasi Adu-Kyeremeh</a> for developers who want to truly understand what they're building.
+        </footer>
+
+      </div>
+        </main>
+    </div>
+</body>
+
+</html>

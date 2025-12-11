@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Minimal APIs | ASP.NET Core Mastery</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;500&family=Source+Serif+4:ital,wght@0,400;0,600;1,400&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="../assets/style.css">
+</head>
+
+<body>
+    <div class="page-wrapper">
+        <aside class="sidebar">
+            <a href="../index.html" class="sidebar-logo">ASP.NET Core Mastery</a>
+            <div class="sidebar-section">Part VIII: Building Web APIs</div>
+            <ul class="sidebar-nav">
+                <li><a href="01-restful-principles.html">RESTful Principles</a></li>
+                <li><a href="02-api-controllers.html">API Controllers</a></li>
+                <li><a href="03-model-binding.html">Model Binding</a></li>
+                <li><a href="04-validation.html">Validation</a></li>
+                <li><a href="05-minimal-apis.html" class="active">Minimal APIs</a></li>
+                <li><a href="06-dtos-automapper.html">DTOs and AutoMapper</a></li>
+                <li><a href="07-api-versioning.html">API Versioning</a></li>
+            </ul>
+            <div class="sidebar-section">Resources</div>
+            <ul class="sidebar-nav">
+                <li><a href="../index.html">Full Roadmap</a></li>
+            </ul>
+        </aside>
+
+        <main class="main-content">
+            <div class="content-container">
+                <nav class="breadcrumb">
+                    <a href="../index.html">Home</a>
+                    <span>→</span>
+                    <a href="01-restful-principles.html">Part VIII: Building Web APIs</a>
+                    <span>→</span>
+                    Minimal APIs
+                </nav>
+
+                <div class="progress-indicator">
+                    <span>Section 5 of 7</span>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 71.43%"></div>
+                    </div>
+                </div>
+
+                <h1>Minimal APIs</h1>
+
+                <div class="learning-objectives">
+                    <h3>🎯 What You'll Learn</h3>
+                    <ul>
+                        <li>What Minimal APIs are</li>
+                        <li>MapGet, MapPost, MapPut, MapDelete</li>
+                        <li>Route groups</li>
+                        <li>Filters and middleware</li>
+                        <li>When to use Minimal APIs vs Controllers</li>
+                        <li>Complete CRUD example</li>
+                    </ul>
+                </div>
+
+                <h2>What are Minimal APIs?</h2>
+
+                <p>
+                    <strong>Minimal APIs</strong> are a simplified way to build HTTP APIs with minimal code and
+                    configuration.
+                    Introduced in .NET 6, they reduce ceremony and boilerplate.
+                </p>
+
+                <h3>Controllers vs Minimal APIs</h3>
+
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Feature</th>
+                            <th>Controllers</th>
+                            <th>Minimal APIs</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Code</strong></td>
+                            <td>More boilerplate</td>
+                            <td>Less code</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Organization</strong></td>
+                            <td>Class-based</td>
+                            <td>Function-based</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Features</strong></td>
+                            <td>Full-featured</td>
+                            <td>Lightweight</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Best For</strong></td>
+                            <td>Large, complex APIs</td>
+                            <td>Simple, microservices</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="section-divider"></div>
+
+                <h2>Basic Minimal API</h2>
+
+                <div class="code-header">
+                    <span class="code-filename">Program.cs</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-keyword">var</span> <span class="code-variable">builder</span> = <span class="code-class">WebApplication</span>.<span class="code-method">CreateBuilder</span>(<span class="code-variable">args</span>);
+<span class="code-keyword">var</span> <span class="code-variable">app</span> = <span class="code-variable">builder</span>.<span class="code-method">Build</span>();
+
+<span class="code-comment">// GET /hello</span>
+<span class="code-variable">app</span>.<span class="code-method">MapGet</span>(<span class="code-string">"/hello"</span>, () =&gt; <span class="code-string">"Hello World!"</span>);
+
+<span class="code-comment">// GET /products</span>
+<span class="code-variable">app</span>.<span class="code-method">MapGet</span>(<span class="code-string">"/products"</span>, () =&gt; <span class="code-keyword">new</span>[] { <span class="code-string">"Laptop"</span>, <span class="code-string">"Mouse"</span>, <span class="code-string">"Keyboard"</span> });
+
+<span class="code-variable">app</span>.<span class="code-method">Run</span>();</code></pre>
+
+                <div class="section-divider"></div>
+
+                <h2>HTTP Methods</h2>
+
+                <div class="code-header">
+                    <span class="code-filename">MapGet, MapPost, MapPut, MapDelete</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-comment">// GET /api/products</span>
+<span class="code-variable">app</span>.<span class="code-method">MapGet</span>(<span class="code-string">"/api/products"</span>, () =&gt; <span class="code-string">"Get all products"</span>);
+
+<span class="code-comment">// GET /api/products/123</span>
+<span class="code-variable">app</span>.<span class="code-method">MapGet</span>(<span class="code-string">"/api/products/{id}"</span>, (<span class="code-type">int</span> <span class="code-variable">id</span>) =&gt; <span class="code-string">$"Product </span>{<span class="code-variable">id</span>}<span class="code-string">"</span>);
+
+<span class="code-comment">// POST /api/products</span>
+<span class="code-variable">app</span>.<span class="code-method">MapPost</span>(<span class="code-string">"/api/products"</span>, (<span class="code-class">Product</span> <span class="code-variable">product</span>) =&gt; <span class="code-string">"Product created"</span>);
+
+<span class="code-comment">// PUT /api/products/123</span>
+<span class="code-variable">app</span>.<span class="code-method">MapPut</span>(<span class="code-string">"/api/products/{id}"</span>, (<span class="code-type">int</span> <span class="code-variable">id</span>, <span class="code-class">Product</span> <span class="code-variable">product</span>) =&gt; <span class="code-string">"Product updated"</span>);
+
+<span class="code-comment">// DELETE /api/products/123</span>
+<span class="code-variable">app</span>.<span class="code-method">MapDelete</span>(<span class="code-string">"/api/products/{id}"</span>, (<span class="code-type">int</span> <span class="code-variable">id</span>) =&gt; <span class="code-string">"Product deleted"</span>);</code></pre>
+
+                <div class="section-divider"></div>
+
+                <h2>Returning Results</h2>
+
+                <div class="code-header">
+                    <span class="code-filename">Results Helpers</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-comment">// 200 OK</span>
+<span class="code-variable">app</span>.<span class="code-method">MapGet</span>(<span class="code-string">"/products"</span>, () =&gt; <span class="code-class">Results</span>.<span class="code-method">Ok</span>(<span class="code-keyword">new</span>[] { <span class="code-string">"Laptop"</span> }));
+
+<span class="code-comment">// 201 Created</span>
+<span class="code-variable">app</span>.<span class="code-method">MapPost</span>(<span class="code-string">"/products"</span>, (<span class="code-class">Product</span> <span class="code-variable">p</span>) =&gt; 
+    <span class="code-class">Results</span>.<span class="code-method">Created</span>(<span class="code-string">$"/products/</span>{<span class="code-variable">p</span>.<span class="code-variable">Id</span>}<span class="code-string">"</span>, <span class="code-variable">p</span>));
+
+<span class="code-comment">// 204 No Content</span>
+<span class="code-variable">app</span>.<span class="code-method">MapDelete</span>(<span class="code-string">"/products/{id}"</span>, (<span class="code-type">int</span> <span class="code-variable">id</span>) =&gt; <span class="code-class">Results</span>.<span class="code-method">NoContent</span>());
+
+<span class="code-comment">// 404 Not Found</span>
+<span class="code-variable">app</span>.<span class="code-method">MapGet</span>(<span class="code-string">"/products/{id}"</span>, (<span class="code-type">int</span> <span class="code-variable">id</span>) =&gt; 
+    <span class="code-variable">id</span> > <span class="code-number">0</span> ? <span class="code-class">Results</span>.<span class="code-method">Ok</span>(<span class="code-keyword">new</span> <span class="code-class">Product</span>()) : <span class="code-class">Results</span>.<span class="code-method">NotFound</span>());
+
+<span class="code-comment">// 400 Bad Request</span>
+<span class="code-variable">app</span>.<span class="code-method">MapPost</span>(<span class="code-string">"/products"</span>, (<span class="code-class">Product</span> <span class="code-variable">p</span>) =&gt; 
+    <span class="code-type">string</span>.<span class="code-method">IsNullOrEmpty</span>(<span class="code-variable">p</span>.<span class="code-variable">Name</span>) 
+        ? <span class="code-class">Results</span>.<span class="code-method">BadRequest</span>(<span class="code-string">"Name is required"</span>) 
+        : <span class="code-class">Results</span>.<span class="code-method">Ok</span>(<span class="code-variable">p</span>));</code></pre>
+
+                <div class="section-divider"></div>
+
+                <h2>Dependency Injection</h2>
+
+                <div class="code-header">
+                    <span class="code-filename">Injecting Services</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-comment">// Register service</span>
+<span class="code-variable">builder</span>.<span class="code-variable">Services</span>.<span class="code-method">AddScoped</span>&lt;<span class="code-class">IProductService</span>, <span class="code-class">ProductService</span>&gt;();
+
+<span class="code-keyword">var</span> <span class="code-variable">app</span> = <span class="code-variable">builder</span>.<span class="code-method">Build</span>();
+
+<span class="code-comment">// Inject service into endpoint</span>
+<span class="code-variable">app</span>.<span class="code-method">MapGet</span>(<span class="code-string">"/products"</span>, <span class="code-keyword">async</span> (<span class="code-class">IProductService</span> <span class="code-variable">service</span>) =&gt;
+{
+    <span class="code-keyword">var</span> <span class="code-variable">products</span> = <span class="code-keyword">await</span> <span class="code-variable">service</span>.<span class="code-method">GetAllAsync</span>();
+    <span class="code-keyword">return</span> <span class="code-class">Results</span>.<span class="code-method">Ok</span>(<span class="code-variable">products</span>);
+});</code></pre>
+
+                <div class="section-divider"></div>
+
+                <h2>Route Groups</h2>
+
+                <p>
+                    <strong>Route groups</strong> organize related endpoints and apply common configuration.
+                </p>
+
+                <div class="code-header">
+                    <span class="code-filename">Using Route Groups</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-keyword">var</span> <span class="code-variable">products</span> = <span class="code-variable">app</span>.<span class="code-method">MapGroup</span>(<span class="code-string">"/api/products"</span>);
+
+<span class="code-variable">products</span>.<span class="code-method">MapGet</span>(<span class="code-string">"/"</span>, <span class="code-keyword">async</span> (<span class="code-class">IProductService</span> <span class="code-variable">service</span>) =&gt;
+    <span class="code-keyword">await</span> <span class="code-variable">service</span>.<span class="code-method">GetAllAsync</span>());
+
+<span class="code-variable">products</span>.<span class="code-method">MapGet</span>(<span class="code-string">"/{id}"</span>, <span class="code-keyword">async</span> (<span class="code-type">int</span> <span class="code-variable">id</span>, <span class="code-class">IProductService</span> <span class="code-variable">service</span>) =&gt;
+{
+    <span class="code-keyword">var</span> <span class="code-variable">product</span> = <span class="code-keyword">await</span> <span class="code-variable">service</span>.<span class="code-method">GetByIdAsync</span>(<span class="code-variable">id</span>);
+    <span class="code-keyword">return</span> <span class="code-variable">product</span> == <span class="code-keyword">null</span> ? <span class="code-class">Results</span>.<span class="code-method">NotFound</span>() : <span class="code-class">Results</span>.<span class="code-method">Ok</span>(<span class="code-variable">product</span>);
+});
+
+<span class="code-variable">products</span>.<span class="code-method">MapPost</span>(<span class="code-string">"/"</span>, <span class="code-keyword">async</span> (<span class="code-class">CreateProductDto</span> <span class="code-variable">dto</span>, <span class="code-class">IProductService</span> <span class="code-variable">service</span>) =&gt;
+{
+    <span class="code-keyword">var</span> <span class="code-variable">product</span> = <span class="code-keyword">await</span> <span class="code-variable">service</span>.<span class="code-method">CreateAsync</span>(<span class="code-variable">dto</span>);
+    <span class="code-keyword">return</span> <span class="code-class">Results</span>.<span class="code-method">Created</span>(<span class="code-string">$"/api/products/</span>{<span class="code-variable">product</span>.<span class="code-variable">Id</span>}<span class="code-string">"</span>, <span class="code-variable">product</span>);
+});
+
+<span class="code-variable">products</span>.<span class="code-method">MapPut</span>(<span class="code-string">"/{id}"</span>, <span class="code-keyword">async</span> (<span class="code-type">int</span> <span class="code-variable">id</span>, <span class="code-class">UpdateProductDto</span> <span class="code-variable">dto</span>, <span class="code-class">IProductService</span> <span class="code-variable">service</span>) =&gt;
+{
+    <span class="code-keyword">await</span> <span class="code-variable">service</span>.<span class="code-method">UpdateAsync</span>(<span class="code-variable">id</span>, <span class="code-variable">dto</span>);
+    <span class="code-keyword">return</span> <span class="code-class">Results</span>.<span class="code-method">NoContent</span>();
+});
+
+<span class="code-variable">products</span>.<span class="code-method">MapDelete</span>(<span class="code-string">"/{id}"</span>, <span class="code-keyword">async</span> (<span class="code-type">int</span> <span class="code-variable">id</span>, <span class="code-class">IProductService</span> <span class="code-variable">service</span>) =&gt;
+{
+    <span class="code-keyword">await</span> <span class="code-variable">service</span>.<span class="code-method">DeleteAsync</span>(<span class="code-variable">id</span>);
+    <span class="code-keyword">return</span> <span class="code-class">Results</span>.<span class="code-method">NoContent</span>();
+});</code></pre>
+
+                <h3>Group Configuration</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">Apply Metadata to Group</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-keyword">var</span> <span class="code-variable">products</span> = <span class="code-variable">app</span>.<span class="code-method">MapGroup</span>(<span class="code-string">"/api/products"</span>)
+    .<span class="code-method">RequireAuthorization</span>()           <span class="code-comment">// All endpoints require auth</span>
+    .<span class="code-method">WithTags</span>(<span class="code-string">"Products"</span>)             <span class="code-comment">// OpenAPI tag</span>
+    .<span class="code-method">WithOpenApi</span>();                   <span class="code-comment">// Generate OpenAPI docs</span></code></pre>
+
+                <div class="section-divider"></div>
+
+                <h2>Filters</h2>
+
+                <div class="code-header">
+                    <span class="code-filename">Endpoint Filters</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-comment">// Validation filter</span>
+<span class="code-variable">app</span>.<span class="code-method">MapPost</span>(<span class="code-string">"/products"</span>, (<span class="code-class">CreateProductDto</span> <span class="code-variable">dto</span>) =&gt; <span class="code-class">Results</span>.<span class="code-method">Ok</span>(<span class="code-variable">dto</span>))
+    .<span class="code-method">AddEndpointFilter</span>(<span class="code-keyword">async</span> (<span class="code-variable">context</span>, <span class="code-variable">next</span>) =&gt;
+    {
+        <span class="code-keyword">var</span> <span class="code-variable">dto</span> = <span class="code-variable">context</span>.<span class="code-method">GetArgument</span>&lt;<span class="code-class">CreateProductDto</span>&gt;(<span class="code-number">0</span>);
+        
+        <span class="code-keyword">if</span> (<span class="code-type">string</span>.<span class="code-method">IsNullOrEmpty</span>(<span class="code-variable">dto</span>.<span class="code-variable">Name</span>))
+            <span class="code-keyword">return</span> <span class="code-class">Results</span>.<span class="code-method">BadRequest</span>(<span class="code-string">"Name is required"</span>);
+        
+        <span class="code-keyword">return</span> <span class="code-keyword">await</span> <span class="code-method">next</span>(<span class="code-variable">context</span>);
+    });</code></pre>
+
+                <div class="section-divider"></div>
+
+                <h2>Complete InvenTrack Example</h2>
+
+                <div class="code-header">
+                    <span class="code-filename">Program.cs</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-keyword">var</span> <span class="code-variable">builder</span> = <span class="code-class">WebApplication</span>.<span class="code-method">CreateBuilder</span>(<span class="code-variable">args</span>);
+
+<span class="code-comment">// Register services</span>
+<span class="code-variable">builder</span>.<span class="code-variable">Services</span>.<span class="code-method">AddScoped</span>&lt;<span class="code-class">IProductService</span>, <span class="code-class">ProductService</span>&gt;();
+
+<span class="code-keyword">var</span> <span class="code-variable">app</span> = <span class="code-variable">builder</span>.<span class="code-method">Build</span>();
+
+<span class="code-comment">// Products API group</span>
+<span class="code-keyword">var</span> <span class="code-variable">products</span> = <span class="code-variable">app</span>.<span class="code-method">MapGroup</span>(<span class="code-string">"/api/products"</span>)
+    .<span class="code-method">WithTags</span>(<span class="code-string">"Products"</span>);
+
+<span class="code-comment">// GET /api/products</span>
+<span class="code-variable">products</span>.<span class="code-method">MapGet</span>(<span class="code-string">"/"</span>, <span class="code-keyword">async</span> (<span class="code-class">IProductService</span> <span class="code-variable">service</span>) =&gt;
+{
+    <span class="code-keyword">var</span> <span class="code-variable">allProducts</span> = <span class="code-keyword">await</span> <span class="code-variable">service</span>.<span class="code-method">GetAllAsync</span>();
+    <span class="code-keyword">return</span> <span class="code-class">Results</span>.<span class="code-method">Ok</span>(<span class="code-variable">allProducts</span>);
+})
+.<span class="code-method">WithName</span>(<span class="code-string">"GetProducts"</span>)
+.<span class="code-method">Produces</span>&lt;<span class="code-type">List</span>&lt;<span class="code-class">Product</span>&gt;&gt;(<span class="code-number">200</span>);
+
+<span class="code-comment">// GET /api/products/{id}</span>
+<span class="code-variable">products</span>.<span class="code-method">MapGet</span>(<span class="code-string">"/{id}"</span>, <span class="code-keyword">async</span> (<span class="code-type">int</span> <span class="code-variable">id</span>, <span class="code-class">IProductService</span> <span class="code-variable">service</span>) =&gt;
+{
+    <span class="code-keyword">var</span> <span class="code-variable">product</span> = <span class="code-keyword">await</span> <span class="code-variable">service</span>.<span class="code-method">GetByIdAsync</span>(<span class="code-variable">id</span>);
+    <span class="code-keyword">return</span> <span class="code-variable">product</span> == <span class="code-keyword">null</span> 
+        ? <span class="code-class">Results</span>.<span class="code-method">NotFound</span>() 
+        : <span class="code-class">Results</span>.<span class="code-method">Ok</span>(<span class="code-variable">product</span>);
+})
+.<span class="code-method">WithName</span>(<span class="code-string">"GetProduct"</span>)
+.<span class="code-method">Produces</span>&lt;<span class="code-class">Product</span>&gt;(<span class="code-number">200</span>)
+.<span class="code-method">Produces</span>(<span class="code-number">404</span>);
+
+<span class="code-comment">// POST /api/products</span>
+<span class="code-variable">products</span>.<span class="code-method">MapPost</span>(<span class="code-string">"/"</span>, <span class="code-keyword">async</span> (<span class="code-class">CreateProductDto</span> <span class="code-variable">dto</span>, <span class="code-class">IProductService</span> <span class="code-variable">service</span>) =&gt;
+{
+    <span class="code-keyword">var</span> <span class="code-variable">product</span> = <span class="code-keyword">await</span> <span class="code-variable">service</span>.<span class="code-method">CreateAsync</span>(<span class="code-variable">dto</span>);
+    <span class="code-keyword">return</span> <span class="code-class">Results</span>.<span class="code-method">CreatedAtRoute</span>(<span class="code-string">"GetProduct"</span>, <span class="code-keyword">new</span> { <span class="code-variable">id</span> = <span class="code-variable">product</span>.<span class="code-variable">Id</span> }, <span class="code-variable">product</span>);
+})
+.<span class="code-method">Produces</span>&lt;<span class="code-class">Product</span>&gt;(<span class="code-number">201</span>)
+.<span class="code-method">Produces</span>(<span class="code-number">400</span>);
+
+<span class="code-comment">// PUT /api/products/{id}</span>
+<span class="code-variable">products</span>.<span class="code-method">MapPut</span>(<span class="code-string">"/{id}"</span>, <span class="code-keyword">async</span> (<span class="code-type">int</span> <span class="code-variable">id</span>, <span class="code-class">UpdateProductDto</span> <span class="code-variable">dto</span>, <span class="code-class">IProductService</span> <span class="code-variable">service</span>) =&gt;
+{
+    <span class="code-keyword">var</span> <span class="code-variable">exists</span> = <span class="code-keyword">await</span> <span class="code-variable">service</span>.<span class="code-method">ExistsAsync</span>(<span class="code-variable">id</span>);
+    
+    <span class="code-keyword">if</span> (!<span class="code-variable">exists</span>)
+        <span class="code-keyword">return</span> <span class="code-class">Results</span>.<span class="code-method">NotFound</span>();
+    
+    <span class="code-keyword">await</span> <span class="code-variable">service</span>.<span class="code-method">UpdateAsync</span>(<span class="code-variable">id</span>, <span class="code-variable">dto</span>);
+    <span class="code-keyword">return</span> <span class="code-class">Results</span>.<span class="code-method">NoContent</span>();
+})
+.<span class="code-method">Produces</span>(<span class="code-number">204</span>)
+.<span class="code-method">Produces</span>(<span class="code-number">404</span>);
+
+<span class="code-comment">// DELETE /api/products/{id}</span>
+<span class="code-variable">products</span>.<span class="code-method">MapDelete</span>(<span class="code-string">"/{id}"</span>, <span class="code-keyword">async</span> (<span class="code-type">int</span> <span class="code-variable">id</span>, <span class="code-class">IProductService</span> <span class="code-variable">service</span>) =&gt;
+{
+    <span class="code-keyword">var</span> <span class="code-variable">exists</span> = <span class="code-keyword">await</span> <span class="code-variable">service</span>.<span class="code-method">ExistsAsync</span>(<span class="code-variable">id</span>);
+    
+    <span class="code-keyword">if</span> (!<span class="code-variable">exists</span>)
+        <span class="code-keyword">return</span> <span class="code-class">Results</span>.<span class="code-method">NotFound</span>();
+    
+    <span class="code-keyword">await</span> <span class="code-variable">service</span>.<span class="code-method">DeleteAsync</span>(<span class="code-variable">id</span>);
+    <span class="code-keyword">return</span> <span class="code-class">Results</span>.<span class="code-method">NoContent</span>();
+})
+.<span class="code-method">Produces</span>(<span class="code-number">204</span>)
+.<span class="code-method">Produces</span>(<span class="code-number">404</span>);
+
+<span class="code-variable">app</span>.<span class="code-method">Run</span>();</code></pre>
+
+                <h2>When to Use Minimal APIs</h2>
+
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Use Minimal APIs</th>
+                            <th>Use Controllers</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Simple APIs</td>
+                            <td>Complex APIs</td>
+                        </tr>
+                        <tr>
+                            <td>Microservices</td>
+                            <td>Large monoliths</td>
+                        </tr>
+                        <tr>
+                            <td>Prototypes</td>
+                            <td>Enterprise applications</td>
+                        </tr>
+                        <tr>
+                            <td>Few endpoints</td>
+                            <td>Many endpoints</td>
+                        </tr>
+                        <tr>
+                            <td>Performance-critical</td>
+                            <td>Feature-rich requirements</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h2>Best Practices</h2>
+
+                <ul>
+                    <li><strong>Route groups</strong>: Organize related endpoints</li>
+                    <li><strong>Dependency injection</strong>: Inject services into endpoints</li>
+                    <li><strong>Results helpers</strong>: Use Results.Ok(), Results.NotFound(), etc.</li>
+                    <li><strong>Metadata</strong>: Use WithName(), WithTags(), Produces()</li>
+                    <li><strong>Async</strong>: Use async/await for I/O operations</li>
+                    <li><strong>Validation</strong>: Add endpoint filters for validation</li>
+                    <li><strong>Organization</strong>: Consider extension methods for large APIs</li>
+                </ul>
+
+                <h2>Key Takeaways</h2>
+
+                <ul>
+                    <li><strong>Minimal APIs</strong>: Lightweight alternative to controllers</li>
+                    <li><strong>MapGet/Post/Put/Delete</strong>: Define HTTP endpoints</li>
+                    <li><strong>Results helpers</strong>: Return typed responses</li>
+                    <li><strong>Route groups</strong>: Organize and configure endpoints</li>
+                    <li><strong>Filters</strong>: Add cross-cutting concerns</li>
+                    <li><strong>DI</strong>: Inject services into endpoint handlers</li>
+                    <li><strong>Less code</strong>: Reduced boilerplate</li>
+                    <li><strong>Performance</strong>: Faster startup and execution</li>
+                </ul>
+
+                <div class="callout callout-concept">
+                    <div class="callout-title">🎯 Next Steps</div>
+                    <p>
+                        You now understand Minimal APIs! In the next section, we'll explore
+                        <strong>DTOs and AutoMapper</strong>—how to separate your API models from domain
+                        models and automatically map between them.
+                    </p>
+                </div>
+
+                <nav class="page-nav">
+                    <a href="04-validation.html" class="prev">Validation</a>
+                    <a href="06-dtos-automapper.html" class="next">DTOs and AutoMapper</a>
+                </nav>
+
+            
+        <footer class="page-footer">
+          Built with 💜 by <a href="https://akwasi.dev" target="_blank" rel="noopener noreferrer">Akwasi Adu-Kyeremeh</a> for developers who want to truly understand what they're building.
+        </footer>
+
+      </div>
+        </main>
+    </div>
+</body>
+
+</html>

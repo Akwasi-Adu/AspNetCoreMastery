@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>View Components | ASP.NET Core Mastery</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;500&family=Source+Serif+4:ital,wght@0,400;0,600;1,400&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="../assets/style.css">
+</head>
+
+<body>
+    <div class="page-wrapper">
+        <aside class="sidebar">
+            <a href="../index.html" class="sidebar-logo">ASP.NET Core Mastery</a>
+            <div class="sidebar-section">Part X: MVC & Views</div>
+            <ul class="sidebar-nav">
+                <li><a href="01-mvc-architecture.html">MVC Architecture</a></li>
+                <li><a href="02-controllers-for-views.html">Controllers for Views</a></li>
+                <li><a href="03-razor-syntax.html">Razor Syntax</a></li>
+                <li><a href="04-layouts-partials.html">Layouts and Partials</a></li>
+                <li><a href="05-view-components.html" class="active">View Components</a></li>
+                <li><a href="06-tag-helpers.html">Tag Helpers</a></li>
+            </ul>
+            <div class="sidebar-section">Resources</div>
+            <ul class="sidebar-nav">
+                <li><a href="../index.html">Full Roadmap</a></li>
+            </ul>
+        </aside>
+
+        <main class="main-content">
+            <div class="content-container">
+                <nav class="breadcrumb">
+                    <a href="../index.html">Home</a>
+                    <span>→</span>
+                    <a href="01-mvc-architecture.html">Part X: MVC & Views</a>
+                    <span>→</span>
+                    View Components
+                </nav>
+
+                <div class="progress-indicator">
+                    <span>Section 5 of 6</span>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 83.33%"></div>
+                    </div>
+                </div>
+
+                <h1>View Components</h1>
+
+                <div class="learning-objectives">
+                    <h3>🎯 What You'll Learn</h3>
+                    <ul>
+                        <li>What are view components</li>
+                        <li>Creating view components</li>
+                        <li>InvokeAsync method</li>
+                        <li>Passing parameters</li>
+                        <li>View component views</li>
+                        <li>When to use view components</li>
+                    </ul>
+                </div>
+
+                <h2>What are View Components?</h2>
+
+                <p>
+                    <strong>View components</strong> are reusable UI components with their own logic and data access.
+                    They're like mini-controllers for specific parts of your UI.
+                </p>
+
+                <h3>View Components vs Partials</h3>
+
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Feature</th>
+                            <th>Partial Views</th>
+                            <th>View Components</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Logic</strong></td>
+                            <td>No logic (just rendering)</td>
+                            <td>Has own logic/data access</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Data</strong></td>
+                            <td>Passed from parent view</td>
+                            <td>Fetches own data</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Testability</strong></td>
+                            <td>Limited</td>
+                            <td>Highly testable</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Use Case</strong></td>
+                            <td>Simple UI reuse</td>
+                            <td>Complex, self-contained widgets</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="section-divider"></div>
+
+                <h2>Creating a View Component</h2>
+
+                <h3>1. Create the Class</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">ViewComponents/LowStockProductsViewComponent.cs</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">LowStockProductsViewComponent</span> : <span class="code-class">ViewComponent</span>
+{
+    <span class="code-keyword">private</span> <span class="code-keyword">readonly</span> <span class="code-class">InvenTrackDbContext</span> <span class="code-variable">_context</span>;
+
+    <span class="code-keyword">public</span> <span class="code-method">LowStockProductsViewComponent</span>(<span class="code-class">InvenTrackDbContext</span> <span class="code-variable">context</span>)
+    {
+        <span class="code-variable">_context</span> = <span class="code-variable">context</span>;
+    }
+
+    <span class="code-keyword">public</span> <span class="code-keyword">async</span> <span class="code-class">Task</span>&lt;<span class="code-class">IViewComponentResult</span>&gt; <span class="code-method">InvokeAsync</span>(<span class="code-type">int</span> <span class="code-variable">threshold</span> = <span class="code-number">10</span>)
+    {
+        <span class="code-keyword">var</span> <span class="code-variable">products</span> = <span class="code-keyword">await</span> <span class="code-variable">_context</span>.<span class="code-variable">Products</span>
+            .<span class="code-method">Where</span>(<span class="code-variable">p</span> => <span class="code-variable">p</span>.<span class="code-variable">Quantity</span> < <span class="code-variable">threshold</span>)
+            .<span class="code-method">ToListAsync</span>();
+
+        <span class="code-keyword">return</span> <span class="code-method">View</span>(<span class="code-variable">products</span>);
+    }
+}</code></pre>
+
+                <h3>2. Create the View</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">Views/Shared/Components/LowStockProducts/Default.cshtml</span>
+                    <span class="code-language">HTML</span>
+                </div>
+                <pre><code><span class="code-tag">@model</span> <span class="code-class">List</span>&lt;<span class="code-class">Product</span>&gt;
+
+&lt;<span class="code-tag">div</span> <span class="code-attribute">class</span>=<span class="code-string">"alert alert-warning"</span>&gt;
+    &lt;<span class="code-tag">h4</span>&gt;Low Stock Alert&lt;/<span class="code-tag">h4</span>&gt;
+    <span class="code-tag">@if</span> (<span class="code-variable">Model</span>.<span class="code-variable">Count</span> == <span class="code-number">0</span>)
+    {
+        &lt;<span class="code-tag">p</span>&gt;All products are well-stocked!&lt;/<span class="code-tag">p</span>&gt;
+    }
+    <span class="code-tag">@else</span>
+    {
+        &lt;<span class="code-tag">ul</span>&gt;
+            <span class="code-tag">@foreach</span> (<span class="code-keyword">var</span> <span class="code-variable">product</span> <span class="code-keyword">in</span> <span class="code-variable">Model</span>)
+            {
+                &lt;<span class="code-tag">li</span>&gt;<span class="code-tag">@product</span>.<span class="code-variable">Name</span> - Only <span class="code-tag">@product</span>.<span class="code-variable">Quantity</span> left&lt;/<span class="code-tag">li</span>&gt;
+            }
+        &lt;/<span class="code-tag">ul</span>&gt;
+    }
+&lt;/<span class="code-tag">div</span>&gt;</code></pre>
+
+                <div class="callout callout-info">
+                    <div class="callout-title">💡 View Location</div>
+                    <p>
+                        View components views are located at:<br>
+                        <code>Views/Shared/Components/{ComponentName}/Default.cshtml</code><br>
+                        or<br>
+                        <code>Views/{Controller}/Components/{ComponentName}/Default.cshtml</code>
+                    </p>
+                </div>
+
+                <h3>3. Invoke the View Component</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">Use in View</span>
+                    <span class="code-language">HTML</span>
+                </div>
+                <pre><code><span class="code-comment">&lt;!-- Tag Helper (recommended) --&gt;</span>
+&lt;<span class="code-tag">vc:low-stock-products</span> <span class="code-attribute">threshold</span>=<span class="code-string">"5"</span>&gt;&lt;/<span class="code-tag">vc:low-stock-products</span>&gt;
+
+<span class="code-comment">&lt;!-- HTML Helper --&gt;</span>
+<span class="code-tag">@await</span> <span class="code-method">Component</span>.<span class="code-method">InvokeAsync</span>(<span class="code-string">"LowStockProducts"</span>, <span class="code-keyword">new</span> { <span class="code-variable">threshold</span> = <span class="code-number">5</span> })</code></pre>
+
+                <div class="section-divider"></div>
+
+                <h2>Passing Parameters</h2>
+
+                <div class="code-header">
+                    <span class="code-filename">Multiple Parameters</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-keyword">public</span> <span class="code-keyword">async</span> <span class="code-class">Task</span>&lt;<span class="code-class">IViewComponentResult</span>&gt; <span class="code-method">InvokeAsync</span>(<span class="code-type">int</span> <span class="code-variable">count</span>, <span class="code-type">string</span> <span class="code-variable">category</span>)
+{
+    <span class="code-keyword">var</span> <span class="code-variable">products</span> = <span class="code-keyword">await</span> <span class="code-variable">_context</span>.<span class="code-variable">Products</span>
+        .<span class="code-method">Where</span>(<span class="code-variable">p</span> => <span class="code-variable">p</span>.<span class="code-variable">Category</span> == <span class="code-variable">category</span>)
+        .<span class="code-method">Take</span>(<span class="code-variable">count</span>)
+        .<span class="code-method">ToListAsync</span>();
+
+    <span class="code-keyword">return</span> <span class="code-method">View</span>(<span class="code-variable">products</span>);
+}</code></pre>
+
+                <div class="code-header">
+                    <span class="code-filename">Invoke with Parameters</span>
+                    <span class="code-language">HTML</span>
+                </div>
+                <pre><code>&lt;<span class="code-tag">vc:product-list</span> <span class="code-attribute">count</span>=<span class="code-string">"10"</span> <span class="code-attribute">category</span>=<span class="code-string">"Electronics"</span>&gt;&lt;/<span class="code-tag">vc:product-list</span>&gt;</code></pre>
+
+                <div class="section-divider"></div>
+
+                <h2>Returning Different Views</h2>
+
+                <div class="code-header">
+                    <span class="code-filename">Specify View Name</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-keyword">public</span> <span class="code-keyword">async</span> <span class="code-class">Task</span>&lt;<span class="code-class">IViewComponentResult</span>&gt; <span class="code-method">InvokeAsync</span>(<span class="code-type">bool</span> <span class="code-variable">showDetailed</span>)
+{
+    <span class="code-keyword">var</span> <span class="code-variable">products</span> = <span class="code-keyword">await</span> <span class="code-variable">_context</span>.<span class="code-variable">Products</span>.<span class="code-method">ToListAsync</span>();
+
+    <span class="code-keyword">if</span> (<span class="code-variable">showDetailed</span>)
+        <span class="code-keyword">return</span> <span class="code-method">View</span>(<span class="code-string">"Detailed"</span>, <span class="code-variable">products</span>);
+    
+    <span class="code-keyword">return</span> <span class="code-method">View</span>(<span class="code-variable">products</span>); <span class="code-comment">// Default.cshtml</span>
+}</code></pre>
+
+                <div class="section-divider"></div>
+
+                <h2>View Component Results</h2>
+
+                <div class="code-header">
+                    <span class="code-filename">Different Return Types</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-comment">// Return a view</span>
+<span class="code-keyword">return</span> <span class="code-method">View</span>(<span class="code-variable">model</span>);
+
+<span class="code-comment">// Return a specific view</span>
+<span class="code-keyword">return</span> <span class="code-method">View</span>(<span class="code-string">"ViewName"</span>, <span class="code-variable">model</span>);
+
+<span class="code-comment">// Return content</span>
+<span class="code-keyword">return</span> <span class="code-method">Content</span>(<span class="code-string">"Hello from view component"</span>);
+
+<span class="code-comment">// Return HTML</span>
+<span class="code-keyword">return</span> <span class="code-keyword">new</span> <span class="code-class">HtmlContentViewComponentResult</span>(
+    <span class="code-keyword">new</span> <span class="code-class">HtmlString</span>(<span class="code-string">"&lt;h1&gt;Hello&lt;/h1&gt;"</span>));</code></pre>
+
+                <h2>Complete InvenTrack Example</h2>
+
+                <div class="code-header">
+                    <span class="code-filename">ViewComponents/RecentOrdersViewComponent.cs</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">RecentOrdersViewComponent</span> : <span class="code-class">ViewComponent</span>
+{
+    <span class="code-keyword">private</span> <span class="code-keyword">readonly</span> <span class="code-class">InvenTrackDbContext</span> <span class="code-variable">_context</span>;
+
+    <span class="code-keyword">public</span> <span class="code-method">RecentOrdersViewComponent</span>(<span class="code-class">InvenTrackDbContext</span> <span class="code-variable">context</span>)
+    {
+        <span class="code-variable">_context</span> = <span class="code-variable">context</span>;
+    }
+
+    <span class="code-keyword">public</span> <span class="code-keyword">async</span> <span class="code-class">Task</span>&lt;<span class="code-class">IViewComponentResult</span>&gt; <span class="code-method">InvokeAsync</span>(<span class="code-type">int</span> <span class="code-variable">count</span> = <span class="code-number">5</span>)
+    {
+        <span class="code-keyword">var</span> <span class="code-variable">orders</span> = <span class="code-keyword">await</span> <span class="code-variable">_context</span>.<span class="code-variable">Orders</span>
+            .<span class="code-method">Include</span>(<span class="code-variable">o</span> => <span class="code-variable">o</span>.<span class="code-variable">Items</span>)
+            .<span class="code-method">OrderByDescending</span>(<span class="code-variable">o</span> => <span class="code-variable">o</span>.<span class="code-variable">OrderDate</span>)
+            .<span class="code-method">Take</span>(<span class="code-variable">count</span>)
+            .<span class="code-method">ToListAsync</span>();
+
+        <span class="code-keyword">return</span> <span class="code-method">View</span>(<span class="code-variable">orders</span>);
+    }
+}</code></pre>
+
+                <div class="code-header">
+                    <span class="code-filename">Views/Shared/Components/RecentOrders/Default.cshtml</span>
+                    <span class="code-language">HTML</span>
+                </div>
+                <pre><code><span class="code-tag">@model</span> <span class="code-class">List</span>&lt;<span class="code-class">Order</span>&gt;
+
+&lt;<span class="code-tag">div</span> <span class="code-attribute">class</span>=<span class="code-string">"card"</span>&gt;
+    &lt;<span class="code-tag">div</span> <span class="code-attribute">class</span>=<span class="code-string">"card-header"</span>&gt;
+        &lt;<span class="code-tag">h5</span>&gt;Recent Orders&lt;/<span class="code-tag">h5</span>&gt;
+    &lt;/<span class="code-tag">div</span>&gt;
+    &lt;<span class="code-tag">div</span> <span class="code-attribute">class</span>=<span class="code-string">"card-body"</span>&gt;
+        <span class="code-tag">@if</span> (<span class="code-variable">Model</span>.<span class="code-variable">Count</span> == <span class="code-number">0</span>)
+        {
+            &lt;<span class="code-tag">p</span>&gt;No recent orders.&lt;/<span class="code-tag">p</span>&gt;
+        }
+        <span class="code-tag">@else</span>
+        {
+            &lt;<span class="code-tag">table</span> <span class="code-attribute">class</span>=<span class="code-string">"table table-sm"</span>&gt;
+                &lt;<span class="code-tag">thead</span>&gt;
+                    &lt;<span class="code-tag">tr</span>&gt;
+                        &lt;<span class="code-tag">th</span>&gt;Order #&lt;/<span class="code-tag">th</span>&gt;
+                        &lt;<span class="code-tag">th</span>&gt;Customer&lt;/<span class="code-tag">th</span>&gt;
+                        &lt;<span class="code-tag">th</span>&gt;Date&lt;/<span class="code-tag">th</span>&gt;
+                        &lt;<span class="code-tag">th</span>&gt;Items&lt;/<span class="code-tag">th</span>&gt;
+                    &lt;/<span class="code-tag">tr</span>&gt;
+                &lt;/<span class="code-tag">thead</span>&gt;
+                &lt;<span class="code-tag">tbody</span>&gt;
+                    <span class="code-tag">@foreach</span> (<span class="code-keyword">var</span> <span class="code-variable">order</span> <span class="code-keyword">in</span> <span class="code-variable">Model</span>)
+                    {
+                        &lt;<span class="code-tag">tr</span>&gt;
+                            &lt;<span class="code-tag">td</span>&gt;<span class="code-tag">@order</span>.<span class="code-variable">Id</span>&lt;/<span class="code-tag">td</span>&gt;
+                            &lt;<span class="code-tag">td</span>&gt;<span class="code-tag">@order</span>.<span class="code-variable">CustomerName</span>&lt;/<span class="code-tag">td</span>&gt;
+                            &lt;<span class="code-tag">td</span>&gt;<span class="code-tag">@order</span>.<span class="code-variable">OrderDate</span>.<span class="code-method">ToShortDateString</span>()&lt;/<span class="code-tag">td</span>&gt;
+                            &lt;<span class="code-tag">td</span>&gt;<span class="code-tag">@order</span>.<span class="code-variable">Items</span>.<span class="code-variable">Count</span>&lt;/<span class="code-tag">td</span>&gt;
+                        &lt;/<span class="code-tag">tr</span>&gt;
+                    }
+                &lt;/<span class="code-tag">tbody</span>&gt;
+            &lt;/<span class="code-tag">table</span>&gt;
+        }
+    &lt;/<span class="code-tag">div</span>&gt;
+&lt;/<span class="code-tag">div</span>&gt;</code></pre>
+
+                <div class="code-header">
+                    <span class="code-filename">Views/Home/Dashboard.cshtml</span>
+                    <span class="code-language">HTML</span>
+                </div>
+                <pre><code>&lt;<span class="code-tag">h1</span>&gt;InvenTrack Dashboard&lt;/<span class="code-tag">h1</span>&gt;
+
+&lt;<span class="code-tag">div</span> <span class="code-attribute">class</span>=<span class="code-string">"row"</span>&gt;
+    &lt;<span class="code-tag">div</span> <span class="code-attribute">class</span>=<span class="code-string">"col-md-6"</span>&gt;
+        &lt;<span class="code-tag">vc:low-stock-products</span> <span class="code-attribute">threshold</span>=<span class="code-string">"10"</span>&gt;&lt;/<span class="code-tag">vc:low-stock-products</span>&gt;
+    &lt;/<span class="code-tag">div</span>&gt;
+    &lt;<span class="code-tag">div</span> <span class="code-attribute">class</span>=<span class="code-string">"col-md-6"</span>&gt;
+        &lt;<span class="code-tag">vc:recent-orders</span> <span class="code-attribute">count</span>=<span class="code-string">"10"</span>&gt;&lt;/<span class="code-tag">vc:recent-orders</span>&gt;
+    &lt;/<span class="code-tag">div</span>&gt;
+&lt;/<span class="code-tag">div</span>&gt;</code></pre>
+
+                <h2>When to Use View Components</h2>
+
+                <ul>
+                    <li><strong>Dashboard widgets</strong>: Recent orders, statistics, alerts</li>
+                    <li><strong>Navigation menus</strong>: Dynamic menus based on user permissions</li>
+                    <li><strong>Shopping cart</strong>: Display cart contents</li>
+                    <li><strong>Login panel</strong>: Show login status or form</li>
+                    <li><strong>Sidebar content</strong>: Related articles, tags, categories</li>
+                    <li><strong>Any reusable component</strong> that needs its own data access</li>
+                </ul>
+
+                <h2>Best Practices</h2>
+
+                <ul>
+                    <li><strong>Single responsibility</strong>: One component, one purpose</li>
+                    <li><strong>Async methods</strong>: Use async/await for database access</li>
+                    <li><strong>Dependency injection</strong>: Inject services in constructor</li>
+                    <li><strong>Naming convention</strong>: Suffix with "ViewComponent"</li>
+                    <li><strong>Tag helpers</strong>: Use tag helper syntax for cleaner views</li>
+                    <li><strong>Testability</strong>: Write unit tests for view components</li>
+                </ul>
+
+                <h2>Key Takeaways</h2>
+
+                <ul>
+                    <li><strong>View components</strong>: Reusable UI with logic and data access</li>
+                    <li><strong>ViewComponent</strong>: Base class for view components</li>
+                    <li><strong>InvokeAsync()</strong>: Entry point method</li>
+                    <li><strong>View location</strong>: Views/Shared/Components/{Name}/Default.cshtml</li>
+                    <li><strong>&lt;vc:component-name&gt;</strong>: Tag helper syntax</li>
+                    <li><strong>Parameters</strong>: Pass data via InvokeAsync parameters</li>
+                    <li><strong>Dependency injection</strong>: Inject services in constructor</li>
+                    <li><strong>Use cases</strong>: Widgets, menus, self-contained components</li>
+                </ul>
+
+                <div class="callout callout-concept">
+                    <div class="callout-title">🎯 Next Steps</div>
+                    <p>
+                        You now understand view components! In the final section, we'll explore
+                        <strong>Tag Helpers</strong>—server-side code that helps create HTML elements
+                        in Razor files.
+                    </p>
+                </div>
+
+                <nav class="page-nav">
+                    <a href="04-layouts-partials.html" class="prev">Layouts and Partials</a>
+                    <a href="06-tag-helpers.html" class="next">Tag Helpers</a>
+                </nav>
+
+            
+        <footer class="page-footer">
+          Built with 💜 by <a href="https://akwasi.dev" target="_blank" rel="noopener noreferrer">Akwasi Adu-Kyeremeh</a> for developers who want to truly understand what they're building.
+        </footer>
+
+      </div>
+        </main>
+    </div>
+</body>
+
+</html>

@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EF Core Performance | ASP.NET Core Mastery</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;500&family=Source+Serif+4:ital,wght@0,400;0,600;1,400&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="../assets/style.css">
+</head>
+
+<body>
+    <div class="page-wrapper">
+        <aside class="sidebar">
+            <a href="../index.html" class="sidebar-logo">ASP.NET Core Mastery</a>
+            <div class="sidebar-section">Part XVII: Performance</div>
+            <ul class="sidebar-nav">
+                <li><a href="01-in-memory-caching.html">In-Memory Caching</a></li>
+                <li><a href="02-distributed-caching.html">Distributed Caching</a></li>
+                <li><a href="03-response-caching.html">Response Caching</a></li>
+                <li><a href="04-async-best-practices.html">Async Best Practices</a></li>
+                <li><a href="05-ef-core-performance.html" class="active">EF Core Performance</a></li>
+                <li><a href="06-profiling-tools.html">Profiling Tools</a></li>
+            </ul>
+            <div class="sidebar-section">Resources</div>
+            <ul class="sidebar-nav">
+                <li><a href="../index.html">Full Roadmap</a></li>
+            </ul>
+        </aside>
+
+        <main class="main-content">
+            <div class="content-container">
+                <nav class="breadcrumb">
+                    <a href="../index.html">Home</a>
+                    <span>→</span>
+                    <a href="01-in-memory-caching.html">Part XVII: Performance</a>
+                    <span>→</span>
+                    EF Core Performance
+                </nav>
+
+                <div class="progress-indicator">
+                    <span>Section 5 of 6</span>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 83.33%"></div>
+                    </div>
+                </div>
+
+                <h1>EF Core Performance</h1>
+
+                <div class="learning-objectives">
+                    <h3>🎯 What You'll Learn</h3>
+                    <ul>
+                        <li>N+1 query problem</li>
+                        <li>Eager loading</li>
+                        <li>Select projections</li>
+                        <li>AsNoTracking</li>
+                        <li>Compiled queries</li>
+                    </ul>
+                </div>
+
+                <h2>N+1 Query Problem</h2>
+
+                <p>The <strong>N+1 problem</strong> occurs when you load a collection, then load related data for each
+                    item.</p>
+
+                <div class="code-header">
+                    <span class="code-filename">N+1 Problem (BAD!)</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-comment">// ❌ Bad - 1 query for products + N queries for categories</span>
+<span class="code-keyword">var</span> <span class="code-variable">products</span> = <span class="code-keyword">await</span> <span class="code-variable">_context</span>.<span class="code-variable">Products</span>.<span class="code-method">ToListAsync</span>(); <span class="code-comment">// 1 query</span>
+<span class="code-keyword">foreach</span> (<span class="code-keyword">var</span> <span class="code-variable">product</span> <span class="code-keyword">in</span> <span class="code-variable">products</span>)
+{
+    <span class="code-keyword">var</span> <span class="code-variable">category</span> = <span class="code-variable">product</span>.<span class="code-variable">Category</span>.<span class="code-variable">Name</span>; <span class="code-comment">// N queries!</span>
+}</code></pre>
+
+                <div class="section-divider"></div>
+
+                <h2>Eager Loading with Include</h2>
+
+                <div class="code-header">
+                    <span class="code-filename">Eager Loading (GOOD!)</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-comment">// ✅ Good - 1 query with JOIN</span>
+<span class="code-keyword">var</span> <span class="code-variable">products</span> = <span class="code-keyword">await</span> <span class="code-variable">_context</span>.<span class="code-variable">Products</span>
+    .<span class="code-method">Include</span>(<span class="code-variable">p</span> => <span class="code-variable">p</span>.<span class="code-variable">Category</span>)
+    .<span class="code-method">ToListAsync</span>();</code></pre>
+
+                <h3>Multiple Includes</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">Multiple Includes</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-keyword">var</span> <span class="code-variable">products</span> = <span class="code-keyword">await</span> <span class="code-variable">_context</span>.<span class="code-variable">Products</span>
+    .<span class="code-method">Include</span>(<span class="code-variable">p</span> => <span class="code-variable">p</span>.<span class="code-variable">Category</span>)
+    .<span class="code-method">Include</span>(<span class="code-variable">p</span> => <span class="code-variable">p</span>.<span class="code-variable">Supplier</span>)
+    .<span class="code-method">ToListAsync</span>();</code></pre>
+
+                <h3>ThenInclude for Nested</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">Nested Include</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-keyword">var</span> <span class="code-variable">orders</span> = <span class="code-keyword">await</span> <span class="code-variable">_context</span>.<span class="code-variable">Orders</span>
+    .<span class="code-method">Include</span>(<span class="code-variable">o</span> => <span class="code-variable">o</span>.<span class="code-variable">OrderItems</span>)
+        .<span class="code-method">ThenInclude</span>(<span class="code-variable">i</span> => <span class="code-variable">i</span>.<span class="code-variable">Product</span>)
+    .<span class="code-method">ToListAsync</span>();</code></pre>
+
+                <div class="section-divider"></div>
+
+                <h2>Select Projections</h2>
+
+                <p>Only select the data you need.</p>
+
+                <div class="code-header">
+                    <span class="code-filename">Projection</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-comment">// ❌ Bad - loads entire entity</span>
+<span class="code-keyword">var</span> <span class="code-variable">products</span> = <span class="code-keyword">await</span> <span class="code-variable">_context</span>.<span class="code-variable">Products</span>.<span class="code-method">ToListAsync</span>();
+
+<span class="code-comment">// ✅ Good - only loads needed columns</span>
+<span class="code-keyword">var</span> <span class="code-variable">products</span> = <span class="code-keyword">await</span> <span class="code-variable">_context</span>.<span class="code-variable">Products</span>
+    .<span class="code-method">Select</span>(<span class="code-variable">p</span> => <span class="code-keyword">new</span> 
+    {
+        <span class="code-variable">p</span>.<span class="code-variable">Id</span>,
+        <span class="code-variable">p</span>.<span class="code-variable">Name</span>,
+        <span class="code-variable">p</span>.<span class="code-variable">Price</span>
+    })
+    .<span class="code-method">ToListAsync</span>();</code></pre>
+
+                <div class="section-divider"></div>
+
+                <h2>AsNoTracking</h2>
+
+                <p>Disable change tracking for read-only queries.</p>
+
+                <div class="code-header">
+                    <span class="code-filename">AsNoTracking</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-comment">// ✅ Good for read-only</span>
+<span class="code-keyword">var</span> <span class="code-variable">products</span> = <span class="code-keyword">await</span> <span class="code-variable">_context</span>.<span class="code-variable">Products</span>
+    .<span class="code-method">AsNoTracking</span>()
+    .<span class="code-method">ToListAsync</span>();</code></pre>
+
+                <div class="section-divider"></div>
+
+                <h2>Compiled Queries</h2>
+
+                <p>Pre-compile frequently used queries.</p>
+
+                <div class="code-header">
+                    <span class="code-filename">Compiled Query</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-keyword">private</span> <span class="code-keyword">static</span> <span class="code-keyword">readonly</span> <span class="code-class">Func</span>&lt;<span class="code-class">InvenTrackDbContext</span>, <span class="code-type">int</span>, <span class="code-class">Task</span>&lt;<span class="code-class">Product</span>&gt;&gt; <span class="code-variable">_getProductById</span> =
+    <span class="code-class">EF</span>.<span class="code-method">CompileAsyncQuery</span>((<span class="code-class">InvenTrackDbContext</span> <span class="code-variable">context</span>, <span class="code-type">int</span> <span class="code-variable">id</span>) =>
+        <span class="code-variable">context</span>.<span class="code-variable">Products</span>.<span class="code-method">FirstOrDefault</span>(<span class="code-variable">p</span> => <span class="code-variable">p</span>.<span class="code-variable">Id</span> == <span class="code-variable">id</span>));
+
+<span class="code-keyword">public</span> <span class="code-keyword">async</span> <span class="code-class">Task</span>&lt;<span class="code-class">Product</span>&gt; <span class="code-method">GetProductAsync</span>(<span class="code-type">int</span> <span class="code-variable">id</span>)
+{
+    <span class="code-keyword">return</span> <span class="code-keyword">await</span> <span class="code-method">_getProductById</span>(<span class="code-variable">_context</span>, <span class="code-variable">id</span>);
+}</code></pre>
+
+                <h2>InvenTrack Example</h2>
+
+                <div class="code-header">
+                    <span class="code-filename">Optimized ProductsController.cs</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">ProductsController</span> : <span class="code-class">Controller</span>
+{
+    <span class="code-comment">// ✅ Good - AsNoTracking for read-only</span>
+    [<span class="code-class">HttpGet</span>]
+    <span class="code-keyword">public</span> <span class="code-keyword">async</span> <span class="code-class">Task</span>&lt;<span class="code-class">IActionResult</span>&gt; <span class="code-method">Index</span>()
+    {
+        <span class="code-keyword">var</span> <span class="code-variable">products</span> = <span class="code-keyword">await</span> <span class="code-variable">_context</span>.<span class="code-variable">Products</span>
+            .<span class="code-method">AsNoTracking</span>()
+            .<span class="code-method">Include</span>(<span class="code-variable">p</span> => <span class="code-variable">p</span>.<span class="code-variable">Category</span>)
+            .<span class="code-method">ToListAsync</span>();
+        
+        <span class="code-keyword">return</span> <span class="code-method">View</span>(<span class="code-variable">products</span>);
+    }
+
+    <span class="code-comment">// ✅ Good - Projection for list view</span>
+    [<span class="code-class">HttpGet</span>(<span class="code-string">"api/products"</span>)]
+    <span class="code-keyword">public</span> <span class="code-keyword">async</span> <span class="code-class">Task</span>&lt;<span class="code-class">IActionResult</span>&gt; <span class="code-method">GetProducts</span>()
+    {
+        <span class="code-keyword">var</span> <span class="code-variable">products</span> = <span class="code-keyword">await</span> <span class="code-variable">_context</span>.<span class="code-variable">Products</span>
+            .<span class="code-method">Select</span>(<span class="code-variable">p</span> => <span class="code-keyword">new</span>
+            {
+                <span class="code-variable">p</span>.<span class="code-variable">Id</span>,
+                <span class="code-variable">p</span>.<span class="code-variable">Name</span>,
+                <span class="code-variable">p</span>.<span class="code-variable">Price</span>,
+                <span class="code-variable">CategoryName</span> = <span class="code-variable">p</span>.<span class="code-variable">Category</span>.<span class="code-variable">Name</span>
+            })
+            .<span class="code-method">ToListAsync</span>();
+        
+        <span class="code-keyword">return</span> <span class="code-method">Ok</span>(<span class="code-variable">products</span>);
+    }
+
+    <span class="code-comment">// ✅ Good - Include for details</span>
+    [<span class="code-class">HttpGet</span>(<span class="code-string">"{id}"</span>)]
+    <span class="code-keyword">public</span> <span class="code-keyword">async</span> <span class="code-class">Task</span>&lt;<span class="code-class">IActionResult</span>&gt; <span class="code-method">Details</span>(<span class="code-type">int</span> <span class="code-variable">id</span>)
+    {
+        <span class="code-keyword">var</span> <span class="code-variable">product</span> = <span class="code-keyword">await</span> <span class="code-variable">_context</span>.<span class="code-variable">Products</span>
+            .<span class="code-method">Include</span>(<span class="code-variable">p</span> => <span class="code-variable">p</span>.<span class="code-variable">Category</span>)
+            .<span class="code-method">Include</span>(<span class="code-variable">p</span> => <span class="code-variable">p</span>.<span class="code-variable">Supplier</span>)
+            .<span class="code-method">FirstOrDefaultAsync</span>(<span class="code-variable">p</span> => <span class="code-variable">p</span>.<span class="code-variable">Id</span> == <span class="code-variable">id</span>);
+        
+        <span class="code-keyword">if</span> (<span class="code-variable">product</span> == <span class="code-keyword">null</span>)
+            <span class="code-keyword">return</span> <span class="code-method">NotFound</span>();
+        
+        <span class="code-keyword">return</span> <span class="code-method">View</span>(<span class="code-variable">product</span>);
+    }
+}</code></pre>
+
+                <h2>Key Takeaways</h2>
+
+                <ul>
+                    <li><strong>N+1 problem</strong>: Avoid lazy loading in loops</li>
+                    <li><strong>Include()</strong>: Eager load related data</li>
+                    <li><strong>ThenInclude()</strong>: Load nested relationships</li>
+                    <li><strong>Select()</strong>: Project only needed columns</li>
+                    <li><strong>AsNoTracking()</strong>: Disable tracking for read-only</li>
+                    <li><strong>Compiled queries</strong>: Pre-compile frequent queries</li>
+                </ul>
+
+                <nav class="page-nav">
+                    <a href="04-async-best-practices.html" class="prev">Async Best Practices</a>
+                    <a href="06-profiling-tools.html" class="next">Profiling Tools</a>
+                </nav>
+
+            
+        <footer class="page-footer">
+          Built with 💜 by <a href="https://akwasi.dev" target="_blank" rel="noopener noreferrer">Akwasi Adu-Kyeremeh</a> for developers who want to truly understand what they're building.
+        </footer>
+
+      </div>
+        </main>
+    </div>
+</body>
+
+</html>

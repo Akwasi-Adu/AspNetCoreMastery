@@ -1,0 +1,656 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Environments | ASP.NET Core Mastery</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;500&family=Source+Serif+4:ital,wght@0,400;0,600;1,400&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="../assets/style.css">
+</head>
+
+<body>
+    <div class="page-wrapper">
+        <aside class="sidebar">
+            <a href="../index.html" class="sidebar-logo">ASP.NET Core Mastery</a>
+            <div class="sidebar-section">Part III: ASP.NET Core Basics</div>
+            <ul class="sidebar-nav">
+                <li><a href="01-what-is-aspnetcore.html">What is ASP.NET Core?</a></li>
+                <li><a href="02-first-web-app.html">Your First Web Application</a></li>
+                <li><a href="03-program-cs-deep-dive.html">Program.cs Deep Dive</a></li>
+                <li><a href="04-configuration.html">Configuration & appsettings.json</a></li>
+                <li><a href="05-options-pattern.html">The Options Pattern</a></li>
+                <li><a href="06-environments.html" class="active">Environments</a></li>
+            </ul>
+            <div class="sidebar-section">Resources</div>
+            <ul class="sidebar-nav">
+                <li><a href="../index.html">Full Roadmap</a></li>
+            </ul>
+        </aside>
+
+        <main class="main-content">
+            <div class="content-container">
+                <nav class="breadcrumb">
+                    <a href="../index.html">Home</a>
+                    <span>→</span>
+                    <a href="01-what-is-aspnetcore.html">Part III: ASP.NET Core Basics</a>
+                    <span>→</span>
+                    Environments
+                </nav>
+
+                <div class="progress-indicator">
+                    <span>Section 6 of 6</span>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 100%"></div>
+                    </div>
+                </div>
+
+                <h1>Environments</h1>
+
+                <div class="learning-objectives">
+                    <h3>🎯 What You'll Learn</h3>
+                    <ul>
+                        <li>Understanding ASP.NET Core environments</li>
+                        <li>The ASPNETCORE_ENVIRONMENT variable</li>
+                        <li>Built-in environments: Development, Staging, Production</li>
+                        <li>Environment-specific configuration and behavior</li>
+                        <li>Detecting environments in code</li>
+                        <li>launchSettings.json explained</li>
+                        <li>Setting environments in different hosting scenarios</li>
+                        <li>Best practices for InvenTrack deployment</li>
+                    </ul>
+                </div>
+
+                <h2>What Are Environments?</h2>
+
+                <p>
+                    <strong>Environments</strong> let you configure your application differently based on where
+                    it's running. You typically have different settings, logging levels, and behaviors for
+                    development vs production.
+                </p>
+
+                <div class="callout callout-concept">
+                    <div class="callout-title">💡 Common Scenarios</div>
+                    <p>
+                        <strong>Development</strong>: Detailed logging, Swagger UI, local database<br>
+                        <strong>Staging</strong>: Production-like, but for testing before release<br>
+                        <strong>Production</strong>: Minimal logging, no debug tools, production database
+                    </p>
+                </div>
+
+                <div class="section-divider"></div>
+
+                <h2>The ASPNETCORE_ENVIRONMENT Variable</h2>
+
+                <p>
+                    ASP.NET Core determines the current environment from the
+                    <code>ASPNETCORE_ENVIRONMENT</code> environment variable.
+                </p>
+
+                <h3>Built-in Environment Names</h3>
+
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Environment</th>
+                            <th>Purpose</th>
+                            <th>Typical Use</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Development</strong></td>
+                            <td>Local development</td>
+                            <td>Your machine, detailed errors, Swagger</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Staging</strong></td>
+                            <td>Pre-production testing</td>
+                            <td>QA environment, production-like setup</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Production</strong></td>
+                            <td>Live application</td>
+                            <td>Customer-facing, optimized, secure</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="callout callout-info">
+                    <div class="callout-title">ℹ️ Custom Environments</div>
+                    <p>
+                        You can create custom environments like "Testing", "UAT", or "Demo". The names are
+                        case-insensitive but conventionally use PascalCase.
+                    </p>
+                </div>
+
+                <div class="section-divider"></div>
+
+                <h2>Setting the Environment</h2>
+
+                <h3>Method 1: launchSettings.json (Development)</h3>
+
+                <p>
+                    When running locally with <code>dotnet run</code> or Visual Studio, the environment is
+                    set in <code>Properties/launchSettings.json</code>:
+                </p>
+
+                <div class="code-header">
+                    <span class="code-filename">Properties/launchSettings.json</span>
+                    <span class="code-language">JSON</span>
+                </div>
+                <pre><code>{
+  <span class="code-string">"profiles"</span>: {
+    <span class="code-string">"http"</span>: {
+      <span class="code-string">"commandName"</span>: <span class="code-string">"Project"</span>,
+      <span class="code-string">"dotnetRunMessages"</span>: <span class="code-keyword">true</span>,
+      <span class="code-string">"launchBrowser"</span>: <span class="code-keyword">true</span>,
+      <span class="code-string">"applicationUrl"</span>: <span class="code-string">"http://localhost:5000"</span>,
+      <span class="code-string">"environmentVariables"</span>: {
+        <span class="code-string">"ASPNETCORE_ENVIRONMENT"</span>: <span class="code-string">"Development"</span>
+      }
+    },
+    <span class="code-string">"https"</span>: {
+      <span class="code-string">"commandName"</span>: <span class="code-string">"Project"</span>,
+      <span class="code-string">"dotnetRunMessages"</span>: <span class="code-keyword">true</span>,
+      <span class="code-string">"launchBrowser"</span>: <span class="code-keyword">true</span>,
+      <span class="code-string">"applicationUrl"</span>: <span class="code-string">"https://localhost:5001;http://localhost:5000"</span>,
+      <span class="code-string">"environmentVariables"</span>: {
+        <span class="code-string">"ASPNETCORE_ENVIRONMENT"</span>: <span class="code-string">"Development"</span>
+      }
+    },
+    <span class="code-string">"IIS Express"</span>: {
+      <span class="code-string">"commandName"</span>: <span class="code-string">"IISExpress"</span>,
+      <span class="code-string">"launchBrowser"</span>: <span class="code-keyword">true</span>,
+      <span class="code-string">"environmentVariables"</span>: {
+        <span class="code-string">"ASPNETCORE_ENVIRONMENT"</span>: <span class="code-string">"Development"</span>
+      }
+    }
+  }
+}</code></pre>
+
+                <div class="callout callout-warning">
+                    <div class="callout-title">⚠️ Development Only</div>
+                    <p>
+                        <code>launchSettings.json</code> is only used during local development. It's NOT deployed
+                        to production. Don't rely on it for production configuration!
+                    </p>
+                </div>
+
+                <h3>Method 2: Environment Variable (Production)</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">Windows (PowerShell)</span>
+                    <span class="code-language">PowerShell</span>
+                </div>
+                <pre><code><span class="code-comment"># Set for current session</span>
+$env:ASPNETCORE_ENVIRONMENT = <span class="code-string">"Production"</span>
+
+<span class="code-comment"># Set permanently (system-wide)</span>
+[System.Environment]::SetEnvironmentVariable(<span class="code-string">"ASPNETCORE_ENVIRONMENT"</span>, <span class="code-string">"Production"</span>, <span class="code-string">"Machine"</span>)</code></pre>
+
+                <div class="code-header">
+                    <span class="code-filename">Linux/macOS (Bash)</span>
+                    <span class="code-language">Bash</span>
+                </div>
+                <pre><code><span class="code-comment"># Set for current session</span>
+export ASPNETCORE_ENVIRONMENT=Production
+
+<span class="code-comment"># Add to ~/.bashrc for persistence</span>
+echo <span class="code-string">'export ASPNETCORE_ENVIRONMENT=Production'</span> &gt;&gt; ~/.bashrc</code></pre>
+
+                <h3>Method 3: Command Line</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">Terminal</span>
+                    <span class="code-language">Shell</span>
+                </div>
+                <pre><code><span class="code-comment"># Windows</span>
+dotnet run --environment Production
+
+<span class="code-comment"># Linux/macOS</span>
+ASPNETCORE_ENVIRONMENT=Production dotnet run</code></pre>
+
+                <h3>Method 4: Azure App Service</h3>
+
+                <p>
+                    In Azure Portal:
+                </p>
+
+                <ol>
+                    <li>Navigate to your App Service</li>
+                    <li>Go to <strong>Configuration</strong> → <strong>Application settings</strong></li>
+                    <li>Add <code>ASPNETCORE_ENVIRONMENT</code> = <code>Production</code></li>
+                    <li>Click <strong>Save</strong></li>
+                </ol>
+
+                <h3>Method 5: Docker</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">Dockerfile</span>
+                    <span class="code-language">Dockerfile</span>
+                </div>
+                <pre><code>FROM mcr.microsoft.com/dotnet/aspnet:8.0
+ENV ASPNETCORE_ENVIRONMENT=Production
+COPY . /app
+WORKDIR /app
+ENTRYPOINT ["dotnet", "InvenTrack.Api.dll"]</code></pre>
+
+                <div class="code-header">
+                    <span class="code-filename">docker-compose.yml</span>
+                    <span class="code-language">YAML</span>
+                </div>
+                <pre><code>version: '3.8'
+services:
+  api:
+    image: inventtrack-api
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+    ports:
+      - "8080:80"</code></pre>
+
+                <div class="section-divider"></div>
+
+                <h2>Detecting Environments in Code</h2>
+
+                <h3>In Program.cs</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">Program.cs</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-keyword">var</span> <span class="code-variable">builder</span> = <span class="code-class">WebApplication</span>.<span class="code-method">CreateBuilder</span>(<span class="code-variable">args</span>);
+
+<span class="code-comment">// Check environment during configuration</span>
+<span class="code-keyword">if</span> (<span class="code-variable">builder</span>.<span class="code-variable">Environment</span>.<span class="code-method">IsDevelopment</span>())
+{
+    <span class="code-variable">builder</span>.<span class="code-variable">Services</span>.<span class="code-method">AddSwaggerGen</span>();
+}
+
+<span class="code-keyword">var</span> <span class="code-variable">app</span> = <span class="code-variable">builder</span>.<span class="code-method">Build</span>();
+
+<span class="code-comment">// Check environment in middleware pipeline</span>
+<span class="code-keyword">if</span> (<span class="code-variable">app</span>.<span class="code-variable">Environment</span>.<span class="code-method">IsDevelopment</span>())
+{
+    <span class="code-variable">app</span>.<span class="code-method">UseSwagger</span>();
+    <span class="code-variable">app</span>.<span class="code-method">UseSwaggerUI</span>();
+    <span class="code-variable">app</span>.<span class="code-method">UseDeveloperExceptionPage</span>();
+}
+<span class="code-keyword">else</span>
+{
+    <span class="code-variable">app</span>.<span class="code-method">UseExceptionHandler</span>(<span class="code-string">"/error"</span>);
+    <span class="code-variable">app</span>.<span class="code-method">UseHsts</span>();
+}
+
+<span class="code-keyword">if</span> (<span class="code-variable">app</span>.<span class="code-variable">Environment</span>.<span class="code-method">IsProduction</span>())
+{
+    <span class="code-comment">// Production-only configuration</span>
+}
+
+<span class="code-keyword">if</span> (<span class="code-variable">app</span>.<span class="code-variable">Environment</span>.<span class="code-method">IsStaging</span>())
+{
+    <span class="code-comment">// Staging-only configuration</span>
+}
+
+<span class="code-keyword">if</span> (<span class="code-variable">app</span>.<span class="code-variable">Environment</span>.<span class="code-method">IsEnvironment</span>(<span class="code-string">"UAT"</span>))
+{
+    <span class="code-comment">// Custom environment</span>
+}</code></pre>
+
+                <h3>In Controllers/Services</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">ProductsController.cs</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">ProductsController</span> : <span class="code-class">ControllerBase</span>
+{
+    <span class="code-keyword">private</span> <span class="code-keyword">readonly</span> <span class="code-class">IWebHostEnvironment</span> <span class="code-variable">_environment</span>;
+
+    <span class="code-keyword">public</span> <span class="code-method">ProductsController</span>(<span class="code-class">IWebHostEnvironment</span> <span class="code-variable">environment</span>)
+    {
+        <span class="code-variable">_environment</span> = <span class="code-variable">environment</span>;
+    }
+
+    [<span class="code-class">HttpGet</span>(<span class="code-string">"info"</span>)]
+    <span class="code-keyword">public</span> <span class="code-class">IActionResult</span> <span class="code-method">GetInfo</span>()
+    {
+        <span class="code-keyword">return</span> <span class="code-method">Ok</span>(<span class="code-keyword">new</span>
+        {
+            <span class="code-variable">Environment</span> = <span class="code-variable">_environment</span>.<span class="code-variable">EnvironmentName</span>,
+            <span class="code-variable">IsDevelopment</span> = <span class="code-variable">_environment</span>.<span class="code-method">IsDevelopment</span>(),
+            <span class="code-variable">ContentRootPath</span> = <span class="code-variable">_environment</span>.<span class="code-variable">ContentRootPath</span>,
+            <span class="code-variable">WebRootPath</span> = <span class="code-variable">_environment</span>.<span class="code-variable">WebRootPath</span>
+        });
+    }
+}</code></pre>
+
+                <h3>Available Methods</h3>
+
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Method</th>
+                            <th>Returns True When</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><code>IsDevelopment()</code></td>
+                            <td>Environment is "Development"</td>
+                        </tr>
+                        <tr>
+                            <td><code>IsStaging()</code></td>
+                            <td>Environment is "Staging"</td>
+                        </tr>
+                        <tr>
+                            <td><code>IsProduction()</code></td>
+                            <td>Environment is "Production"</td>
+                        </tr>
+                        <tr>
+                            <td><code>IsEnvironment("UAT")</code></td>
+                            <td>Environment matches the string (case-insensitive)</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="section-divider"></div>
+
+                <h2>Environment-Specific Configuration Files</h2>
+
+                <p>
+                    ASP.NET Core automatically loads environment-specific configuration:
+                </p>
+
+                <div class="code-header">
+                    <span class="code-filename">Configuration Loading Order</span>
+                    <span class="code-language">Text</span>
+                </div>
+                <pre><code>1. appsettings.json
+2. appsettings.{Environment}.json  <span class="code-comment">(overrides #1)</span>
+3. User Secrets (Development only)
+4. Environment Variables             <span class="code-comment">(overrides #1-3)</span>
+5. Command-line arguments            <span class="code-comment">(overrides #1-4)</span></code></pre>
+
+                <h3>Example: Different Database per Environment</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">appsettings.json (Base)</span>
+                    <span class="code-language">JSON</span>
+                </div>
+                <pre><code>{
+  <span class="code-string">"ConnectionStrings"</span>: {
+    <span class="code-string">"DefaultConnection"</span>: <span class="code-string">"Server=localhost;Database=InvenTrack;..."</span>
+  },
+  <span class="code-string">"Logging"</span>: {
+    <span class="code-string">"LogLevel"</span>: {
+      <span class="code-string">"Default"</span>: <span class="code-string">"Information"</span>
+    }
+  }
+}</code></pre>
+
+                <div class="code-header">
+                    <span class="code-filename">appsettings.Development.json</span>
+                    <span class="code-language">JSON</span>
+                </div>
+                <pre><code>{
+  <span class="code-string">"ConnectionStrings"</span>: {
+    <span class="code-string">"DefaultConnection"</span>: <span class="code-string">"Server=localhost;Database=InvenTrack_Dev;..."</span>
+  },
+  <span class="code-string">"Logging"</span>: {
+    <span class="code-string">"LogLevel"</span>: {
+      <span class="code-string">"Default"</span>: <span class="code-string">"Debug"</span>,
+      <span class="code-string">"Microsoft.EntityFrameworkCore"</span>: <span class="code-string">"Information"</span>
+    }
+  }
+}</code></pre>
+
+                <div class="code-header">
+                    <span class="code-filename">appsettings.Production.json</span>
+                    <span class="code-language">JSON</span>
+                </div>
+                <pre><code>{
+  <span class="code-comment">// Connection string set via environment variable</span>
+  <span class="code-string">"Logging"</span>: {
+    <span class="code-string">"LogLevel"</span>: {
+      <span class="code-string">"Default"</span>: <span class="code-string">"Warning"</span>,
+      <span class="code-string">"Microsoft.AspNetCore"</span>: <span class="code-string">"Error"</span>
+    }
+  }
+}</code></pre>
+
+                <div class="section-divider"></div>
+
+                <h2>Environment-Specific Behavior</h2>
+
+                <h3>Development Environment</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">Development Features</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-keyword">if</span> (<span class="code-variable">app</span>.<span class="code-variable">Environment</span>.<span class="code-method">IsDevelopment</span>())
+{
+    <span class="code-comment">// Detailed error pages</span>
+    <span class="code-variable">app</span>.<span class="code-method">UseDeveloperExceptionPage</span>();
+    
+    <span class="code-comment">// Swagger UI for API testing</span>
+    <span class="code-variable">app</span>.<span class="code-method">UseSwagger</span>();
+    <span class="code-variable">app</span>.<span class="code-method">UseSwaggerUI</span>();
+    
+    <span class="code-comment">// Database error page</span>
+    <span class="code-variable">app</span>.<span class="code-method">UseDatabaseErrorPage</span>();
+    
+    <span class="code-comment">// Seed test data</span>
+    <span class="code-keyword">using</span> (<span class="code-keyword">var</span> <span class="code-variable">scope</span> = <span class="code-variable">app</span>.<span class="code-variable">Services</span>.<span class="code-method">CreateScope</span>())
+    {
+        <span class="code-keyword">var</span> <span class="code-variable">seeder</span> = <span class="code-variable">scope</span>.<span class="code-variable">ServiceProvider</span>.<span class="code-method">GetRequiredService</span>&lt;<span class="code-class">DataSeeder</span>&gt;();
+        <span class="code-keyword">await</span> <span class="code-variable">seeder</span>.<span class="code-method">SeedAsync</span>();
+    }
+}</code></pre>
+
+                <h3>Production Environment</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">Production Features</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-keyword">if</span> (<span class="code-variable">app</span>.<span class="code-variable">Environment</span>.<span class="code-method">IsProduction</span>())
+{
+    <span class="code-comment">// Generic error handler</span>
+    <span class="code-variable">app</span>.<span class="code-method">UseExceptionHandler</span>(<span class="code-string">"/error"</span>);
+    
+    <span class="code-comment">// HSTS (HTTP Strict Transport Security)</span>
+    <span class="code-variable">app</span>.<span class="code-method">UseHsts</span>();
+    
+    <span class="code-comment">// Response compression</span>
+    <span class="code-variable">app</span>.<span class="code-method">UseResponseCompression</span>();
+    
+    <span class="code-comment">// Response caching</span>
+    <span class="code-variable">app</span>.<span class="code-method">UseResponseCaching</span>();
+}</code></pre>
+
+                <div class="section-divider"></div>
+
+                <h2>Complete InvenTrack Example</h2>
+
+                <div class="code-header">
+                    <span class="code-filename">Program.cs (Full Example)</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-keyword">var</span> <span class="code-variable">builder</span> = <span class="code-class">WebApplication</span>.<span class="code-method">CreateBuilder</span>(<span class="code-variable">args</span>);
+
+<span class="code-comment">// Services configuration</span>
+<span class="code-variable">builder</span>.<span class="code-variable">Services</span>.<span class="code-method">AddControllers</span>();
+
+<span class="code-comment">// Database - connection string varies by environment</span>
+<span class="code-variable">builder</span>.<span class="code-variable">Services</span>.<span class="code-method">AddDbContext</span>&lt;<span class="code-class">InvenTrackDbContext</span>&gt;(<span class="code-variable">options</span> =&gt;
+    <span class="code-variable">options</span>.<span class="code-method">UseSqlServer</span>(<span class="code-variable">builder</span>.<span class="code-variable">Configuration</span>.<span class="code-method">GetConnectionString</span>(<span class="code-string">"DefaultConnection"</span>)));
+
+<span class="code-comment">// Development-only services</span>
+<span class="code-keyword">if</span> (<span class="code-variable">builder</span>.<span class="code-variable">Environment</span>.<span class="code-method">IsDevelopment</span>())
+{
+    <span class="code-variable">builder</span>.<span class="code-variable">Services</span>.<span class="code-method">AddEndpointsApiExplorer</span>();
+    <span class="code-variable">builder</span>.<span class="code-variable">Services</span>.<span class="code-method">AddSwaggerGen</span>();
+}
+
+<span class="code-comment">// Production-only services</span>
+<span class="code-keyword">if</span> (<span class="code-variable">builder</span>.<span class="code-variable">Environment</span>.<span class="code-method">IsProduction</span>())
+{
+    <span class="code-variable">builder</span>.<span class="code-variable">Services</span>.<span class="code-method">AddResponseCompression</span>();
+    <span class="code-variable">builder</span>.<span class="code-variable">Services</span>.<span class="code-method">AddResponseCaching</span>();
+}
+
+<span class="code-keyword">var</span> <span class="code-variable">app</span> = <span class="code-variable">builder</span>.<span class="code-method">Build</span>();
+
+<span class="code-comment">// Middleware pipeline</span>
+<span class="code-keyword">if</span> (<span class="code-variable">app</span>.<span class="code-variable">Environment</span>.<span class="code-method">IsDevelopment</span>())
+{
+    <span class="code-variable">app</span>.<span class="code-method">UseSwagger</span>();
+    <span class="code-variable">app</span>.<span class="code-method">UseSwaggerUI</span>();
+    <span class="code-variable">app</span>.<span class="code-method">UseDeveloperExceptionPage</span>();
+}
+<span class="code-keyword">else</span>
+{
+    <span class="code-variable">app</span>.<span class="code-method">UseExceptionHandler</span>(<span class="code-string">"/error"</span>);
+    <span class="code-variable">app</span>.<span class="code-method">UseHsts</span>();
+}
+
+<span class="code-keyword">if</span> (<span class="code-variable">app</span>.<span class="code-variable">Environment</span>.<span class="code-method">IsProduction</span>())
+{
+    <span class="code-variable">app</span>.<span class="code-method">UseResponseCompression</span>();
+    <span class="code-variable">app</span>.<span class="code-method">UseResponseCaching</span>();
+}
+
+<span class="code-variable">app</span>.<span class="code-method">UseHttpsRedirection</span>();
+<span class="code-variable">app</span>.<span class="code-method">UseAuthentication</span>();
+<span class="code-variable">app</span>.<span class="code-method">UseAuthorization</span>();
+<span class="code-variable">app</span>.<span class="code-method">MapControllers</span>();
+
+<span class="code-variable">app</span>.<span class="code-method">Run</span>();</code></pre>
+
+                <div class="section-divider"></div>
+
+                <h2>Best Practices</h2>
+
+                <h3>1. Use Environment-Specific Configuration Files</h3>
+
+                <ul>
+                    <li><code>appsettings.json</code> - Shared defaults</li>
+                    <li><code>appsettings.Development.json</code> - Dev overrides (commit to Git)</li>
+                    <li><code>appsettings.Production.json</code> - Minimal, no secrets (commit to Git)</li>
+                </ul>
+
+                <h3>2. Never Hardcode Environment Names</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">❌ Bad</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-keyword">if</span> (<span class="code-variable">app</span>.<span class="code-variable">Environment</span>.<span class="code-variable">EnvironmentName</span> == <span class="code-string">"Development"</span>) { ... }</code></pre>
+
+                <div class="code-header">
+                    <span class="code-filename">✅ Good</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-keyword">if</span> (<span class="code-variable">app</span>.<span class="code-variable">Environment</span>.<span class="code-method">IsDevelopment</span>()) { ... }</code></pre>
+
+                <h3>3. Default to Production</h3>
+
+                <p>
+                    If <code>ASPNETCORE_ENVIRONMENT</code> is not set, ASP.NET Core defaults to
+                    <strong>Production</strong>. This is a safety feature—better to be too restrictive than
+                    too permissive.
+                </p>
+
+                <h3>4. Use User Secrets in Development</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">Terminal</span>
+                    <span class="code-language">Shell</span>
+                </div>
+                <pre><code>dotnet user-secrets set <span class="code-string">"ConnectionStrings:DefaultConnection"</span> <span class="code-string">"Server=localhost;..."</span></code></pre>
+
+                <h3>5. Use Environment Variables in Production</h3>
+
+                <p>
+                    Set sensitive values (connection strings, API keys) via environment variables, not in
+                    configuration files.
+                </p>
+
+                <h3>6. Validate Environment-Specific Configuration</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">Validation</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-keyword">if</span> (<span class="code-variable">app</span>.<span class="code-variable">Environment</span>.<span class="code-method">IsProduction</span>())
+{
+    <span class="code-keyword">var</span> <span class="code-variable">connString</span> = <span class="code-variable">builder</span>.<span class="code-variable">Configuration</span>.<span class="code-method">GetConnectionString</span>(<span class="code-string">"DefaultConnection"</span>);
+    <span class="code-keyword">if</span> (<span class="code-type">string</span>.<span class="code-method">IsNullOrEmpty</span>(<span class="code-variable">connString</span>))
+    {
+        <span class="code-keyword">throw</span> <span class="code-keyword">new</span> <span class="code-class">InvalidOperationException</span>(<span class="code-string">"Production connection string not configured"</span>);
+    }
+}</code></pre>
+
+                <h2>Key Takeaways</h2>
+
+                <ul>
+                    <li><strong>Environments</strong> let you configure apps differently per deployment</li>
+                    <li>Set via <code>ASPNETCORE_ENVIRONMENT</code> environment variable</li>
+                    <li>Built-in: <strong>Development</strong>, <strong>Staging</strong>, <strong>Production</strong>
+                    </li>
+                    <li><code>launchSettings.json</code> sets environment for local development</li>
+                    <li>Detect with <code>IsDevelopment()</code>, <code>IsProduction()</code>, <code>IsStaging()</code>
+                    </li>
+                    <li>Inject <code>IWebHostEnvironment</code> to check environment in services</li>
+                    <li><code>appsettings.{Environment}.json</code> overrides base settings</li>
+                    <li>Configuration precedence: JSON → User Secrets → Env Vars → Command Line</li>
+                    <li><strong>Default is Production</strong> if not set (safety feature)</li>
+                    <li>Use <strong>User Secrets</strong> for development, <strong>Environment Variables</strong> for
+                        production</li>
+                    <li>Enable different features per environment (Swagger in Dev, HSTS in Prod)</li>
+                    <li>Validate critical configuration at startup</li>
+                </ul>
+
+                <div class="callout callout-concept">
+                    <div class="callout-title">🎉 Part III Complete!</div>
+                    <p>
+                        Congratulations! You've completed <strong>Part III: ASP.NET Core Basics</strong>. You now
+                        understand:
+                    </p>
+                    <ul>
+                        <li>✅ What ASP.NET Core is and its architecture</li>
+                        <li>✅ Building your first Web API</li>
+                        <li>✅ Program.cs and the middleware pipeline</li>
+                        <li>✅ Configuration with appsettings.json</li>
+                        <li>✅ The Options Pattern for strongly-typed config</li>
+                        <li>✅ Managing different environments</li>
+                    </ul>
+                    <p>
+                        <strong>Next up</strong>: Part IV will dive into <strong>Dependency Injection</strong>—
+                        understanding service lifetimes, registering services, and building testable, maintainable
+                        applications. The journey to building InvenTrack continues! 🚀
+                    </p>
+                </div>
+
+                <nav class="page-nav">
+                    <a href="05-options-pattern.html" class="prev">The Options Pattern</a>
+                    <a href="../index.html" class="next">Back to Roadmap</a>
+                </nav>
+
+            
+        <footer class="page-footer">
+          Built with 💜 by <a href="https://akwasi.dev" target="_blank" rel="noopener noreferrer">Akwasi Adu-Kyeremeh</a> for developers who want to truly understand what they're building.
+        </footer>
+
+      </div>
+        </main>
+    </div>
+</body>
+
+</html>

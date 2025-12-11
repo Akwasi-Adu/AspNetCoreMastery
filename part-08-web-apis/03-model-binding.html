@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Model Binding | ASP.NET Core Mastery</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;500&family=Source+Serif+4:ital,wght@0,400;0,600;1,400&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="../assets/style.css">
+</head>
+
+<body>
+    <div class="page-wrapper">
+        <aside class="sidebar">
+            <a href="../index.html" class="sidebar-logo">ASP.NET Core Mastery</a>
+            <div class="sidebar-section">Part VIII: Building Web APIs</div>
+            <ul class="sidebar-nav">
+                <li><a href="01-restful-principles.html">RESTful Principles</a></li>
+                <li><a href="02-api-controllers.html">API Controllers</a></li>
+                <li><a href="03-model-binding.html" class="active">Model Binding</a></li>
+                <li><a href="04-validation.html">Validation</a></li>
+                <li><a href="05-minimal-apis.html">Minimal APIs</a></li>
+                <li><a href="06-dtos-automapper.html">DTOs and AutoMapper</a></li>
+                <li><a href="07-api-versioning.html">API Versioning</a></li>
+            </ul>
+            <div class="sidebar-section">Resources</div>
+            <ul class="sidebar-nav">
+                <li><a href="../index.html">Full Roadmap</a></li>
+            </ul>
+        </aside>
+
+        <main class="main-content">
+            <div class="content-container">
+                <nav class="breadcrumb">
+                    <a href="../index.html">Home</a>
+                    <span>→</span>
+                    <a href="01-restful-principles.html">Part VIII: Building Web APIs</a>
+                    <span>→</span>
+                    Model Binding
+                </nav>
+
+                <div class="progress-indicator">
+                    <span>Section 3 of 7</span>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 42.86%"></div>
+                    </div>
+                </div>
+
+                <h1>Model Binding</h1>
+
+                <div class="learning-objectives">
+                    <h3>🎯 What You'll Learn</h3>
+                    <ul>
+                        <li>What model binding is</li>
+                        <li>Binding sources ([FromBody], [FromRoute], etc.)</li>
+                        <li>Automatic binding inference</li>
+                        <li>Complex type binding</li>
+                        <li>Custom model binding</li>
+                        <li>Best practices</li>
+                    </ul>
+                </div>
+
+                <h2>What is Model Binding?</h2>
+
+                <p>
+                    <strong>Model binding</strong> automatically maps HTTP request data to action method parameters.
+                </p>
+
+                <div class="code-header">
+                    <span class="code-filename">Model Binding Flow</span>
+                    <span class="code-language">Text</span>
+                </div>
+                <pre><code>HTTP Request
+    ↓
+Model Binding
+    ↓
+Action Method Parameters</code></pre>
+
+                <div class="section-divider"></div>
+
+                <h2>Binding Sources</h2>
+
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Attribute</th>
+                            <th>Source</th>
+                            <th>Example</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><code>[FromRoute]</code></td>
+                            <td>URL path</td>
+                            <td><code>/api/products/123</code></td>
+                        </tr>
+                        <tr>
+                            <td><code>[FromQuery]</code></td>
+                            <td>Query string</td>
+                            <td><code>?page=1&pageSize=20</code></td>
+                        </tr>
+                        <tr>
+                            <td><code>[FromBody]</code></td>
+                            <td>Request body</td>
+                            <td>JSON/XML payload</td>
+                        </tr>
+                        <tr>
+                            <td><code>[FromHeader]</code></td>
+                            <td>HTTP headers</td>
+                            <td><code>X-API-Key: abc123</code></td>
+                        </tr>
+                        <tr>
+                            <td><code>[FromForm]</code></td>
+                            <td>Form data</td>
+                            <td>HTML form submission</td>
+                        </tr>
+                        <tr>
+                            <td><code>[FromServices]</code></td>
+                            <td>DI container</td>
+                            <td>Injected services</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="section-divider"></div>
+
+                <h2>[FromRoute] - URL Parameters</h2>
+
+                <div class="code-header">
+                    <span class="code-filename">Route Parameters</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-comment">// GET /api/products/123</span>
+[<span class="code-class">HttpGet</span>(<span class="code-string">"{id}"</span>)]
+<span class="code-keyword">public</span> <span class="code-class">ActionResult</span>&lt;<span class="code-class">Product</span>&gt; <span class="code-method">GetProduct</span>([<span class="code-class">FromRoute</span>] <span class="code-type">int</span> <span class="code-variable">id</span>)
+{
+    <span class="code-comment">// id = 123</span>
+}
+
+<span class="code-comment">// Multiple route parameters</span>
+<span class="code-comment">// GET /api/customers/456/orders/789</span>
+[<span class="code-class">HttpGet</span>(<span class="code-string">"{customerId}/orders/{orderId}"</span>)]
+<span class="code-keyword">public</span> <span class="code-class">ActionResult</span> <span class="code-method">GetOrder</span>(
+    [<span class="code-class">FromRoute</span>] <span class="code-type">int</span> <span class="code-variable">customerId</span>,
+    [<span class="code-class">FromRoute</span>] <span class="code-type">int</span> <span class="code-variable">orderId</span>)
+{
+    <span class="code-comment">// customerId = 456, orderId = 789</span>
+}</code></pre>
+
+                <div class="section-divider"></div>
+
+                <h2>[FromQuery] - Query String</h2>
+
+                <div class="code-header">
+                    <span class="code-filename">Query Parameters</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-comment">// GET /api/products?page=1&pageSize=20&category=electronics</span>
+[<span class="code-class">HttpGet</span>]
+<span class="code-keyword">public</span> <span class="code-class">ActionResult</span> <span class="code-method">GetProducts</span>(
+    [<span class="code-class">FromQuery</span>] <span class="code-type">int</span> <span class="code-variable">page</span> = <span class="code-number">1</span>,
+    [<span class="code-class">FromQuery</span>] <span class="code-type">int</span> <span class="code-variable">pageSize</span> = <span class="code-number">20</span>,
+    [<span class="code-class">FromQuery</span>] <span class="code-type">string</span>? <span class="code-variable">category</span> = <span class="code-keyword">null</span>)
+{
+    <span class="code-comment">// page = 1, pageSize = 20, category = "electronics"</span>
+}
+
+<span class="code-comment">// Complex query object</span>
+<span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">ProductFilter</span>
+{
+    <span class="code-keyword">public</span> <span class="code-type">string</span>? <span class="code-variable">Category</span> { <span class="code-keyword">get</span>; <span class="code-keyword">set</span>; }
+    <span class="code-keyword">public</span> <span class="code-type">decimal</span>? <span class="code-variable">MinPrice</span> { <span class="code-keyword">get</span>; <span class="code-keyword">set</span>; }
+    <span class="code-keyword">public</span> <span class="code-type">decimal</span>? <span class="code-variable">MaxPrice</span> { <span class="code-keyword">get</span>; <span class="code-keyword">set</span>; }
+    <span class="code-keyword">public</span> <span class="code-type">bool</span>? <span class="code-variable">InStock</span> { <span class="code-keyword">get</span>; <span class="code-keyword">set</span>; }
+}
+
+<span class="code-comment">// GET /api/products?category=electronics&minPrice=100&maxPrice=500</span>
+[<span class="code-class">HttpGet</span>]
+<span class="code-keyword">public</span> <span class="code-class">ActionResult</span> <span class="code-method">GetProducts</span>([<span class="code-class">FromQuery</span>] <span class="code-class">ProductFilter</span> <span class="code-variable">filter</span>)
+{
+    <span class="code-comment">// filter.Category = "electronics"</span>
+    <span class="code-comment">// filter.MinPrice = 100</span>
+    <span class="code-comment">// filter.MaxPrice = 500</span>
+}</code></pre>
+
+                <div class="section-divider"></div>
+
+                <h2>[FromBody] - Request Body</h2>
+
+                <div class="code-header">
+                    <span class="code-filename">JSON Body</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-comment">// POST /api/products</span>
+<span class="code-comment">// Body: { "name": "Laptop", "price": 999.99 }</span>
+[<span class="code-class">HttpPost</span>]
+<span class="code-keyword">public</span> <span class="code-class">ActionResult</span> <span class="code-method">CreateProduct</span>([<span class="code-class">FromBody</span>] <span class="code-class">CreateProductDto</span> <span class="code-variable">dto</span>)
+{
+    <span class="code-comment">// dto.Name = "Laptop"</span>
+    <span class="code-comment">// dto.Price = 999.99</span>
+}
+
+<span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">CreateProductDto</span>
+{
+    <span class="code-keyword">public</span> <span class="code-type">string</span> <span class="code-variable">Name</span> { <span class="code-keyword">get</span>; <span class="code-keyword">set</span>; } = <span class="code-keyword">string</span>.<span class="code-variable">Empty</span>;
+    <span class="code-keyword">public</span> <span class="code-type">decimal</span> <span class="code-variable">Price</span> { <span class="code-keyword">get</span>; <span class="code-keyword">set</span>; }
+    <span class="code-keyword">public</span> <span class="code-type">string</span>? <span class="code-variable">Description</span> { <span class="code-keyword">get</span>; <span class="code-keyword">set</span>; }
+}</code></pre>
+
+                <div class="callout callout-warning">
+                    <div class="callout-title">⚠️ One [FromBody] Per Action</div>
+                    <p>
+                        You can only have <strong>one</strong> <code>[FromBody]</code> parameter per action.
+                        The entire request body is deserialized into that parameter.
+                    </p>
+                </div>
+
+                <div class="section-divider"></div>
+
+                <h2>[FromHeader] - HTTP Headers</h2>
+
+                <div class="code-header">
+                    <span class="code-filename">Header Parameters</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-comment">// GET /api/products</span>
+<span class="code-comment">// Headers: X-API-Key: abc123</span>
+[<span class="code-class">HttpGet</span>]
+<span class="code-keyword">public</span> <span class="code-class">ActionResult</span> <span class="code-method">GetProducts</span>(
+    [<span class="code-class">FromHeader</span>(<span class="code-variable">Name</span> = <span class="code-string">"X-API-Key"</span>)] <span class="code-type">string</span> <span class="code-variable">apiKey</span>)
+{
+    <span class="code-comment">// apiKey = "abc123"</span>
+}
+
+<span class="code-comment">// Multiple headers</span>
+[<span class="code-class">HttpGet</span>]
+<span class="code-keyword">public</span> <span class="code-class">ActionResult</span> <span class="code-method">GetProducts</span>(
+    [<span class="code-class">FromHeader</span>(<span class="code-variable">Name</span> = <span class="code-string">"X-API-Key"</span>)] <span class="code-type">string</span> <span class="code-variable">apiKey</span>,
+    [<span class="code-class">FromHeader</span>(<span class="code-variable">Name</span> = <span class="code-string">"X-Correlation-Id"</span>)] <span class="code-type">string</span>? <span class="code-variable">correlationId</span> = <span class="code-keyword">null</span>)
+{
+}</code></pre>
+
+                <div class="section-divider"></div>
+
+                <h2>Automatic Binding Inference</h2>
+
+                <p>
+                    With <code>[ApiController]</code>, ASP.NET Core automatically infers binding sources:
+                </p>
+
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Parameter Type</th>
+                            <th>Inferred Source</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Route parameter</td>
+                            <td>[FromRoute]</td>
+                        </tr>
+                        <tr>
+                            <td>Simple type (int, string, etc.)</td>
+                            <td>[FromQuery]</td>
+                        </tr>
+                        <tr>
+                            <td>Complex type</td>
+                            <td>[FromBody]</td>
+                        </tr>
+                        <tr>
+                            <td>IFormFile, IFormFileCollection</td>
+                            <td>[FromForm]</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="code-header">
+                    <span class="code-filename">Automatic Inference</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code>[<span class="code-class">ApiController</span>]
+[<span class="code-class">Route</span>(<span class="code-string">"api/[controller]"</span>)]
+<span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">ProductsController</span> : <span class="code-class">ControllerBase</span>
+{
+    <span class="code-comment">// GET /api/products/123?includeDetails=true</span>
+    [<span class="code-class">HttpGet</span>(<span class="code-string">"{id}"</span>)]
+    <span class="code-keyword">public</span> <span class="code-class">ActionResult</span> <span class="code-method">GetProduct</span>(
+        <span class="code-type">int</span> <span class="code-variable">id</span>,                    <span class="code-comment">// [FromRoute] inferred</span>
+        <span class="code-type">bool</span> <span class="code-variable">includeDetails</span> = <span class="code-keyword">false</span>) <span class="code-comment">// [FromQuery] inferred</span>
+    {
+    }
+
+    <span class="code-comment">// POST /api/products</span>
+    [<span class="code-class">HttpPost</span>]
+    <span class="code-keyword">public</span> <span class="code-class">ActionResult</span> <span class="code-method">CreateProduct</span>(
+        <span class="code-class">CreateProductDto</span> <span class="code-variable">dto</span>) <span class="code-comment">// [FromBody] inferred (complex type)</span>
+    {
+    }
+}</code></pre>
+
+                <div class="section-divider"></div>
+
+                <h2>Combining Multiple Sources</h2>
+
+                <div class="code-header">
+                    <span class="code-filename">Multiple Binding Sources</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-comment">// PUT /api/products/123?notify=true</span>
+<span class="code-comment">// Body: { "name": "Updated Laptop", "price": 1099.99 }</span>
+[<span class="code-class">HttpPut</span>(<span class="code-string">"{id}"</span>)]
+<span class="code-keyword">public</span> <span class="code-class">ActionResult</span> <span class="code-method">UpdateProduct</span>(
+    [<span class="code-class">FromRoute</span>] <span class="code-type">int</span> <span class="code-variable">id</span>,              <span class="code-comment">// From URL</span>
+    [<span class="code-class">FromBody</span>] <span class="code-class">UpdateProductDto</span> <span class="code-variable">dto</span>, <span class="code-comment">// From body</span>
+    [<span class="code-class">FromQuery</span>] <span class="code-type">bool</span> <span class="code-variable">notify</span> = <span class="code-keyword">false</span>) <span class="code-comment">// From query</span>
+{
+    <span class="code-comment">// id = 123, dto = {...}, notify = true</span>
+}</code></pre>
+
+                <div class="section-divider"></div>
+
+                <h2>Complete InvenTrack Example</h2>
+
+                <div class="code-header">
+                    <span class="code-filename">Controllers/ProductsController.cs</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code>[<span class="code-class">ApiController</span>]
+[<span class="code-class">Route</span>(<span class="code-string">"api/[controller]"</span>)]
+<span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">ProductsController</span> : <span class="code-class">ControllerBase</span>
+{
+    <span class="code-comment">// GET /api/products?page=1&pageSize=20&category=electronics</span>
+    [<span class="code-class">HttpGet</span>]
+    <span class="code-keyword">public</span> <span class="code-class">ActionResult</span> <span class="code-method">GetProducts</span>([<span class="code-class">FromQuery</span>] <span class="code-class">ProductFilter</span> <span class="code-variable">filter</span>)
+    {
+        <span class="code-keyword">return</span> <span class="code-method">Ok</span>(<span class="code-keyword">new</span> { <span class="code-variable">filter</span> });
+    }
+
+    <span class="code-comment">// GET /api/products/123</span>
+    [<span class="code-class">HttpGet</span>(<span class="code-string">"{id}"</span>)]
+    <span class="code-keyword">public</span> <span class="code-class">ActionResult</span> <span class="code-method">GetProduct</span>(<span class="code-type">int</span> <span class="code-variable">id</span>) <span class="code-comment">// [FromRoute] inferred</span>
+    {
+        <span class="code-keyword">return</span> <span class="code-method">Ok</span>(<span class="code-keyword">new</span> { <span class="code-variable">id</span> });
+    }
+
+    <span class="code-comment">// POST /api/products</span>
+    <span class="code-comment">// Body: { "name": "Laptop", "price": 999.99 }</span>
+    [<span class="code-class">HttpPost</span>]
+    <span class="code-keyword">public</span> <span class="code-class">ActionResult</span> <span class="code-method">CreateProduct</span>(
+        <span class="code-class">CreateProductDto</span> <span class="code-variable">dto</span>) <span class="code-comment">// [FromBody] inferred</span>
+    {
+        <span class="code-keyword">return</span> <span class="code-method">CreatedAtAction</span>(<span class="code-keyword">nameof</span>(<span class="code-method">GetProduct</span>), <span class="code-keyword">new</span> { <span class="code-variable">id</span> = <span class="code-number">123</span> }, <span class="code-variable">dto</span>);
+    }
+
+    <span class="code-comment">// PUT /api/products/123?notify=true</span>
+    <span class="code-comment">// Body: { "name": "Updated", "price": 1099.99 }</span>
+    [<span class="code-class">HttpPut</span>(<span class="code-string">"{id}"</span>)]
+    <span class="code-keyword">public</span> <span class="code-class">ActionResult</span> <span class="code-method">UpdateProduct</span>(
+        <span class="code-type">int</span> <span class="code-variable">id</span>,                          <span class="code-comment">// [FromRoute] inferred</span>
+        <span class="code-class">UpdateProductDto</span> <span class="code-variable">dto</span>,           <span class="code-comment">// [FromBody] inferred</span>
+        <span class="code-type">bool</span> <span class="code-variable">notify</span> = <span class="code-keyword">false</span>)            <span class="code-comment">// [FromQuery] inferred</span>
+    {
+        <span class="code-keyword">return</span> <span class="code-method">NoContent</span>();
+    }
+
+    <span class="code-comment">// DELETE /api/products/123</span>
+    <span class="code-comment">// Headers: X-API-Key: abc123</span>
+    [<span class="code-class">HttpDelete</span>(<span class="code-string">"{id}"</span>)]
+    <span class="code-keyword">public</span> <span class="code-class">ActionResult</span> <span class="code-method">DeleteProduct</span>(
+        <span class="code-type">int</span> <span class="code-variable">id</span>,
+        [<span class="code-class">FromHeader</span>(<span class="code-variable">Name</span> = <span class="code-string">"X-API-Key"</span>)] <span class="code-type">string</span> <span class="code-variable">apiKey</span>)
+    {
+        <span class="code-keyword">return</span> <span class="code-method">NoContent</span>();
+    }
+}
+
+<span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">ProductFilter</span>
+{
+    <span class="code-keyword">public</span> <span class="code-type">int</span> <span class="code-variable">Page</span> { <span class="code-keyword">get</span>; <span class="code-keyword">set</span>; } = <span class="code-number">1</span>;
+    <span class="code-keyword">public</span> <span class="code-type">int</span> <span class="code-variable">PageSize</span> { <span class="code-keyword">get</span>; <span class="code-keyword">set</span>; } = <span class="code-number">20</span>;
+    <span class="code-keyword">public</span> <span class="code-type">string</span>? <span class="code-variable">Category</span> { <span class="code-keyword">get</span>; <span class="code-keyword">set</span>; }
+    <span class="code-keyword">public</span> <span class="code-type">decimal</span>? <span class="code-variable">MinPrice</span> { <span class="code-keyword">get</span>; <span class="code-keyword">set</span>; }
+    <span class="code-keyword">public</span> <span class="code-type">decimal</span>? <span class="code-variable">MaxPrice</span> { <span class="code-keyword">get</span>; <span class="code-keyword">set</span>; }
+}
+
+<span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">CreateProductDto</span>
+{
+    <span class="code-keyword">public</span> <span class="code-type">string</span> <span class="code-variable">Name</span> { <span class="code-keyword">get</span>; <span class="code-keyword">set</span>; } = <span class="code-keyword">string</span>.<span class="code-variable">Empty</span>;
+    <span class="code-keyword">public</span> <span class="code-type">decimal</span> <span class="code-variable">Price</span> { <span class="code-keyword">get</span>; <span class="code-keyword">set</span>; }
+    <span class="code-keyword">public</span> <span class="code-type">string</span>? <span class="code-variable">Description</span> { <span class="code-keyword">get</span>; <span class="code-keyword">set</span>; }
+}
+
+<span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">UpdateProductDto</span>
+{
+    <span class="code-keyword">public</span> <span class="code-type">string</span> <span class="code-variable">Name</span> { <span class="code-keyword">get</span>; <span class="code-keyword">set</span>; } = <span class="code-keyword">string</span>.<span class="code-variable">Empty</span>;
+    <span class="code-keyword">public</span> <span class="code-type">decimal</span> <span class="code-variable">Price</span> { <span class="code-keyword">get</span>; <span class="code-keyword">set</span>; }
+}</code></pre>
+
+                <h2>Best Practices</h2>
+
+                <ul>
+                    <li><strong>Be explicit</strong>: Use binding attributes for clarity</li>
+                    <li><strong>One [FromBody]</strong>: Only one per action</li>
+                    <li><strong>Use DTOs</strong>: Don't bind directly to domain models</li>
+                    <li><strong>Optional parameters</strong>: Use nullable types or default values</li>
+                    <li><strong>Complex queries</strong>: Use query objects instead of many parameters</li>
+                    <li><strong>Validation</strong>: Always validate bound data</li>
+                    <li><strong>Naming</strong>: Match property names to query/form field names</li>
+                </ul>
+
+                <h2>Key Takeaways</h2>
+
+                <ul>
+                    <li><strong>Model binding</strong>: Maps request data to parameters</li>
+                    <li><strong>[FromRoute]</strong>: URL path parameters</li>
+                    <li><strong>[FromQuery]</strong>: Query string parameters</li>
+                    <li><strong>[FromBody]</strong>: Request body (JSON/XML)</li>
+                    <li><strong>[FromHeader]</strong>: HTTP headers</li>
+                    <li><strong>[FromForm]</strong>: Form data</li>
+                    <li><strong>Automatic inference</strong>: [ApiController] infers sources</li>
+                    <li><strong>Complex types</strong>: Automatically bound from body</li>
+                    <li><strong>Simple types</strong>: Automatically bound from query</li>
+                </ul>
+
+                <div class="callout callout-concept">
+                    <div class="callout-title">🎯 Next Steps</div>
+                    <p>
+                        You now understand model binding! In the next section, we'll explore
+                        <strong>Validation</strong>—how to validate bound data using Data Annotations,
+                        FluentValidation, and custom validators.
+                    </p>
+                </div>
+
+                <nav class="page-nav">
+                    <a href="02-api-controllers.html" class="prev">API Controllers</a>
+                    <a href="04-validation.html" class="next">Validation</a>
+                </nav>
+
+            
+        <footer class="page-footer">
+          Built with 💜 by <a href="https://akwasi.dev" target="_blank" rel="noopener noreferrer">Akwasi Adu-Kyeremeh</a> for developers who want to truly understand what they're building.
+        </footer>
+
+      </div>
+        </main>
+    </div>
+</body>
+
+</html>

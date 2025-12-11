@@ -1,0 +1,590 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Configuration & appsettings.json | ASP.NET Core Mastery</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;500&family=Source+Serif+4:ital,wght@0,400;0,600;1,400&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="../assets/style.css">
+</head>
+
+<body>
+    <div class="page-wrapper">
+        <aside class="sidebar">
+            <a href="../index.html" class="sidebar-logo">ASP.NET Core Mastery</a>
+            <div class="sidebar-section">Part III: ASP.NET Core Basics</div>
+            <ul class="sidebar-nav">
+                <li><a href="01-what-is-aspnetcore.html">What is ASP.NET Core?</a></li>
+                <li><a href="02-first-web-app.html">Your First Web Application</a></li>
+                <li><a href="03-program-cs-deep-dive.html">Program.cs Deep Dive</a></li>
+                <li><a href="04-configuration.html" class="active">Configuration & appsettings.json</a></li>
+                <li><a href="05-options-pattern.html">The Options Pattern</a></li>
+                <li><a href="06-environments.html">Environments</a></li>
+            </ul>
+            <div class="sidebar-section">Resources</div>
+            <ul class="sidebar-nav">
+                <li><a href="../index.html">Full Roadmap</a></li>
+            </ul>
+        </aside>
+
+        <main class="main-content">
+            <div class="content-container">
+                <nav class="breadcrumb">
+                    <a href="../index.html">Home</a>
+                    <span>→</span>
+                    <a href="01-what-is-aspnetcore.html">Part III: ASP.NET Core Basics</a>
+                    <span>→</span>
+                    Configuration & appsettings.json
+                </nav>
+
+                <div class="progress-indicator">
+                    <span>Section 4 of 6</span>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 66.67%"></div>
+                    </div>
+                </div>
+
+                <h1>Configuration & appsettings.json</h1>
+
+                <div class="learning-objectives">
+                    <h3>🎯 What You'll Learn</h3>
+                    <ul>
+                        <li>Understanding ASP.NET Core configuration system</li>
+                        <li>Working with appsettings.json</li>
+                        <li>Environment-specific configuration files</li>
+                        <li>Configuration sources and precedence</li>
+                        <li>Reading configuration values</li>
+                        <li>Strongly-typed configuration with IConfiguration</li>
+                        <li>Connection strings and secrets management</li>
+                        <li>Best practices for InvenTrack configuration</li>
+                    </ul>
+                </div>
+
+                <h2>The Configuration System</h2>
+
+                <p>
+                    ASP.NET Core has a flexible, hierarchical configuration system that loads settings from
+                    multiple sources:
+                </p>
+
+                <ol>
+                    <li><code>appsettings.json</code></li>
+                    <li><code>appsettings.{Environment}.json</code></li>
+                    <li>User secrets (Development only)</li>
+                    <li>Environment variables</li>
+                    <li>Command-line arguments</li>
+                </ol>
+
+                <div class="callout callout-concept">
+                    <div class="callout-title">💡 Configuration Precedence</div>
+                    <p>
+                        Later sources <strong>override</strong> earlier ones. For example, environment variables
+                        override appsettings.json. This lets you have default settings in JSON files and override
+                        them in production with environment variables.
+                    </p>
+                </div>
+
+                <div class="section-divider"></div>
+
+                <h2>appsettings.json Structure</h2>
+
+                <p>
+                    The default <code>appsettings.json</code> looks like this:
+                </p>
+
+                <div class="code-header">
+                    <span class="code-filename">appsettings.json</span>
+                    <span class="code-language">JSON</span>
+                </div>
+                <pre><code>{
+  <span class="code-string">"Logging"</span>: {
+    <span class="code-string">"LogLevel"</span>: {
+      <span class="code-string">"Default"</span>: <span class="code-string">"Information"</span>,
+      <span class="code-string">"Microsoft.AspNetCore"</span>: <span class="code-string">"Warning"</span>
+    }
+  },
+  <span class="code-string">"AllowedHosts"</span>: <span class="code-string">"*"</span>
+}</code></pre>
+
+                <h3>InvenTrack Configuration Example</h3>
+
+                <p>
+                    Here's a more complete configuration for InvenTrack:
+                </p>
+
+                <div class="code-header">
+                    <span class="code-filename">appsettings.json</span>
+                    <span class="code-language">JSON</span>
+                </div>
+                <pre><code>{
+  <span class="code-string">"Logging"</span>: {
+    <span class="code-string">"LogLevel"</span>: {
+      <span class="code-string">"Default"</span>: <span class="code-string">"Information"</span>,
+      <span class="code-string">"Microsoft.AspNetCore"</span>: <span class="code-string">"Warning"</span>,
+      <span class="code-string">"Microsoft.EntityFrameworkCore"</span>: <span class="code-string">"Information"</span>
+    }
+  },
+  <span class="code-string">"AllowedHosts"</span>: <span class="code-string">"*"</span>,
+  
+  <span class="code-string">"ConnectionStrings"</span>: {
+    <span class="code-string">"DefaultConnection"</span>: <span class="code-string">"Server=localhost;Database=InvenTrack;Trusted_Connection=true;TrustServerCertificate=true"</span>
+  },
+  
+  <span class="code-string">"JwtSettings"</span>: {
+    <span class="code-string">"Secret"</span>: <span class="code-string">"your-secret-key-here-min-32-chars"</span>,
+    <span class="code-string">"Issuer"</span>: <span class="code-string">"InvenTrack.Api"</span>,
+    <span class="code-string">"Audience"</span>: <span class="code-string">"InvenTrack.Client"</span>,
+    <span class="code-string">"ExpirationMinutes"</span>: <span class="code-number">60</span>
+  },
+  
+  <span class="code-string">"EmailSettings"</span>: {
+    <span class="code-string">"SmtpServer"</span>: <span class="code-string">"smtp.gmail.com"</span>,
+    <span class="code-string">"SmtpPort"</span>: <span class="code-number">587</span>,
+    <span class="code-string">"SenderEmail"</span>: <span class="code-string">"noreply@inventtrack.com"</span>,
+    <span class="code-string">"SenderName"</span>: <span class="code-string">"InvenTrack System"</span>,
+    <span class="code-string">"EnableSsl"</span>: <span class="code-keyword">true</span>
+  },
+  
+  <span class="code-string">"InventorySettings"</span>: {
+    <span class="code-string">"LowStockThreshold"</span>: <span class="code-number">10</span>,
+    <span class="code-string">"EnableAutoReorder"</span>: <span class="code-keyword">false</span>,
+    <span class="code-string">"DefaultCurrency"</span>: <span class="code-string">"USD"</span>
+  },
+  
+  <span class="code-string">"CorsSettings"</span>: {
+    <span class="code-string">"AllowedOrigins"</span>: [
+      <span class="code-string">"http://localhost:3000"</span>,
+      <span class="code-string">"http://localhost:4200"</span>
+    ]
+  }
+}</code></pre>
+
+                <div class="callout callout-warning">
+                    <div class="callout-title">⚠️ Never Commit Secrets!</div>
+                    <p>
+                        Don't put real passwords, API keys, or connection strings in <code>appsettings.json</code>
+                        if you're committing to Git. Use User Secrets for development and environment variables
+                        for production.
+                    </p>
+                </div>
+
+                <div class="section-divider"></div>
+
+                <h2>Environment-Specific Configuration</h2>
+
+                <p>
+                    You can have different settings for different environments:
+                </p>
+
+                <ul>
+                    <li><code>appsettings.json</code> - Base settings (all environments)</li>
+                    <li><code>appsettings.Development.json</code> - Development overrides</li>
+                    <li><code>appsettings.Production.json</code> - Production overrides</li>
+                    <li><code>appsettings.Staging.json</code> - Staging overrides</li>
+                </ul>
+
+                <h3>appsettings.Development.json</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">appsettings.Development.json</span>
+                    <span class="code-language">JSON</span>
+                </div>
+                <pre><code>{
+  <span class="code-string">"Logging"</span>: {
+    <span class="code-string">"LogLevel"</span>: {
+      <span class="code-string">"Default"</span>: <span class="code-string">"Debug"</span>,
+      <span class="code-string">"Microsoft.AspNetCore"</span>: <span class="code-string">"Information"</span>
+    }
+  },
+  
+  <span class="code-string">"ConnectionStrings"</span>: {
+    <span class="code-string">"DefaultConnection"</span>: <span class="code-string">"Server=localhost;Database=InvenTrack_Dev;Trusted_Connection=true;TrustServerCertificate=true"</span>
+  },
+  
+  <span class="code-string">"EmailSettings"</span>: {
+    <span class="code-string">"SmtpServer"</span>: <span class="code-string">"localhost"</span>,
+    <span class="code-string">"SmtpPort"</span>: <span class="code-number">25</span>,
+    <span class="code-string">"EnableSsl"</span>: <span class="code-keyword">false</span>
+  }
+}</code></pre>
+
+                <h3>appsettings.Production.json</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">appsettings.Production.json</span>
+                    <span class="code-language">JSON</span>
+                </div>
+                <pre><code>{
+  <span class="code-string">"Logging"</span>: {
+    <span class="code-string">"LogLevel"</span>: {
+      <span class="code-string">"Default"</span>: <span class="code-string">"Warning"</span>,
+      <span class="code-string">"Microsoft.AspNetCore"</span>: <span class="code-string">"Error"</span>
+    }
+  },
+  
+  <span class="code-comment">// Connection string set via environment variable</span>
+  
+  <span class="code-string">"InventorySettings"</span>: {
+    <span class="code-string">"EnableAutoReorder"</span>: <span class="code-keyword">true</span>
+  }
+}</code></pre>
+
+                <div class="callout callout-info">
+                    <div class="callout-title">ℹ️ How It Works</div>
+                    <p>
+                        ASP.NET Core loads <code>appsettings.json</code> first, then loads
+                        <code>appsettings.{Environment}.json</code> and merges/overrides values. The environment
+                        is determined by the <code>ASPNETCORE_ENVIRONMENT</code> variable.
+                    </p>
+                </div>
+
+                <div class="section-divider"></div>
+
+                <h2>Reading Configuration Values</h2>
+
+                <h3>Method 1: Direct Access with IConfiguration</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">ProductsController.cs</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">ProductsController</span> : <span class="code-class">ControllerBase</span>
+{
+    <span class="code-keyword">private</span> <span class="code-keyword">readonly</span> <span class="code-class">IConfiguration</span> <span class="code-variable">_configuration</span>;
+
+    <span class="code-keyword">public</span> <span class="code-method">ProductsController</span>(<span class="code-class">IConfiguration</span> <span class="code-variable">configuration</span>)
+    {
+        <span class="code-variable">_configuration</span> = <span class="code-variable">configuration</span>;
+    }
+
+    [<span class="code-class">HttpGet</span>(<span class="code-string">"settings"</span>)]
+    <span class="code-keyword">public</span> <span class="code-class">IActionResult</span> <span class="code-method">GetSettings</span>()
+    {
+        <span class="code-comment">// Simple value</span>
+        <span class="code-keyword">var</span> <span class="code-variable">allowedHosts</span> = <span class="code-variable">_configuration</span>[<span class="code-string">"AllowedHosts"</span>];
+        
+        <span class="code-comment">// Nested value</span>
+        <span class="code-keyword">var</span> <span class="code-variable">logLevel</span> = <span class="code-variable">_configuration</span>[<span class="code-string">"Logging:LogLevel:Default"</span>];
+        
+        <span class="code-comment">// Connection string</span>
+        <span class="code-keyword">var</span> <span class="code-variable">connString</span> = <span class="code-variable">_configuration</span>.<span class="code-method">GetConnectionString</span>(<span class="code-string">"DefaultConnection"</span>);
+        
+        <span class="code-comment">// With default value</span>
+        <span class="code-keyword">var</span> <span class="code-variable">threshold</span> = <span class="code-variable">_configuration</span>.<span class="code-method">GetValue</span>&lt;<span class="code-type">int</span>&gt;(<span class="code-string">"InventorySettings:LowStockThreshold"</span>, <span class="code-number">5</span>);
+
+        <span class="code-keyword">return</span> <span class="code-method">Ok</span>(<span class="code-keyword">new</span> { <span class="code-variable">allowedHosts</span>, <span class="code-variable">logLevel</span>, <span class="code-variable">threshold</span> });
+    }
+}</code></pre>
+
+                <h3>Configuration Path Syntax</h3>
+
+                <table>
+                    <thead>
+                        <tr>
+                            <th>JSON Structure</th>
+                            <th>Configuration Path</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><code>{ "Key": "Value" }</code></td>
+                            <td><code>"Key"</code></td>
+                        </tr>
+                        <tr>
+                            <td><code>{ "Parent": { "Child": "Value" } }</code></td>
+                            <td><code>"Parent:Child"</code></td>
+                        </tr>
+                        <tr>
+                            <td><code>{ "Array": ["A", "B"] }</code></td>
+                            <td><code>"Array:0"</code>, <code>"Array:1"</code></td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h3>Method 2: GetSection</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">Reading a Section</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-comment">// Get entire section</span>
+<span class="code-keyword">var</span> <span class="code-variable">jwtSection</span> = <span class="code-variable">_configuration</span>.<span class="code-method">GetSection</span>(<span class="code-string">"JwtSettings"</span>);
+
+<span class="code-comment">// Read values from section</span>
+<span class="code-keyword">var</span> <span class="code-variable">secret</span> = <span class="code-variable">jwtSection</span>[<span class="code-string">"Secret"</span>];
+<span class="code-keyword">var</span> <span class="code-variable">issuer</span> = <span class="code-variable">jwtSection</span>[<span class="code-string">"Issuer"</span>];
+<span class="code-keyword">var</span> <span class="code-variable">expiration</span> = <span class="code-variable">jwtSection</span>.<span class="code-method">GetValue</span>&lt;<span class="code-type">int</span>&gt;(<span class="code-string">"ExpirationMinutes"</span>);</code></pre>
+
+                <h3>Method 3: Bind to Object</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">Binding to POCO</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-comment">// Define a class</span>
+<span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">JwtSettings</span>
+{
+    <span class="code-keyword">public</span> <span class="code-type">string</span> <span class="code-variable">Secret</span> { <span class="code-keyword">get</span>; <span class="code-keyword">set</span>; } = <span class="code-type">string</span>.<span class="code-variable">Empty</span>;
+    <span class="code-keyword">public</span> <span class="code-type">string</span> <span class="code-variable">Issuer</span> { <span class="code-keyword">get</span>; <span class="code-keyword">set</span>; } = <span class="code-type">string</span>.<span class="code-variable">Empty</span>;
+    <span class="code-keyword">public</span> <span class="code-type">string</span> <span class="code-variable">Audience</span> { <span class="code-keyword">get</span>; <span class="code-keyword">set</span>; } = <span class="code-type">string</span>.<span class="code-variable">Empty</span>;
+    <span class="code-keyword">public</span> <span class="code-type">int</span> <span class="code-variable">ExpirationMinutes</span> { <span class="code-keyword">get</span>; <span class="code-keyword">set</span>; }
+}
+
+<span class="code-comment">// Bind configuration to object</span>
+<span class="code-keyword">var</span> <span class="code-variable">jwtSettings</span> = <span class="code-keyword">new</span> <span class="code-class">JwtSettings</span>();
+<span class="code-variable">_configuration</span>.<span class="code-method">GetSection</span>(<span class="code-string">"JwtSettings"</span>).<span class="code-method">Bind</span>(<span class="code-variable">jwtSettings</span>);
+
+<span class="code-comment">// Or use Get&lt;T&gt; (creates new instance)</span>
+<span class="code-keyword">var</span> <span class="code-variable">jwtSettings2</span> = <span class="code-variable">_configuration</span>.<span class="code-method">GetSection</span>(<span class="code-string">"JwtSettings"</span>).<span class="code-method">Get</span>&lt;<span class="code-class">JwtSettings</span>&gt;();</code></pre>
+
+                <div class="section-divider"></div>
+
+                <h2>Connection Strings</h2>
+
+                <p>
+                    Connection strings have a special section and helper method:
+                </p>
+
+                <div class="code-header">
+                    <span class="code-filename">appsettings.json</span>
+                    <span class="code-language">JSON</span>
+                </div>
+                <pre><code>{
+  <span class="code-string">"ConnectionStrings"</span>: {
+    <span class="code-string">"DefaultConnection"</span>: <span class="code-string">"Server=localhost;Database=InvenTrack;..."</span>,
+    <span class="code-string">"ReportingDb"</span>: <span class="code-string">"Server=localhost;Database=InvenTrack_Reports;..."</span>
+  }
+}</code></pre>
+
+                <div class="code-header">
+                    <span class="code-filename">Reading Connection Strings</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-comment">// In Program.cs</span>
+<span class="code-keyword">var</span> <span class="code-variable">connectionString</span> = <span class="code-variable">builder</span>.<span class="code-variable">Configuration</span>.<span class="code-method">GetConnectionString</span>(<span class="code-string">"DefaultConnection"</span>);
+
+<span class="code-variable">builder</span>.<span class="code-variable">Services</span>.<span class="code-method">AddDbContext</span>&lt;<span class="code-class">InvenTrackDbContext</span>&gt;(<span class="code-variable">options</span> =&gt;
+    <span class="code-variable">options</span>.<span class="code-method">UseSqlServer</span>(<span class="code-variable">connectionString</span>));</code></pre>
+
+                <div class="section-divider"></div>
+
+                <h2>User Secrets (Development)</h2>
+
+                <p>
+                    For development, use <strong>User Secrets</strong> to store sensitive data outside your
+                    project folder:
+                </p>
+
+                <h3>Initialize User Secrets</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">Terminal</span>
+                    <span class="code-language">Shell</span>
+                </div>
+                <pre><code><span class="code-comment"># Initialize user secrets for your project</span>
+dotnet user-secrets init
+
+<span class="code-comment"># Set a secret</span>
+dotnet user-secrets set "JwtSettings:Secret" "my-super-secret-key-min-32-chars"
+
+<span class="code-comment"># Set connection string</span>
+dotnet user-secrets set "ConnectionStrings:DefaultConnection" "Server=localhost;Database=InvenTrack;User Id=sa;Password=MyPassword123"
+
+<span class="code-comment"># List all secrets</span>
+dotnet user-secrets list
+
+<span class="code-comment"># Remove a secret</span>
+dotnet user-secrets remove "JwtSettings:Secret"
+
+<span class="code-comment"># Clear all secrets</span>
+dotnet user-secrets clear</code></pre>
+
+                <div class="callout callout-info">
+                    <div class="callout-title">ℹ️ Where Are Secrets Stored?</div>
+                    <p>
+                        User secrets are stored in:<br>
+                        <strong>Windows</strong>: <code>%APPDATA%\Microsoft\UserSecrets\{id}\secrets.json</code><br>
+                        <strong>macOS/Linux</strong>: <code>~/.microsoft/usersecrets/{id}/secrets.json</code><br>
+                        They're <strong>not encrypted</strong>, just stored outside your project.
+                    </p>
+                </div>
+
+                <div class="section-divider"></div>
+
+                <h2>Environment Variables</h2>
+
+                <p>
+                    In production, use environment variables for secrets:
+                </p>
+
+                <h3>Setting Environment Variables</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">Windows (PowerShell)</span>
+                    <span class="code-language">PowerShell</span>
+                </div>
+                <pre><code><span class="code-comment"># Set for current session</span>
+$env:ConnectionStrings__DefaultConnection = <span class="code-string">"Server=prod-server;..."</span>
+
+<span class="code-comment"># Set permanently (system-wide)</span>
+[System.Environment]::SetEnvironmentVariable(<span class="code-string">"ConnectionStrings__DefaultConnection"</span>, <span class="code-string">"Server=prod-server;..."</span>, <span class="code-string">"Machine"</span>)</code></pre>
+
+                <div class="code-header">
+                    <span class="code-filename">Linux/macOS (Bash)</span>
+                    <span class="code-language">Bash</span>
+                </div>
+                <pre><code><span class="code-comment"># Set for current session</span>
+export ConnectionStrings__DefaultConnection=<span class="code-string">"Server=prod-server;..."</span>
+
+<span class="code-comment"># Add to ~/.bashrc or ~/.zshrc for persistence</span>
+echo <span class="code-string">'export ConnectionStrings__DefaultConnection="Server=prod-server;..."'</span> &gt;&gt; ~/.bashrc</code></pre>
+
+                <div class="callout callout-warning">
+                    <div class="callout-title">⚠️ Environment Variable Syntax</div>
+                    <p>
+                        Use <strong>double underscores (__)</strong> to represent hierarchy in environment
+                        variables:<br>
+                        <code>ConnectionStrings:DefaultConnection</code> →
+                        <code>ConnectionStrings__DefaultConnection</code><br>
+                        <code>JwtSettings:Secret</code> → <code>JwtSettings__Secret</code>
+                    </p>
+                </div>
+
+                <div class="section-divider"></div>
+
+                <h2>Configuration in Program.cs</h2>
+
+                <p>
+                    You can customize configuration sources:
+                </p>
+
+                <div class="code-header">
+                    <span class="code-filename">Program.cs</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-keyword">var</span> <span class="code-variable">builder</span> = <span class="code-class">WebApplication</span>.<span class="code-method">CreateBuilder</span>(<span class="code-variable">args</span>);
+
+<span class="code-comment">// Add custom configuration sources</span>
+<span class="code-variable">builder</span>.<span class="code-variable">Configuration</span>
+    .<span class="code-method">AddJsonFile</span>(<span class="code-string">"appsettings.Custom.json"</span>, <span class="code-variable">optional</span>: <span class="code-keyword">true</span>)
+    .<span class="code-method">AddXmlFile</span>(<span class="code-string">"config.xml"</span>, <span class="code-variable">optional</span>: <span class="code-keyword">true</span>)
+    .<span class="code-method">AddIniFile</span>(<span class="code-string">"config.ini"</span>, <span class="code-variable">optional</span>: <span class="code-keyword">true</span>)
+    .<span class="code-method">AddEnvironmentVariables</span>(<span class="code-string">"INVENTTRACK_"</span>)
+    .<span class="code-method">AddCommandLine</span>(<span class="code-variable">args</span>);</code></pre>
+
+                <div class="section-divider"></div>
+
+                <h2>Best Practices</h2>
+
+                <h3>1. Never Commit Secrets</h3>
+
+                <ul>
+                    <li>Use User Secrets for development</li>
+                    <li>Use environment variables for production</li>
+                    <li>Add <code>appsettings.*.json</code> to .gitignore if it contains secrets</li>
+                </ul>
+
+                <h3>2. Use Strongly-Typed Configuration</h3>
+
+                <p>
+                    Instead of reading strings everywhere, use the Options pattern (covered in next section):
+                </p>
+
+                <div class="code-header">
+                    <span class="code-filename">Good Practice</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-comment">// Register options</span>
+<span class="code-variable">builder</span>.<span class="code-variable">Services</span>.<span class="code-method">Configure</span>&lt;<span class="code-class">JwtSettings</span>&gt;(
+    <span class="code-variable">builder</span>.<span class="code-variable">Configuration</span>.<span class="code-method">GetSection</span>(<span class="code-string">"JwtSettings"</span>));
+
+<span class="code-comment">// Inject IOptions&lt;JwtSettings&gt; instead of IConfiguration</span></code></pre>
+
+                <h3>3. Organize Configuration Logically</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">Good Structure</span>
+                    <span class="code-language">JSON</span>
+                </div>
+                <pre><code>{
+  <span class="code-comment">// Framework settings</span>
+  <span class="code-string">"Logging"</span>: { ... },
+  <span class="code-string">"AllowedHosts"</span>: <span class="code-string">"*"</span>,
+  
+  <span class="code-comment">// Infrastructure</span>
+  <span class="code-string">"ConnectionStrings"</span>: { ... },
+  
+  <span class="code-comment">// Application settings (grouped by feature)</span>
+  <span class="code-string">"JwtSettings"</span>: { ... },
+  <span class="code-string">"EmailSettings"</span>: { ... },
+  <span class="code-string">"InventorySettings"</span>: { ... }
+}</code></pre>
+
+                <h3>4. Use Environment-Specific Files</h3>
+
+                <ul>
+                    <li><code>appsettings.json</code> - Shared defaults</li>
+                    <li><code>appsettings.Development.json</code> - Dev overrides (commit this)</li>
+                    <li><code>appsettings.Production.json</code> - Prod overrides (minimal, no secrets)</li>
+                </ul>
+
+                <h3>5. Validate Configuration</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">Validation</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-comment">// In Program.cs, after building</span>
+<span class="code-keyword">var</span> <span class="code-variable">jwtSecret</span> = <span class="code-variable">builder</span>.<span class="code-variable">Configuration</span>[<span class="code-string">"JwtSettings:Secret"</span>];
+<span class="code-keyword">if</span> (<span class="code-type">string</span>.<span class="code-method">IsNullOrEmpty</span>(<span class="code-variable">jwtSecret</span>) || <span class="code-variable">jwtSecret</span>.<span class="code-variable">Length</span> &lt; <span class="code-number">32</span>)
+{
+    <span class="code-keyword">throw</span> <span class="code-keyword">new</span> <span class="code-class">InvalidOperationException</span>(<span class="code-string">"JWT Secret must be at least 32 characters"</span>);
+}</code></pre>
+
+                <h2>Key Takeaways</h2>
+
+                <ul>
+                    <li>ASP.NET Core loads configuration from <strong>multiple sources</strong></li>
+                    <li><strong>Configuration precedence</strong>: JSON → User Secrets → Env Vars → Command Line</li>
+                    <li><code>appsettings.json</code> contains base settings</li>
+                    <li><code>appsettings.{Environment}.json</code> overrides for specific environments</li>
+                    <li>Access configuration via <strong>IConfiguration</strong></li>
+                    <li>Use <strong>colon (:)</strong> for hierarchy: <code>"Parent:Child"</code></li>
+                    <li>Use <strong>double underscore (__)</strong> in environment variables</li>
+                    <li><strong>User Secrets</strong> for development (never commit secrets!)</li>
+                    <li><strong>Environment variables</strong> for production</li>
+                    <li><code>GetConnectionString()</code> helper for connection strings</li>
+                    <li><code>Bind()</code> or <code>Get&lt;T&gt;()</code> for strongly-typed configuration</li>
+                    <li>Validate critical configuration at startup</li>
+                </ul>
+
+                <div class="callout callout-concept">
+                    <div class="callout-title">🎯 Next Steps</div>
+                    <p>
+                        You now understand how to manage configuration in ASP.NET Core! In the next section,
+                        we'll explore the <strong>Options Pattern</strong>—a better way to work with configuration
+                        using strongly-typed classes, validation, and dependency injection.
+                    </p>
+                </div>
+
+                <nav class="page-nav">
+                    <a href="03-program-cs-deep-dive.html" class="prev">Program.cs Deep Dive</a>
+                    <a href="05-options-pattern.html" class="next">The Options Pattern</a>
+                </nav>
+
+            
+        <footer class="page-footer">
+          Built with 💜 by <a href="https://akwasi.dev" target="_blank" rel="noopener noreferrer">Akwasi Adu-Kyeremeh</a> for developers who want to truly understand what they're building.
+        </footer>
+
+      </div>
+        </main>
+    </div>
+</body>
+
+</html>

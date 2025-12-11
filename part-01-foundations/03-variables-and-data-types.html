@@ -1,0 +1,1088 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Variables and Data Types | ASP.NET Core Mastery</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;500&family=Source+Serif+4:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../assets/style.css">
+</head>
+<body>
+  <div class="page-wrapper">
+    
+    <!-- Sidebar Navigation -->
+    <aside class="sidebar">
+      <a href="../index.html" class="sidebar-logo">ASP.NET Core Mastery</a>
+      
+      <div class="sidebar-section">Part I: Foundations</div>
+      <ul class="sidebar-nav">
+        <li><a href="01-what-is-programming.html">What is Programming?</a></li>
+        <li><a href="02-what-is-csharp-dotnet.html">What is C# and .NET?</a></li>
+        <li><a href="03-variables-and-data-types.html" class="active">Variables and Data Types</a></li>
+        <li><a href="04-operators-and-expressions.html">Operators and Expressions</a></li>
+        <li><a href="05-control-flow.html">Control Flow</a></li>
+        <li><a href="06-methods-and-functions.html">Methods and Functions</a></li>
+        <li><a href="07-oop-classes-objects.html">OOP: Classes &amp; Objects</a></li>
+        <li><a href="08-collections-and-generics.html">Collections and Generics</a></li>
+        <li><a href="09-linq.html">LINQ</a></li>
+        <li><a href="10-async-await.html">Async/Await</a></li>
+      </ul>
+      
+      <div class="sidebar-section">Resources</div>
+      <ul class="sidebar-nav">
+        <li><a href="../index.html">Full Roadmap</a></li>
+      </ul>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+      <div class="content-container">
+        
+        <!-- Breadcrumb -->
+        <nav class="breadcrumb">
+          <a href="../index.html">Home</a>
+          <span>→</span>
+          <a href="01-what-is-programming.html">Part I: Foundations</a>
+          <span>→</span>
+          Variables and Data Types
+        </nav>
+
+        <!-- Progress Indicator -->
+        <div class="progress-indicator">
+          <span>Section 3 of 10</span>
+          <div class="progress-bar">
+            <div class="progress-fill" style="width: 30%"></div>
+          </div>
+        </div>
+
+        <!-- Page Title -->
+        <h1>Variables and Data Types</h1>
+
+        <!-- Learning Objectives -->
+        <div class="learning-objectives">
+          <h3>🎯 What You'll Learn</h3>
+          <ul>
+            <li>What variables are and why every program needs them</li>
+            <li>All the primitive data types in C# (int, double, decimal, bool, char, string)</li>
+            <li>How to declare, initialize, and use variables</li>
+            <li>Type inference with the <code>var</code> keyword</li>
+            <li>Constants and why immutability matters</li>
+            <li>The critical difference between value types and reference types</li>
+            <li>Nullable types and the billion-dollar mistake</li>
+            <li>Converting between types (casting, parsing, and conversion methods)</li>
+          </ul>
+        </div>
+
+        <!-- Content Begins -->
+        <h2>What is a Variable?</h2>
+
+        <p>
+          Imagine you're doing math homework. You write down a number, use it in a calculation, 
+          then need to refer back to it later. In real life, you might circle it or write "let x = 5." 
+          In programming, we do exactly the same thing—we give names to pieces of data so we can 
+          refer to them later.
+        </p>
+
+        <div class="callout callout-concept">
+          <div class="callout-title">💡 Key Concept</div>
+          <p>
+            A <strong>variable</strong> is a named container that holds a value. The value can 
+            change (vary) during the program's execution—hence the name "variable."
+          </p>
+        </div>
+
+        <p>
+          Every variable in C# has three essential properties:
+        </p>
+
+        <ol>
+          <li><strong>Name</strong> — How you refer to it in code (like <code>age</code> or <code>customerName</code>)</li>
+          <li><strong>Type</strong> — What kind of data it holds (number, text, true/false, etc.)</li>
+          <li><strong>Value</strong> — The actual data stored in it</li>
+        </ol>
+
+        <div class="analogy">
+          Think of a variable like a labeled box. The label is the name, the shape of the box 
+          determines what can fit inside (the type), and the contents are the value. A box 
+          labeled "Shoes" (type: footwear) can hold sneakers today and boots tomorrow, but 
+          you can't put a sandwich in it.
+        </div>
+
+        <h2>Declaring and Initializing Variables</h2>
+
+        <p>
+          To create a variable in C#, you need to <span class="term">declare</span> it—tell the 
+          compiler its type and name. You can optionally <span class="term">initialize</span> it 
+          by giving it a starting value.
+        </p>
+
+        <h3>Basic Syntax</h3>
+
+        <div class="code-header">
+          <span class="code-filename">Variables.cs</span>
+          <span class="code-language">C#</span>
+        </div>
+        <pre><code><span class="code-comment">// Declaration only (no initial value)</span>
+<span class="code-type">int</span> <span class="code-variable">age</span>;
+
+<span class="code-comment">// Declaration with initialization (recommended)</span>
+<span class="code-type">int</span> <span class="code-variable">age</span> = <span class="code-number">25</span>;
+
+<span class="code-comment">// You can also assign a value later</span>
+<span class="code-type">int</span> <span class="code-variable">score</span>;
+<span class="code-variable">score</span> = <span class="code-number">100</span>;  <span class="code-comment">// Assignment (not declaration)</span>
+
+<span class="code-comment">// Multiple variables of the same type</span>
+<span class="code-type">int</span> <span class="code-variable">x</span> = <span class="code-number">10</span>, <span class="code-variable">y</span> = <span class="code-number">20</span>, <span class="code-variable">z</span> = <span class="code-number">30</span>;</code></pre>
+
+        <p>
+          The pattern is always: <code><strong>type</strong> <strong>name</strong> = <strong>value</strong>;</code>
+        </p>
+
+        <div class="callout callout-warning">
+          <div class="callout-title">⚠️ Uninitialized Variables</div>
+          <p>
+            In C#, you cannot use a local variable before assigning it a value. The compiler 
+            will give you an error: "Use of unassigned local variable." Always initialize 
+            your variables.
+          </p>
+        </div>
+
+        <h3>Naming Rules and Conventions</h3>
+
+        <p>
+          Variable names in C# must follow certain rules:
+        </p>
+
+        <ul>
+          <li>Must start with a letter or underscore (<code>_</code>)</li>
+          <li>Can contain letters, digits, and underscores</li>
+          <li>Cannot be a C# keyword (like <code>int</code>, <code>class</code>, <code>if</code>)</li>
+          <li>Are case-sensitive (<code>Age</code> and <code>age</code> are different variables)</li>
+        </ul>
+
+        <p>
+          Beyond the rules, C# has strong <em>conventions</em> (not enforced, but expected):
+        </p>
+
+        <div class="code-header">
+          <span class="code-filename">NamingConventions.cs</span>
+          <span class="code-language">C#</span>
+        </div>
+        <pre><code><span class="code-comment">// Local variables and parameters: camelCase</span>
+<span class="code-type">int</span> <span class="code-variable">customerAge</span> = <span class="code-number">30</span>;
+<span class="code-type">string</span> <span class="code-variable">firstName</span> = <span class="code-string">"Akwasi"</span>;
+<span class="code-type">decimal</span> <span class="code-variable">totalPrice</span> = <span class="code-number">99.99m</span>;
+
+<span class="code-comment">// Private fields: _camelCase (underscore prefix)</span>
+<span class="code-keyword">private</span> <span class="code-type">int</span> <span class="code-variable">_count</span>;
+<span class="code-keyword">private</span> <span class="code-type">string</span> <span class="code-variable">_connectionString</span>;
+
+<span class="code-comment">// Constants: PascalCase</span>
+<span class="code-keyword">const</span> <span class="code-type">int</span> <span class="code-variable">MaxRetries</span> = <span class="code-number">3</span>;
+<span class="code-keyword">const</span> <span class="code-type">string</span> <span class="code-variable">DefaultCurrency</span> = <span class="code-string">"GHS"</span>;
+
+<span class="code-comment">// BAD: Avoid these</span>
+<span class="code-type">int</span> <span class="code-variable">x</span>;           <span class="code-comment">// Too short, meaningless</span>
+<span class="code-type">int</span> <span class="code-variable">NUMBER</span>;      <span class="code-comment">// ALL CAPS is not C# style</span>
+<span class="code-type">int</span> <span class="code-variable">customer_age</span>; <span class="code-comment">// snake_case is not C# style</span></code></pre>
+
+        <div class="callout callout-tip">
+          <div class="callout-title">💡 Good Variable Names</div>
+          <p>
+            Choose names that reveal intent. <code>elapsedTimeInDays</code> is better than 
+            <code>d</code>. <code>customerCount</code> is better than <code>n</code>. 
+            Your future self (and teammates) will thank you.
+          </p>
+        </div>
+
+        <h2>Primitive Data Types</h2>
+
+        <p>
+          C# has several built-in <span class="term">primitive types</span> (also called "simple types"). 
+          These are the fundamental building blocks for storing data.
+        </p>
+
+        <h3>Integer Types (Whole Numbers)</h3>
+
+        <p>
+          Integers are whole numbers without decimal points. C# offers several sizes depending 
+          on how large your numbers need to be:
+        </p>
+
+        <table>
+          <thead>
+            <tr>
+              <th>Type</th>
+              <th>Size</th>
+              <th>Range</th>
+              <th>Use Case</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>byte</code></td>
+              <td>1 byte</td>
+              <td>0 to 255</td>
+              <td>Small positive numbers, file data</td>
+            </tr>
+            <tr>
+              <td><code>short</code></td>
+              <td>2 bytes</td>
+              <td>-32,768 to 32,767</td>
+              <td>Rarely used today</td>
+            </tr>
+            <tr>
+              <td><code><strong>int</strong></code></td>
+              <td>4 bytes</td>
+              <td>±2.1 billion</td>
+              <td><strong>Default choice for integers</strong></td>
+            </tr>
+            <tr>
+              <td><code>long</code></td>
+              <td>8 bytes</td>
+              <td>±9.2 quintillion</td>
+              <td>Very large numbers, timestamps</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <div class="code-header">
+          <span class="code-filename">IntegerTypes.cs</span>
+          <span class="code-language">C#</span>
+        </div>
+        <pre><code><span class="code-type">byte</span> <span class="code-variable">red</span> = <span class="code-number">255</span>;              <span class="code-comment">// Color component (0-255)</span>
+<span class="code-type">short</span> <span class="code-variable">temperature</span> = <span class="code-number">-40</span>;      <span class="code-comment">// Rarely needed</span>
+<span class="code-type">int</span> <span class="code-variable">population</span> = <span class="code-number">31_000_000</span>;  <span class="code-comment">// Ghana's population (underscores for readability!)</span>
+<span class="code-type">long</span> <span class="code-variable">distanceToSun</span> = <span class="code-number">149_597_870_700L</span>; <span class="code-comment">// Meters (note the L suffix)</span>
+
+<span class="code-comment">// int is the default - use it unless you have a specific reason not to</span>
+<span class="code-type">int</span> <span class="code-variable">age</span> = <span class="code-number">25</span>;
+<span class="code-type">int</span> <span class="code-variable">quantity</span> = <span class="code-number">100</span>;
+<span class="code-type">int</span> <span class="code-variable">year</span> = <span class="code-number">2024</span>;</code></pre>
+
+        <div class="callout callout-info">
+          <div class="callout-title">ℹ️ Numeric Separators</div>
+          <p>
+            C# allows underscores (<code>_</code>) in numeric literals for readability. 
+            <code>1_000_000</code> is the same as <code>1000000</code> but much easier to read. 
+            Use them for large numbers!
+          </p>
+        </div>
+
+        <h3>Floating-Point Types (Decimal Numbers)</h3>
+
+        <p>
+          When you need decimal points, you have three choices:
+        </p>
+
+        <table>
+          <thead>
+            <tr>
+              <th>Type</th>
+              <th>Size</th>
+              <th>Precision</th>
+              <th>Use Case</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>float</code></td>
+              <td>4 bytes</td>
+              <td>~7 digits</td>
+              <td>Graphics, games (when precision matters less)</td>
+            </tr>
+            <tr>
+              <td><code><strong>double</strong></code></td>
+              <td>8 bytes</td>
+              <td>~15-16 digits</td>
+              <td><strong>Default for decimals, scientific calculations</strong></td>
+            </tr>
+            <tr>
+              <td><code><strong>decimal</strong></code></td>
+              <td>16 bytes</td>
+              <td>28-29 digits</td>
+              <td><strong>Money and financial calculations</strong></td>
+            </tr>
+          </tbody>
+        </table>
+
+        <div class="code-header">
+          <span class="code-filename">FloatingPointTypes.cs</span>
+          <span class="code-language">C#</span>
+        </div>
+        <pre><code><span class="code-type">float</span> <span class="code-variable">temperature</span> = <span class="code-number">36.6f</span>;      <span class="code-comment">// Note the 'f' suffix</span>
+<span class="code-type">double</span> <span class="code-variable">pi</span> = <span class="code-number">3.14159265358979</span>;   <span class="code-comment">// Default decimal type</span>
+<span class="code-type">decimal</span> <span class="code-variable">price</span> = <span class="code-number">19.99m</span>;          <span class="code-comment">// Note the 'm' suffix (m for money)</span>
+<span class="code-type">decimal</span> <span class="code-variable">salary</span> = <span class="code-number">5000.00m</span>;       <span class="code-comment">// Always use decimal for currency</span>
+
+<span class="code-comment">// Why decimal for money? Because float/double can have tiny errors:</span>
+<span class="code-type">double</span> <span class="code-variable">badMath</span> = <span class="code-number">0.1</span> + <span class="code-number">0.2</span>;       <span class="code-comment">// Equals 0.30000000000000004 (!)  </span>
+<span class="code-type">decimal</span> <span class="code-variable">goodMath</span> = <span class="code-number">0.1m</span> + <span class="code-number">0.2m</span>;   <span class="code-comment">// Equals exactly 0.3</span></code></pre>
+
+        <div class="callout callout-warning">
+          <div class="callout-title">⚠️ Critical: Use decimal for Money</div>
+          <p>
+            <strong>Never</strong> use <code>float</code> or <code>double</code> for financial 
+            calculations. They use binary representation which can't precisely represent some 
+            decimal fractions (like 0.1). Use <code>decimal</code> for any monetary values—prices, 
+            salaries, account balances, taxes. This is especially important for your ERP work!
+          </p>
+        </div>
+
+        <h3>Boolean Type (True/False)</h3>
+
+        <p>
+          The <code>bool</code> type represents a logical value that can only be <code>true</code> 
+          or <code>false</code>. It's named after mathematician George Boole.
+        </p>
+
+        <div class="code-header">
+          <span class="code-filename">BooleanType.cs</span>
+          <span class="code-language">C#</span>
+        </div>
+        <pre><code><span class="code-type">bool</span> <span class="code-variable">isActive</span> = <span class="code-keyword">true</span>;
+<span class="code-type">bool</span> <span class="code-variable">hasPermission</span> = <span class="code-keyword">false</span>;
+<span class="code-type">bool</span> <span class="code-variable">isLoggedIn</span> = <span class="code-keyword">true</span>;
+
+<span class="code-comment">// Booleans are often the result of comparisons</span>
+<span class="code-type">int</span> <span class="code-variable">age</span> = <span class="code-number">25</span>;
+<span class="code-type">bool</span> <span class="code-variable">isAdult</span> = <span class="code-variable">age</span> >= <span class="code-number">18</span>;       <span class="code-comment">// true</span>
+<span class="code-type">bool</span> <span class="code-variable">isTeenager</span> = <span class="code-variable">age</span> >= <span class="code-number">13</span> && <span class="code-variable">age</span> <= <span class="code-number">19</span>;  <span class="code-comment">// false</span>
+
+<span class="code-comment">// Used heavily in conditions (we'll cover this in Control Flow)</span>
+<span class="code-keyword">if</span> (<span class="code-variable">isActive</span>)
+{
+    Console.<span class="code-method">WriteLine</span>(<span class="code-string">"The account is active"</span>);
+}</code></pre>
+
+        <h3>Character Type</h3>
+
+        <p>
+          The <code>char</code> type holds a single Unicode character. Characters are enclosed 
+          in single quotes.
+        </p>
+
+        <div class="code-header">
+          <span class="code-filename">CharType.cs</span>
+          <span class="code-language">C#</span>
+        </div>
+        <pre><code><span class="code-type">char</span> <span class="code-variable">letter</span> = <span class="code-string">'A'</span>;
+<span class="code-type">char</span> <span class="code-variable">digit</span> = <span class="code-string">'7'</span>;
+<span class="code-type">char</span> <span class="code-variable">symbol</span> = <span class="code-string">'@'</span>;
+<span class="code-type">char</span> <span class="code-variable">newLine</span> = <span class="code-string">'\n'</span>;        <span class="code-comment">// Escape sequence for new line</span>
+<span class="code-type">char</span> <span class="code-variable">tab</span> = <span class="code-string">'\t'</span>;            <span class="code-comment">// Escape sequence for tab</span>
+<span class="code-type">char</span> <span class="code-variable">heart</span> = <span class="code-string">'♥'</span>;           <span class="code-comment">// Unicode characters work!</span>
+<span class="code-type">char</span> <span class="code-variable">ghanaFlag</span> = <span class="code-string">'\u0047'</span>;  <span class="code-comment">// Unicode escape (this is 'G')</span></code></pre>
+
+        <h3>String Type (Text)</h3>
+
+        <p>
+          The <code>string</code> type holds text—a sequence of characters. Strings are enclosed 
+          in double quotes. Despite being extremely common, <code>string</code> is technically 
+          a reference type (more on this later), but it behaves like a primitive in many ways.
+        </p>
+
+        <div class="code-header">
+          <span class="code-filename">StringType.cs</span>
+          <span class="code-language">C#</span>
+        </div>
+        <pre><code><span class="code-type">string</span> <span class="code-variable">name</span> = <span class="code-string">"Akwasi"</span>;
+<span class="code-type">string</span> <span class="code-variable">greeting</span> = <span class="code-string">"Hello, World!"</span>;
+<span class="code-type">string</span> <span class="code-variable">empty</span> = <span class="code-string">""</span>;              <span class="code-comment">// Empty string (not null!)</span>
+<span class="code-type">string</span> <span class="code-variable">nothing</span> = <span class="code-keyword">null</span>;          <span class="code-comment">// No string at all (be careful!)</span>
+
+<span class="code-comment">// String concatenation (joining strings)</span>
+<span class="code-type">string</span> <span class="code-variable">fullName</span> = <span class="code-string">"Akwasi"</span> + <span class="code-string">" "</span> + <span class="code-string">"Asante"</span>;  <span class="code-comment">// "Akwasi Asante"</span>
+
+<span class="code-comment">// String interpolation (modern, preferred way)</span>
+<span class="code-type">string</span> <span class="code-variable">firstName</span> = <span class="code-string">"Akwasi"</span>;
+<span class="code-type">int</span> <span class="code-variable">age</span> = <span class="code-number">30</span>;
+<span class="code-type">string</span> <span class="code-variable">message</span> = <span class="code-string">$"My name is </span>{<span class="code-variable">firstName</span>}<span class="code-string"> and I am </span>{<span class="code-variable">age</span>}<span class="code-string"> years old."</span>;
+<span class="code-comment">// Result: "My name is Akwasi and I am 30 years old."</span>
+
+<span class="code-comment">// Verbatim strings (ignore escape sequences, great for paths)</span>
+<span class="code-type">string</span> <span class="code-variable">path</span> = <span class="code-string">@"C:\Users\Akwasi\Documents\file.txt"</span>;
+<span class="code-comment">// Without @, you'd need: "C:\\Users\\Akwasi\\Documents\\file.txt"</span>
+
+<span class="code-comment">// Raw string literals (C# 11+) - great for multi-line and special characters</span>
+<span class="code-type">string</span> <span class="code-variable">json</span> = <span class="code-string">"""
+    {
+        "name": "Akwasi",
+        "age": 30
+    }
+    """</span>;</code></pre>
+
+        <div class="callout callout-tip">
+          <div class="callout-title">💡 String Interpolation is Your Friend</div>
+          <p>
+            Always use string interpolation (<code>$"Hello {name}"</code>) instead of concatenation 
+            (<code>"Hello " + name</code>). It's more readable, easier to maintain, and performs 
+            better in most cases. The <code>$</code> prefix enables the <code>{}</code> placeholders.
+          </p>
+        </div>
+
+        <h3>Complete Type Reference</h3>
+
+        <p>
+          Here's a comprehensive reference of all C# primitive types:
+        </p>
+
+        <table>
+          <thead>
+            <tr>
+              <th>Category</th>
+              <th>Type</th>
+              <th>Size</th>
+              <th>Default Value</th>
+              <th>Example</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td rowspan="4">Integer</td>
+              <td><code>byte</code></td>
+              <td>1 byte</td>
+              <td>0</td>
+              <td><code>byte b = 255;</code></td>
+            </tr>
+            <tr>
+              <td><code>short</code></td>
+              <td>2 bytes</td>
+              <td>0</td>
+              <td><code>short s = -100;</code></td>
+            </tr>
+            <tr>
+              <td><code>int</code></td>
+              <td>4 bytes</td>
+              <td>0</td>
+              <td><code>int i = 42;</code></td>
+            </tr>
+            <tr>
+              <td><code>long</code></td>
+              <td>8 bytes</td>
+              <td>0L</td>
+              <td><code>long l = 123L;</code></td>
+            </tr>
+            <tr>
+              <td rowspan="3">Floating</td>
+              <td><code>float</code></td>
+              <td>4 bytes</td>
+              <td>0.0f</td>
+              <td><code>float f = 3.14f;</code></td>
+            </tr>
+            <tr>
+              <td><code>double</code></td>
+              <td>8 bytes</td>
+              <td>0.0d</td>
+              <td><code>double d = 3.14;</code></td>
+            </tr>
+            <tr>
+              <td><code>decimal</code></td>
+              <td>16 bytes</td>
+              <td>0.0m</td>
+              <td><code>decimal m = 19.99m;</code></td>
+            </tr>
+            <tr>
+              <td>Boolean</td>
+              <td><code>bool</code></td>
+              <td>1 byte</td>
+              <td>false</td>
+              <td><code>bool b = true;</code></td>
+            </tr>
+            <tr>
+              <td>Character</td>
+              <td><code>char</code></td>
+              <td>2 bytes</td>
+              <td>'\0'</td>
+              <td><code>char c = 'A';</code></td>
+            </tr>
+            <tr>
+              <td>Text</td>
+              <td><code>string</code></td>
+              <td>varies</td>
+              <td>null</td>
+              <td><code>string s = "Hi";</code></td>
+            </tr>
+          </tbody>
+        </table>
+
+        <h2>Type Inference with var</h2>
+
+        <p>
+          C# can often figure out the type from the value you're assigning. The <code>var</code> 
+          keyword lets the compiler infer the type automatically:
+        </p>
+
+        <div class="code-header">
+          <span class="code-filename">TypeInference.cs</span>
+          <span class="code-language">C#</span>
+        </div>
+        <pre><code><span class="code-comment">// Explicit typing</span>
+<span class="code-type">int</span> <span class="code-variable">count</span> = <span class="code-number">10</span>;
+<span class="code-type">string</span> <span class="code-variable">name</span> = <span class="code-string">"Akwasi"</span>;
+<span class="code-type">double</span> <span class="code-variable">price</span> = <span class="code-number">29.99</span>;
+
+<span class="code-comment">// Same thing with var (compiler infers the type)</span>
+<span class="code-keyword">var</span> <span class="code-variable">count</span> = <span class="code-number">10</span>;          <span class="code-comment">// Compiler knows this is int</span>
+<span class="code-keyword">var</span> <span class="code-variable">name</span> = <span class="code-string">"Akwasi"</span>;     <span class="code-comment">// Compiler knows this is string</span>
+<span class="code-keyword">var</span> <span class="code-variable">price</span> = <span class="code-number">29.99</span>;       <span class="code-comment">// Compiler knows this is double</span>
+
+<span class="code-comment">// The variable is STILL strongly typed!</span>
+<span class="code-keyword">var</span> <span class="code-variable">age</span> = <span class="code-number">25</span>;
+<span class="code-variable">age</span> = <span class="code-string">"twenty-five"</span>;     <span class="code-comment">// ERROR! age is an int, can't assign string</span>
+
+<span class="code-comment">// var REQUIRES initialization (compiler needs to see the value)</span>
+<span class="code-keyword">var</span> <span class="code-variable">mystery</span>;              <span class="code-comment">// ERROR! Can't infer type without a value</span></code></pre>
+
+        <div class="callout callout-concept">
+          <div class="callout-title">💡 var is NOT Dynamic Typing</div>
+          <p>
+            <code>var</code> is <strong>not</strong> like JavaScript's <code>var</code> or Python's 
+            variables. The type is determined at compile time and cannot change. It's just 
+            shorthand—the compiler fills in the explicit type for you.
+          </p>
+        </div>
+
+        <p>
+          <strong>When to use <code>var</code>:</strong>
+        </p>
+
+        <ul>
+          <li>When the type is obvious from the right side: <code>var name = "Akwasi";</code></li>
+          <li>When the type name is very long: <code>var customers = new Dictionary&lt;string, List&lt;Customer&gt;&gt;();</code></li>
+          <li>In LINQ queries and anonymous types (we'll see this later)</li>
+        </ul>
+
+        <p>
+          <strong>When to use explicit types:</strong>
+        </p>
+
+        <ul>
+          <li>When the type isn't obvious: <code>int result = CalculateSomething();</code></li>
+          <li>When you want to be specific: <code>decimal price = 19.99m;</code> (not double)</li>
+          <li>When teaching or in documentation</li>
+        </ul>
+
+        <h2>Constants: Values That Never Change</h2>
+
+        <p>
+          Sometimes you have values that should never change during program execution—mathematical 
+          constants, configuration values, magic numbers that have meaning. C# provides two ways 
+          to create immutable values.
+        </p>
+
+        <h3>const: Compile-Time Constants</h3>
+
+        <div class="code-header">
+          <span class="code-filename">Constants.cs</span>
+          <span class="code-language">C#</span>
+        </div>
+        <pre><code><span class="code-keyword">const</span> <span class="code-type">double</span> <span class="code-variable">Pi</span> = <span class="code-number">3.14159265358979</span>;
+<span class="code-keyword">const</span> <span class="code-type">int</span> <span class="code-variable">MaxRetries</span> = <span class="code-number">3</span>;
+<span class="code-keyword">const</span> <span class="code-type">string</span> <span class="code-variable">CompanyName</span> = <span class="code-string">"Adullam Solutions"</span>;
+<span class="code-keyword">const</span> <span class="code-type">decimal</span> <span class="code-variable">VatRate</span> = <span class="code-number">0.125m</span>;  <span class="code-comment">// 12.5% VAT in Ghana</span>
+
+<span class="code-comment">// Constants must be assigned at declaration</span>
+<span class="code-keyword">const</span> <span class="code-type">int</span> <span class="code-variable">Value</span>;              <span class="code-comment">// ERROR! Must have a value</span>
+
+<span class="code-comment">// Constants cannot be changed</span>
+<span class="code-variable">Pi</span> = <span class="code-number">3.0</span>;                      <span class="code-comment">// ERROR! Cannot modify a constant</span>
+
+<span class="code-comment">// Constants can only be primitive types or strings</span>
+<span class="code-keyword">const</span> DateTime <span class="code-variable">StartDate</span> = ...;  <span class="code-comment">// ERROR! DateTime is not allowed</span></code></pre>
+
+        <h3>readonly: Runtime Constants</h3>
+
+        <p>
+          <code>readonly</code> fields can be assigned at declaration or in the constructor, 
+          but never changed after that. They're more flexible than <code>const</code>.
+        </p>
+
+        <div class="code-header">
+          <span class="code-filename">ReadOnlyFields.cs</span>
+          <span class="code-language">C#</span>
+        </div>
+        <pre><code><span class="code-keyword">class</span> <span class="code-class">Configuration</span>
+{
+    <span class="code-comment">// Can be assigned at declaration</span>
+    <span class="code-keyword">public readonly</span> <span class="code-type">string</span> <span class="code-variable">Version</span> = <span class="code-string">"1.0.0"</span>;
+    
+    <span class="code-comment">// Can be assigned in constructor</span>
+    <span class="code-keyword">public readonly</span> DateTime <span class="code-variable">StartupTime</span>;
+    <span class="code-keyword">public readonly</span> <span class="code-type">string</span> <span class="code-variable">MachineName</span>;
+    
+    <span class="code-keyword">public</span> <span class="code-method">Configuration</span>()
+    {
+        <span class="code-variable">StartupTime</span> = DateTime.Now;           <span class="code-comment">// Set at runtime</span>
+        <span class="code-variable">MachineName</span> = Environment.MachineName; <span class="code-comment">// Set at runtime</span>
+    }
+}</code></pre>
+
+        <table>
+          <thead>
+            <tr>
+              <th>Feature</th>
+              <th><code>const</code></th>
+              <th><code>readonly</code></th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>When assigned</td>
+              <td>Compile time only</td>
+              <td>Declaration or constructor</td>
+            </tr>
+            <tr>
+              <td>Allowed types</td>
+              <td>Primitives and strings only</td>
+              <td>Any type</td>
+            </tr>
+            <tr>
+              <td>Can use runtime values</td>
+              <td>No</td>
+              <td>Yes</td>
+            </tr>
+            <tr>
+              <td>Memory</td>
+              <td>Substituted at compile time</td>
+              <td>Stored as a field</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <h2>Value Types vs Reference Types</h2>
+
+        <p>
+          This is one of the most important concepts in C#. Understanding the difference will 
+          help you avoid subtle bugs and write more efficient code.
+        </p>
+
+        <h3>Value Types: Stored Directly</h3>
+
+        <p>
+          <span class="term">Value types</span> store their data directly in the variable. When you 
+          copy a value type, you get an independent copy.
+        </p>
+
+        <div class="code-header">
+          <span class="code-filename">ValueTypes.cs</span>
+          <span class="code-language">C#</span>
+        </div>
+        <pre><code><span class="code-type">int</span> <span class="code-variable">a</span> = <span class="code-number">10</span>;
+<span class="code-type">int</span> <span class="code-variable">b</span> = <span class="code-variable">a</span>;     <span class="code-comment">// b gets a COPY of a's value</span>
+
+<span class="code-variable">b</span> = <span class="code-number">20</span>;        <span class="code-comment">// Changing b does NOT affect a</span>
+
+Console.<span class="code-method">WriteLine</span>(<span class="code-variable">a</span>);  <span class="code-comment">// Output: 10 (unchanged)</span>
+Console.<span class="code-method">WriteLine</span>(<span class="code-variable">b</span>);  <span class="code-comment">// Output: 20</span></code></pre>
+
+        <p>
+          Value types include: <code>int</code>, <code>double</code>, <code>decimal</code>, 
+          <code>bool</code>, <code>char</code>, <code>struct</code>, and <code>enum</code>.
+        </p>
+
+        <div class="analogy">
+          Value types are like physical documents. If you photocopy a document and give someone 
+          the copy, they can write on their copy without affecting your original.
+        </div>
+
+        <h3>Reference Types: Stored Indirectly</h3>
+
+        <p>
+          <span class="term">Reference types</span> store a <em>reference</em> (pointer) to where 
+          the data actually lives. When you copy a reference type, both variables point to the 
+          same data.
+        </p>
+
+        <div class="code-header">
+          <span class="code-filename">ReferenceTypes.cs</span>
+          <span class="code-language">C#</span>
+        </div>
+        <pre><code><span class="code-type">int</span>[] <span class="code-variable">a</span> = { <span class="code-number">1</span>, <span class="code-number">2</span>, <span class="code-number">3</span> };     <span class="code-comment">// Array is a reference type</span>
+<span class="code-type">int</span>[] <span class="code-variable">b</span> = <span class="code-variable">a</span>;              <span class="code-comment">// b points to the SAME array as a</span>
+
+<span class="code-variable">b</span>[<span class="code-number">0</span>] = <span class="code-number">99</span>;                <span class="code-comment">// Changing through b...</span>
+
+Console.<span class="code-method">WriteLine</span>(<span class="code-variable">a</span>[<span class="code-number">0</span>]);   <span class="code-comment">// Output: 99 (a is affected!)</span>
+Console.<span class="code-method">WriteLine</span>(<span class="code-variable">b</span>[<span class="code-number">0</span>]);   <span class="code-comment">// Output: 99</span></code></pre>
+
+        <p>
+          Reference types include: <code>string</code> (special case), <code>object</code>, 
+          arrays, <code>class</code>, and delegates.
+        </p>
+
+        <div class="analogy">
+          Reference types are like sharing a Google Doc link. If you give someone the link, 
+          you're both editing the same document. Changes either person makes are seen by both.
+        </div>
+
+        <h3>The Stack and the Heap</h3>
+
+        <p>
+          Behind the scenes, value types and reference types are stored in different memory areas:
+        </p>
+
+        <table>
+          <thead>
+            <tr>
+              <th></th>
+              <th>Stack</th>
+              <th>Heap</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>What's stored</strong></td>
+              <td>Value types, references (pointers)</td>
+              <td>Reference type data (objects)</td>
+            </tr>
+            <tr>
+              <td><strong>Speed</strong></td>
+              <td>Very fast</td>
+              <td>Slower</td>
+            </tr>
+            <tr>
+              <td><strong>Size</strong></td>
+              <td>Limited (1 MB default)</td>
+              <td>Large (limited by system RAM)</td>
+            </tr>
+            <tr>
+              <td><strong>Management</strong></td>
+              <td>Automatic (LIFO)</td>
+              <td>Garbage collected</td>
+            </tr>
+            <tr>
+              <td><strong>Lifetime</strong></td>
+              <td>Until scope ends</td>
+              <td>Until no references remain</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <div class="callout callout-info">
+          <div class="callout-title">ℹ️ Why Does This Matter?</div>
+          <p>
+            Understanding value vs reference types helps you:
+          </p>
+          <ul>
+            <li>Predict when modifying one variable affects another</li>
+            <li>Understand method parameter behavior (passing by value vs reference)</li>
+            <li>Avoid bugs when working with collections and objects</li>
+            <li>Write more memory-efficient code</li>
+          </ul>
+        </div>
+
+        <h2>Nullable Types: Handling "No Value"</h2>
+
+        <p>
+          Sometimes a variable legitimately has no value. A customer might not have provided 
+          their phone number. A product might not have a discount. How do we represent "nothing"?
+        </p>
+
+        <h3>The Problem with Null</h3>
+
+        <p>
+          Reference types can be <code>null</code> (meaning "no object"), but value types cannot:
+        </p>
+
+        <div class="code-header">
+          <span class="code-filename">NullProblem.cs</span>
+          <span class="code-language">C#</span>
+        </div>
+        <pre><code><span class="code-type">string</span> <span class="code-variable">name</span> = <span class="code-keyword">null</span>;   <span class="code-comment">// OK - string is a reference type</span>
+<span class="code-type">int</span> <span class="code-variable">age</span> = <span class="code-keyword">null</span>;       <span class="code-comment">// ERROR! int cannot be null</span></code></pre>
+
+        <p>
+          But what if a customer's age is unknown? Using <code>0</code> or <code>-1</code> as 
+          "no value" is a hack that leads to bugs.
+        </p>
+
+        <h3>Nullable Value Types</h3>
+
+        <p>
+          C# solves this with <span class="term">nullable value types</span>, written as <code>T?</code>:
+        </p>
+
+        <div class="code-header">
+          <span class="code-filename">NullableTypes.cs</span>
+          <span class="code-language">C#</span>
+        </div>
+        <pre><code><span class="code-type">int?</span> <span class="code-variable">age</span> = <span class="code-keyword">null</span>;            <span class="code-comment">// OK! int? can be null</span>
+<span class="code-type">double?</span> <span class="code-variable">discount</span> = <span class="code-keyword">null</span>;     <span class="code-comment">// No discount applied</span>
+<span class="code-type">bool?</span> <span class="code-variable">isVerified</span> = <span class="code-keyword">null</span>;     <span class="code-comment">// Unknown verification status</span>
+<span class="code-type">DateTime?</span> <span class="code-variable">deletedAt</span> = <span class="code-keyword">null</span>;  <span class="code-comment">// Not deleted yet</span>
+
+<span class="code-comment">// Checking if a nullable has a value</span>
+<span class="code-keyword">if</span> (<span class="code-variable">age</span>.HasValue)
+{
+    Console.<span class="code-method">WriteLine</span>(<span class="code-string">$"Age is </span>{<span class="code-variable">age</span>.Value}<span class="code-string">"</span>);
+}
+<span class="code-keyword">else</span>
+{
+    Console.<span class="code-method">WriteLine</span>(<span class="code-string">"Age is unknown"</span>);
+}
+
+<span class="code-comment">// Shorthand: null-conditional and null-coalescing</span>
+<span class="code-type">int</span> <span class="code-variable">displayAge</span> = <span class="code-variable">age</span> ?? <span class="code-number">0</span>;           <span class="code-comment">// Use 0 if age is null</span>
+<span class="code-type">int</span> <span class="code-variable">displayAge2</span> = <span class="code-variable">age</span> ?? <span class="code-keyword">default</span>;    <span class="code-comment">// Use default (0) if null</span>
+
+<span class="code-comment">// Real-world example: ERP inventory</span>
+<span class="code-type">decimal?</span> <span class="code-variable">lastPurchasePrice</span> = <span class="code-keyword">null</span>;   <span class="code-comment">// New product, never purchased</span>
+<span class="code-type">int?</span> <span class="code-variable">reorderLevel</span> = <span class="code-number">10</span>;              <span class="code-comment">// Has a value</span>
+<span class="code-type">DateTime?</span> <span class="code-variable">expiryDate</span> = <span class="code-keyword">null</span>;         <span class="code-comment">// Non-perishable item</span></code></pre>
+
+        <div class="callout callout-warning">
+          <div class="callout-title">⚠️ The Billion-Dollar Mistake</div>
+          <p>
+            Tony Hoare, inventor of null references, called it his "billion-dollar mistake" 
+            because null-related bugs have caused countless errors over the decades. Modern 
+            C# has <strong>nullable reference types</strong> (enabled by default in new projects) 
+            that help you track where null is allowed. We'll cover this more in later sections.
+          </p>
+        </div>
+
+        <h2>Type Conversion</h2>
+
+        <p>
+          Often you need to convert data from one type to another. C# provides several ways 
+          to do this, each with different safety characteristics.
+        </p>
+
+        <h3>Implicit Conversion (Safe, Automatic)</h3>
+
+        <p>
+          When there's no risk of data loss, C# converts automatically:
+        </p>
+
+        <div class="code-header">
+          <span class="code-filename">ImplicitConversion.cs</span>
+          <span class="code-language">C#</span>
+        </div>
+        <pre><code><span class="code-type">int</span> <span class="code-variable">myInt</span> = <span class="code-number">100</span>;
+<span class="code-type">long</span> <span class="code-variable">myLong</span> = <span class="code-variable">myInt</span>;      <span class="code-comment">// OK! int fits perfectly in long</span>
+<span class="code-type">double</span> <span class="code-variable">myDouble</span> = <span class="code-variable">myInt</span>;  <span class="code-comment">// OK! int fits perfectly in double</span>
+
+<span class="code-type">float</span> <span class="code-variable">myFloat</span> = <span class="code-number">3.14f</span>;
+<span class="code-type">double</span> <span class="code-variable">myDouble2</span> = <span class="code-variable">myFloat</span>; <span class="code-comment">// OK! float fits in double</span></code></pre>
+
+        <p>
+          The rule: smaller types can be implicitly converted to larger types (widening).
+        </p>
+
+        <h3>Explicit Conversion / Casting (Potentially Unsafe)</h3>
+
+        <p>
+          When data might be lost, you must explicitly cast:
+        </p>
+
+        <div class="code-header">
+          <span class="code-filename">ExplicitConversion.cs</span>
+          <span class="code-language">C#</span>
+        </div>
+        <pre><code><span class="code-type">double</span> <span class="code-variable">myDouble</span> = <span class="code-number">9.78</span>;
+<span class="code-type">int</span> <span class="code-variable">myInt</span> = (<span class="code-type">int</span>)<span class="code-variable">myDouble</span>;    <span class="code-comment">// Cast required! myInt = 9 (decimal truncated)</span>
+
+<span class="code-type">long</span> <span class="code-variable">bigNumber</span> = <span class="code-number">3_000_000_000L</span>;
+<span class="code-type">int</span> <span class="code-variable">smallNumber</span> = (<span class="code-type">int</span>)<span class="code-variable">bigNumber</span>;  <span class="code-comment">// DANGER! Overflow - wrong result!</span>
+
+<span class="code-comment">// Use checked to detect overflow</span>
+<span class="code-keyword">checked</span>
+{
+    <span class="code-type">int</span> <span class="code-variable">safe</span> = (<span class="code-type">int</span>)<span class="code-variable">bigNumber</span>;  <span class="code-comment">// Throws OverflowException</span>
+}</code></pre>
+
+        <h3>Parsing Strings to Numbers</h3>
+
+        <p>
+          Converting strings to numbers is extremely common—user input, file data, API responses 
+          all come as strings:
+        </p>
+
+        <div class="code-header">
+          <span class="code-filename">Parsing.cs</span>
+          <span class="code-language">C#</span>
+        </div>
+        <pre><code><span class="code-type">string</span> <span class="code-variable">input</span> = <span class="code-string">"42"</span>;
+
+<span class="code-comment">// Parse - throws exception if invalid</span>
+<span class="code-type">int</span> <span class="code-variable">number1</span> = <span class="code-type">int</span>.<span class="code-method">Parse</span>(<span class="code-variable">input</span>);           <span class="code-comment">// 42</span>
+<span class="code-type">int</span> <span class="code-variable">number2</span> = <span class="code-type">int</span>.<span class="code-method">Parse</span>(<span class="code-string">"not a number"</span>);  <span class="code-comment">// THROWS FormatException!</span>
+
+<span class="code-comment">// TryParse - returns bool, safer for user input</span>
+<span class="code-keyword">if</span> (<span class="code-type">int</span>.<span class="code-method">TryParse</span>(<span class="code-variable">input</span>, <span class="code-keyword">out</span> <span class="code-type">int</span> <span class="code-variable">result</span>))
+{
+    Console.<span class="code-method">WriteLine</span>(<span class="code-string">$"Parsed: </span>{<span class="code-variable">result</span>}<span class="code-string">"</span>);
+}
+<span class="code-keyword">else</span>
+{
+    Console.<span class="code-method">WriteLine</span>(<span class="code-string">"Invalid number"</span>);
+}
+
+<span class="code-comment">// Converting other types</span>
+<span class="code-type">double</span> <span class="code-variable">price</span> = <span class="code-type">double</span>.<span class="code-method">Parse</span>(<span class="code-string">"19.99"</span>);
+<span class="code-type">decimal</span> <span class="code-variable">amount</span> = <span class="code-type">decimal</span>.<span class="code-method">Parse</span>(<span class="code-string">"1234.56"</span>);
+<span class="code-type">bool</span> <span class="code-variable">flag</span> = <span class="code-type">bool</span>.<span class="code-method">Parse</span>(<span class="code-string">"true"</span>);
+DateTime <span class="code-variable">date</span> = DateTime.<span class="code-method">Parse</span>(<span class="code-string">"2024-01-15"</span>);</code></pre>
+
+        <div class="callout callout-tip">
+          <div class="callout-title">💡 Always Use TryParse for User Input</div>
+          <p>
+            When parsing data from users, files, or external sources, always use <code>TryParse</code>. 
+            It won't crash your program if the input is invalid. Reserve <code>Parse</code> for 
+            data you're certain is valid.
+          </p>
+        </div>
+
+        <h3>The Convert Class</h3>
+
+        <p>
+          The <code>Convert</code> class provides another way to convert between types:
+        </p>
+
+        <div class="code-header">
+          <span class="code-filename">ConvertClass.cs</span>
+          <span class="code-language">C#</span>
+        </div>
+        <pre><code><span class="code-type">string</span> <span class="code-variable">text</span> = <span class="code-string">"123"</span>;
+<span class="code-type">int</span> <span class="code-variable">number</span> = Convert.<span class="code-method">ToInt32</span>(<span class="code-variable">text</span>);
+<span class="code-type">double</span> <span class="code-variable">dbl</span> = Convert.<span class="code-method">ToDouble</span>(<span class="code-variable">text</span>);
+<span class="code-type">bool</span> <span class="code-variable">flag</span> = Convert.<span class="code-method">ToBoolean</span>(<span class="code-number">1</span>);      <span class="code-comment">// true (non-zero = true)</span>
+
+<span class="code-comment">// Convert handles null gracefully (returns default)</span>
+<span class="code-type">string</span> <span class="code-variable">nullString</span> = <span class="code-keyword">null</span>;
+<span class="code-type">int</span> <span class="code-variable">fromNull</span> = Convert.<span class="code-method">ToInt32</span>(<span class="code-variable">nullString</span>);  <span class="code-comment">// Returns 0, doesn't throw</span></code></pre>
+
+        <h3>ToString(): Converting Anything to String</h3>
+
+        <p>
+          Every object in C# has a <code>ToString()</code> method:
+        </p>
+
+        <div class="code-header">
+          <span class="code-filename">ToString.cs</span>
+          <span class="code-language">C#</span>
+        </div>
+        <pre><code><span class="code-type">int</span> <span class="code-variable">number</span> = <span class="code-number">42</span>;
+<span class="code-type">string</span> <span class="code-variable">text</span> = <span class="code-variable">number</span>.<span class="code-method">ToString</span>();  <span class="code-comment">// "42"</span>
+
+<span class="code-type">double</span> <span class="code-variable">price</span> = <span class="code-number">1234.56</span>;
+<span class="code-type">string</span> <span class="code-variable">formatted</span> = <span class="code-variable">price</span>.<span class="code-method">ToString</span>(<span class="code-string">"C"</span>);  <span class="code-comment">// "$1,234.56" (currency)</span>
+<span class="code-type">string</span> <span class="code-variable">twoDecimals</span> = <span class="code-variable">price</span>.<span class="code-method">ToString</span>(<span class="code-string">"F2"</span>);  <span class="code-comment">// "1234.56" (2 decimal places)</span>
+
+DateTime <span class="code-variable">now</span> = DateTime.Now;
+<span class="code-type">string</span> <span class="code-variable">dateStr</span> = <span class="code-variable">now</span>.<span class="code-method">ToString</span>(<span class="code-string">"yyyy-MM-dd"</span>);  <span class="code-comment">// "2024-01-15"</span></code></pre>
+
+        <div class="section-divider"></div>
+
+        <h2>Putting It All Together: A Practical Example</h2>
+
+        <p>
+          Let's use everything we've learned in a realistic scenario—a product in our 
+          InvenTrack system:
+        </p>
+
+        <div class="code-header">
+          <span class="code-filename">ProductExample.cs</span>
+          <span class="code-language">C#</span>
+        </div>
+        <pre><code><span class="code-comment">// InvenTrack Product Variables</span>
+
+<span class="code-comment">// Identifiers</span>
+<span class="code-type">int</span> <span class="code-variable">productId</span> = <span class="code-number">1001</span>;
+<span class="code-type">string</span> <span class="code-variable">sku</span> = <span class="code-string">"WIDGET-001"</span>;
+<span class="code-type">string</span> <span class="code-variable">name</span> = <span class="code-string">"Premium Widget"</span>;
+<span class="code-type">string</span> <span class="code-variable">description</span> = <span class="code-string">"A high-quality widget for all your widget needs."</span>;
+
+<span class="code-comment">// Pricing (always use decimal for money!)</span>
+<span class="code-type">decimal</span> <span class="code-variable">costPrice</span> = <span class="code-number">45.00m</span>;
+<span class="code-type">decimal</span> <span class="code-variable">sellingPrice</span> = <span class="code-number">79.99m</span>;
+<span class="code-type">decimal?</span> <span class="code-variable">discountPrice</span> = <span class="code-keyword">null</span>;  <span class="code-comment">// No discount currently</span>
+
+<span class="code-comment">// Inventory</span>
+<span class="code-type">int</span> <span class="code-variable">quantityOnHand</span> = <span class="code-number">150</span>;
+<span class="code-type">int</span> <span class="code-variable">reorderLevel</span> = <span class="code-number">25</span>;
+<span class="code-type">int?</span> <span class="code-variable">maxStockLevel</span> = <span class="code-number">500</span>;  <span class="code-comment">// Optional maximum</span>
+
+<span class="code-comment">// Status flags</span>
+<span class="code-type">bool</span> <span class="code-variable">isActive</span> = <span class="code-keyword">true</span>;
+<span class="code-type">bool</span> <span class="code-variable">isTaxable</span> = <span class="code-keyword">true</span>;
+<span class="code-type">bool</span> <span class="code-variable">trackInventory</span> = <span class="code-keyword">true</span>;
+
+<span class="code-comment">// Dates</span>
+DateTime <span class="code-variable">createdAt</span> = DateTime.Now;
+DateTime? <span class="code-variable">lastSoldAt</span> = <span class="code-keyword">null</span>;  <span class="code-comment">// Never sold yet</span>
+DateTime? <span class="code-variable">expiryDate</span> = <span class="code-keyword">null</span>;   <span class="code-comment">// Non-perishable</span>
+
+<span class="code-comment">// Physical properties</span>
+<span class="code-type">double</span> <span class="code-variable">weight</span> = <span class="code-number">0.5</span>;  <span class="code-comment">// kg</span>
+<span class="code-type">double</span> <span class="code-variable">length</span> = <span class="code-number">10.0</span>; <span class="code-comment">// cm</span>
+<span class="code-type">double</span> <span class="code-variable">width</span> = <span class="code-number">5.0</span>;   <span class="code-comment">// cm</span>
+<span class="code-type">double</span> <span class="code-variable">height</span> = <span class="code-number">2.5</span>;  <span class="code-comment">// cm</span>
+
+<span class="code-comment">// Constants for calculations</span>
+<span class="code-keyword">const</span> <span class="code-type">decimal</span> <span class="code-variable">VatRate</span> = <span class="code-number">0.125m</span>;  <span class="code-comment">// 12.5% Ghana VAT</span>
+
+<span class="code-comment">// Calculated values</span>
+<span class="code-type">decimal</span> <span class="code-variable">effectivePrice</span> = <span class="code-variable">discountPrice</span> ?? <span class="code-variable">sellingPrice</span>;
+<span class="code-type">decimal</span> <span class="code-variable">vatAmount</span> = <span class="code-variable">effectivePrice</span> * <span class="code-variable">VatRate</span>;
+<span class="code-type">decimal</span> <span class="code-variable">priceWithVat</span> = <span class="code-variable">effectivePrice</span> + <span class="code-variable">vatAmount</span>;
+<span class="code-type">decimal</span> <span class="code-variable">profitMargin</span> = <span class="code-variable">sellingPrice</span> - <span class="code-variable">costPrice</span>;
+<span class="code-type">bool</span> <span class="code-variable">needsReorder</span> = <span class="code-variable">quantityOnHand</span> <= <span class="code-variable">reorderLevel</span>;
+
+<span class="code-comment">// Output</span>
+Console.<span class="code-method">WriteLine</span>(<span class="code-string">$"Product: </span>{<span class="code-variable">name</span>}<span class="code-string"> (</span>{<span class="code-variable">sku</span>}<span class="code-string">)"</span>);
+Console.<span class="code-method">WriteLine</span>(<span class="code-string">$"Price: </span>{<span class="code-variable">priceWithVat</span>:C}<span class="code-string"> (incl. VAT)"</span>);
+Console.<span class="code-method">WriteLine</span>(<span class="code-string">$"In Stock: </span>{<span class="code-variable">quantityOnHand</span>}<span class="code-string"> units"</span>);
+Console.<span class="code-method">WriteLine</span>(<span class="code-string">$"Needs Reorder: </span>{<span class="code-variable">needsReorder</span>}<span class="code-string">"</span>);</code></pre>
+
+        <div class="section-divider"></div>
+
+        <h2>Key Takeaways</h2>
+
+        <ul>
+          <li>Variables are named containers with a <strong>type</strong>, <strong>name</strong>, and <strong>value</strong></li>
+          <li>Use <code>int</code> for whole numbers, <code>double</code> for decimals, <code>decimal</code> for <strong>money</strong></li>
+          <li><code>bool</code> holds true/false, <code>char</code> holds single characters, <code>string</code> holds text</li>
+          <li><code>var</code> lets the compiler infer the type (still statically typed!)</li>
+          <li>Use <code>const</code> for compile-time constants, <code>readonly</code> for runtime constants</li>
+          <li><strong>Value types</strong> store data directly; <strong>reference types</strong> store references</li>
+          <li>Use <code>T?</code> (nullable types) when a value might legitimately not exist</li>
+          <li>Use <code>TryParse</code> for safe string-to-number conversion</li>
+        </ul>
+
+        <div class="callout callout-tip">
+          <div class="callout-title">🚀 Ready for Operations!</div>
+          <p>
+            You now understand how to store data in C#. In the next section, we'll learn how 
+            to <em>manipulate</em> that data using operators and expressions—arithmetic, 
+            comparisons, logical operations, and more.
+          </p>
+        </div>
+
+        <h2>What's Next?</h2>
+
+        <p>
+          In the next section, <strong>Operators and Expressions</strong>, we'll learn how to 
+          perform calculations, make comparisons, and combine conditions. You'll see how to 
+          turn raw data into meaningful results.
+        </p>
+
+        <!-- Page Navigation -->
+        <nav class="page-nav">
+          <a href="02-what-is-csharp-dotnet.html" class="prev">What is C# and .NET?</a>
+          <a href="04-operators-and-expressions.html" class="next">Operators and Expressions</a>
+        </nav>
+
+      
+        <footer class="page-footer">
+          Built with 💜 by <a href="https://akwasi.dev" target="_blank" rel="noopener noreferrer">Akwasi Adu-Kyeremeh</a> for developers who want to truly understand what they're building.
+        </footer>
+
+      </div>
+    </main>
+  </div>
+</body>
+</html>

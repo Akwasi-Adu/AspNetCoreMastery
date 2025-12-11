@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Endpoint Routing Basics | ASP.NET Core Mastery</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;500&family=Source+Serif+4:ital,wght@0,400;0,600;1,400&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="../assets/style.css">
+</head>
+
+<body>
+    <div class="page-wrapper">
+        <aside class="sidebar">
+            <a href="../index.html" class="sidebar-logo">ASP.NET Core Mastery</a>
+            <div class="sidebar-section">Part VII: Routing</div>
+            <ul class="sidebar-nav">
+                <li><a href="01-endpoint-routing.html" class="active">Endpoint Routing Basics</a></li>
+                <li><a href="02-conventional-vs-attribute.html">Conventional vs Attribute Routing</a></li>
+                <li><a href="03-route-parameters.html">Route Parameters</a></li>
+                <li><a href="04-route-constraints.html">Route Constraints</a></li>
+                <li><a href="05-url-generation.html">URL Generation</a></li>
+                <li><a href="06-areas.html">Areas</a></li>
+            </ul>
+            <div class="sidebar-section">Resources</div>
+            <ul class="sidebar-nav">
+                <li><a href="../index.html">Full Roadmap</a></li>
+            </ul>
+        </aside>
+
+        <main class="main-content">
+            <div class="content-container">
+                <nav class="breadcrumb">
+                    <a href="../index.html">Home</a>
+                    <span>→</span>
+                    <a href="01-endpoint-routing.html">Part VII: Routing</a>
+                    <span>→</span>
+                    Endpoint Routing Basics
+                </nav>
+
+                <div class="progress-indicator">
+                    <span>Section 1 of 6</span>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 16.67%"></div>
+                    </div>
+                </div>
+
+                <h1>Endpoint Routing Basics</h1>
+
+                <div class="learning-objectives">
+                    <h3>🎯 What You'll Learn</h3>
+                    <ul>
+                        <li>What routing is and why it matters</li>
+                        <li>Endpoint routing architecture</li>
+                        <li>How routing works in ASP.NET Core</li>
+                        <li>UseRouting and UseEndpoints middleware</li>
+                        <li>Route matching process</li>
+                        <li>Endpoint metadata</li>
+                    </ul>
+                </div>
+
+                <h2>What is Routing?</h2>
+
+                <p>
+                    <strong>Routing</strong> is the process of mapping incoming HTTP requests to specific
+                    endpoints (controllers, actions, handlers) based on the URL pattern.
+                </p>
+
+                <div class="code-header">
+                    <span class="code-filename">Routing Example</span>
+                    <span class="code-language">Text</span>
+                </div>
+                <pre><code>URL: /api/products/123
+     ↓
+Route: /api/products/{id}
+     ↓
+Controller: ProductsController
+Action: GetProduct(int id)
+     ↓
+Result: Product with ID 123</code></pre>
+
+                <div class="callout callout-concept">
+                    <div class="callout-title">💡 Key Concept</div>
+                    <p>
+                        Routing is like a GPS for your application—it determines which code should handle
+                        each incoming request based on the URL.
+                    </p>
+                </div>
+
+                <div class="section-divider"></div>
+
+                <h2>Endpoint Routing Architecture</h2>
+
+                <p>
+                    ASP.NET Core uses <strong>endpoint routing</strong>, which separates route matching
+                    from endpoint execution.
+                </p>
+
+                <div class="code-header">
+                    <span class="code-filename">Two-Phase Process</span>
+                    <span class="code-language">Text</span>
+                </div>
+                <pre><code>1. UseRouting() → Match the route
+   ↓
+   [Other middleware can run here]
+   ↓
+2. UseEndpoints() → Execute the endpoint</code></pre>
+
+                <h3>Why Two Phases?</h3>
+
+                <p>
+                    This separation allows middleware (like authentication, authorization, CORS) to run
+                    <strong>after</strong> route matching but <strong>before</strong> endpoint execution.
+                </p>
+
+                <div class="code-header">
+                    <span class="code-filename">Program.cs</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-keyword">var</span> <span class="code-variable">app</span> = <span class="code-variable">builder</span>.<span class="code-method">Build</span>();
+
+<span class="code-variable">app</span>.<span class="code-method">UseRouting</span>();        <span class="code-comment">// 1. Match route</span>
+
+<span class="code-comment">// Middleware that needs route information</span>
+<span class="code-variable">app</span>.<span class="code-method">UseCors</span>();
+<span class="code-variable">app</span>.<span class="code-method">UseAuthentication</span>();
+<span class="code-variable">app</span>.<span class="code-method">UseAuthorization</span>();
+
+<span class="code-variable">app</span>.<span class="code-method">MapControllers</span>();    <span class="code-comment">// 2. Execute endpoint (implicit UseEndpoints)</span></code></pre>
+
+                <div class="section-divider"></div>
+
+                <h2>Route Matching Process</h2>
+
+                <div class="code-header">
+                    <span class="code-filename">Matching Steps</span>
+                    <span class="code-language">Text</span>
+                </div>
+                <pre><code>1. Request arrives: GET /api/products/123
+   ↓
+2. UseRouting() examines all registered routes
+   ↓
+3. Finds matching route: /api/products/{id}
+   ↓
+4. Extracts route values: { id = 123 }
+   ↓
+5. Sets endpoint metadata
+   ↓
+6. Middleware runs (auth, CORS, etc.)
+   ↓
+7. UseEndpoints() executes the endpoint
+   ↓
+8. ProductsController.GetProduct(123) runs</code></pre>
+
+                <div class="section-divider"></div>
+
+                <h2>Configuring Routing</h2>
+
+                <h3>Minimal API Routing</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">Program.cs - Minimal APIs</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-keyword">var</span> <span class="code-variable">app</span> = <span class="code-variable">builder</span>.<span class="code-method">Build</span>();
+
+<span class="code-comment">// Map endpoints directly</span>
+<span class="code-variable">app</span>.<span class="code-method">MapGet</span>(<span class="code-string">"/api/products"</span>, () =&gt; <span class="code-string">"All products"</span>);
+<span class="code-variable">app</span>.<span class="code-method">MapGet</span>(<span class="code-string">"/api/products/{id}"</span>, (<span class="code-type">int</span> <span class="code-variable">id</span>) =&gt; <span class="code-string">$"Product </span>{<span class="code-variable">id</span>}<span class="code-string">"</span>);
+<span class="code-variable">app</span>.<span class="code-method">MapPost</span>(<span class="code-string">"/api/products"</span>, () =&gt; <span class="code-string">"Create product"</span>);
+
+<span class="code-variable">app</span>.<span class="code-method">Run</span>();</code></pre>
+
+                <h3>Controller-Based Routing</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">Program.cs - Controllers</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-variable">builder</span>.<span class="code-variable">Services</span>.<span class="code-method">AddControllers</span>();
+
+<span class="code-keyword">var</span> <span class="code-variable">app</span> = <span class="code-variable">builder</span>.<span class="code-method">Build</span>();
+
+<span class="code-variable">app</span>.<span class="code-method">UseRouting</span>();
+<span class="code-variable">app</span>.<span class="code-method">UseAuthorization</span>();
+<span class="code-variable">app</span>.<span class="code-method">MapControllers</span>(); <span class="code-comment">// Map all controller endpoints</span>
+
+<span class="code-variable">app</span>.<span class="code-method">Run</span>();</code></pre>
+
+                <div class="section-divider"></div>
+
+                <h2>Endpoint Metadata</h2>
+
+                <p>
+                    Endpoints can have metadata that describes their behavior (authorization, CORS, etc.).
+                </p>
+
+                <div class="code-header">
+                    <span class="code-filename">Endpoint Metadata</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-variable">app</span>.<span class="code-method">MapGet</span>(<span class="code-string">"/api/products"</span>, () =&gt; <span class="code-string">"Products"</span>)
+   .<span class="code-method">RequireAuthorization</span>()           <span class="code-comment">// Metadata: requires auth</span>
+   .<span class="code-method">RequireCors</span>(<span class="code-string">"AllowAll"</span>)         <span class="code-comment">// Metadata: CORS policy</span>
+   .<span class="code-method">WithName</span>(<span class="code-string">"GetProducts"</span>)         <span class="code-comment">// Metadata: endpoint name</span>
+   .<span class="code-method">WithTags</span>(<span class="code-string">"Products"</span>);           <span class="code-comment">// Metadata: OpenAPI tag</span></code></pre>
+
+                <div class="section-divider"></div>
+
+                <h2>Route Priority</h2>
+
+                <p>
+                    When multiple routes match, ASP.NET Core uses route priority to select the best match.
+                </p>
+
+                <h3>Priority Rules</h3>
+
+                <ol>
+                    <li><strong>Literal segments</strong> beat parameters: <code>/products/new</code> >
+                        <code>/products/{id}</code></li>
+                    <li><strong>Constrained parameters</strong> beat unconstrained: <code>{id:int}</code> >
+                        <code>{id}</code></li>
+                    <li><strong>More segments</strong> beat fewer: <code>/api/products/{id}</code> >
+                        <code>/api/{controller}</code></li>
+                </ol>
+
+                <div class="code-header">
+                    <span class="code-filename">Route Priority Example</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-comment">// Priority 1 (highest) - literal segment</span>
+<span class="code-variable">app</span>.<span class="code-method">MapGet</span>(<span class="code-string">"/products/new"</span>, () =&gt; <span class="code-string">"New product form"</span>);
+
+<span class="code-comment">// Priority 2 - constrained parameter</span>
+<span class="code-variable">app</span>.<span class="code-method">MapGet</span>(<span class="code-string">"/products/{id:int}"</span>, (<span class="code-type">int</span> <span class="code-variable">id</span>) =&gt; <span class="code-string">$"Product </span>{<span class="code-variable">id</span>}<span class="code-string">"</span>);
+
+<span class="code-comment">// Priority 3 (lowest) - unconstrained parameter</span>
+<span class="code-variable">app</span>.<span class="code-method">MapGet</span>(<span class="code-string">"/products/{slug}"</span>, (<span class="code-type">string</span> <span class="code-variable">slug</span>) =&gt; <span class="code-string">$"Product </span>{<span class="code-variable">slug</span>}<span class="code-string">"</span>);
+
+<span class="code-comment">// URL: /products/new → Matches route 1</span>
+<span class="code-comment">// URL: /products/123 → Matches route 2</span>
+<span class="code-comment">// URL: /products/laptop → Matches route 3</span></code></pre>
+
+                <div class="section-divider"></div>
+
+                <h2>Complete InvenTrack Example</h2>
+
+                <div class="code-header">
+                    <span class="code-filename">Program.cs</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-keyword">var</span> <span class="code-variable">builder</span> = <span class="code-class">WebApplication</span>.<span class="code-method">CreateBuilder</span>(<span class="code-variable">args</span>);
+
+<span class="code-comment">// Add services</span>
+<span class="code-variable">builder</span>.<span class="code-variable">Services</span>.<span class="code-method">AddControllers</span>();
+
+<span class="code-keyword">var</span> <span class="code-variable">app</span> = <span class="code-variable">builder</span>.<span class="code-method">Build</span>();
+
+<span class="code-comment">// Configure middleware pipeline</span>
+<span class="code-variable">app</span>.<span class="code-method">UseHttpsRedirection</span>();
+
+<span class="code-comment">// 1. Match route</span>
+<span class="code-variable">app</span>.<span class="code-method">UseRouting</span>();
+
+<span class="code-comment">// Middleware that needs route information</span>
+<span class="code-variable">app</span>.<span class="code-method">UseCors</span>();
+<span class="code-variable">app</span>.<span class="code-method">UseAuthentication</span>();
+<span class="code-variable">app</span>.<span class="code-method">UseAuthorization</span>();
+
+<span class="code-comment">// 2. Execute endpoint</span>
+<span class="code-variable">app</span>.<span class="code-method">MapControllers</span>();
+
+<span class="code-comment">// Additional endpoints</span>
+<span class="code-variable">app</span>.<span class="code-method">MapGet</span>(<span class="code-string">"/health"</span>, () =&gt; <span class="code-string">"Healthy"</span>).<span class="code-method">WithName</span>(<span class="code-string">"HealthCheck"</span>);
+
+<span class="code-variable">app</span>.<span class="code-method">Run</span>();</code></pre>
+
+                <div class="code-header">
+                    <span class="code-filename">Controllers/ProductsController.cs</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code>[<span class="code-class">ApiController</span>]
+[<span class="code-class">Route</span>(<span class="code-string">"api/[controller]"</span>)]
+<span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">ProductsController</span> : <span class="code-class">ControllerBase</span>
+{
+    <span class="code-comment">// GET /api/products</span>
+    [<span class="code-class">HttpGet</span>]
+    <span class="code-keyword">public</span> <span class="code-class">IActionResult</span> <span class="code-method">GetProducts</span>()
+    {
+        <span class="code-keyword">return</span> <span class="code-method">Ok</span>(<span class="code-string">"All products"</span>);
+    }
+
+    <span class="code-comment">// GET /api/products/123</span>
+    [<span class="code-class">HttpGet</span>(<span class="code-string">"{id}"</span>)]
+    <span class="code-keyword">public</span> <span class="code-class">IActionResult</span> <span class="code-method">GetProduct</span>(<span class="code-type">int</span> <span class="code-variable">id</span>)
+    {
+        <span class="code-keyword">return</span> <span class="code-method">Ok</span>(<span class="code-string">$"Product </span>{<span class="code-variable">id</span>}<span class="code-string">"</span>);
+    }
+}</code></pre>
+
+                <h2>Key Takeaways</h2>
+
+                <ul>
+                    <li><strong>Routing</strong>: Maps URLs to endpoints (controllers, actions, handlers)</li>
+                    <li><strong>Endpoint routing</strong>: Two-phase process (match → execute)</li>
+                    <li><strong>UseRouting()</strong>: Matches the route</li>
+                    <li><strong>MapControllers()</strong>: Executes the endpoint (implicit UseEndpoints)</li>
+                    <li><strong>Separation</strong>: Allows middleware to run between matching and execution</li>
+                    <li><strong>Endpoint metadata</strong>: Describes endpoint behavior (auth, CORS, etc.)</li>
+                    <li><strong>Route priority</strong>: Literal > constrained > unconstrained</li>
+                    <li><strong>Minimal APIs</strong>: Use <code>MapGet</code>, <code>MapPost</code>, etc.</li>
+                    <li><strong>Controllers</strong>: Use <code>MapControllers()</code></li>
+                </ul>
+
+                <div class="callout callout-concept">
+                    <div class="callout-title">🎯 Next Steps</div>
+                    <p>
+                        You now understand endpoint routing basics! In the next section, we'll explore
+                        <strong>Conventional vs Attribute Routing</strong>—two different ways to define
+                        routes in ASP.NET Core.
+                    </p>
+                </div>
+
+                <nav class="page-nav">
+                    <a href="../index.html" class="prev">Back to Roadmap</a>
+                    <a href="02-conventional-vs-attribute.html" class="next">Conventional vs Attribute Routing</a>
+                </nav>
+
+            
+        <footer class="page-footer">
+          Built with 💜 by <a href="https://akwasi.dev" target="_blank" rel="noopener noreferrer">Akwasi Adu-Kyeremeh</a> for developers who want to truly understand what they're building.
+        </footer>
+
+      </div>
+        </main>
+    </div>
+</body>
+
+</html>

@@ -1,0 +1,685 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NuGet Package Management | ASP.NET Core Mastery</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;500&family=Source+Serif+4:ital,wght@0,400;0,600;1,400&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="../assets/style.css">
+</head>
+
+<body>
+    <div class="page-wrapper">
+        <aside class="sidebar">
+            <a href="../index.html" class="sidebar-logo">ASP.NET Core Mastery</a>
+            <div class="sidebar-section">Part II: .NET Core Basics</div>
+            <ul class="sidebar-nav">
+                <li><a href="01-dotnet-ecosystem.html">The .NET Ecosystem</a></li>
+                <li><a href="02-installing-sdk.html">Installing the .NET SDK</a></li>
+                <li><a href="03-first-console-app.html">Your First Console App</a></li>
+                <li><a href="04-project-structure.html">Project Files & Structure</a></li>
+                <li><a href="05-dotnet-cli.html">The dotnet CLI</a></li>
+                <li><a href="06-nuget-packages.html" class="active">NuGet Package Management</a></li>
+            </ul>
+            <div class="sidebar-section">Resources</div>
+            <ul class="sidebar-nav">
+                <li><a href="../index.html">Full Roadmap</a></li>
+            </ul>
+        </aside>
+
+        <main class="main-content">
+            <div class="content-container">
+                <nav class="breadcrumb">
+                    <a href="../index.html">Home</a>
+                    <span>→</span>
+                    <a href="01-dotnet-ecosystem.html">Part II: .NET Core Basics</a>
+                    <span>→</span>
+                    NuGet Package Management
+                </nav>
+
+                <div class="progress-indicator">
+                    <span>Section 6 of 6</span>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 100%"></div>
+                    </div>
+                </div>
+
+                <h1>NuGet Package Management</h1>
+
+                <div class="learning-objectives">
+                    <h3>🎯 What You'll Learn</h3>
+                    <ul>
+                        <li>What NuGet is and why it matters</li>
+                        <li>Finding packages on NuGet.org</li>
+                        <li>Installing and managing packages</li>
+                        <li>Understanding package versions and dependencies</li>
+                        <li>Package restore and caching</li>
+                        <li>Essential packages for InvenTrack</li>
+                        <li>Security considerations</li>
+                        <li>Creating your own NuGet packages</li>
+                    </ul>
+                </div>
+
+                <h2>What is NuGet?</h2>
+
+                <p>
+                    <strong>NuGet</strong> is the package manager for .NET. It's like npm for Node.js, pip for
+                    Python, or Maven for Java. NuGet lets you easily add third-party libraries to your projects
+                    without manually downloading and managing DLLs.
+                </p>
+
+                <div class="callout callout-concept">
+                    <div class="callout-title">💡 Key Concept</div>
+                    <p>
+                        Think of NuGet as an app store for code libraries. Instead of writing everything from
+                        scratch, you can install pre-built, tested libraries for common tasks like JSON parsing,
+                        database access, logging, authentication, and more.
+                    </p>
+                </div>
+
+                <h3>Why Use NuGet?</h3>
+
+                <ul>
+                    <li><strong>Save Time</strong>: Don't reinvent the wheel—use proven libraries</li>
+                    <li><strong>Easy Updates</strong>: Update packages with a single command</li>
+                    <li><strong>Dependency Management</strong>: Automatically handles package dependencies</li>
+                    <li><strong>Version Control</strong>: Lock to specific versions for stability</li>
+                    <li><strong>Community</strong>: Access to 350,000+ packages</li>
+                    <li><strong>Open Source</strong>: Most packages are free and open source</li>
+                </ul>
+
+                <div class="section-divider"></div>
+
+                <h2>Finding Packages</h2>
+
+                <h3>NuGet.org - The Official Package Repository</h3>
+
+                <p>
+                    Visit <strong><a href="https://www.nuget.org" target="_blank">https://www.nuget.org</a></strong>
+                    to search for packages.
+                </p>
+
+                <div class="callout callout-tip">
+                    <div class="callout-title">💡 Evaluating Packages</div>
+                    <p>
+                        Before installing a package, check:<br>
+                        ✅ <strong>Downloads</strong>: Popular packages have millions of downloads<br>
+                        ✅ <strong>Last Updated</strong>: Active maintenance is a good sign<br>
+                        ✅ <strong>License</strong>: Ensure it's compatible with your project<br>
+                        ✅ <strong>Dependencies</strong>: Fewer dependencies = less complexity<br>
+                        ✅ <strong>GitHub Stars</strong>: Community approval indicator
+                    </p>
+                </div>
+
+                <h3>Popular NuGet Packages</h3>
+
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Package</th>
+                            <th>Purpose</th>
+                            <th>Downloads</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><code>Newtonsoft.Json</code></td>
+                            <td>JSON serialization/deserialization</td>
+                            <td>3B+</td>
+                        </tr>
+                        <tr>
+                            <td><code>Microsoft.EntityFrameworkCore</code></td>
+                            <td>Object-Relational Mapper (ORM)</td>
+                            <td>500M+</td>
+                        </tr>
+                        <tr>
+                            <td><code>Serilog</code></td>
+                            <td>Structured logging</td>
+                            <td>200M+</td>
+                        </tr>
+                        <tr>
+                            <td><code>AutoMapper</code></td>
+                            <td>Object-to-object mapping</td>
+                            <td>300M+</td>
+                        </tr>
+                        <tr>
+                            <td><code>FluentValidation</code></td>
+                            <td>Input validation</td>
+                            <td>150M+</td>
+                        </tr>
+                        <tr>
+                            <td><code>Dapper</code></td>
+                            <td>Micro-ORM for SQL</td>
+                            <td>200M+</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="section-divider"></div>
+
+                <h2>Installing Packages</h2>
+
+                <h3>Using the dotnet CLI</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">Terminal</span>
+                    <span class="code-language">Shell</span>
+                </div>
+                <pre><code><span class="code-comment"># Install latest version</span>
+dotnet add package Newtonsoft.Json
+
+<span class="code-comment"># Install specific version</span>
+dotnet add package Serilog --version 3.1.1
+
+<span class="code-comment"># Install to specific project</span>
+dotnet add src/InvenTrack.Api package Microsoft.EntityFrameworkCore
+
+<span class="code-comment"># Install prerelease version</span>
+dotnet add package SomePackage --prerelease</code></pre>
+
+                <h3>Using Visual Studio</h3>
+
+                <ol>
+                    <li>Right-click on your project in Solution Explorer</li>
+                    <li>Select <strong>"Manage NuGet Packages"</strong></li>
+                    <li>Click the <strong>"Browse"</strong> tab</li>
+                    <li>Search for the package</li>
+                    <li>Click <strong>"Install"</strong></li>
+                </ol>
+
+                <h3>Using VS Code</h3>
+
+                <p>
+                    VS Code doesn't have a built-in NuGet UI, but you can:
+                </p>
+
+                <ul>
+                    <li>Use the integrated terminal with <code>dotnet add package</code></li>
+                    <li>Install the <strong>"NuGet Package Manager"</strong> extension</li>
+                    <li>Manually edit the <code>.csproj</code> file</li>
+                </ul>
+
+                <h3>Manual Installation (Editing .csproj)</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">InvenTrack.Api.csproj</span>
+                    <span class="code-language">XML</span>
+                </div>
+                <pre><code><span class="code-tag">&lt;Project</span> <span class="code-attribute">Sdk</span>=<span class="code-string">"Microsoft.NET.Sdk.Web"</span><span class="code-tag">&gt;</span>
+
+  <span class="code-tag">&lt;PropertyGroup&gt;</span>
+    <span class="code-tag">&lt;TargetFramework&gt;</span>net8.0<span class="code-tag">&lt;/TargetFramework&gt;</span>
+  <span class="code-tag">&lt;/PropertyGroup&gt;</span>
+
+  <span class="code-tag">&lt;ItemGroup&gt;</span>
+    <span class="code-tag">&lt;PackageReference</span> <span class="code-attribute">Include</span>=<span class="code-string">"Newtonsoft.Json"</span> <span class="code-attribute">Version</span>=<span class="code-string">"13.0.3"</span> <span class="code-tag">/&gt;</span>
+    <span class="code-tag">&lt;PackageReference</span> <span class="code-attribute">Include</span>=<span class="code-string">"Serilog.AspNetCore"</span> <span class="code-attribute">Version</span>=<span class="code-string">"8.0.0"</span> <span class="code-tag">/&gt;</span>
+  <span class="code-tag">&lt;/ItemGroup&gt;</span>
+
+<span class="code-tag">&lt;/Project&gt;</span></code></pre>
+
+                <p>
+                    After editing, run <code>dotnet restore</code> to download the packages.
+                </p>
+
+                <div class="section-divider"></div>
+
+                <h2>Managing Packages</h2>
+
+                <h3>Viewing Installed Packages</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">Terminal</span>
+                    <span class="code-language">Shell</span>
+                </div>
+                <pre><code><span class="code-comment"># List all packages in current project</span>
+dotnet list package
+
+<span class="code-comment"># List packages in entire solution</span>
+dotnet list package
+
+<span class="code-comment"># Show package dependency tree</span>
+dotnet list package --include-transitive</code></pre>
+
+                <h3>Updating Packages</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">Terminal</span>
+                    <span class="code-language">Shell</span>
+                </div>
+                <pre><code><span class="code-comment"># Check for outdated packages</span>
+dotnet list package --outdated
+
+<span class="code-comment"># Update to latest version (edit .csproj manually or use dotnet add)</span>
+dotnet add package Newtonsoft.Json
+
+<span class="code-comment"># Update to specific version</span>
+dotnet add package Serilog --version 3.1.1</code></pre>
+
+                <div class="callout callout-warning">
+                    <div class="callout-title">⚠️ Breaking Changes</div>
+                    <p>
+                        Major version updates (e.g., 1.x → 2.x) may contain breaking changes. Always check the
+                        package's changelog before updating. Test thoroughly after updating packages.
+                    </p>
+                </div>
+
+                <h3>Removing Packages</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">Terminal</span>
+                    <span class="code-language">Shell</span>
+                </div>
+                <pre><code><span class="code-comment"># Remove package</span>
+dotnet remove package Newtonsoft.Json
+
+<span class="code-comment"># Remove from specific project</span>
+dotnet remove src/InvenTrack.Api package Serilog</code></pre>
+
+                <div class="section-divider"></div>
+
+                <h2>Understanding Package Versions</h2>
+
+                <h3>Semantic Versioning (SemVer)</h3>
+
+                <p>
+                    NuGet packages follow <strong>Semantic Versioning</strong>: <code>MAJOR.MINOR.PATCH</code>
+                </p>
+
+                <div class="code-header">
+                    <span class="code-filename">Version Format</span>
+                    <span class="code-language">Text</span>
+                </div>
+                <pre><code>3.1.2
+│ │ │
+│ │ └─ PATCH: Bug fixes (backward compatible)
+│ └─── MINOR: New features (backward compatible)
+└───── MAJOR: Breaking changes</code></pre>
+
+                <h3>Version Ranges</h3>
+
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Notation</th>
+                            <th>Meaning</th>
+                            <th>Example</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><code>3.1.2</code></td>
+                            <td>Exact version</td>
+                            <td>Only 3.1.2</td>
+                        </tr>
+                        <tr>
+                            <td><code>3.1.*</code></td>
+                            <td>Latest patch</td>
+                            <td>3.1.0, 3.1.1, 3.1.2, etc.</td>
+                        </tr>
+                        <tr>
+                            <td><code>[3.1.0, 4.0.0)</code></td>
+                            <td>Range (inclusive, exclusive)</td>
+                            <td>3.1.0 to 3.9.9</td>
+                        </tr>
+                        <tr>
+                            <td><code>(3.1.0,)</code></td>
+                            <td>Greater than</td>
+                            <td>Anything above 3.1.0</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="callout callout-tip">
+                    <div class="callout-title">💡 Best Practice</div>
+                    <p>
+                        For production apps, use <strong>exact versions</strong> to ensure reproducible builds.
+                        For libraries you're publishing, use version ranges to allow flexibility.
+                    </p>
+                </div>
+
+                <div class="section-divider"></div>
+
+                <h2>Package Restore</h2>
+
+                <p>
+                    When you clone a repository or pull changes, you need to restore packages:
+                </p>
+
+                <div class="code-header">
+                    <span class="code-filename">Terminal</span>
+                    <span class="code-language">Shell</span>
+                </div>
+                <pre><code><span class="code-comment"># Restore packages for current project/solution</span>
+dotnet restore
+
+<span class="code-comment"># Restore with specific sources</span>
+dotnet restore --source https://api.nuget.org/v3/index.json
+
+<span class="code-comment"># Force re-download (clear cache)</span>
+dotnet restore --force</code></pre>
+
+                <div class="callout callout-info">
+                    <div class="callout-title">ℹ️ Automatic Restore</div>
+                    <p>
+                        <code>dotnet restore</code> is automatically run by:<br>
+                        • <code>dotnet build</code><br>
+                        • <code>dotnet run</code><br>
+                        • <code>dotnet test</code><br>
+                        You rarely need to run it manually!
+                    </p>
+                </div>
+
+                <h3>Package Cache Location</h3>
+
+                <p>
+                    NuGet caches downloaded packages to speed up restores:
+                </p>
+
+                <ul>
+                    <li><strong>Windows</strong>: <code>%userprofile%\.nuget\packages</code></li>
+                    <li><strong>macOS/Linux</strong>: <code>~/.nuget/packages</code></li>
+                </ul>
+
+                <div class="code-header">
+                    <span class="code-filename">Clear Cache</span>
+                    <span class="code-language">Shell</span>
+                </div>
+                <pre><code><span class="code-comment"># Clear all NuGet caches</span>
+dotnet nuget locals all --clear
+
+<span class="code-comment"># Clear only global packages cache</span>
+dotnet nuget locals global-packages --clear</code></pre>
+
+                <div class="section-divider"></div>
+
+                <h2>Essential Packages for InvenTrack</h2>
+
+                <h3>Database Access</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">Entity Framework Core</span>
+                    <span class="code-language">Shell</span>
+                </div>
+                <pre><code><span class="code-comment"># Core EF package</span>
+dotnet add package Microsoft.EntityFrameworkCore
+
+<span class="code-comment"># SQL Server provider</span>
+dotnet add package Microsoft.EntityFrameworkCore.SqlServer
+
+<span class="code-comment"># Design-time tools (migrations)</span>
+dotnet add package Microsoft.EntityFrameworkCore.Design
+
+<span class="code-comment"># EF Core CLI tool (global)</span>
+dotnet tool install --global dotnet-ef</code></pre>
+
+                <h3>Logging</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">Serilog</span>
+                    <span class="code-language">Shell</span>
+                </div>
+                <pre><code><span class="code-comment"># Serilog for ASP.NET Core</span>
+dotnet add package Serilog.AspNetCore
+
+<span class="code-comment"># Sinks (output destinations)</span>
+dotnet add package Serilog.Sinks.Console
+dotnet add package Serilog.Sinks.File</code></pre>
+
+                <h3>Validation</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">FluentValidation</span>
+                    <span class="code-language">Shell</span>
+                </div>
+                <pre><code>dotnet add package FluentValidation
+dotnet add package FluentValidation.AspNetCore</code></pre>
+
+                <h3>Object Mapping</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">AutoMapper</span>
+                    <span class="code-language">Shell</span>
+                </div>
+                <pre><code>dotnet add package AutoMapper
+dotnet add package AutoMapper.Extensions.Microsoft.DependencyInjection</code></pre>
+
+                <h3>Authentication & Authorization</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">Identity & JWT</span>
+                    <span class="code-language">Shell</span>
+                </div>
+                <pre><code><span class="code-comment"># ASP.NET Core Identity</span>
+dotnet add package Microsoft.AspNetCore.Identity.EntityFrameworkCore
+
+<span class="code-comment"># JWT Bearer Authentication</span>
+dotnet add package Microsoft.AspNetCore.Authentication.JwtBearer</code></pre>
+
+                <h3>API Documentation</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">Swagger/OpenAPI</span>
+                    <span class="code-language">Shell</span>
+                </div>
+                <pre><code>dotnet add package Swashbuckle.AspNetCore</code></pre>
+
+                <h3>Testing</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">Test Frameworks</span>
+                    <span class="code-language">Shell</span>
+                </div>
+                <pre><code><span class="code-comment"># xUnit (testing framework)</span>
+dotnet add package xunit
+dotnet add package xunit.runner.visualstudio
+
+<span class="code-comment"># Moq (mocking library)</span>
+dotnet add package Moq
+
+<span class="code-comment"># FluentAssertions (better assertions)</span>
+dotnet add package FluentAssertions</code></pre>
+
+                <div class="section-divider"></div>
+
+                <h2>Security Considerations</h2>
+
+                <h3>Checking for Vulnerabilities</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">Security Audit</span>
+                    <span class="code-language">Shell</span>
+                </div>
+                <pre><code><span class="code-comment"># Check for vulnerable packages</span>
+dotnet list package --vulnerable
+
+<span class="code-comment"># Check for outdated packages</span>
+dotnet list package --outdated</code></pre>
+
+                <div class="callout callout-warning">
+                    <div class="callout-title">⚠️ Security Best Practices</div>
+                    <p>
+                        ✅ Regularly update packages to get security patches<br>
+                        ✅ Run <code>dotnet list package --vulnerable</code> in CI/CD pipelines<br>
+                        ✅ Review package licenses before using in commercial projects<br>
+                        ✅ Avoid packages with no recent updates or few downloads<br>
+                        ✅ Check package source code on GitHub if possible
+                    </p>
+                </div>
+
+                <h3>Package Source Configuration</h3>
+
+                <p>
+                    You can configure custom NuGet sources in <code>nuget.config</code>:
+                </p>
+
+                <div class="code-header">
+                    <span class="code-filename">nuget.config</span>
+                    <span class="code-language">XML</span>
+                </div>
+                <pre><code><span class="code-tag">&lt;?xml version="1.0" encoding="utf-8"?&gt;</span>
+<span class="code-tag">&lt;configuration&gt;</span>
+  <span class="code-tag">&lt;packageSources&gt;</span>
+    <span class="code-tag">&lt;clear /&gt;</span>
+    <span class="code-tag">&lt;add</span> <span class="code-attribute">key</span>=<span class="code-string">"nuget.org"</span> <span class="code-attribute">value</span>=<span class="code-string">"https://api.nuget.org/v3/index.json"</span> <span class="code-tag">/&gt;</span>
+    <span class="code-tag">&lt;add</span> <span class="code-attribute">key</span>=<span class="code-string">"MyCompanyFeed"</span> <span class="code-attribute">value</span>=<span class="code-string">"https://pkgs.dev.azure.com/mycompany/_packaging/myfeed/nuget/v3/index.json"</span> <span class="code-tag">/&gt;</span>
+  <span class="code-tag">&lt;/packageSources&gt;</span>
+<span class="code-tag">&lt;/configuration&gt;</span></code></pre>
+
+                <div class="section-divider"></div>
+
+                <h2>Creating Your Own NuGet Packages</h2>
+
+                <p>
+                    You can package your own libraries and share them on NuGet.org or private feeds.
+                </p>
+
+                <h3>Step 1: Configure Package Metadata</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">InvenTrack.Core.csproj</span>
+                    <span class="code-language">XML</span>
+                </div>
+                <pre><code><span class="code-tag">&lt;Project</span> <span class="code-attribute">Sdk</span>=<span class="code-string">"Microsoft.NET.Sdk"</span><span class="code-tag">&gt;</span>
+
+  <span class="code-tag">&lt;PropertyGroup&gt;</span>
+    <span class="code-tag">&lt;TargetFramework&gt;</span>net8.0<span class="code-tag">&lt;/TargetFramework&gt;</span>
+    
+    <span class="code-comment">&lt;!-- Package Metadata --&gt;</span>
+    <span class="code-tag">&lt;PackageId&gt;</span>InvenTrack.Core<span class="code-tag">&lt;/PackageId&gt;</span>
+    <span class="code-tag">&lt;Version&gt;</span>1.0.0<span class="code-tag">&lt;/Version&gt;</span>
+    <span class="code-tag">&lt;Authors&gt;</span>Your Name<span class="code-tag">&lt;/Authors&gt;</span>
+    <span class="code-tag">&lt;Company&gt;</span>InvenTrack Inc.<span class="code-tag">&lt;/Company&gt;</span>
+    <span class="code-tag">&lt;Description&gt;</span>Core business logic for InvenTrack inventory system<span class="code-tag">&lt;/Description&gt;</span>
+    <span class="code-tag">&lt;PackageLicenseExpression&gt;</span>MIT<span class="code-tag">&lt;/PackageLicenseExpression&gt;</span>
+    <span class="code-tag">&lt;PackageProjectUrl&gt;</span>https://github.com/yourname/inventtrack<span class="code-tag">&lt;/PackageProjectUrl&gt;</span>
+    <span class="code-tag">&lt;RepositoryUrl&gt;</span>https://github.com/yourname/inventtrack<span class="code-tag">&lt;/RepositoryUrl&gt;</span>
+    <span class="code-tag">&lt;PackageTags&gt;</span>inventory;erp;business<span class="code-tag">&lt;/PackageTags&gt;</span>
+  <span class="code-tag">&lt;/PropertyGroup&gt;</span>
+
+<span class="code-tag">&lt;/Project&gt;</span></code></pre>
+
+                <h3>Step 2: Pack the Project</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">Terminal</span>
+                    <span class="code-language">Shell</span>
+                </div>
+                <pre><code><span class="code-comment"># Create NuGet package (.nupkg file)</span>
+dotnet pack --configuration Release
+
+<span class="code-comment"># Output will be in bin/Release/</span>
+<span class="code-comment"># Example: InvenTrack.Core.1.0.0.nupkg</span></code></pre>
+
+                <h3>Step 3: Publish to NuGet.org</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">Terminal</span>
+                    <span class="code-language">Shell</span>
+                </div>
+                <pre><code><span class="code-comment"># Get API key from nuget.org</span>
+<span class="code-comment"># Then push package</span>
+dotnet nuget push bin/Release/InvenTrack.Core.1.0.0.nupkg --api-key YOUR_API_KEY --source https://api.nuget.org/v3/index.json</code></pre>
+
+                <div class="callout callout-tip">
+                    <div class="callout-title">💡 Private NuGet Feeds</div>
+                    <p>
+                        For internal company packages, use private feeds:<br>
+                        • <strong>Azure Artifacts</strong> (Azure DevOps)<br>
+                        • <strong>GitHub Packages</strong><br>
+                        • <strong>MyGet</strong><br>
+                        • Self-hosted NuGet server
+                    </p>
+                </div>
+
+                <div class="section-divider"></div>
+
+                <h2>Troubleshooting Common Issues</h2>
+
+                <h3>Issue: Package Not Found</h3>
+
+                <p><strong>Cause:</strong> Package name typo or package doesn't exist.</p>
+
+                <p><strong>Solution:</strong></p>
+                <ul>
+                    <li>Verify package name on NuGet.org</li>
+                    <li>Check spelling and capitalization</li>
+                    <li>Ensure you're using the correct package source</li>
+                </ul>
+
+                <h3>Issue: Version Conflict</h3>
+
+                <p><strong>Cause:</strong> Two packages require different versions of the same dependency.</p>
+
+                <p><strong>Solution:</strong></p>
+                <ul>
+                    <li>Update all packages to latest versions</li>
+                    <li>Use <code>dotnet list package --include-transitive</code> to see dependency tree</li>
+                    <li>Manually specify version in <code>.csproj</code></li>
+                </ul>
+
+                <h3>Issue: Restore Failed</h3>
+
+                <p><strong>Cause:</strong> Network issues, corrupted cache, or authentication problems.</p>
+
+                <p><strong>Solution:</strong></p>
+                <ul>
+                    <li>Clear NuGet cache: <code>dotnet nuget locals all --clear</code></li>
+                    <li>Check internet connection</li>
+                    <li>Verify package source is accessible</li>
+                    <li>Try <code>dotnet restore --force</code></li>
+                </ul>
+
+                <h2>Key Takeaways</h2>
+
+                <ul>
+                    <li><strong>NuGet</strong> is the package manager for .NET</li>
+                    <li>Search for packages on <strong>NuGet.org</strong></li>
+                    <li>Install packages with <code>dotnet add package PackageName</code></li>
+                    <li>Packages are listed in <code>&lt;PackageReference&gt;</code> in <code>.csproj</code></li>
+                    <li><strong>Semantic Versioning</strong>: MAJOR.MINOR.PATCH</li>
+                    <li>Use <strong>exact versions</strong> for production apps</li>
+                    <li><code>dotnet restore</code> downloads packages (usually automatic)</li>
+                    <li>Check for vulnerabilities with <code>dotnet list package --vulnerable</code></li>
+                    <li>Essential InvenTrack packages: EF Core, Serilog, FluentValidation, AutoMapper</li>
+                    <li>Create your own packages with <code>dotnet pack</code></li>
+                    <li>NuGet caches packages in <code>~/.nuget/packages</code></li>
+                    <li>Clear cache with <code>dotnet nuget locals all --clear</code></li>
+                </ul>
+
+                <div class="callout callout-concept">
+                    <div class="callout-title">🎉 Part II Complete!</div>
+                    <p>
+                        Congratulations! You've completed <strong>Part II: .NET Core Basics</strong>. You now
+                        understand the .NET ecosystem, SDK installation, project structure, the dotnet CLI, and
+                        NuGet package management. You have all the foundational knowledge needed to build .NET
+                        applications!
+                    </p>
+                    <p>
+                        <strong>Next up</strong>: Part III will dive into <strong>ASP.NET Core Basics</strong>—
+                        building web applications, understanding the request pipeline, configuration, and more.
+                        The journey to building InvenTrack continues! 🚀
+                    </p>
+                </div>
+
+                <nav class="page-nav">
+                    <a href="05-dotnet-cli.html" class="prev">The dotnet CLI</a>
+                    <a href="../index.html" class="next">Back to Roadmap</a>
+                </nav>
+
+            
+        <footer class="page-footer">
+          Built with 💜 by <a href="https://akwasi.dev" target="_blank" rel="noopener noreferrer">Akwasi Adu-Kyeremeh</a> for developers who want to truly understand what they're building.
+        </footer>
+
+      </div>
+        </main>
+    </div>
+</body>
+
+</html>

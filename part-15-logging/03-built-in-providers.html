@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Built-in Providers | ASP.NET Core Mastery</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;500&family=Source+Serif+4:ital,wght@0,400;0,600;1,400&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="../assets/style.css">
+</head>
+
+<body>
+    <div class="page-wrapper">
+        <aside class="sidebar">
+            <a href="../index.html" class="sidebar-logo">ASP.NET Core Mastery</a>
+            <div class="sidebar-section">Part XV: Logging</div>
+            <ul class="sidebar-nav">
+                <li><a href="01-ilogger-interface.html">ILogger Interface</a></li>
+                <li><a href="02-log-levels.html">Log Levels</a></li>
+                <li><a href="03-built-in-providers.html" class="active">Built-in Providers</a></li>
+                <li><a href="04-structured-logging.html">Structured Logging</a></li>
+                <li><a href="05-serilog-integration.html">Serilog Integration</a></li>
+                <li><a href="06-logging-best-practices.html">Logging Best Practices</a></li>
+            </ul>
+            <div class="sidebar-section">Resources</div>
+            <ul class="sidebar-nav">
+                <li><a href="../index.html">Full Roadmap</a></li>
+            </ul>
+        </aside>
+
+        <main class="main-content">
+            <div class="content-container">
+                <nav class="breadcrumb">
+                    <a href="../index.html">Home</a>
+                    <span>→</span>
+                    <a href="01-ilogger-interface.html">Part XV: Logging</a>
+                    <span>→</span>
+                    Built-in Providers
+                </nav>
+
+                <div class="progress-indicator">
+                    <span>Section 3 of 6</span>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 50%"></div>
+                    </div>
+                </div>
+
+                <h1>Built-in Providers</h1>
+
+                <div class="learning-objectives">
+                    <h3>🎯 What You'll Learn</h3>
+                    <ul>
+                        <li>What are logging providers</li>
+                        <li>Console provider</li>
+                        <li>Debug provider</li>
+                        <li>EventSource provider</li>
+                        <li>EventLog provider (Windows)</li>
+                        <li>Configuring providers</li>
+                    </ul>
+                </div>
+
+                <h2>What are Logging Providers?</h2>
+
+                <p>
+                    <strong>Logging providers</strong> determine where logs are written (console, file, database, etc.).
+                    ASP.NET Core includes several built-in providers.
+                </p>
+
+                <div class="section-divider"></div>
+
+                <h2>Built-in Providers</h2>
+
+                <h3>1. Console Provider</h3>
+                <p>Writes logs to the console.</p>
+
+                <div class="code-header">
+                    <span class="code-filename">Add Console Logging</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-variable">builder</span>.<span class="code-variable">Logging</span>.<span class="code-method">AddConsole</span>();</code></pre>
+
+                <h3>2. Debug Provider</h3>
+                <p>Writes logs to the debug output window.</p>
+
+                <div class="code-header">
+                    <span class="code-filename">Add Debug Logging</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-variable">builder</span>.<span class="code-variable">Logging</span>.<span class="code-method">AddDebug</span>();</code></pre>
+
+                <h3>3. EventSource Provider</h3>
+                <p>Writes logs using EventSource for ETW (Event Tracing for Windows).</p>
+
+                <div class="code-header">
+                    <span class="code-filename">Add EventSource Logging</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-variable">builder</span>.<span class="code-variable">Logging</span>.<span class="code-method">AddEventSourceLogger</span>();</code></pre>
+
+                <h3>4. EventLog Provider (Windows)</h3>
+                <p>Writes logs to Windows Event Log.</p>
+
+                <div class="code-header">
+                    <span class="code-filename">Install Package</span>
+                    <span class="code-language">Bash</span>
+                </div>
+                <pre><code>dotnet add package Microsoft.Extensions.Logging.EventLog</code></pre>
+
+                <div class="code-header">
+                    <span class="code-filename">Add EventLog Logging</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-variable">builder</span>.<span class="code-variable">Logging</span>.<span class="code-method">AddEventLog</span>();</code></pre>
+
+                <div class="section-divider"></div>
+
+                <h2>Default Configuration</h2>
+
+                <p>ASP.NET Core templates include Console and Debug providers by default.</p>
+
+                <div class="code-header">
+                    <span class="code-filename">Program.cs (Default)</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-keyword">var</span> <span class="code-variable">builder</span> = <span class="code-class">WebApplication</span>.<span class="code-method">CreateBuilder</span>(<span class="code-variable">args</span>);
+<span class="code-comment">// Console and Debug providers are added by default</span></code></pre>
+
+                <div class="section-divider"></div>
+
+                <h2>Clearing and Adding Providers</h2>
+
+                <div class="code-header">
+                    <span class="code-filename">Clear and Add Custom Providers</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-variable">builder</span>.<span class="code-variable">Logging</span>.<span class="code-method">ClearProviders</span>(); <span class="code-comment">// Remove all default providers</span>
+<span class="code-variable">builder</span>.<span class="code-variable">Logging</span>.<span class="code-method">AddConsole</span>();
+<span class="code-variable">builder</span>.<span class="code-variable">Logging</span>.<span class="code-method">AddDebug</span>();</code></pre>
+
+                <div class="section-divider"></div>
+
+                <h2>Provider-Specific Configuration</h2>
+
+                <div class="code-header">
+                    <span class="code-filename">appsettings.json</span>
+                    <span class="code-language">JSON</span>
+                </div>
+                <pre><code>{
+  <span class="code-string">"Logging"</span>: {
+    <span class="code-string">"LogLevel"</span>: {
+      <span class="code-string">"Default"</span>: <span class="code-string">"Information"</span>
+    },
+    <span class="code-string">"Console"</span>: {
+      <span class="code-string">"LogLevel"</span>: {
+        <span class="code-string">"Default"</span>: <span class="code-string">"Debug"</span>
+      }
+    },
+    <span class="code-string">"Debug"</span>: {
+      <span class="code-string">"LogLevel"</span>: {
+        <span class="code-string">"Default"</span>: <span class="code-string">"Trace"</span>
+      }
+    }
+  }
+}</code></pre>
+
+                <h2>Key Takeaways</h2>
+
+                <ul>
+                    <li><strong>Providers</strong>: Determine where logs are written</li>
+                    <li><strong>Console</strong>: Writes to console (default)</li>
+                    <li><strong>Debug</strong>: Writes to debug output (default)</li>
+                    <li><strong>EventSource</strong>: ETW tracing</li>
+                    <li><strong>EventLog</strong>: Windows Event Log</li>
+                    <li><strong>ClearProviders()</strong>: Remove default providers</li>
+                    <li><strong>Configure</strong>: Per-provider log levels in appsettings.json</li>
+                </ul>
+
+                <nav class="page-nav">
+                    <a href="02-log-levels.html" class="prev">Log Levels</a>
+                    <a href="04-structured-logging.html" class="next">Structured Logging</a>
+                </nav>
+
+            
+        <footer class="page-footer">
+          Built with 💜 by <a href="https://akwasi.dev" target="_blank" rel="noopener noreferrer">Akwasi Adu-Kyeremeh</a> for developers who want to truly understand what they're building.
+        </footer>
+
+      </div>
+        </main>
+    </div>
+</body>
+
+</html>

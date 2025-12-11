@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Unit Testing with xUnit | ASP.NET Core Mastery</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;500&family=Source+Serif+4:ital,wght@0,400;0,600;1,400&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="../assets/style.css">
+</head>
+
+<body>
+    <div class="page-wrapper">
+        <aside class="sidebar">
+            <a href="../index.html" class="sidebar-logo">ASP.NET Core Mastery</a>
+            <div class="sidebar-section">Part XVI: Testing</div>
+            <ul class="sidebar-nav">
+                <li><a href="01-unit-testing-xunit.html" class="active">Unit Testing with xUnit</a></li>
+                <li><a href="02-mocking-with-moq.html">Mocking with Moq</a></li>
+                <li><a href="03-integration-testing.html">Integration Testing</a></li>
+                <li><a href="04-webapplicationfactory.html">WebApplicationFactory</a></li>
+                <li><a href="05-test-driven-development.html">Test-Driven Development</a></li>
+            </ul>
+            <div class="sidebar-section">Resources</div>
+            <ul class="sidebar-nav">
+                <li><a href="../index.html">Full Roadmap</a></li>
+            </ul>
+        </aside>
+
+        <main class="main-content">
+            <div class="content-container">
+                <nav class="breadcrumb">
+                    <a href="../index.html">Home</a>
+                    <span>→</span>
+                    <a href="01-unit-testing-xunit.html">Part XVI: Testing</a>
+                    <span>→</span>
+                    Unit Testing with xUnit
+                </nav>
+
+                <div class="progress-indicator">
+                    <span>Section 1 of 5</span>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 20%"></div>
+                    </div>
+                </div>
+
+                <h1>Unit Testing with xUnit</h1>
+
+                <div class="learning-objectives">
+                    <h3>🎯 What You'll Learn</h3>
+                    <ul>
+                        <li>What is unit testing</li>
+                        <li>Setting up xUnit</li>
+                        <li>Writing tests with [Fact] and [Theory]</li>
+                        <li>Assertions</li>
+                        <li>Arrange-Act-Assert pattern</li>
+                    </ul>
+                </div>
+
+                <h2>What is Unit Testing?</h2>
+
+                <p>
+                    <strong>Unit testing</strong> tests individual units of code (methods, classes) in isolation
+                    to ensure they work correctly.
+                </p>
+
+                <div class="section-divider"></div>
+
+                <h2>Setting Up xUnit</h2>
+
+                <div class="code-header">
+                    <span class="code-filename">Create Test Project</span>
+                    <span class="code-language">Bash</span>
+                </div>
+                <pre><code>dotnet new xunit -n InvenTrack.Tests
+dotnet add InvenTrack.Tests reference InvenTrack</code></pre>
+
+                <div class="code-header">
+                    <span class="code-filename">Required Packages</span>
+                    <span class="code-language">Bash</span>
+                </div>
+                <pre><code>dotnet add package xunit
+dotnet add package xunit.runner.visualstudio
+dotnet add package Microsoft.NET.Test.Sdk</code></pre>
+
+                <div class="section-divider"></div>
+
+                <h2>Writing Your First Test</h2>
+
+                <div class="code-header">
+                    <span class="code-filename">CalculatorTests.cs</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">CalculatorTests</span>
+{
+    [<span class="code-class">Fact</span>]
+    <span class="code-keyword">public</span> <span class="code-keyword">void</span> <span class="code-method">Add_TwoNumbers_ReturnsSum</span>()
+    {
+        <span class="code-comment">// Arrange</span>
+        <span class="code-keyword">var</span> <span class="code-variable">calculator</span> = <span class="code-keyword">new</span> <span class="code-class">Calculator</span>();
+
+        <span class="code-comment">// Act</span>
+        <span class="code-keyword">var</span> <span class="code-variable">result</span> = <span class="code-variable">calculator</span>.<span class="code-method">Add</span>(<span class="code-number">2</span>, <span class="code-number">3</span>);
+
+        <span class="code-comment">// Assert</span>
+        <span class="code-class">Assert</span>.<span class="code-method">Equal</span>(<span class="code-number">5</span>, <span class="code-variable">result</span>);
+    }
+}</code></pre>
+
+                <div class="section-divider"></div>
+
+                <h2>[Fact] vs [Theory]</h2>
+
+                <h3>[Fact] - Single Test</h3>
+                <div class="code-header">
+                    <span class="code-filename">Fact Example</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code>[<span class="code-class">Fact</span>]
+<span class="code-keyword">public</span> <span class="code-keyword">void</span> <span class="code-method">Product_WithValidData_IsCreated</span>()
+{
+    <span class="code-keyword">var</span> <span class="code-variable">product</span> = <span class="code-keyword">new</span> <span class="code-class">Product</span> { <span class="code-variable">Name</span> = <span class="code-string">"Laptop"</span>, <span class="code-variable">Price</span> = <span class="code-number">999</span> };
+    
+    <span class="code-class">Assert</span>.<span class="code-method">NotNull</span>(<span class="code-variable">product</span>);
+    <span class="code-class">Assert</span>.<span class="code-method">Equal</span>(<span class="code-string">"Laptop"</span>, <span class="code-variable">product</span>.<span class="code-variable">Name</span>);
+}</code></pre>
+
+                <h3>[Theory] - Multiple Test Cases</h3>
+                <div class="code-header">
+                    <span class="code-filename">Theory Example</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code>[<span class="code-class">Theory</span>]
+[<span class="code-class">InlineData</span>(<span class="code-number">2</span>, <span class="code-number">3</span>, <span class="code-number">5</span>)]
+[<span class="code-class">InlineData</span>(<span class="code-number">10</span>, <span class="code-number">20</span>, <span class="code-number">30</span>)]
+[<span class="code-class">InlineData</span>(-<span class="code-number">5</span>, <span class="code-number">5</span>, <span class="code-number">0</span>)]
+<span class="code-keyword">public</span> <span class="code-keyword">void</span> <span class="code-method">Add_VariousInputs_ReturnsCorrectSum</span>(<span class="code-type">int</span> <span class="code-variable">a</span>, <span class="code-type">int</span> <span class="code-variable">b</span>, <span class="code-type">int</span> <span class="code-variable">expected</span>)
+{
+    <span class="code-keyword">var</span> <span class="code-variable">calculator</span> = <span class="code-keyword">new</span> <span class="code-class">Calculator</span>();
+    
+    <span class="code-keyword">var</span> <span class="code-variable">result</span> = <span class="code-variable">calculator</span>.<span class="code-method">Add</span>(<span class="code-variable">a</span>, <span class="code-variable">b</span>);
+    
+    <span class="code-class">Assert</span>.<span class="code-method">Equal</span>(<span class="code-variable">expected</span>, <span class="code-variable">result</span>);
+}</code></pre>
+
+                <div class="section-divider"></div>
+
+                <h2>Common Assertions</h2>
+
+                <div class="code-header">
+                    <span class="code-filename">Assertions</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-comment">// Equality</span>
+<span class="code-class">Assert</span>.<span class="code-method">Equal</span>(<span class="code-variable">expected</span>, <span class="code-variable">actual</span>);
+<span class="code-class">Assert</span>.<span class="code-method">NotEqual</span>(<span class="code-variable">expected</span>, <span class="code-variable">actual</span>);
+
+<span class="code-comment">// Null checks</span>
+<span class="code-class">Assert</span>.<span class="code-method">Null</span>(<span class="code-variable">value</span>);
+<span class="code-class">Assert</span>.<span class="code-method">NotNull</span>(<span class="code-variable">value</span>);
+
+<span class="code-comment">// Boolean</span>
+<span class="code-class">Assert</span>.<span class="code-method">True</span>(<span class="code-variable">condition</span>);
+<span class="code-class">Assert</span>.<span class="code-method">False</span>(<span class="code-variable">condition</span>);
+
+<span class="code-comment">// Collections</span>
+<span class="code-class">Assert</span>.<span class="code-method">Empty</span>(<span class="code-variable">collection</span>);
+<span class="code-class">Assert</span>.<span class="code-method">NotEmpty</span>(<span class="code-variable">collection</span>);
+<span class="code-class">Assert</span>.<span class="code-method">Contains</span>(<span class="code-variable">item</span>, <span class="code-variable">collection</span>);
+
+<span class="code-comment">// Exceptions</span>
+<span class="code-class">Assert</span>.<span class="code-method">Throws</span>&lt;<span class="code-class">ArgumentException</span>&gt;(() => <span class="code-variable">method</span>());
+
+<span class="code-comment">// Type checks</span>
+<span class="code-class">Assert</span>.<span class="code-method">IsType</span>&lt;<span class="code-class">Product</span>&gt;(<span class="code-variable">obj</span>);</code></pre>
+
+                <h2>InvenTrack Example</h2>
+
+                <div class="code-header">
+                    <span class="code-filename">ProductServiceTests.cs</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">ProductServiceTests</span>
+{
+    [<span class="code-class">Fact</span>]
+    <span class="code-keyword">public</span> <span class="code-keyword">void</span> <span class="code-method">CalculateDiscount_ValidProduct_ReturnsDiscountedPrice</span>()
+    {
+        <span class="code-comment">// Arrange</span>
+        <span class="code-keyword">var</span> <span class="code-variable">service</span> = <span class="code-keyword">new</span> <span class="code-class">ProductService</span>();
+        <span class="code-keyword">var</span> <span class="code-variable">product</span> = <span class="code-keyword">new</span> <span class="code-class">Product</span> { <span class="code-variable">Price</span> = <span class="code-number">100</span> };
+
+        <span class="code-comment">// Act</span>
+        <span class="code-keyword">var</span> <span class="code-variable">result</span> = <span class="code-variable">service</span>.<span class="code-method">CalculateDiscount</span>(<span class="code-variable">product</span>, <span class="code-number">0.1m</span>); <span class="code-comment">// 10% discount</span>
+
+        <span class="code-comment">// Assert</span>
+        <span class="code-class">Assert</span>.<span class="code-method">Equal</span>(<span class="code-number">90</span>, <span class="code-variable">result</span>);
+    }
+
+    [<span class="code-class">Theory</span>]
+    [<span class="code-class">InlineData</span>(<span class="code-number">100</span>, <span class="code-number">0.1</span>, <span class="code-number">90</span>)]
+    [<span class="code-class">InlineData</span>(<span class="code-number">50</span>, <span class="code-number">0.2</span>, <span class="code-number">40</span>)]
+    [<span class="code-class">InlineData</span>(<span class="code-number">200</span>, <span class="code-number">0.5</span>, <span class="code-number">100</span>)]
+    <span class="code-keyword">public</span> <span class="code-keyword">void</span> <span class="code-method">CalculateDiscount_VariousInputs_ReturnsCorrectPrice</span>(
+        <span class="code-type">decimal</span> <span class="code-variable">price</span>, <span class="code-type">decimal</span> <span class="code-variable">discount</span>, <span class="code-type">decimal</span> <span class="code-variable">expected</span>)
+    {
+        <span class="code-keyword">var</span> <span class="code-variable">service</span> = <span class="code-keyword">new</span> <span class="code-class">ProductService</span>();
+        <span class="code-keyword">var</span> <span class="code-variable">product</span> = <span class="code-keyword">new</span> <span class="code-class">Product</span> { <span class="code-variable">Price</span> = <span class="code-variable">price</span> };
+
+        <span class="code-keyword">var</span> <span class="code-variable">result</span> = <span class="code-variable">service</span>.<span class="code-method">CalculateDiscount</span>(<span class="code-variable">product</span>, <span class="code-variable">discount</span>);
+
+        <span class="code-class">Assert</span>.<span class="code-method">Equal</span>(<span class="code-variable">expected</span>, <span class="code-variable">result</span>);
+    }
+}</code></pre>
+
+                <h2>Running Tests</h2>
+
+                <div class="code-header">
+                    <span class="code-filename">Run Tests</span>
+                    <span class="code-language">Bash</span>
+                </div>
+                <pre><code>dotnet test</code></pre>
+
+                <h2>Key Takeaways</h2>
+
+                <ul>
+                    <li><strong>Unit testing</strong>: Test individual units in isolation</li>
+                    <li><strong>xUnit</strong>: Popular .NET testing framework</li>
+                    <li><strong>[Fact]</strong>: Single test case</li>
+                    <li><strong>[Theory]</strong>: Multiple test cases with [InlineData]</li>
+                    <li><strong>Arrange-Act-Assert</strong>: Standard test pattern</li>
+                    <li><strong>Assert</strong>: Verify expected outcomes</li>
+                </ul>
+
+                <nav class="page-nav">
+                    <a href="../index.html" class="prev">Back to Roadmap</a>
+                    <a href="02-mocking-with-moq.html" class="next">Mocking with Moq</a>
+                </nav>
+
+            
+        <footer class="page-footer">
+          Built with 💜 by <a href="https://akwasi.dev" target="_blank" rel="noopener noreferrer">Akwasi Adu-Kyeremeh</a> for developers who want to truly understand what they're building.
+        </footer>
+
+      </div>
+        </main>
+    </div>
+</body>
+
+</html>

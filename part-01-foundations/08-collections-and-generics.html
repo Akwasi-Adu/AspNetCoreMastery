@@ -1,0 +1,727 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Collections and Generics | ASP.NET Core Mastery</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;500&family=Source+Serif+4:ital,wght@0,400;0,600;1,400&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="../assets/style.css">
+</head>
+
+<body>
+    <div class="page-wrapper">
+        <aside class="sidebar">
+            <a href="../index.html" class="sidebar-logo">ASP.NET Core Mastery</a>
+            <div class="sidebar-section">Part I: Foundations</div>
+            <ul class="sidebar-nav">
+                <li><a href="01-what-is-programming.html">What is Programming?</a></li>
+                <li><a href="02-what-is-csharp-dotnet.html">What is C# and .NET?</a></li>
+                <li><a href="03-variables-and-data-types.html">Variables and Data Types</a></li>
+                <li><a href="04-operators-and-expressions.html">Operators and Expressions</a></li>
+                <li><a href="05-control-flow.html">Control Flow</a></li>
+                <li><a href="06-methods-and-functions.html">Methods and Functions</a></li>
+                <li><a href="07-oop-classes-objects.html">OOP: Classes &amp; Objects</a></li>
+                <li><a href="08-collections-and-generics.html" class="active">Collections and Generics</a></li>
+                <li><a href="09-linq.html">LINQ</a></li>
+                <li><a href="10-async-await.html">Async/Await</a></li>
+            </ul>
+            <div class="sidebar-section">Resources</div>
+            <ul class="sidebar-nav">
+                <li><a href="../index.html">Full Roadmap</a></li>
+            </ul>
+        </aside>
+
+        <main class="main-content">
+            <div class="content-container">
+                <nav class="breadcrumb">
+                    <a href="../index.html">Home</a>
+                    <span>→</span>
+                    <a href="01-what-is-programming.html">Part I: Foundations</a>
+                    <span>→</span>
+                    Collections and Generics
+                </nav>
+
+                <div class="progress-indicator">
+                    <span>Section 8 of 10</span>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 80%"></div>
+                    </div>
+                </div>
+
+                <h1>Collections and Generics</h1>
+
+                <div class="learning-objectives">
+                    <h3>🎯 What You'll Learn</h3>
+                    <ul>
+                        <li>What collections are and why they're essential</li>
+                        <li>The limitations of arrays and why we need better solutions</li>
+                        <li>Understanding generics and type parameters</li>
+                        <li>Working with <code>List&lt;T&gt;</code> for dynamic lists</li>
+                        <li>Using <code>Dictionary&lt;TKey, TValue&gt;</code> for key-value pairs</li>
+                        <li>Other useful collections: <code>HashSet&lt;T&gt;</code>, <code>Queue&lt;T&gt;</code>,
+                            <code>Stack&lt;T&gt;</code></li>
+                        <li>Collection initialization syntax</li>
+                        <li>Iterating through collections with foreach</li>
+                        <li>Choosing the right collection for your needs</li>
+                        <li>Building InvenTrack's product catalog and customer database</li>
+                    </ul>
+                </div>
+
+                <h2>The Problem: Working with Multiple Objects</h2>
+
+                <p>
+                    So far, we've worked with individual objects—a single product, one customer, one order.
+                    But real applications deal with <em>many</em> objects: hundreds of products, thousands of
+                    customers, millions of transactions. How do we manage groups of related objects efficiently?
+                </p>
+
+                <div class="callout callout-concept">
+                    <div class="callout-title">💡 Key Concept</div>
+                    <p>
+                        A <strong>collection</strong> is a data structure that holds multiple objects of the same
+                        type. Collections provide methods to add, remove, search, and iterate through items. They're
+                        the foundation of working with data in any real-world application.
+                    </p>
+                </div>
+
+                <h2>Arrays: The Basic Collection</h2>
+
+                <p>
+                    You've already seen arrays—they're the simplest collection. But they have significant limitations.
+                </p>
+
+                <div class="code-header">
+                    <span class="code-filename">ArrayLimitations.cs</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-comment">// Arrays have fixed size</span>
+<span class="code-type">string</span>[] <span class="code-variable">products</span> = <span class="code-keyword">new</span> <span class="code-type">string</span>[<span class="code-number">3</span>];
+<span class="code-variable">products</span>[<span class="code-number">0</span>] = <span class="code-string">"Laptop"</span>;
+<span class="code-variable">products</span>[<span class="code-number">1</span>] = <span class="code-string">"Mouse"</span>;
+<span class="code-variable">products</span>[<span class="code-number">2</span>] = <span class="code-string">"Keyboard"</span>;
+
+<span class="code-comment">// What if we need to add a 4th product? We can't!</span>
+<span class="code-comment">// products[3] = "Monitor";  // ERROR: Index out of bounds</span>
+
+<span class="code-comment">// We'd have to create a new, larger array and copy everything</span>
+<span class="code-type">string</span>[] <span class="code-variable">newProducts</span> = <span class="code-keyword">new</span> <span class="code-type">string</span>[<span class="code-number">4</span>];
+<span class="code-keyword">for</span> (<span class="code-type">int</span> <span class="code-variable">i</span> = <span class="code-number">0</span>; <span class="code-variable">i</span> < <span class="code-variable">products</span>.<span class="code-variable">Length</span>; <span class="code-variable">i</span>++)
+{
+    <span class="code-variable">newProducts</span>[<span class="code-variable">i</span>] = <span class="code-variable">products</span>[<span class="code-variable">i</span>];
+}
+<span class="code-variable">newProducts</span>[<span class="code-number">3</span>] = <span class="code-string">"Monitor"</span>;
+<span class="code-variable">products</span> = <span class="code-variable">newProducts</span>;  <span class="code-comment">// Tedious!</span></code></pre>
+
+                <div class="callout callout-warning">
+                    <div class="callout-title">⚠️ Array Limitations</div>
+                    <p>
+                        <strong>Fixed size</strong>: Can't grow or shrink after creation<br>
+                        <strong>No built-in methods</strong>: No easy way to add, remove, or search<br>
+                        <strong>Manual management</strong>: You handle all the complexity yourself
+                    </p>
+                </div>
+
+                <h2>Enter Generics: Type-Safe, Reusable Code</h2>
+
+                <p>
+                    Before we dive into collections, we need to understand <strong>generics</strong>—one of
+                    C#'s most powerful features.
+                </p>
+
+                <div class="callout callout-concept">
+                    <div class="callout-title">💡 What Are Generics?</div>
+                    <p>
+                        <strong>Generics</strong> let you write code that works with <em>any</em> type, while
+                        maintaining type safety. Instead of writing separate code for a list of strings, a list
+                        of integers, and a list of products, you write <em>one</em> generic list that works with
+                        all types.
+                    </p>
+                </div>
+
+                <div class="analogy">
+                    Think of a generic as a template or blueprint with a blank space for "type goes here."
+                    A <code>List&lt;T&gt;</code> is like saying "a list of ___" where you fill in the blank:
+                    <code>List&lt;string&gt;</code> (a list of strings), <code>List&lt;int&gt;</code> (a list
+                    of integers), <code>List&lt;Product&gt;</code> (a list of products). Same list behavior,
+                    different types.
+                </div>
+
+                <h3>Generic Type Parameters</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">GenericSyntax.cs</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-comment">// T is a type parameter - a placeholder for any type</span>
+<span class="code-class">List</span>&lt;<span class="code-type">string</span>&gt; <span class="code-variable">names</span>;      <span class="code-comment">// T = string</span>
+<span class="code-class">List</span>&lt;<span class="code-type">int</span>&gt; <span class="code-variable">numbers</span>;         <span class="code-comment">// T = int</span>
+<span class="code-class">List</span>&lt;<span class="code-class">Product</span>&gt; <span class="code-variable">products</span>;    <span class="code-comment">// T = Product</span>
+<span class="code-class">Dictionary</span>&lt;<span class="code-type">string</span>, <span class="code-class">Customer</span>&gt; <span class="code-variable">customers</span>;  <span class="code-comment">// TKey = string, TValue = Customer</span></code></pre>
+
+                <div class="section-divider"></div>
+
+                <h2>List&lt;T&gt;: The Workhorse Collection</h2>
+
+                <p>
+                    <code>List&lt;T&gt;</code> is the most commonly used collection. It's a dynamic array
+                    that grows automatically as you add items.
+                </p>
+
+                <h3>Creating and Using Lists</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">ListBasics.cs</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-keyword">using</span> System.Collections.Generic;
+
+<span class="code-comment">// Create an empty list</span>
+<span class="code-class">List</span>&lt;<span class="code-type">string</span>&gt; <span class="code-variable">productNames</span> = <span class="code-keyword">new</span> <span class="code-class">List</span>&lt;<span class="code-type">string</span>&gt;();
+
+<span class="code-comment">// Add items</span>
+<span class="code-variable">productNames</span>.<span class="code-method">Add</span>(<span class="code-string">"Laptop"</span>);
+<span class="code-variable">productNames</span>.<span class="code-method">Add</span>(<span class="code-string">"Mouse"</span>);
+<span class="code-variable">productNames</span>.<span class="code-method">Add</span>(<span class="code-string">"Keyboard"</span>);
+<span class="code-variable">productNames</span>.<span class="code-method">Add</span>(<span class="code-string">"Monitor"</span>);  <span class="code-comment">// No problem! List grows automatically</span>
+
+<span class="code-comment">// Access by index (like arrays)</span>
+Console.<span class="code-method">WriteLine</span>(<span class="code-variable">productNames</span>[<span class="code-number">0</span>]);  <span class="code-comment">// Laptop</span>
+
+<span class="code-comment">// Check count</span>
+Console.<span class="code-method">WriteLine</span>(<span class="code-string">$"We have </span>{<span class="code-variable">productNames</span>.<span class="code-variable">Count</span>}<span class="code-string"> products"</span>);  <span class="code-comment">// 4</span>
+
+<span class="code-comment">// Remove items</span>
+<span class="code-variable">productNames</span>.<span class="code-method">Remove</span>(<span class="code-string">"Mouse"</span>);  <span class="code-comment">// Removes first occurrence</span>
+<span class="code-variable">productNames</span>.<span class="code-method">RemoveAt</span>(<span class="code-number">0</span>);        <span class="code-comment">// Removes by index</span>
+
+<span class="code-comment">// Check if item exists</span>
+<span class="code-keyword">if</span> (<span class="code-variable">productNames</span>.<span class="code-method">Contains</span>(<span class="code-string">"Keyboard"</span>))
+{
+    Console.<span class="code-method">WriteLine</span>(<span class="code-string">"We have keyboards in stock"</span>);
+}
+
+<span class="code-comment">// Clear all items</span>
+<span class="code-variable">productNames</span>.<span class="code-method">Clear</span>();</code></pre>
+
+                <h3>Collection Initializer Syntax</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">CollectionInitializers.cs</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-comment">// Initialize with values</span>
+<span class="code-class">List</span>&lt;<span class="code-type">string</span>&gt; <span class="code-variable">categories</span> = <span class="code-keyword">new</span> <span class="code-class">List</span>&lt;<span class="code-type">string</span>&gt;
+{
+    <span class="code-string">"Electronics"</span>,
+    <span class="code-string">"Furniture"</span>,
+    <span class="code-string">"Clothing"</span>,
+    <span class="code-string">"Books"</span>
+};
+
+<span class="code-comment">// Even shorter with C# 9+ (target-typed new)</span>
+<span class="code-class">List</span>&lt;<span class="code-type">int</span>&gt; <span class="code-variable">quantities</span> = <span class="code-keyword">new</span>() { <span class="code-number">10</span>, <span class="code-number">25</span>, <span class="code-number">5</span>, <span class="code-number">100</span> };
+
+<span class="code-comment">// Initialize list of objects</span>
+<span class="code-class">List</span>&lt;<span class="code-class">Product</span>&gt; <span class="code-variable">products</span> = <span class="code-keyword">new</span>()
+{
+    <span class="code-keyword">new</span> <span class="code-class">Product</span>(<span class="code-string">"LAP-001"</span>, <span class="code-string">"Dell XPS"</span>, <span class="code-number">1299.99m</span>, <span class="code-number">10</span>),
+    <span class="code-keyword">new</span> <span class="code-class">Product</span>(<span class="code-string">"MOU-001"</span>, <span class="code-string">"Logitech MX"</span>, <span class="code-number">99.99m</span>, <span class="code-number">50</span>),
+    <span class="code-keyword">new</span> <span class="code-class">Product</span>(<span class="code-string">"KEY-001"</span>, <span class="code-string">"Mechanical KB"</span>, <span class="code-number">149.99m</span>, <span class="code-number">30</span>)
+};</code></pre>
+
+                <h3>Common List Operations</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">ListOperations.cs</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-class">List</span>&lt;<span class="code-type">int</span>&gt; <span class="code-variable">numbers</span> = <span class="code-keyword">new</span>() { <span class="code-number">5</span>, <span class="code-number">2</span>, <span class="code-number">8</span>, <span class="code-number">1</span>, <span class="code-number">9</span>, <span class="code-number">3</span> };
+
+<span class="code-comment">// Sort</span>
+<span class="code-variable">numbers</span>.<span class="code-method">Sort</span>();  <span class="code-comment">// { 1, 2, 3, 5, 8, 9 }</span>
+
+<span class="code-comment">// Reverse</span>
+<span class="code-variable">numbers</span>.<span class="code-method">Reverse</span>();  <span class="code-comment">// { 9, 8, 5, 3, 2, 1 }</span>
+
+<span class="code-comment">// Find index of item</span>
+<span class="code-type">int</span> <span class="code-variable">index</span> = <span class="code-variable">numbers</span>.<span class="code-method">IndexOf</span>(<span class="code-number">5</span>);  <span class="code-comment">// 2</span>
+
+<span class="code-comment">// Insert at specific position</span>
+<span class="code-variable">numbers</span>.<span class="code-method">Insert</span>(<span class="code-number">0</span>, <span class="code-number">100</span>);  <span class="code-comment">// Insert 100 at beginning</span>
+
+<span class="code-comment">// Get a range</span>
+<span class="code-class">List</span>&lt;<span class="code-type">int</span>&gt; <span class="code-variable">subset</span> = <span class="code-variable">numbers</span>.<span class="code-method">GetRange</span>(<span class="code-number">0</span>, <span class="code-number">3</span>);  <span class="code-comment">// First 3 items</span>
+
+<span class="code-comment">// Convert to array</span>
+<span class="code-type">int</span>[] <span class="code-variable">array</span> = <span class="code-variable">numbers</span>.<span class="code-method">ToArray</span>();</code></pre>
+
+                <h3>Iterating Through Lists</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">ListIteration.cs</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-class">List</span>&lt;<span class="code-class">Product</span>&gt; <span class="code-variable">products</span> = GetProducts();
+
+<span class="code-comment">// foreach - most common</span>
+<span class="code-keyword">foreach</span> (<span class="code-class">Product</span> <span class="code-variable">product</span> <span class="code-keyword">in</span> <span class="code-variable">products</span>)
+{
+    Console.<span class="code-method">WriteLine</span>(<span class="code-string">$"</span>{<span class="code-variable">product</span>.<span class="code-variable">Name</span>}<span class="code-string">: </span>{<span class="code-variable">product</span>.<span class="code-variable">Price</span>:C}<span class="code-string">"</span>);
+}
+
+<span class="code-comment">// for loop - when you need the index</span>
+<span class="code-keyword">for</span> (<span class="code-type">int</span> <span class="code-variable">i</span> = <span class="code-number">0</span>; <span class="code-variable">i</span> < <span class="code-variable">products</span>.<span class="code-variable">Count</span>; <span class="code-variable">i</span>++)
+{
+    Console.<span class="code-method">WriteLine</span>(<span class="code-string">$"#{</span>{<span class="code-variable">i</span> + <span class="code-number">1</span>}<span class="code-string">: </span>{<span class="code-variable">products</span>[<span class="code-variable">i</span>].<span class="code-variable">Name</span>}<span class="code-string">"</span>);
+}
+
+<span class="code-comment">// ForEach method with lambda</span>
+<span class="code-variable">products</span>.<span class="code-method">ForEach</span>(<span class="code-variable">p</span> => Console.<span class="code-method">WriteLine</span>(<span class="code-variable">p</span>.<span class="code-variable">Name</span>));</code></pre>
+
+                <div class="section-divider"></div>
+
+                <h2>Dictionary&lt;TKey, TValue&gt;: Key-Value Pairs</h2>
+
+                <p>
+                    A <code>Dictionary</code> stores pairs of keys and values. It's like a real dictionary
+                    where you look up a word (key) to find its definition (value). Dictionaries provide
+                    extremely fast lookups by key.
+                </p>
+
+                <div class="code-header">
+                    <span class="code-filename">DictionaryBasics.cs</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-comment">// Dictionary of product SKU to Product object</span>
+<span class="code-class">Dictionary</span>&lt;<span class="code-type">string</span>, <span class="code-class">Product</span>&gt; <span class="code-variable">productCatalog</span> = <span class="code-keyword">new</span>();
+
+<span class="code-comment">// Add items</span>
+<span class="code-variable">productCatalog</span>.<span class="code-method">Add</span>(<span class="code-string">"LAP-001"</span>, <span class="code-keyword">new</span> <span class="code-class">Product</span>(<span class="code-string">"LAP-001"</span>, <span class="code-string">"Dell XPS"</span>, <span class="code-number">1299.99m</span>, <span class="code-number">10</span>));
+<span class="code-variable">productCatalog</span>.<span class="code-method">Add</span>(<span class="code-string">"MOU-001"</span>, <span class="code-keyword">new</span> <span class="code-class">Product</span>(<span class="code-string">"MOU-001"</span>, <span class="code-string">"Logitech MX"</span>, <span class="code-number">99.99m</span>, <span class="code-number">50</span>));
+
+<span class="code-comment">// Alternative: indexer syntax</span>
+<span class="code-variable">productCatalog</span>[<span class="code-string">"KEY-001"</span>] = <span class="code-keyword">new</span> <span class="code-class">Product</span>(<span class="code-string">"KEY-001"</span>, <span class="code-string">"Mechanical KB"</span>, <span class="code-number">149.99m</span>, <span class="code-number">30</span>);
+
+<span class="code-comment">// Retrieve by key - FAST!</span>
+<span class="code-class">Product</span> <span class="code-variable">laptop</span> = <span class="code-variable">productCatalog</span>[<span class="code-string">"LAP-001"</span>];
+Console.<span class="code-method">WriteLine</span>(<span class="code-variable">laptop</span>.<span class="code-variable">Name</span>);
+
+<span class="code-comment">// Check if key exists</span>
+<span class="code-keyword">if</span> (<span class="code-variable">productCatalog</span>.<span class="code-method">ContainsKey</span>(<span class="code-string">"MOU-001"</span>))
+{
+    Console.<span class="code-method">WriteLine</span>(<span class="code-string">"Mouse is in catalog"</span>);
+}
+
+<span class="code-comment">// Safe retrieval with TryGetValue</span>
+<span class="code-keyword">if</span> (<span class="code-variable">productCatalog</span>.<span class="code-method">TryGetValue</span>(<span class="code-string">"MON-001"</span>, <span class="code-keyword">out</span> <span class="code-class">Product</span> <span class="code-variable">monitor</span>))
+{
+    Console.<span class="code-method">WriteLine</span>(<span class="code-string">$"Found: </span>{<span class="code-variable">monitor</span>.<span class="code-variable">Name</span>}<span class="code-string">"</span>);
+}
+<span class="code-keyword">else</span>
+{
+    Console.<span class="code-method">WriteLine</span>(<span class="code-string">"Monitor not found"</span>);
+}
+
+<span class="code-comment">// Remove by key</span>
+<span class="code-variable">productCatalog</span>.<span class="code-method">Remove</span>(<span class="code-string">"KEY-001"</span>);
+
+<span class="code-comment">// Count</span>
+Console.<span class="code-method">WriteLine</span>(<span class="code-string">$"Catalog has </span>{<span class="code-variable">productCatalog</span>.<span class="code-variable">Count</span>}<span class="code-string"> products"</span>);</code></pre>
+
+                <h3>Dictionary Initialization</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">DictionaryInit.cs</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-comment">// Initialize with values</span>
+<span class="code-class">Dictionary</span>&lt;<span class="code-type">string</span>, <span class="code-type">decimal</span>&gt; <span class="code-variable">prices</span> = <span class="code-keyword">new</span>()
+{
+    { <span class="code-string">"Laptop"</span>, <span class="code-number">1299.99m</span> },
+    { <span class="code-string">"Mouse"</span>, <span class="code-number">99.99m</span> },
+    { <span class="code-string">"Keyboard"</span>, <span class="code-number">149.99m</span> }
+};
+
+<span class="code-comment">// Alternative syntax (C# 6+)</span>
+<span class="code-class">Dictionary</span>&lt;<span class="code-type">int</span>, <span class="code-type">string</span>&gt; <span class="code-variable">customerNames</span> = <span class="code-keyword">new</span>()
+{
+    [<span class="code-number">1001</span>] = <span class="code-string">"Akwasi Asante"</span>,
+    [<span class="code-number">1002</span>] = <span class="code-string">"Jane Smith"</span>,
+    [<span class="code-number">1003</span>] = <span class="code-string">"Bob Johnson"</span>
+};</code></pre>
+
+                <h3>Iterating Through Dictionaries</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">DictionaryIteration.cs</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-class">Dictionary</span>&lt;<span class="code-type">string</span>, <span class="code-class">Product</span>&gt; <span class="code-variable">catalog</span> = GetCatalog();
+
+<span class="code-comment">// Iterate through key-value pairs</span>
+<span class="code-keyword">foreach</span> (<span class="code-class">KeyValuePair</span>&lt;<span class="code-type">string</span>, <span class="code-class">Product</span>&gt; <span class="code-variable">entry</span> <span class="code-keyword">in</span> <span class="code-variable">catalog</span>)
+{
+    Console.<span class="code-method">WriteLine</span>(<span class="code-string">$"SKU: </span>{<span class="code-variable">entry</span>.<span class="code-variable">Key</span>}<span class="code-string">, Name: </span>{<span class="code-variable">entry</span>.<span class="code-variable">Value</span>.<span class="code-variable">Name</span>}<span class="code-string">"</span>);
+}
+
+<span class="code-comment">// Shorter with var</span>
+<span class="code-keyword">foreach</span> (<span class="code-keyword">var</span> <span class="code-variable">entry</span> <span class="code-keyword">in</span> <span class="code-variable">catalog</span>)
+{
+    Console.<span class="code-method">WriteLine</span>(<span class="code-string">$"</span>{<span class="code-variable">entry</span>.<span class="code-variable">Key</span>}<span class="code-string">: </span>{<span class="code-variable">entry</span>.<span class="code-variable">Value</span>.<span class="code-variable">Price</span>:C}<span class="code-string">"</span>);
+}
+
+<span class="code-comment">// Iterate through keys only</span>
+<span class="code-keyword">foreach</span> (<span class="code-type">string</span> <span class="code-variable">sku</span> <span class="code-keyword">in</span> <span class="code-variable">catalog</span>.<span class="code-variable">Keys</span>)
+{
+    Console.<span class="code-method">WriteLine</span>(<span class="code-variable">sku</span>);
+}
+
+<span class="code-comment">// Iterate through values only</span>
+<span class="code-keyword">foreach</span> (<span class="code-class">Product</span> <span class="code-variable">product</span> <span class="code-keyword">in</span> <span class="code-variable">catalog</span>.<span class="code-variable">Values</span>)
+{
+    Console.<span class="code-method">WriteLine</span>(<span class="code-variable">product</span>.<span class="code-variable">Name</span>);
+}</code></pre>
+
+                <div class="callout callout-tip">
+                    <div class="callout-title">💡 When to Use Dictionary</div>
+                    <p>
+                        Use a <code>Dictionary</code> when you need to look up items by a unique key. Perfect for:
+                        product catalogs (by SKU), customer databases (by ID), configuration settings (by name),
+                        caching (by cache key). Lookups are O(1) - nearly instant regardless of size!
+                    </p>
+                </div>
+
+                <div class="section-divider"></div>
+
+                <h2>Other Useful Collections</h2>
+
+                <h3>HashSet&lt;T&gt;: Unique Items Only</h3>
+
+                <p>
+                    A <code>HashSet</code> is like a <code>List</code>, but it automatically prevents duplicates
+                    and provides very fast lookups.
+                </p>
+
+                <div class="code-header">
+                    <span class="code-filename">HashSetExample.cs</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-class">HashSet</span>&lt;<span class="code-type">string</span>&gt; <span class="code-variable">categories</span> = <span class="code-keyword">new</span>();
+
+<span class="code-variable">categories</span>.<span class="code-method">Add</span>(<span class="code-string">"Electronics"</span>);
+<span class="code-variable">categories</span>.<span class="code-method">Add</span>(<span class="code-string">"Furniture"</span>);
+<span class="code-variable">categories</span>.<span class="code-method">Add</span>(<span class="code-string">"Electronics"</span>);  <span class="code-comment">// Duplicate - won't be added</span>
+
+Console.<span class="code-method">WriteLine</span>(<span class="code-variable">categories</span>.<span class="code-variable">Count</span>);  <span class="code-comment">// 2 (not 3!)</span>
+
+<span class="code-comment">// Fast Contains check</span>
+<span class="code-keyword">if</span> (<span class="code-variable">categories</span>.<span class="code-method">Contains</span>(<span class="code-string">"Electronics"</span>))
+{
+    Console.<span class="code-method">WriteLine</span>(<span class="code-string">"We have electronics"</span>);
+}
+
+<span class="code-comment">// Set operations</span>
+<span class="code-class">HashSet</span>&lt;<span class="code-type">string</span>&gt; <span class="code-variable">set1</span> = <span class="code-keyword">new</span>() { <span class="code-string">"A"</span>, <span class="code-string">"B"</span>, <span class="code-string">"C"</span> };
+<span class="code-class">HashSet</span>&lt;<span class="code-type">string</span>&gt; <span class="code-variable">set2</span> = <span class="code-keyword">new</span>() { <span class="code-string">"B"</span>, <span class="code-string">"C"</span>, <span class="code-string">"D"</span> };
+
+<span class="code-variable">set1</span>.<span class="code-method">UnionWith</span>(<span class="code-variable">set2</span>);        <span class="code-comment">// { A, B, C, D }</span>
+<span class="code-variable">set1</span>.<span class="code-method">IntersectWith</span>(<span class="code-variable">set2</span>);   <span class="code-comment">// { B, C }</span>
+<span class="code-variable">set1</span>.<span class="code-method">ExceptWith</span>(<span class="code-variable">set2</span>);      <span class="code-comment">// { A }</span></code></pre>
+
+                <h3>Queue&lt;T&gt;: First-In, First-Out (FIFO)</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">QueueExample.cs</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-comment">// Process orders in the order they arrive</span>
+<span class="code-class">Queue</span>&lt;<span class="code-type">string</span>&gt; <span class="code-variable">orderQueue</span> = <span class="code-keyword">new</span>();
+
+<span class="code-comment">// Add to end of queue</span>
+<span class="code-variable">orderQueue</span>.<span class="code-method">Enqueue</span>(<span class="code-string">"Order #1"</span>);
+<span class="code-variable">orderQueue</span>.<span class="code-method">Enqueue</span>(<span class="code-string">"Order #2"</span>);
+<span class="code-variable">orderQueue</span>.<span class="code-method">Enqueue</span>(<span class="code-string">"Order #3"</span>);
+
+<span class="code-comment">// Remove from front of queue</span>
+<span class="code-type">string</span> <span class="code-variable">nextOrder</span> = <span class="code-variable">orderQueue</span>.<span class="code-method">Dequeue</span>();  <span class="code-comment">// "Order #1"</span>
+
+<span class="code-comment">// Peek at front without removing</span>
+<span class="code-type">string</span> <span class="code-variable">peek</span> = <span class="code-variable">orderQueue</span>.<span class="code-method">Peek</span>();  <span class="code-comment">// "Order #2" (still in queue)</span>
+
+Console.<span class="code-method">WriteLine</span>(<span class="code-variable">orderQueue</span>.<span class="code-variable">Count</span>);  <span class="code-comment">// 2</span></code></pre>
+
+                <h3>Stack&lt;T&gt;: Last-In, First-Out (LIFO)</h3>
+
+                <div class="code-header">
+                    <span class="code-filename">StackExample.cs</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-comment">// Undo/Redo functionality</span>
+<span class="code-class">Stack</span>&lt;<span class="code-type">string</span>&gt; <span class="code-variable">undoStack</span> = <span class="code-keyword">new</span>();
+
+<span class="code-comment">// Add to top of stack</span>
+<span class="code-variable">undoStack</span>.<span class="code-method">Push</span>(<span class="code-string">"Action 1"</span>);
+<span class="code-variable">undoStack</span>.<span class="code-method">Push</span>(<span class="code-string">"Action 2"</span>);
+<span class="code-variable">undoStack</span>.<span class="code-method">Push</span>(<span class="code-string">"Action 3"</span>);
+
+<span class="code-comment">// Remove from top (most recent)</span>
+<span class="code-type">string</span> <span class="code-variable">lastAction</span> = <span class="code-variable">undoStack</span>.<span class="code-method">Pop</span>();  <span class="code-comment">// "Action 3"</span>
+
+<span class="code-comment">// Peek at top without removing</span>
+<span class="code-type">string</span> <span class="code-variable">peek</span> = <span class="code-variable">undoStack</span>.<span class="code-method">Peek</span>();  <span class="code-comment">// "Action 2"</span></code></pre>
+
+                <div class="section-divider"></div>
+
+                <h2>Building InvenTrack: Product Catalog and Customer Database</h2>
+
+                <p>
+                    Let's apply what we've learned to build a real product catalog and customer management
+                    system for InvenTrack.
+                </p>
+
+                <div class="code-header">
+                    <span class="code-filename">InvenTrackCollections.cs</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-keyword">class</span> <span class="code-class">ProductCatalog</span>
+{
+    <span class="code-keyword">private</span> <span class="code-class">Dictionary</span>&lt;<span class="code-type">string</span>, <span class="code-class">Product</span>&gt; <span class="code-variable">products</span>;
+    <span class="code-keyword">private</span> <span class="code-class">HashSet</span>&lt;<span class="code-type">string</span>&gt; <span class="code-variable">categories</span>;
+    
+    <span class="code-keyword">public</span> <span class="code-method">ProductCatalog</span>()
+    {
+        <span class="code-variable">products</span> = <span class="code-keyword">new</span> <span class="code-class">Dictionary</span>&lt;<span class="code-type">string</span>, <span class="code-class">Product</span>&gt;();
+        <span class="code-variable">categories</span> = <span class="code-keyword">new</span> <span class="code-class">HashSet</span>&lt;<span class="code-type">string</span>&gt;();
+    }
+    
+    <span class="code-keyword">public</span> <span class="code-type">void</span> <span class="code-method">AddProduct</span>(<span class="code-class">Product</span> <span class="code-variable">product</span>)
+    {
+        <span class="code-keyword">if</span> (<span class="code-variable">products</span>.<span class="code-method">ContainsKey</span>(<span class="code-variable">product</span>.<span class="code-variable">Sku</span>))
+        {
+            Console.<span class="code-method">WriteLine</span>(<span class="code-string">$"Product </span>{<span class="code-variable">product</span>.<span class="code-variable">Sku</span>}<span class="code-string"> already exists"</span>);
+            <span class="code-keyword">return</span>;
+        }
+        
+        <span class="code-variable">products</span>[<span class="code-variable">product</span>.<span class="code-variable">Sku</span>] = <span class="code-variable">product</span>;
+        Console.<span class="code-method">WriteLine</span>(<span class="code-string">$"Added </span>{<span class="code-variable">product</span>.<span class="code-variable">Name</span>}<span class="code-string"> to catalog"</span>);
+    }
+    
+    <span class="code-keyword">public</span> <span class="code-class">Product</span> <span class="code-method">GetProduct</span>(<span class="code-type">string</span> <span class="code-variable">sku</span>)
+    {
+        <span class="code-keyword">if</span> (<span class="code-variable">products</span>.<span class="code-method">TryGetValue</span>(<span class="code-variable">sku</span>, <span class="code-keyword">out</span> <span class="code-class">Product</span> <span class="code-variable">product</span>))
+        {
+            <span class="code-keyword">return</span> <span class="code-variable">product</span>;
+        }
+        <span class="code-keyword">return</span> <span class="code-keyword">null</span>;
+    }
+    
+    <span class="code-keyword">public</span> <span class="code-class">List</span>&lt;<span class="code-class">Product</span>&gt; <span class="code-method">GetAllProducts</span>()
+    {
+        <span class="code-keyword">return</span> <span class="code-variable">products</span>.<span class="code-variable">Values</span>.<span class="code-method">ToList</span>();
+    }
+    
+    <span class="code-keyword">public</span> <span class="code-class">List</span>&lt;<span class="code-class">Product</span>&gt; <span class="code-method">GetLowStockProducts</span>()
+    {
+        <span class="code-class">List</span>&lt;<span class="code-class">Product</span>&gt; <span class="code-variable">lowStock</span> = <span class="code-keyword">new</span>();
+        
+        <span class="code-keyword">foreach</span> (<span class="code-class">Product</span> <span class="code-variable">product</span> <span class="code-keyword">in</span> <span class="code-variable">products</span>.<span class="code-variable">Values</span>)
+        {
+            <span class="code-keyword">if</span> (<span class="code-variable">product</span>.<span class="code-variable">IsLowStock</span>)
+            {
+                <span class="code-variable">lowStock</span>.<span class="code-method">Add</span>(<span class="code-variable">product</span>);
+            }
+        }
+        
+        <span class="code-keyword">return</span> <span class="code-variable">lowStock</span>;
+    }
+    
+    <span class="code-keyword">public</span> <span class="code-type">decimal</span> <span class="code-method">GetTotalInventoryValue</span>()
+    {
+        <span class="code-type">decimal</span> <span class="code-variable">total</span> = <span class="code-number">0m</span>;
+        
+        <span class="code-keyword">foreach</span> (<span class="code-class">Product</span> <span class="code-variable">product</span> <span class="code-keyword">in</span> <span class="code-variable">products</span>.<span class="code-variable">Values</span>)
+        {
+            <span class="code-variable">total</span> += <span class="code-variable">product</span>.<span class="code-method">GetInventoryValue</span>();
+        }
+        
+        <span class="code-keyword">return</span> <span class="code-variable">total</span>;
+    }
+    
+    <span class="code-keyword">public</span> <span class="code-type">void</span> <span class="code-method">DisplayCatalog</span>()
+    {
+        Console.<span class="code-method">WriteLine</span>(<span class="code-string">"\n=== Product Catalog ==="</span>);
+        Console.<span class="code-method">WriteLine</span>(<span class="code-string">$"Total Products: </span>{<span class="code-variable">products</span>.<span class="code-variable">Count</span>}<span class="code-string">"</span>);
+        Console.<span class="code-method">WriteLine</span>(<span class="code-string">$"Total Value: </span>{<span class="code-method">GetTotalInventoryValue</span>():C}<span class="code-string">\n"</span>);
+        
+        <span class="code-keyword">foreach</span> (<span class="code-keyword">var</span> <span class="code-variable">entry</span> <span class="code-keyword">in</span> <span class="code-variable">products</span>)
+        {
+            <span class="code-class">Product</span> <span class="code-variable">p</span> = <span class="code-variable">entry</span>.<span class="code-variable">Value</span>;
+            <span class="code-type">string</span> <span class="code-variable">status</span> = <span class="code-variable">p</span>.<span class="code-variable">IsLowStock</span> ? <span class="code-string">"[LOW STOCK]"</span> : <span class="code-string">""</span>;
+            Console.<span class="code-method">WriteLine</span>(<span class="code-string">$"</span>{<span class="code-variable">p</span>.<span class="code-variable">Sku</span>}<span class="code-string">: </span>{<span class="code-variable">p</span>.<span class="code-variable">Name</span>}<span class="code-string"> - </span>{<span class="code-variable">p</span>.<span class="code-variable">Price</span>:C}<span class="code-string"> (Qty: </span>{<span class="code-variable">p</span>.<span class="code-variable">QuantityInStock</span>}<span class="code-string">) </span>{<span class="code-variable">status</span>}<span class="code-string">"</span>);
+        }
+    }
+}
+
+<span class="code-keyword">class</span> <span class="code-class">CustomerDatabase</span>
+{
+    <span class="code-keyword">private</span> <span class="code-class">Dictionary</span>&lt;<span class="code-type">int</span>, <span class="code-class">Customer</span>&gt; <span class="code-variable">customers</span>;
+    <span class="code-keyword">private</span> <span class="code-class">Dictionary</span>&lt;<span class="code-type">string</span>, <span class="code-type">int</span>&gt; <span class="code-variable">emailToId</span>;
+    
+    <span class="code-keyword">public</span> <span class="code-method">CustomerDatabase</span>()
+    {
+        <span class="code-variable">customers</span> = <span class="code-keyword">new</span> <span class="code-class">Dictionary</span>&lt;<span class="code-type">int</span>, <span class="code-class">Customer</span>&gt;();
+        <span class="code-variable">emailToId</span> = <span class="code-keyword">new</span> <span class="code-class">Dictionary</span>&lt;<span class="code-type">string</span>, <span class="code-type">int</span>&gt;();
+    }
+    
+    <span class="code-keyword">public</span> <span class="code-type">void</span> <span class="code-method">AddCustomer</span>(<span class="code-class">Customer</span> <span class="code-variable">customer</span>)
+    {
+        <span class="code-variable">customers</span>[<span class="code-variable">customer</span>.<span class="code-variable">Id</span>] = <span class="code-variable">customer</span>;
+        <span class="code-variable">emailToId</span>[<span class="code-variable">customer</span>.<span class="code-variable">Email</span>] = <span class="code-variable">customer</span>.<span class="code-variable">Id</span>;
+    }
+    
+    <span class="code-keyword">public</span> <span class="code-class">Customer</span> <span class="code-method">GetCustomerById</span>(<span class="code-type">int</span> <span class="code-variable">id</span>)
+    {
+        <span class="code-keyword">return</span> <span class="code-variable">customers</span>.<span class="code-method">TryGetValue</span>(<span class="code-variable">id</span>, <span class="code-keyword">out</span> <span class="code-class">Customer</span> <span class="code-variable">customer</span>) ? <span class="code-variable">customer</span> : <span class="code-keyword">null</span>;
+    }
+    
+    <span class="code-keyword">public</span> <span class="code-class">Customer</span> <span class="code-method">GetCustomerByEmail</span>(<span class="code-type">string</span> <span class="code-variable">email</span>)
+    {
+        <span class="code-keyword">if</span> (<span class="code-variable">emailToId</span>.<span class="code-method">TryGetValue</span>(<span class="code-variable">email</span>, <span class="code-keyword">out</span> <span class="code-type">int</span> <span class="code-variable">id</span>))
+        {
+            <span class="code-keyword">return</span> <span class="code-variable">customers</span>[<span class="code-variable">id</span>];
+        }
+        <span class="code-keyword">return</span> <span class="code-keyword">null</span>;
+    }
+    
+    <span class="code-keyword">public</span> <span class="code-class">List</span>&lt;<span class="code-class">Customer</span>&gt; <span class="code-method">GetAllCustomers</span>()
+    {
+        <span class="code-keyword">return</span> <span class="code-variable">customers</span>.<span class="code-variable">Values</span>.<span class="code-method">ToList</span>();
+    }
+}
+
+<span class="code-comment">// Usage</span>
+<span class="code-class">ProductCatalog</span> <span class="code-variable">catalog</span> = <span class="code-keyword">new</span>();
+<span class="code-variable">catalog</span>.<span class="code-method">AddProduct</span>(<span class="code-keyword">new</span> <span class="code-class">Product</span>(<span class="code-string">"LAP-001"</span>, <span class="code-string">"Dell XPS 15"</span>, <span class="code-number">1299.99m</span>, <span class="code-number">10</span>));
+<span class="code-variable">catalog</span>.<span class="code-method">AddProduct</span>(<span class="code-keyword">new</span> <span class="code-class">Product</span>(<span class="code-string">"MOU-001"</span>, <span class="code-string">"Logitech MX"</span>, <span class="code-number">99.99m</span>, <span class="code-number">5</span>));
+<span class="code-variable">catalog</span>.<span class="code-method">AddProduct</span>(<span class="code-keyword">new</span> <span class="code-class">Product</span>(<span class="code-string">"KEY-001"</span>, <span class="code-string">"Mechanical KB"</span>, <span class="code-number">149.99m</span>, <span class="code-number">30</span>));
+
+<span class="code-variable">catalog</span>.<span class="code-method">DisplayCatalog</span>();
+
+<span class="code-class">List</span>&lt;<span class="code-class">Product</span>&gt; <span class="code-variable">lowStock</span> = <span class="code-variable">catalog</span>.<span class="code-method">GetLowStockProducts</span>();
+Console.<span class="code-method">WriteLine</span>(<span class="code-string">$"\nLow stock items: </span>{<span class="code-variable">lowStock</span>.<span class="code-variable">Count</span>}<span class="code-string">"</span>);</code></pre>
+
+                <div class="callout callout-tip">
+                    <div class="callout-title">🚀 Real-World Design</div>
+                    <p>
+                        Notice how we use <code>Dictionary</code> for fast lookups by SKU and ID, and
+                        <code>List</code> when we need to return multiple items. The <code>emailToId</code>
+                        dictionary is a secondary index—a common pattern for looking up the same data by
+                        different keys!
+                    </p>
+                </div>
+
+                <div class="section-divider"></div>
+
+                <h2>Choosing the Right Collection</h2>
+
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Collection</th>
+                            <th>When to Use</th>
+                            <th>Key Features</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><code>List&lt;T&gt;</code></td>
+                            <td>Ordered list of items, need index access</td>
+                            <td>Dynamic size, fast index access, maintains order</td>
+                        </tr>
+                        <tr>
+                            <td><code>Dictionary&lt;TKey, TValue&gt;</code></td>
+                            <td>Look up values by unique key</td>
+                            <td>Extremely fast lookups, key-value pairs</td>
+                        </tr>
+                        <tr>
+                            <td><code>HashSet&lt;T&gt;</code></td>
+                            <td>Unique items only, fast membership tests</td>
+                            <td>No duplicates, fast Contains(), set operations</td>
+                        </tr>
+                        <tr>
+                            <td><code>Queue&lt;T&gt;</code></td>
+                            <td>Process items in order received (FIFO)</td>
+                            <td>Enqueue/Dequeue, first-in-first-out</td>
+                        </tr>
+                        <tr>
+                            <td><code>Stack&lt;T&gt;</code></td>
+                            <td>Process most recent first (LIFO)</td>
+                            <td>Push/Pop, last-in-first-out</td>
+                        </tr>
+                        <tr>
+                            <td>Array <code>T[]</code></td>
+                            <td>Fixed size, performance-critical scenarios</td>
+                            <td>Fixed size, fastest access, lowest memory</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="callout callout-info">
+                    <div class="callout-title">ℹ️ Performance Matters</div>
+                    <p>
+                        <strong>List</strong>: Add/Remove at end = O(1), Insert/Remove middle = O(n)<br>
+                        <strong>Dictionary</strong>: Add/Remove/Lookup = O(1) average<br>
+                        <strong>HashSet</strong>: Add/Remove/Contains = O(1) average<br>
+                        <strong>Queue/Stack</strong>: Enqueue/Dequeue/Push/Pop = O(1)
+                    </p>
+                </div>
+
+                <div class="section-divider"></div>
+
+                <h2>Key Takeaways</h2>
+
+                <ul>
+                    <li><strong>Collections</strong> store multiple objects of the same type</li>
+                    <li><strong>Generics</strong> (<code>&lt;T&gt;</code>) provide type-safe, reusable code</li>
+                    <li><strong>List&lt;T&gt;</strong> is the go-to collection for ordered, dynamic lists</li>
+                    <li><strong>Dictionary&lt;TKey, TValue&gt;</strong> provides lightning-fast lookups by key</li>
+                    <li><strong>HashSet&lt;T&gt;</strong> ensures uniqueness and fast membership tests</li>
+                    <li><strong>Queue&lt;T&gt;</strong> and <strong>Stack&lt;T&gt;</strong> for specialized ordering
+                        needs</li>
+                    <li>Use <strong>collection initializers</strong> for cleaner, more readable code</li>
+                    <li><strong>foreach</strong> is the preferred way to iterate through collections</li>
+                    <li>Choose collections based on your access patterns and performance needs</li>
+                    <li>Real applications combine multiple collection types for different purposes</li>
+                </ul>
+
+                <div class="callout callout-concept">
+                    <div class="callout-title">🎯 Next Steps</div>
+                    <p>
+                        You now know how to work with collections of objects! In the next section, we'll explore
+                        <strong>LINQ (Language Integrated Query)</strong>—a powerful feature that lets you query,
+                        filter, transform, and aggregate collections with elegant, SQL-like syntax. LINQ will
+                        revolutionize how you work with data in C#!
+                    </p>
+                </div>
+
+                <nav class="page-nav">
+                    <a href="07-oop-classes-objects.html" class="prev">OOP: Classes &amp; Objects</a>
+                    <a href="09-linq.html" class="next">LINQ</a>
+                </nav>
+
+            
+        <footer class="page-footer">
+          Built with 💜 by <a href="https://akwasi.dev" target="_blank" rel="noopener noreferrer">Akwasi Adu-Kyeremeh</a> for developers who want to truly understand what they're building.
+        </footer>
+
+      </div>
+        </main>
+    </div>
+</body>
+
+</html>

@@ -1,0 +1,601 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Common DI Patterns | ASP.NET Core Mastery</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;500&family=Source+Serif+4:ital,wght@0,400;0,600;1,400&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="../assets/style.css">
+</head>
+
+<body>
+    <div class="page-wrapper">
+        <aside class="sidebar">
+            <a href="../index.html" class="sidebar-logo">ASP.NET Core Mastery</a>
+            <div class="sidebar-section">Part IV: Dependency Injection</div>
+            <ul class="sidebar-nav">
+                <li><a href="01-what-is-di.html">What is Dependency Injection?</a></li>
+                <li><a href="02-built-in-container.html">The Built-in DI Container</a></li>
+                <li><a href="03-service-lifetimes.html">Service Lifetimes</a></li>
+                <li><a href="04-registering-services.html">Registering Services</a></li>
+                <li><a href="05-constructor-injection.html">Constructor Injection</a></li>
+                <li><a href="06-common-patterns.html" class="active">Common DI Patterns</a></li>
+            </ul>
+            <div class="sidebar-section">Resources</div>
+            <ul class="sidebar-nav">
+                <li><a href="../index.html">Full Roadmap</a></li>
+            </ul>
+        </aside>
+
+        <main class="main-content">
+            <div class="content-container">
+                <nav class="breadcrumb">
+                    <a href="../index.html">Home</a>
+                    <span>→</span>
+                    <a href="01-what-is-di.html">Part IV: Dependency Injection</a>
+                    <span>→</span>
+                    Common DI Patterns
+                </nav>
+
+                <div class="progress-indicator">
+                    <span>Section 6 of 6</span>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 100%"></div>
+                    </div>
+                </div>
+
+                <h1>Common DI Patterns</h1>
+
+                <div class="learning-objectives">
+                    <h3>🎯 What You'll Learn</h3>
+                    <ul>
+                        <li>Factory Pattern with DI</li>
+                        <li>Strategy Pattern for runtime behavior selection</li>
+                        <li>Chain of Responsibility Pattern</li>
+                        <li>Decorator Pattern for cross-cutting concerns</li>
+                        <li>Repository Pattern with Unit of Work</li>
+                        <li>Options Pattern integration</li>
+                        <li>Lazy initialization</li>
+                        <li>Practical InvenTrack examples</li>
+                    </ul>
+                </div>
+
+                <h2>1. Factory Pattern</h2>
+
+                <p>
+                    Use factories when you need to create instances at runtime based on conditions:
+                </p>
+
+                <div class="code-header">
+                    <span class="code-filename">Factory Interface</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-keyword">public</span> <span class="code-keyword">interface</span> <span class="code-class">INotificationService</span>
+{
+    <span class="code-class">Task</span> <span class="code-method">SendAsync</span>(<span class="code-type">string</span> <span class="code-variable">recipient</span>, <span class="code-type">string</span> <span class="code-variable">message</span>);
+}
+
+<span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">EmailNotificationService</span> : <span class="code-class">INotificationService</span>
+{
+    <span class="code-keyword">public</span> <span class="code-class">Task</span> <span class="code-method">SendAsync</span>(<span class="code-type">string</span> <span class="code-variable">recipient</span>, <span class="code-type">string</span> <span class="code-variable">message</span>)
+    {
+        <span class="code-class">Console</span>.<span class="code-method">WriteLine</span>(<span class="code-string">$"Email to </span>{<span class="code-variable">recipient</span>}<span class="code-string">: </span>{<span class="code-variable">message</span>}<span class="code-string">"</span>);
+        <span class="code-keyword">return</span> <span class="code-class">Task</span>.<span class="code-variable">CompletedTask</span>;
+    }
+}
+
+<span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">SmsNotificationService</span> : <span class="code-class">INotificationService</span>
+{
+    <span class="code-keyword">public</span> <span class="code-class">Task</span> <span class="code-method">SendAsync</span>(<span class="code-type">string</span> <span class="code-variable">recipient</span>, <span class="code-type">string</span> <span class="code-variable">message</span>)
+    {
+        <span class="code-class">Console</span>.<span class="code-method">WriteLine</span>(<span class="code-string">$"SMS to </span>{<span class="code-variable">recipient</span>}<span class="code-string">: </span>{<span class="code-variable">message</span>}<span class="code-string">"</span>);
+        <span class="code-keyword">return</span> <span class="code-class">Task</span>.<span class="code-variable">CompletedTask</span>;
+    }
+}</code></pre>
+
+                <div class="code-header">
+                    <span class="code-filename">Factory Implementation</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-keyword">public</span> <span class="code-keyword">enum</span> <span class="code-class">NotificationType</span>
+{
+    <span class="code-variable">Email</span>,
+    <span class="code-variable">Sms</span>
+}
+
+<span class="code-keyword">public</span> <span class="code-keyword">interface</span> <span class="code-class">INotificationFactory</span>
+{
+    <span class="code-class">INotificationService</span> <span class="code-method">Create</span>(<span class="code-class">NotificationType</span> <span class="code-variable">type</span>);
+}
+
+<span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">NotificationFactory</span> : <span class="code-class">INotificationFactory</span>
+{
+    <span class="code-keyword">private</span> <span class="code-keyword">readonly</span> <span class="code-class">IServiceProvider</span> <span class="code-variable">_serviceProvider</span>;
+
+    <span class="code-keyword">public</span> <span class="code-method">NotificationFactory</span>(<span class="code-class">IServiceProvider</span> <span class="code-variable">serviceProvider</span>)
+    {
+        <span class="code-variable">_serviceProvider</span> = <span class="code-variable">serviceProvider</span>;
+    }
+
+    <span class="code-keyword">public</span> <span class="code-class">INotificationService</span> <span class="code-method">Create</span>(<span class="code-class">NotificationType</span> <span class="code-variable">type</span>)
+    {
+        <span class="code-keyword">return</span> <span class="code-variable">type</span> <span class="code-keyword">switch</span>
+        {
+            <span class="code-class">NotificationType</span>.<span class="code-variable">Email</span> => <span class="code-variable">_serviceProvider</span>.<span class="code-method">GetRequiredService</span>&lt;<span class="code-class">EmailNotificationService</span>&gt;(),
+            <span class="code-class">NotificationType</span>.<span class="code-variable">Sms</span> => <span class="code-variable">_serviceProvider</span>.<span class="code-method">GetRequiredService</span>&lt;<span class="code-class">SmsNotificationService</span>&gt;(),
+            <span class="code-variable">_</span> => <span class="code-keyword">throw</span> <span class="code-keyword">new</span> <span class="code-class">ArgumentException</span>(<span class="code-string">$"Unknown type: </span>{<span class="code-variable">type</span>}<span class="code-string">"</span>)
+        };
+    }
+}</code></pre>
+
+                <div class="code-header">
+                    <span class="code-filename">Registration</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-variable">builder</span>.<span class="code-variable">Services</span>.<span class="code-method">AddScoped</span>&lt;<span class="code-class">EmailNotificationService</span>&gt;();
+<span class="code-variable">builder</span>.<span class="code-variable">Services</span>.<span class="code-method">AddScoped</span>&lt;<span class="code-class">SmsNotificationService</span>&gt;();
+<span class="code-variable">builder</span>.<span class="code-variable">Services</span>.<span class="code-method">AddScoped</span>&lt;<span class="code-class">INotificationFactory</span>, <span class="code-class">NotificationFactory</span>&gt;();</code></pre>
+
+                <div class="code-header">
+                    <span class="code-filename">Usage</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">OrderService</span>
+{
+    <span class="code-keyword">private</span> <span class="code-keyword">readonly</span> <span class="code-class">INotificationFactory</span> <span class="code-variable">_notificationFactory</span>;
+
+    <span class="code-keyword">public</span> <span class="code-method">OrderService</span>(<span class="code-class">INotificationFactory</span> <span class="code-variable">notificationFactory</span>)
+    {
+        <span class="code-variable">_notificationFactory</span> = <span class="code-variable">notificationFactory</span>;
+    }
+
+    <span class="code-keyword">public</span> <span class="code-keyword">async</span> <span class="code-class">Task</span> <span class="code-method">NotifyCustomerAsync</span>(<span class="code-class">NotificationType</span> <span class="code-variable">type</span>, <span class="code-type">string</span> <span class="code-variable">recipient</span>)
+    {
+        <span class="code-keyword">var</span> <span class="code-variable">service</span> = <span class="code-variable">_notificationFactory</span>.<span class="code-method">Create</span>(<span class="code-variable">type</span>);
+        <span class="code-keyword">await</span> <span class="code-variable">service</span>.<span class="code-method">SendAsync</span>(<span class="code-variable">recipient</span>, <span class="code-string">"Your order is ready!"</span>);
+    }
+}</code></pre>
+
+                <div class="section-divider"></div>
+
+                <h2>2. Strategy Pattern</h2>
+
+                <p>
+                    Select behavior at runtime based on context:
+                </p>
+
+                <div class="code-header">
+                    <span class="code-filename">Payment Strategies</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-keyword">public</span> <span class="code-keyword">interface</span> <span class="code-class">IPaymentStrategy</span>
+{
+    <span class="code-type">string</span> <span class="code-variable">Name</span> { <span class="code-keyword">get</span>; }
+    <span class="code-class">Task</span>&lt;<span class="code-type">bool</span>&gt; <span class="code-method">ProcessPaymentAsync</span>(<span class="code-type">decimal</span> <span class="code-variable">amount</span>);
+}
+
+<span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">CreditCardPaymentStrategy</span> : <span class="code-class">IPaymentStrategy</span>
+{
+    <span class="code-keyword">public</span> <span class="code-type">string</span> <span class="code-variable">Name</span> => <span class="code-string">"CreditCard"</span>;
+
+    <span class="code-keyword">public</span> <span class="code-class">Task</span>&lt;<span class="code-type">bool</span>&gt; <span class="code-method">ProcessPaymentAsync</span>(<span class="code-type">decimal</span> <span class="code-variable">amount</span>)
+    {
+        <span class="code-class">Console</span>.<span class="code-method">WriteLine</span>(<span class="code-string">$"Processing credit card payment: </span>{<span class="code-variable">amount</span>:C}<span class="code-string">"</span>);
+        <span class="code-keyword">return</span> <span class="code-class">Task</span>.<span class="code-method">FromResult</span>(<span class="code-keyword">true</span>);
+    }
+}
+
+<span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">PayPalPaymentStrategy</span> : <span class="code-class">IPaymentStrategy</span>
+{
+    <span class="code-keyword">public</span> <span class="code-type">string</span> <span class="code-variable">Name</span> => <span class="code-string">"PayPal"</span>;
+
+    <span class="code-keyword">public</span> <span class="code-class">Task</span>&lt;<span class="code-type">bool</span>&gt; <span class="code-method">ProcessPaymentAsync</span>(<span class="code-type">decimal</span> <span class="code-variable">amount</span>)
+    {
+        <span class="code-class">Console</span>.<span class="code-method">WriteLine</span>(<span class="code-string">$"Processing PayPal payment: </span>{<span class="code-variable">amount</span>:C}<span class="code-string">"</span>);
+        <span class="code-keyword">return</span> <span class="code-class">Task</span>.<span class="code-method">FromResult</span>(<span class="code-keyword">true</span>);
+    }
+}</code></pre>
+
+                <div class="code-header">
+                    <span class="code-filename">Strategy Selector</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">PaymentService</span>
+{
+    <span class="code-keyword">private</span> <span class="code-keyword">readonly</span> <span class="code-class">IEnumerable</span>&lt;<span class="code-class">IPaymentStrategy</span>&gt; <span class="code-variable">_strategies</span>;
+
+    <span class="code-keyword">public</span> <span class="code-method">PaymentService</span>(<span class="code-class">IEnumerable</span>&lt;<span class="code-class">IPaymentStrategy</span>&gt; <span class="code-variable">strategies</span>)
+    {
+        <span class="code-variable">_strategies</span> = <span class="code-variable">strategies</span>;
+    }
+
+    <span class="code-keyword">public</span> <span class="code-keyword">async</span> <span class="code-class">Task</span>&lt;<span class="code-type">bool</span>&gt; <span class="code-method">ProcessPaymentAsync</span>(<span class="code-type">string</span> <span class="code-variable">method</span>, <span class="code-type">decimal</span> <span class="code-variable">amount</span>)
+    {
+        <span class="code-keyword">var</span> <span class="code-variable">strategy</span> = <span class="code-variable">_strategies</span>.<span class="code-method">FirstOrDefault</span>(<span class="code-variable">s</span> => <span class="code-variable">s</span>.<span class="code-variable">Name</span> == <span class="code-variable">method</span>);
+        
+        <span class="code-keyword">if</span> (<span class="code-variable">strategy</span> == <span class="code-keyword">null</span>)
+            <span class="code-keyword">throw</span> <span class="code-keyword">new</span> <span class="code-class">InvalidOperationException</span>(<span class="code-string">$"Unknown payment method: </span>{<span class="code-variable">method</span>}<span class="code-string">"</span>);
+        
+        <span class="code-keyword">return</span> <span class="code-keyword">await</span> <span class="code-variable">strategy</span>.<span class="code-method">ProcessPaymentAsync</span>(<span class="code-variable">amount</span>);
+    }
+}</code></pre>
+
+                <div class="code-header">
+                    <span class="code-filename">Registration</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-comment">// Register all strategies</span>
+<span class="code-variable">builder</span>.<span class="code-variable">Services</span>.<span class="code-method">AddScoped</span>&lt;<span class="code-class">IPaymentStrategy</span>, <span class="code-class">CreditCardPaymentStrategy</span>&gt;();
+<span class="code-variable">builder</span>.<span class="code-variable">Services</span>.<span class="code-method">AddScoped</span>&lt;<span class="code-class">IPaymentStrategy</span>, <span class="code-class">PayPalPaymentStrategy</span>&gt;();
+<span class="code-variable">builder</span>.<span class="code-variable">Services</span>.<span class="code-method">AddScoped</span>&lt;<span class="code-class">PaymentService</span>&gt;();</code></pre>
+
+                <div class="section-divider"></div>
+
+                <h2>3. Chain of Responsibility</h2>
+
+                <p>
+                    Process a request through a chain of handlers:
+                </p>
+
+                <div class="code-header">
+                    <span class="code-filename">Validation Chain</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-keyword">public</span> <span class="code-keyword">interface</span> <span class="code-class">IOrderValidator</span>
+{
+    <span class="code-class">Task</span>&lt;<span class="code-type">bool</span>&gt; <span class="code-method">ValidateAsync</span>(<span class="code-class">Order</span> <span class="code-variable">order</span>);
+}
+
+<span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">StockValidator</span> : <span class="code-class">IOrderValidator</span>
+{
+    <span class="code-keyword">private</span> <span class="code-keyword">readonly</span> <span class="code-class">IProductRepository</span> <span class="code-variable">_productRepository</span>;
+
+    <span class="code-keyword">public</span> <span class="code-method">StockValidator</span>(<span class="code-class">IProductRepository</span> <span class="code-variable">productRepository</span>)
+    {
+        <span class="code-variable">_productRepository</span> = <span class="code-variable">productRepository</span>;
+    }
+
+    <span class="code-keyword">public</span> <span class="code-keyword">async</span> <span class="code-class">Task</span>&lt;<span class="code-type">bool</span>&gt; <span class="code-method">ValidateAsync</span>(<span class="code-class">Order</span> <span class="code-variable">order</span>)
+    {
+        <span class="code-keyword">foreach</span> (<span class="code-keyword">var</span> <span class="code-variable">item</span> <span class="code-keyword">in</span> <span class="code-variable">order</span>.<span class="code-variable">Items</span>)
+        {
+            <span class="code-keyword">var</span> <span class="code-variable">product</span> = <span class="code-keyword">await</span> <span class="code-variable">_productRepository</span>.<span class="code-method">GetByIdAsync</span>(<span class="code-variable">item</span>.<span class="code-variable">ProductId</span>);
+            <span class="code-keyword">if</span> (<span class="code-variable">product</span>.<span class="code-variable">QuantityInStock</span> &lt; <span class="code-variable">item</span>.<span class="code-variable">Quantity</span>)
+                <span class="code-keyword">return</span> <span class="code-keyword">false</span>;
+        }
+        <span class="code-keyword">return</span> <span class="code-keyword">true</span>;
+    }
+}
+
+<span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">CustomerCreditValidator</span> : <span class="code-class">IOrderValidator</span>
+{
+    <span class="code-keyword">public</span> <span class="code-class">Task</span>&lt;<span class="code-type">bool</span>&gt; <span class="code-method">ValidateAsync</span>(<span class="code-class">Order</span> <span class="code-variable">order</span>)
+    {
+        <span class="code-comment">// Check customer credit limit</span>
+        <span class="code-keyword">return</span> <span class="code-class">Task</span>.<span class="code-method">FromResult</span>(<span class="code-keyword">true</span>);
+    }
+}</code></pre>
+
+                <div class="code-header">
+                    <span class="code-filename">Chain Executor</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">OrderValidationService</span>
+{
+    <span class="code-keyword">private</span> <span class="code-keyword">readonly</span> <span class="code-class">IEnumerable</span>&lt;<span class="code-class">IOrderValidator</span>&gt; <span class="code-variable">_validators</span>;
+
+    <span class="code-keyword">public</span> <span class="code-method">OrderValidationService</span>(<span class="code-class">IEnumerable</span>&lt;<span class="code-class">IOrderValidator</span>&gt; <span class="code-variable">validators</span>)
+    {
+        <span class="code-variable">_validators</span> = <span class="code-variable">validators</span>;
+    }
+
+    <span class="code-keyword">public</span> <span class="code-keyword">async</span> <span class="code-class">Task</span>&lt;<span class="code-type">bool</span>&gt; <span class="code-method">ValidateOrderAsync</span>(<span class="code-class">Order</span> <span class="code-variable">order</span>)
+    {
+        <span class="code-keyword">foreach</span> (<span class="code-keyword">var</span> <span class="code-variable">validator</span> <span class="code-keyword">in</span> <span class="code-variable">_validators</span>)
+        {
+            <span class="code-keyword">if</span> (!<span class="code-keyword">await</span> <span class="code-variable">validator</span>.<span class="code-method">ValidateAsync</span>(<span class="code-variable">order</span>))
+                <span class="code-keyword">return</span> <span class="code-keyword">false</span>;
+        }
+        <span class="code-keyword">return</span> <span class="code-keyword">true</span>;
+    }
+}</code></pre>
+
+                <div class="code-header">
+                    <span class="code-filename">Registration</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-variable">builder</span>.<span class="code-variable">Services</span>.<span class="code-method">AddScoped</span>&lt;<span class="code-class">IOrderValidator</span>, <span class="code-class">StockValidator</span>&gt;();
+<span class="code-variable">builder</span>.<span class="code-variable">Services</span>.<span class="code-method">AddScoped</span>&lt;<span class="code-class">IOrderValidator</span>, <span class="code-class">CustomerCreditValidator</span>&gt;();
+<span class="code-variable">builder</span>.<span class="code-variable">Services</span>.<span class="code-method">AddScoped</span>&lt;<span class="code-class">OrderValidationService</span>&gt;();</code></pre>
+
+                <div class="section-divider"></div>
+
+                <h2>4. Decorator Pattern</h2>
+
+                <p>
+                    Add behavior to services without modifying them:
+                </p>
+
+                <div class="code-header">
+                    <span class="code-filename">Caching Decorator</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">CachedProductService</span> : <span class="code-class">IProductService</span>
+{
+    <span class="code-keyword">private</span> <span class="code-keyword">readonly</span> <span class="code-class">IProductService</span> <span class="code-variable">_inner</span>;
+    <span class="code-keyword">private</span> <span class="code-keyword">readonly</span> <span class="code-class">ICacheService</span> <span class="code-variable">_cache</span>;
+
+    <span class="code-keyword">public</span> <span class="code-method">CachedProductService</span>(<span class="code-class">IProductService</span> <span class="code-variable">inner</span>, <span class="code-class">ICacheService</span> <span class="code-variable">cache</span>)
+    {
+        <span class="code-variable">_inner</span> = <span class="code-variable">inner</span>;
+        <span class="code-variable">_cache</span> = <span class="code-variable">cache</span>;
+    }
+
+    <span class="code-keyword">public</span> <span class="code-keyword">async</span> <span class="code-class">Task</span>&lt;<span class="code-class">Product</span>?&gt; <span class="code-method">GetByIdAsync</span>(<span class="code-type">int</span> <span class="code-variable">id</span>)
+    {
+        <span class="code-keyword">var</span> <span class="code-variable">cacheKey</span> = <span class="code-string">$"product:</span>{<span class="code-variable">id</span>}<span class="code-string">"</span>;
+        
+        <span class="code-comment">// Try cache first</span>
+        <span class="code-keyword">var</span> <span class="code-variable">cached</span> = <span class="code-keyword">await</span> <span class="code-variable">_cache</span>.<span class="code-method">GetAsync</span>&lt;<span class="code-class">Product</span>&gt;(<span class="code-variable">cacheKey</span>);
+        <span class="code-keyword">if</span> (<span class="code-variable">cached</span> != <span class="code-keyword">null</span>) <span class="code-keyword">return</span> <span class="code-variable">cached</span>;
+        
+        <span class="code-comment">// Call inner service</span>
+        <span class="code-keyword">var</span> <span class="code-variable">product</span> = <span class="code-keyword">await</span> <span class="code-variable">_inner</span>.<span class="code-method">GetByIdAsync</span>(<span class="code-variable">id</span>);
+        
+        <span class="code-comment">// Cache result</span>
+        <span class="code-keyword">if</span> (<span class="code-variable">product</span> != <span class="code-keyword">null</span>)
+        {
+            <span class="code-keyword">await</span> <span class="code-variable">_cache</span>.<span class="code-method">SetAsync</span>(<span class="code-variable">cacheKey</span>, <span class="code-variable">product</span>, <span class="code-class">TimeSpan</span>.<span class="code-method">FromMinutes</span>(<span class="code-number">5</span>));
+        }
+        
+        <span class="code-keyword">return</span> <span class="code-variable">product</span>;
+    }
+}</code></pre>
+
+                <div class="code-header">
+                    <span class="code-filename">Registration with Scrutor</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-variable">builder</span>.<span class="code-variable">Services</span>.<span class="code-method">AddScoped</span>&lt;<span class="code-class">IProductService</span>, <span class="code-class">ProductService</span>&gt;();
+<span class="code-variable">builder</span>.<span class="code-variable">Services</span>.<span class="code-method">Decorate</span>&lt;<span class="code-class">IProductService</span>, <span class="code-class">CachedProductService</span>&gt;();</code></pre>
+
+                <div class="section-divider"></div>
+
+                <h2>5. Repository + Unit of Work</h2>
+
+                <div class="code-header">
+                    <span class="code-filename">Unit of Work Pattern</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-keyword">public</span> <span class="code-keyword">interface</span> <span class="code-class">IUnitOfWork</span> : <span class="code-class">IDisposable</span>
+{
+    <span class="code-class">IProductRepository</span> <span class="code-variable">Products</span> { <span class="code-keyword">get</span>; }
+    <span class="code-class">ICustomerRepository</span> <span class="code-variable">Customers</span> { <span class="code-keyword">get</span>; }
+    <span class="code-class">IOrderRepository</span> <span class="code-variable">Orders</span> { <span class="code-keyword">get</span>; }
+    
+    <span class="code-class">Task</span>&lt;<span class="code-type">int</span>&gt; <span class="code-method">SaveChangesAsync</span>();
+}
+
+<span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">UnitOfWork</span> : <span class="code-class">IUnitOfWork</span>
+{
+    <span class="code-keyword">private</span> <span class="code-keyword">readonly</span> <span class="code-class">InvenTrackDbContext</span> <span class="code-variable">_context</span>;
+
+    <span class="code-keyword">public</span> <span class="code-method">UnitOfWork</span>(<span class="code-class">InvenTrackDbContext</span> <span class="code-variable">context</span>)
+    {
+        <span class="code-variable">_context</span> = <span class="code-variable">context</span>;
+        <span class="code-variable">Products</span> = <span class="code-keyword">new</span> <span class="code-class">ProductRepository</span>(<span class="code-variable">context</span>);
+        <span class="code-variable">Customers</span> = <span class="code-keyword">new</span> <span class="code-class">CustomerRepository</span>(<span class="code-variable">context</span>);
+        <span class="code-variable">Orders</span> = <span class="code-keyword">new</span> <span class="code-class">OrderRepository</span>(<span class="code-variable">context</span>);
+    }
+
+    <span class="code-keyword">public</span> <span class="code-class">IProductRepository</span> <span class="code-variable">Products</span> { <span class="code-keyword">get</span>; }
+    <span class="code-keyword">public</span> <span class="code-class">ICustomerRepository</span> <span class="code-variable">Customers</span> { <span class="code-keyword">get</span>; }
+    <span class="code-keyword">public</span> <span class="code-class">IOrderRepository</span> <span class="code-variable">Orders</span> { <span class="code-keyword">get</span>; }
+
+    <span class="code-keyword">public</span> <span class="code-class">Task</span>&lt;<span class="code-type">int</span>&gt; <span class="code-method">SaveChangesAsync</span>() => <span class="code-variable">_context</span>.<span class="code-method">SaveChangesAsync</span>();
+
+    <span class="code-keyword">public</span> <span class="code-keyword">void</span> <span class="code-method">Dispose</span>() => <span class="code-variable">_context</span>.<span class="code-method">Dispose</span>();
+}</code></pre>
+
+                <div class="code-header">
+                    <span class="code-filename">Usage</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">OrderService</span>
+{
+    <span class="code-keyword">private</span> <span class="code-keyword">readonly</span> <span class="code-class">IUnitOfWork</span> <span class="code-variable">_unitOfWork</span>;
+
+    <span class="code-keyword">public</span> <span class="code-method">OrderService</span>(<span class="code-class">IUnitOfWork</span> <span class="code-variable">unitOfWork</span>)
+    {
+        <span class="code-variable">_unitOfWork</span> = <span class="code-variable">unitOfWork</span>;
+    }
+
+    <span class="code-keyword">public</span> <span class="code-keyword">async</span> <span class="code-class">Task</span> <span class="code-method">CreateOrderAsync</span>(<span class="code-class">Order</span> <span class="code-variable">order</span>)
+    {
+        <span class="code-comment">// All changes in one transaction</span>
+        <span class="code-keyword">await</span> <span class="code-variable">_unitOfWork</span>.<span class="code-variable">Orders</span>.<span class="code-method">AddAsync</span>(<span class="code-variable">order</span>);
+        
+        <span class="code-keyword">foreach</span> (<span class="code-keyword">var</span> <span class="code-variable">item</span> <span class="code-keyword">in</span> <span class="code-variable">order</span>.<span class="code-variable">Items</span>)
+        {
+            <span class="code-keyword">var</span> <span class="code-variable">product</span> = <span class="code-keyword">await</span> <span class="code-variable">_unitOfWork</span>.<span class="code-variable">Products</span>.<span class="code-method">GetByIdAsync</span>(<span class="code-variable">item</span>.<span class="code-variable">ProductId</span>);
+            <span class="code-variable">product</span>.<span class="code-variable">QuantityInStock</span> -= <span class="code-variable">item</span>.<span class="code-variable">Quantity</span>;
+        }
+        
+        <span class="code-keyword">await</span> <span class="code-variable">_unitOfWork</span>.<span class="code-method">SaveChangesAsync</span>();
+    }
+}</code></pre>
+
+                <div class="section-divider"></div>
+
+                <h2>6. Options Pattern Integration</h2>
+
+                <div class="code-header">
+                    <span class="code-filename">Injecting Options</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">EmailSettings</span>
+{
+    <span class="code-keyword">public</span> <span class="code-type">string</span> <span class="code-variable">SmtpServer</span> { <span class="code-keyword">get</span>; <span class="code-keyword">set</span>; } = <span class="code-type">string</span>.<span class="code-variable">Empty</span>;
+    <span class="code-keyword">public</span> <span class="code-type">int</span> <span class="code-variable">Port</span> { <span class="code-keyword">get</span>; <span class="code-keyword">set</span>; }
+    <span class="code-keyword">public</span> <span class="code-type">string</span> <span class="code-variable">FromAddress</span> { <span class="code-keyword">get</span>; <span class="code-keyword">set</span>; } = <span class="code-type">string</span>.<span class="code-variable">Empty</span>;
+}
+
+<span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">EmailService</span> : <span class="code-class">IEmailService</span>
+{
+    <span class="code-keyword">private</span> <span class="code-keyword">readonly</span> <span class="code-class">EmailSettings</span> <span class="code-variable">_settings</span>;
+
+    <span class="code-keyword">public</span> <span class="code-method">EmailService</span>(<span class="code-class">IOptions</span>&lt;<span class="code-class">EmailSettings</span>&gt; <span class="code-variable">options</span>)
+    {
+        <span class="code-variable">_settings</span> = <span class="code-variable">options</span>.<span class="code-variable">Value</span>;
+    }
+
+    <span class="code-keyword">public</span> <span class="code-class">Task</span> <span class="code-method">SendAsync</span>(<span class="code-type">string</span> <span class="code-variable">to</span>, <span class="code-type">string</span> <span class="code-variable">subject</span>, <span class="code-type">string</span> <span class="code-variable">body</span>)
+    {
+        <span class="code-class">Console</span>.<span class="code-method">WriteLine</span>(<span class="code-string">$"Sending via </span>{<span class="code-variable">_settings</span>.<span class="code-variable">SmtpServer</span>}<span class="code-string">:</span>{<span class="code-variable">_settings</span>.<span class="code-variable">Port</span>}<span class="code-string">"</span>);
+        <span class="code-keyword">return</span> <span class="code-class">Task</span>.<span class="code-variable">CompletedTask</span>;
+    }
+}</code></pre>
+
+                <div class="section-divider"></div>
+
+                <h2>7. Lazy Initialization</h2>
+
+                <p>
+                    Delay expensive service creation until needed:
+                </p>
+
+                <div class="code-header">
+                    <span class="code-filename">Lazy&lt;T&gt; Injection</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">ReportService</span>
+{
+    <span class="code-keyword">private</span> <span class="code-keyword">readonly</span> <span class="code-class">Lazy</span>&lt;<span class="code-class">IPdfGenerator</span>&gt; <span class="code-variable">_pdfGenerator</span>;
+
+    <span class="code-keyword">public</span> <span class="code-method">ReportService</span>(<span class="code-class">Lazy</span>&lt;<span class="code-class">IPdfGenerator</span>&gt; <span class="code-variable">pdfGenerator</span>)
+    {
+        <span class="code-variable">_pdfGenerator</span> = <span class="code-variable">pdfGenerator</span>;
+    }
+
+    <span class="code-keyword">public</span> <span class="code-keyword">async</span> <span class="code-class">Task</span> <span class="code-method">GenerateReportAsync</span>(<span class="code-type">bool</span> <span class="code-variable">includePdf</span>)
+    {
+        <span class="code-comment">// PDF generator only created if needed</span>
+        <span class="code-keyword">if</span> (<span class="code-variable">includePdf</span>)
+        {
+            <span class="code-keyword">var</span> <span class="code-variable">generator</span> = <span class="code-variable">_pdfGenerator</span>.<span class="code-variable">Value</span>; <span class="code-comment">// Created here!</span>
+            <span class="code-keyword">await</span> <span class="code-variable">generator</span>.<span class="code-method">GenerateAsync</span>();
+        }
+    }
+}</code></pre>
+
+                <div class="code-header">
+                    <span class="code-filename">Registration</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-variable">builder</span>.<span class="code-variable">Services</span>.<span class="code-method">AddTransient</span>&lt;<span class="code-class">IPdfGenerator</span>, <span class="code-class">PdfGenerator</span>&gt;();
+<span class="code-variable">builder</span>.<span class="code-variable">Services</span>.<span class="code-method">AddTransient</span>(<span class="code-variable">sp</span> => <span class="code-keyword">new</span> <span class="code-class">Lazy</span>&lt;<span class="code-class">IPdfGenerator</span>&gt;(
+    () => <span class="code-variable">sp</span>.<span class="code-method">GetRequiredService</span>&lt;<span class="code-class">IPdfGenerator</span>&gt;()));</code></pre>
+
+                <div class="section-divider"></div>
+
+                <h2>Complete InvenTrack Example</h2>
+
+                <div class="code-header">
+                    <span class="code-filename">Program.cs (All Patterns)</span>
+                    <span class="code-language">C#</span>
+                </div>
+                <pre><code><span class="code-keyword">var</span> <span class="code-variable">builder</span> = <span class="code-class">WebApplication</span>.<span class="code-method">CreateBuilder</span>(<span class="code-variable">args</span>);
+
+<span class="code-comment">// Framework services</span>
+<span class="code-variable">builder</span>.<span class="code-variable">Services</span>.<span class="code-method">AddControllers</span>();
+
+<span class="code-comment">// Database</span>
+<span class="code-variable">builder</span>.<span class="code-variable">Services</span>.<span class="code-method">AddDbContext</span>&lt;<span class="code-class">InvenTrackDbContext</span>&gt;(<span class="code-variable">options</span> =&gt;
+    <span class="code-variable">options</span>.<span class="code-method">UseSqlServer</span>(<span class="code-variable">builder</span>.<span class="code-variable">Configuration</span>.<span class="code-method">GetConnectionString</span>(<span class="code-string">"DefaultConnection"</span>)));
+
+<span class="code-comment">// Unit of Work</span>
+<span class="code-variable">builder</span>.<span class="code-variable">Services</span>.<span class="code-method">AddScoped</span>&lt;<span class="code-class">IUnitOfWork</span>, <span class="code-class">UnitOfWork</span>&gt;();
+
+<span class="code-comment">// Business services</span>
+<span class="code-variable">builder</span>.<span class="code-variable">Services</span>.<span class="code-method">AddScoped</span>&lt;<span class="code-class">IProductService</span>, <span class="code-class">ProductService</span>&gt;();
+<span class="code-variable">builder</span>.<span class="code-variable">Services</span>.<span class="code-method">Decorate</span>&lt;<span class="code-class">IProductService</span>, <span class="code-class">CachedProductService</span>&gt;(); <span class="code-comment">// Decorator</span>
+
+<span class="code-comment">// Strategy Pattern - Payment methods</span>
+<span class="code-variable">builder</span>.<span class="code-variable">Services</span>.<span class="code-method">AddScoped</span>&lt;<span class="code-class">IPaymentStrategy</span>, <span class="code-class">CreditCardPaymentStrategy</span>&gt;();
+<span class="code-variable">builder</span>.<span class="code-variable">Services</span>.<span class="code-method">AddScoped</span>&lt;<span class="code-class">IPaymentStrategy</span>, <span class="code-class">PayPalPaymentStrategy</span>&gt;();
+<span class="code-variable">builder</span>.<span class="code-variable">Services</span>.<span class="code-method">AddScoped</span>&lt;<span class="code-class">PaymentService</span>&gt;();
+
+<span class="code-comment">// Chain of Responsibility - Validators</span>
+<span class="code-variable">builder</span>.<span class="code-variable">Services</span>.<span class="code-method">AddScoped</span>&lt;<span class="code-class">IOrderValidator</span>, <span class="code-class">StockValidator</span>&gt;();
+<span class="code-variable">builder</span>.<span class="code-variable">Services</span>.<span class="code-method">AddScoped</span>&lt;<span class="code-class">IOrderValidator</span>, <span class="code-class">CustomerCreditValidator</span>&gt;();
+<span class="code-variable">builder</span>.<span class="code-variable">Services</span>.<span class="code-method">AddScoped</span>&lt;<span class="code-class">OrderValidationService</span>&gt;();
+
+<span class="code-comment">// Factory Pattern</span>
+<span class="code-variable">builder</span>.<span class="code-variable">Services</span>.<span class="code-method">AddScoped</span>&lt;<span class="code-class">EmailNotificationService</span>&gt;();
+<span class="code-variable">builder</span>.<span class="code-variable">Services</span>.<span class="code-method">AddScoped</span>&lt;<span class="code-class">SmsNotificationService</span>&gt;();
+<span class="code-variable">builder</span>.<span class="code-variable">Services</span>.<span class="code-method">AddScoped</span>&lt;<span class="code-class">INotificationFactory</span>, <span class="code-class">NotificationFactory</span>&gt;();
+
+<span class="code-comment">// Options Pattern</span>
+<span class="code-variable">builder</span>.<span class="code-variable">Services</span>.<span class="code-method">Configure</span>&lt;<span class="code-class">EmailSettings</span>&gt;(<span class="code-variable">builder</span>.<span class="code-variable">Configuration</span>.<span class="code-method">GetSection</span>(<span class="code-string">"Email"</span>));
+
+<span class="code-keyword">var</span> <span class="code-variable">app</span> = <span class="code-variable">builder</span>.<span class="code-method">Build</span>();
+<span class="code-variable">app</span>.<span class="code-method">MapControllers</span>();
+<span class="code-variable">app</span>.<span class="code-method">Run</span>();</code></pre>
+
+                <h2>Key Takeaways</h2>
+
+                <ul>
+                    <li><strong>Factory Pattern</strong>: Create instances at runtime based on conditions</li>
+                    <li><strong>Strategy Pattern</strong>: Select behavior at runtime (inject
+                        <code>IEnumerable&lt;T&gt;</code>)</li>
+                    <li><strong>Chain of Responsibility</strong>: Process through multiple handlers</li>
+                    <li><strong>Decorator Pattern</strong>: Add behavior without modifying services (use Scrutor)</li>
+                    <li><strong>Unit of Work</strong>: Coordinate multiple repositories in one transaction</li>
+                    <li><strong>Options Pattern</strong>: Inject <code>IOptions&lt;T&gt;</code> for configuration</li>
+                    <li><strong>Lazy&lt;T&gt;</strong>: Delay expensive service creation</li>
+                    <li>All patterns work seamlessly with DI</li>
+                    <li>Combine patterns for powerful, flexible architectures</li>
+                </ul>
+
+                <div class="callout callout-concept">
+                    <div class="callout-title">🎉 Part IV Complete!</div>
+                    <p>
+                        Congratulations! You've completed <strong>Part IV: Dependency Injection</strong>. You now
+                        understand:
+                    </p>
+                    <ul>
+                        <li>✅ What Dependency Injection is and why it matters</li>
+                        <li>✅ The built-in DI container</li>
+                        <li>✅ Service lifetimes (Transient, Scoped, Singleton)</li>
+                        <li>✅ Registering services (basic, generic, conditional)</li>
+                        <li>✅ Constructor injection best practices</li>
+                        <li>✅ Common DI patterns (Factory, Strategy, Chain, Decorator, etc.)</li>
+                    </ul>
+                    <p>
+                        <strong>Next up</strong>: Part V will explore <strong>Building RESTful APIs</strong>—
+                        controllers, routing, model binding, validation, and creating a complete API for InvenTrack.
+                        The journey continues! 🚀
+                    </p>
+                </div>
+
+                <nav class="page-nav">
+                    <a href="05-constructor-injection.html" class="prev">Constructor Injection</a>
+                    <a href="../index.html" class="next">Back to Roadmap</a>
+                </nav>
+
+            
+        <footer class="page-footer">
+          Built with 💜 by <a href="https://akwasi.dev" target="_blank" rel="noopener noreferrer">Akwasi Adu-Kyeremeh</a> for developers who want to truly understand what they're building.
+        </footer>
+
+      </div>
+        </main>
+    </div>
+</body>
+
+</html>
