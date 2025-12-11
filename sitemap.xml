@@ -1,0 +1,865 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <!-- Index Page -->
+  <url>
+    <loc>https://aspnetcoremastery.akwasi.dev/</loc>
+    <lastmod>2025-12-11</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>1.0</priority>
+  </url>
+
+  <url>
+    <loc>https://aspnetcoremastery.akwasi.dev/part-01-foundations/01-what-is-programming.html</loc>
+    <lastmod>2025-12-11</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.6</priority>
+  </url>
+
+  <url>
+    <loc>https://aspnetcoremastery.akwasi.dev/part-01-foundations/02-what-is-csharp-dotnet.html</loc>
+    <lastmod>2025-12-11</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.6</priority>
+  </url>
+
+  <url>
+    <loc>https://aspnetcoremastery.akwasi.dev/part-01-foundations/03-variables-and-data-types.html</loc>
+    <lastmod>2025-12-11</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.6</priority>
+  </url>
+
+  <url>
+    <loc>https://aspnetcoremastery.akwasi.dev/part-01-foundations/04-operators-and-expressions.html</loc>
+    <lastmod>2025-12-11</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.6</priority>
+  </url>
+
+  <url>
+    <loc>https://aspnetcoremastery.akwasi.dev/part-01-foundations/05-control-flow.html</loc>
+    <lastmod>2025-12-11</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.6</priority>
+  </url>
+
+  <url>
+    <loc>https://aspnetcoremastery.akwasi.dev/part-01-foundations/06-methods-and-functions.html</loc>
+    <lastmod>2025-12-11</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.6</priority>
+  </url>
+
+  <url>
+    <loc>https://aspnetcoremastery.akwasi.dev/part-01-foundations/07-oop-classes-objects.html</loc>
+    <lastmod>2025-12-11</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.6</priority>
+  </url>
+
+  <url>
+    <loc>https://aspnetcoremastery.akwasi.dev/part-01-foundations/08-collections-and-generics.html</loc>
+    <lastmod>2025-12-11</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.6</priority>
+  </url>
+
+  <url>
+    <loc>https://aspnetcoremastery.akwasi.dev/part-01-foundations/09-linq.html</loc>
+    <lastmod>2025-12-11</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.6</priority>
+  </url>
+
+  <url>
+    <loc>https://aspnetcoremastery.akwasi.dev/part-01-foundations/10-async-await.html</loc>
+    <lastmod>2025-12-11</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.6</priority>
+  </url>
+
+  <url>
+    <loc>https://aspnetcoremastery.akwasi.dev/part-02-dotnet-core-basics/01-dotnet-ecosystem.html</loc>
+    <lastmod>2025-12-11</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.6</priority>
+  </url>
+
+  <url>
+    <loc>https://aspnetcoremastery.akwasi.dev/part-02-dotnet-core-basics/02-installing-sdk.html</loc>
+    <lastmod>2025-12-11</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.6</priority>
+  </url>
+
+  <url>
+    <loc>https://aspnetcoremastery.akwasi.dev/part-02-dotnet-core-basics/03-first-console-app.html</loc>
+    <lastmod>2025-12-11</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.6</priority>
+  </url>
+
+  <url>
+    <loc>https://aspnetcoremastery.akwasi.dev/part-02-dotnet-core-basics/04-project-structure.html</loc>
+    <lastmod>2025-12-11</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.6</priority>
+  </url>
+
+  <url>
+    <loc>https://aspnetcoremastery.akwasi.dev/part-02-dotnet-core-basics/05-dotnet-cli.html</loc>
+    <lastmod>2025-12-11</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.6</priority>
+  </url>
+
+  <url>
+    <loc>https://aspnetcoremastery.akwasi.dev/part-02-dotnet-core-basics/06-nuget-packages.html</loc>
+    <lastmod>2025-12-11</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.6</priority>
+  </url>
+
+  <url>
+    <loc>https://aspnetcoremastery.akwasi.dev/part-03-aspnetcore-basics/01-what-is-aspnetcore.html</loc>
+    <lastmod>2025-12-11</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.6</priority>
+  </url>
+
+  <url>
+    <loc>https://aspnetcoremastery.akwasi.dev/part-03-aspnetcore-basics/02-first-web-app.html</loc>
+    <lastmod>2025-12-11</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.6</priority>
+  </url>
+
+  <url>
+    <loc>https://aspnetcoremastery.akwasi.dev/part-03-aspnetcore-basics/03-program-cs-deep-dive.html</loc>
+    <lastmod>2025-12-11</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.6</priority>
+  </url>
+
+  <url>
+    <loc>https://aspnetcoremastery.akwasi.dev/part-03-aspnetcore-basics/04-configuration.html</loc>
+    <lastmod>2025-12-11</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.6</priority>
+  </url>
+
+  <url>
+    <loc>https://aspnetcoremastery.akwasi.dev/part-03-aspnetcore-basics/05-options-pattern.html</loc>
+    <lastmod>2025-12-11</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.6</priority>
+  </url>
+
+  <url>
+    <loc>https://aspnetcoremastery.akwasi.dev/part-03-aspnetcore-basics/06-environments.html</loc>
+    <lastmod>2025-12-11</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.6</priority>
+  </url>
+
+  <url>
+    <loc>https://aspnetcoremastery.akwasi.dev/part-04-dependency-injection/01-what-is-di.html</loc>
+    <lastmod>2025-12-11</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.6</priority>
+  </url>
+
+  <url>
+    <loc>https://aspnetcoremastery.akwasi.dev/part-04-dependency-injection/02-built-in-container.html</loc>
+    <lastmod>2025-12-11</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.6</priority>
+  </url>
+
+  <url>
+    <loc>https://aspnetcoremastery.akwasi.dev/part-04-dependency-injection/03-service-lifetimes.html</loc>
+    <lastmod>2025-12-11</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.6</priority>
+  </url>
+
+  <url>
+    <loc>https://aspnetcoremastery.akwasi.dev/part-04-dependency-injection/04-registering-services.html</loc>
+    <lastmod>2025-12-11</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.6</priority>
+  </url>
+
+  <url>
+    <loc>https://aspnetcoremastery.akwasi.dev/part-04-dependency-injection/05-constructor-injection.html</loc>
+    <lastmod>2025-12-11</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.6</priority>
+  </url>
+
+  <url>
+    <loc>https://aspnetcoremastery.akwasi.dev/part-04-dependency-injection/06-common-patterns.html</loc>
+    <lastmod>2025-12-11</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.6</priority>
+  </url>
+
+  <url>
+    <loc>https://aspnetcoremastery.akwasi.dev/part-05-middleware/01-request-pipeline.html</loc>
+    <lastmod>2025-12-11</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.6</priority>
+  </url>
+
+  <url>
+    <loc>https://aspnetcoremastery.akwasi.dev/part-05-middleware/02-built-in-middleware.html</loc>
+    <lastmod>2025-12-11</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.6</priority>
+  </url>
+
+  <url>
+    <loc>https://aspnetcoremastery.akwasi.dev/part-05-middleware/03-custom-middleware.html</loc>
+    <lastmod>2025-12-11</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.6</priority>
+  </url>
+
+  <url>
+    <loc>https://aspnetcoremastery.akwasi.dev/part-05-middleware/04-middleware-ordering.html</loc>
+    <lastmod>2025-12-11</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.6</priority>
+  </url>
+
+  <url>
+    <loc>https://aspnetcoremastery.akwasi.dev/part-05-middleware/05-exception-handling.html</loc>
+    <lastmod>2025-12-11</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.6</priority>
+  </url>
+
+  <url>
+    <loc>https://aspnetcoremastery.akwasi.dev/part-06-http-fundamentals/01-http-basics.html</loc>
+    <lastmod>2025-12-11</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.6</priority>
+  </url>
+
+  <url>
+    <loc>https://aspnetcoremastery.akwasi.dev/part-06-http-fundamentals/02-request-response.html</loc>
+    <lastmod>2025-12-11</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.6</priority>
+  </url>
+
+  <url>
+    <loc>https://aspnetcoremastery.akwasi.dev/part-06-http-fundamentals/03-http-methods.html</loc>
+    <lastmod>2025-12-11</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.6</priority>
+  </url>
+
+  <url>
+    <loc>https://aspnetcoremastery.akwasi.dev/part-06-http-fundamentals/04-status-codes.html</loc>
+    <lastmod>2025-12-11</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.6</priority>
+  </url>
+
+  <url>
+    <loc>https://aspnetcoremastery.akwasi.dev/part-06-http-fundamentals/05-headers-content-types.html</loc>
+    <lastmod>2025-12-11</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.6</priority>
+  </url>
+
+  <url>
+    <loc>https://aspnetcoremastery.akwasi.dev/part-06-http-fundamentals/06-cookies-sessions.html</loc>
+    <lastmod>2025-12-11</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.6</priority>
+  </url>
+
+  <url>
+    <loc>https://aspnetcoremastery.akwasi.dev/part-07-routing/01-endpoint-routing.html</loc>
+    <lastmod>2025-12-11</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.6</priority>
+  </url>
+
+  <url>
+    <loc>https://aspnetcoremastery.akwasi.dev/part-07-routing/02-conventional-vs-attribute.html</loc>
+    <lastmod>2025-12-11</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.6</priority>
+  </url>
+
+  <url>
+    <loc>https://aspnetcoremastery.akwasi.dev/part-07-routing/03-route-parameters.html</loc>
+    <lastmod>2025-12-11</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.6</priority>
+  </url>
+
+  <url>
+    <loc>https://aspnetcoremastery.akwasi.dev/part-07-routing/04-route-constraints.html</loc>
+    <lastmod>2025-12-11</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.6</priority>
+  </url>
+
+  <url>
+    <loc>https://aspnetcoremastery.akwasi.dev/part-07-routing/05-url-generation.html</loc>
+    <lastmod>2025-12-11</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.6</priority>
+  </url>
+
+  <url>
+    <loc>https://aspnetcoremastery.akwasi.dev/part-07-routing/06-areas.html</loc>
+    <lastmod>2025-12-11</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.6</priority>
+  </url>
+
+  <url>
+    <loc>https://aspnetcoremastery.akwasi.dev/part-08-web-apis/01-restful-principles.html</loc>
+    <lastmod>2025-12-11</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.6</priority>
+  </url>
+
+  <url>
+    <loc>https://aspnetcoremastery.akwasi.dev/part-08-web-apis/02-api-controllers.html</loc>
+    <lastmod>2025-12-11</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.6</priority>
+  </url>
+
+  <url>
+    <loc>https://aspnetcoremastery.akwasi.dev/part-08-web-apis/03-model-binding.html</loc>
+    <lastmod>2025-12-11</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.6</priority>
+  </url>
+
+  <url>
+    <loc>https://aspnetcoremastery.akwasi.dev/part-08-web-apis/04-validation.html</loc>
+    <lastmod>2025-12-11</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.6</priority>
+  </url>
+
+  <url>
+    <loc>https://aspnetcoremastery.akwasi.dev/part-08-web-apis/05-minimal-apis.html</loc>
+    <lastmod>2025-12-11</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.6</priority>
+  </url>
+
+  <url>
+    <loc>https://aspnetcoremastery.akwasi.dev/part-08-web-apis/06-dtos-automapper.html</loc>
+    <lastmod>2025-12-11</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.6</priority>
+  </url>
+
+  <url>
+    <loc>https://aspnetcoremastery.akwasi.dev/part-08-web-apis/07-api-versioning.html</loc>
+    <lastmod>2025-12-11</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.6</priority>
+  </url>
+
+  <url>
+    <loc>https://aspnetcoremastery.akwasi.dev/part-09-entity-framework-core/01-what-is-orm.html</loc>
+    <lastmod>2025-12-11</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.6</priority>
+  </url>
+
+  <url>
+    <loc>https://aspnetcoremastery.akwasi.dev/part-09-entity-framework-core/02-dbcontext-entities.html</loc>
+    <lastmod>2025-12-11</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.6</priority>
+  </url>
+
+  <url>
+    <loc>https://aspnetcoremastery.akwasi.dev/part-09-entity-framework-core/03-code-first-migrations.html</loc>
+    <lastmod>2025-12-11</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.6</priority>
+  </url>
+
+  <url>
+    <loc>https://aspnetcoremastery.akwasi.dev/part-09-entity-framework-core/04-querying-linq.html</loc>
+    <lastmod>2025-12-11</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.6</priority>
+  </url>
+
+  <url>
+    <loc>https://aspnetcoremastery.akwasi.dev/part-09-entity-framework-core/05-relationships.html</loc>
+    <lastmod>2025-12-11</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.6</priority>
+  </url>
+
+  <url>
+    <loc>https://aspnetcoremastery.akwasi.dev/part-09-entity-framework-core/06-loading-strategies.html</loc>
+    <lastmod>2025-12-11</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.6</priority>
+  </url>
+
+  <url>
+    <loc>https://aspnetcoremastery.akwasi.dev/part-09-entity-framework-core/07-advanced-ef-core.html</loc>
+    <lastmod>2025-12-11</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.6</priority>
+  </url>
+
+  <url>
+    <loc>https://aspnetcoremastery.akwasi.dev/part-10-mvc-views/01-mvc-architecture.html</loc>
+    <lastmod>2025-12-11</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.6</priority>
+  </url>
+
+  <url>
+    <loc>https://aspnetcoremastery.akwasi.dev/part-10-mvc-views/02-controllers-for-views.html</loc>
+    <lastmod>2025-12-11</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.6</priority>
+  </url>
+
+  <url>
+    <loc>https://aspnetcoremastery.akwasi.dev/part-10-mvc-views/03-razor-syntax.html</loc>
+    <lastmod>2025-12-11</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.6</priority>
+  </url>
+
+  <url>
+    <loc>https://aspnetcoremastery.akwasi.dev/part-10-mvc-views/04-layouts-partials.html</loc>
+    <lastmod>2025-12-11</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.6</priority>
+  </url>
+
+  <url>
+    <loc>https://aspnetcoremastery.akwasi.dev/part-10-mvc-views/05-view-components.html</loc>
+    <lastmod>2025-12-11</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.6</priority>
+  </url>
+
+  <url>
+    <loc>https://aspnetcoremastery.akwasi.dev/part-10-mvc-views/06-tag-helpers.html</loc>
+    <lastmod>2025-12-11</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.6</priority>
+  </url>
+
+  <url>
+    <loc>https://aspnetcoremastery.akwasi.dev/part-11-razor-pages/01-what-are-razor-pages.html</loc>
+    <lastmod>2025-12-11</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.6</priority>
+  </url>
+
+  <url>
+    <loc>https://aspnetcoremastery.akwasi.dev/part-11-razor-pages/02-page-model-pattern.html</loc>
+    <lastmod>2025-12-11</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.6</priority>
+  </url>
+
+  <url>
+    <loc>https://aspnetcoremastery.akwasi.dev/part-11-razor-pages/03-handlers.html</loc>
+    <lastmod>2025-12-11</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.6</priority>
+  </url>
+
+  <url>
+    <loc>https://aspnetcoremastery.akwasi.dev/part-11-razor-pages/04-forms-validation.html</loc>
+    <lastmod>2025-12-11</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.6</priority>
+  </url>
+
+  <url>
+    <loc>https://aspnetcoremastery.akwasi.dev/part-11-razor-pages/05-razor-pages-vs-mvc.html</loc>
+    <lastmod>2025-12-11</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.6</priority>
+  </url>
+
+  <url>
+    <loc>https://aspnetcoremastery.akwasi.dev/part-12-authentication/01-authentication-fundamentals.html</loc>
+    <lastmod>2025-12-11</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.6</priority>
+  </url>
+
+  <url>
+    <loc>https://aspnetcoremastery.akwasi.dev/part-12-authentication/02-aspnet-core-identity.html</loc>
+    <lastmod>2025-12-11</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.6</priority>
+  </url>
+
+  <url>
+    <loc>https://aspnetcoremastery.akwasi.dev/part-12-authentication/03-cookie-authentication.html</loc>
+    <lastmod>2025-12-11</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.6</priority>
+  </url>
+
+  <url>
+    <loc>https://aspnetcoremastery.akwasi.dev/part-12-authentication/04-jwt-bearer-authentication.html</loc>
+    <lastmod>2025-12-11</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.6</priority>
+  </url>
+
+  <url>
+    <loc>https://aspnetcoremastery.akwasi.dev/part-12-authentication/05-oauth-openid-connect.html</loc>
+    <lastmod>2025-12-11</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.6</priority>
+  </url>
+
+  <url>
+    <loc>https://aspnetcoremastery.akwasi.dev/part-12-authentication/06-external-login-providers.html</loc>
+    <lastmod>2025-12-11</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.6</priority>
+  </url>
+
+  <url>
+    <loc>https://aspnetcoremastery.akwasi.dev/part-13-authorization/01-authorization-fundamentals.html</loc>
+    <lastmod>2025-12-11</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.6</priority>
+  </url>
+
+  <url>
+    <loc>https://aspnetcoremastery.akwasi.dev/part-13-authorization/02-role-based-authorization.html</loc>
+    <lastmod>2025-12-11</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.6</priority>
+  </url>
+
+  <url>
+    <loc>https://aspnetcoremastery.akwasi.dev/part-13-authorization/03-claims-based-authorization.html</loc>
+    <lastmod>2025-12-11</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.6</priority>
+  </url>
+
+  <url>
+    <loc>https://aspnetcoremastery.akwasi.dev/part-13-authorization/04-policy-based-authorization.html</loc>
+    <lastmod>2025-12-11</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.6</priority>
+  </url>
+
+  <url>
+    <loc>https://aspnetcoremastery.akwasi.dev/part-13-authorization/05-resource-based-authorization.html</loc>
+    <lastmod>2025-12-11</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.6</priority>
+  </url>
+
+  <url>
+    <loc>https://aspnetcoremastery.akwasi.dev/part-13-authorization/06-custom-authorization-handlers.html</loc>
+    <lastmod>2025-12-11</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.6</priority>
+  </url>
+
+  <url>
+    <loc>https://aspnetcoremastery.akwasi.dev/part-14-security/01-owasp-top-10.html</loc>
+    <lastmod>2025-12-11</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.6</priority>
+  </url>
+
+  <url>
+    <loc>https://aspnetcoremastery.akwasi.dev/part-14-security/02-xss-protection.html</loc>
+    <lastmod>2025-12-11</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.6</priority>
+  </url>
+
+  <url>
+    <loc>https://aspnetcoremastery.akwasi.dev/part-14-security/03-csrf-protection.html</loc>
+    <lastmod>2025-12-11</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.6</priority>
+  </url>
+
+  <url>
+    <loc>https://aspnetcoremastery.akwasi.dev/part-14-security/04-sql-injection.html</loc>
+    <lastmod>2025-12-11</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.6</priority>
+  </url>
+
+  <url>
+    <loc>https://aspnetcoremastery.akwasi.dev/part-14-security/05-data-protection-api.html</loc>
+    <lastmod>2025-12-11</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.6</priority>
+  </url>
+
+  <url>
+    <loc>https://aspnetcoremastery.akwasi.dev/part-14-security/06-https-security-headers.html</loc>
+    <lastmod>2025-12-11</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.6</priority>
+  </url>
+
+  <url>
+    <loc>https://aspnetcoremastery.akwasi.dev/part-15-logging/01-ilogger-interface.html</loc>
+    <lastmod>2025-12-11</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.6</priority>
+  </url>
+
+  <url>
+    <loc>https://aspnetcoremastery.akwasi.dev/part-15-logging/02-log-levels.html</loc>
+    <lastmod>2025-12-11</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.6</priority>
+  </url>
+
+  <url>
+    <loc>https://aspnetcoremastery.akwasi.dev/part-15-logging/03-built-in-providers.html</loc>
+    <lastmod>2025-12-11</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.6</priority>
+  </url>
+
+  <url>
+    <loc>https://aspnetcoremastery.akwasi.dev/part-15-logging/04-structured-logging.html</loc>
+    <lastmod>2025-12-11</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.6</priority>
+  </url>
+
+  <url>
+    <loc>https://aspnetcoremastery.akwasi.dev/part-15-logging/05-serilog-integration.html</loc>
+    <lastmod>2025-12-11</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.6</priority>
+  </url>
+
+  <url>
+    <loc>https://aspnetcoremastery.akwasi.dev/part-15-logging/06-logging-best-practices.html</loc>
+    <lastmod>2025-12-11</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.6</priority>
+  </url>
+
+  <url>
+    <loc>https://aspnetcoremastery.akwasi.dev/part-16-testing/01-unit-testing-xunit.html</loc>
+    <lastmod>2025-12-11</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.6</priority>
+  </url>
+
+  <url>
+    <loc>https://aspnetcoremastery.akwasi.dev/part-16-testing/02-mocking-with-moq.html</loc>
+    <lastmod>2025-12-11</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.6</priority>
+  </url>
+
+  <url>
+    <loc>https://aspnetcoremastery.akwasi.dev/part-16-testing/03-integration-testing.html</loc>
+    <lastmod>2025-12-11</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.6</priority>
+  </url>
+
+  <url>
+    <loc>https://aspnetcoremastery.akwasi.dev/part-16-testing/04-webapplicationfactory.html</loc>
+    <lastmod>2025-12-11</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.6</priority>
+  </url>
+
+  <url>
+    <loc>https://aspnetcoremastery.akwasi.dev/part-16-testing/05-test-driven-development.html</loc>
+    <lastmod>2025-12-11</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.6</priority>
+  </url>
+
+  <url>
+    <loc>https://aspnetcoremastery.akwasi.dev/part-17-performance/01-in-memory-caching.html</loc>
+    <lastmod>2025-12-11</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.6</priority>
+  </url>
+
+  <url>
+    <loc>https://aspnetcoremastery.akwasi.dev/part-17-performance/02-distributed-caching.html</loc>
+    <lastmod>2025-12-11</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.6</priority>
+  </url>
+
+  <url>
+    <loc>https://aspnetcoremastery.akwasi.dev/part-17-performance/03-response-caching.html</loc>
+    <lastmod>2025-12-11</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.6</priority>
+  </url>
+
+  <url>
+    <loc>https://aspnetcoremastery.akwasi.dev/part-17-performance/04-async-best-practices.html</loc>
+    <lastmod>2025-12-11</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.6</priority>
+  </url>
+
+  <url>
+    <loc>https://aspnetcoremastery.akwasi.dev/part-17-performance/05-ef-core-performance.html</loc>
+    <lastmod>2025-12-11</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.6</priority>
+  </url>
+
+  <url>
+    <loc>https://aspnetcoremastery.akwasi.dev/part-17-performance/06-profiling-tools.html</loc>
+    <lastmod>2025-12-11</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.6</priority>
+  </url>
+
+  <url>
+    <loc>https://aspnetcoremastery.akwasi.dev/part-18-deployment/01-kestrel-reverse-proxies.html</loc>
+    <lastmod>2025-12-11</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.6</priority>
+  </url>
+
+  <url>
+    <loc>https://aspnetcoremastery.akwasi.dev/part-18-deployment/02-iis-hosting.html</loc>
+    <lastmod>2025-12-11</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.6</priority>
+  </url>
+
+  <url>
+    <loc>https://aspnetcoremastery.akwasi.dev/part-18-deployment/03-linux-hosting.html</loc>
+    <lastmod>2025-12-11</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.6</priority>
+  </url>
+
+  <url>
+    <loc>https://aspnetcoremastery.akwasi.dev/part-18-deployment/04-docker-containers.html</loc>
+    <lastmod>2025-12-11</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.6</priority>
+  </url>
+
+  <url>
+    <loc>https://aspnetcoremastery.akwasi.dev/part-18-deployment/05-azure-app-service.html</loc>
+    <lastmod>2025-12-11</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.6</priority>
+  </url>
+
+  <url>
+    <loc>https://aspnetcoremastery.akwasi.dev/part-18-deployment/06-cicd-pipelines.html</loc>
+    <lastmod>2025-12-11</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.6</priority>
+  </url>
+
+  <url>
+    <loc>https://aspnetcoremastery.akwasi.dev/part-19-advanced/01-signalr.html</loc>
+    <lastmod>2025-12-11</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.6</priority>
+  </url>
+
+  <url>
+    <loc>https://aspnetcoremastery.akwasi.dev/part-19-advanced/02-grpc.html</loc>
+    <lastmod>2025-12-11</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.6</priority>
+  </url>
+
+  <url>
+    <loc>https://aspnetcoremastery.akwasi.dev/part-19-advanced/03-background-services.html</loc>
+    <lastmod>2025-12-11</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.6</priority>
+  </url>
+
+  <url>
+    <loc>https://aspnetcoremastery.akwasi.dev/part-19-advanced/04-microservices-patterns.html</loc>
+    <lastmod>2025-12-11</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.6</priority>
+  </url>
+
+  <url>
+    <loc>https://aspnetcoremastery.akwasi.dev/part-19-advanced/05-health-checks.html</loc>
+    <lastmod>2025-12-11</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.6</priority>
+  </url>
+
+  <url>
+    <loc>https://aspnetcoremastery.akwasi.dev/part-19-advanced/06-distributed-tracing.html</loc>
+    <lastmod>2025-12-11</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.6</priority>
+  </url>
+
+  <url>
+    <loc>https://aspnetcoremastery.akwasi.dev/part-20-architecture/01-solid-principles.html</loc>
+    <lastmod>2025-12-11</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.6</priority>
+  </url>
+
+  <url>
+    <loc>https://aspnetcoremastery.akwasi.dev/part-20-architecture/02-repository-pattern.html</loc>
+    <lastmod>2025-12-11</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.6</priority>
+  </url>
+
+  <url>
+    <loc>https://aspnetcoremastery.akwasi.dev/part-20-architecture/03-unit-of-work.html</loc>
+    <lastmod>2025-12-11</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.6</priority>
+  </url>
+
+  <url>
+    <loc>https://aspnetcoremastery.akwasi.dev/part-20-architecture/04-clean-architecture.html</loc>
+    <lastmod>2025-12-11</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.6</priority>
+  </url>
+
+  <url>
+    <loc>https://aspnetcoremastery.akwasi.dev/part-20-architecture/05-ddd-basics.html</loc>
+    <lastmod>2025-12-11</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.6</priority>
+  </url>
+
+</urlset>
